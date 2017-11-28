@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW OBWPACK_GS_PICK_EDIT">
+    <view name="OBWPACK_GS_PICK_EDIT"><![CDATA[SELECT m_inout.ad_client_id, m_inout.ad_org_id, m_inout.isactive, m_inout.created, m_inout.createdby, m_inout.updated, m_inout.updatedby, m_inout.m_inout_id AS obwpack_gs_pick_edit_id, m_inout.m_inout_id, m_inout.c_bpartner_id, m_inout.c_bpartner_location_id, m_inout.description, m_inout.documentno, CASE WHEN m_inout.em_obwpack_packingh_id IS NOT NULL THEN 'Y' ELSE 'N' END AS ob_selected, m_inout.em_obwpack_packingh_id, m_inout.movementdate FROM m_inout WHERE m_inout.issotrx = 'Y' AND m_inout.docstatus = 'CO' AND m_inout.isactive = 'Y' AND m_inout.em_obwpack_packingrequired = 'Y']]></view>
+  </database>

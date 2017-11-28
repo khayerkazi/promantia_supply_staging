@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_RECEPTIONDATE_TRG">
+    <trigger name="SW_RECEPTIONDATE_TRG" table="M_STORAGE_DETAIL" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[
+v_sequence NUMBER:=0;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+IF TG_OP='INSERT' THEN
+
+select sw_msd_sequence.nextval from dual into v_sequence;
+
+:NEW.em_ds_receptiondate=now();
+:NEW.em_ds_sequence=v_sequence;
+
+END IF;
+
+END SW_RECEPTIONDATE_TRG
+]]></body>
+    </trigger>
+  </database>

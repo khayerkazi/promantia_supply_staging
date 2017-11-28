@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER DTR_DELETENOTIFY_TRG">
+    <trigger name="DTR_DELETENOTIFY_TRG" table="DTR_TRUCK_RECEPTION" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+
+BEGIN
+  IF AD_isTriggerEnabled()='N' THEN RETURN;
+  END IF;
+  IF (DELETING) THEN
+ 
+   IF (:OLD.docstatus = 'CO') THEN
+
+     RAISE_APPLICATION_ERROR(-20000,'You cannot delete the records which are having document status is "Completed"');
+   END IF;
+  END IF;
+END DTR_DELETENOTIFY_TRG
+]]></body>
+    </trigger>
+  </database>

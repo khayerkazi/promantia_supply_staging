@@ -1,0 +1,1770 @@
+# HG changeset patch
+# User Asier Lostalé <asier.lostale@openbravo.com>
+# Date 1414578901 -3600
+#      Wed Oct 29 11:35:01 2014 +0100
+# Node ID 85e6d391edffd350fec67b5944896810ea3f7d48
+# Parent  6af26661c789c5daa23e36e7367a05dfe291242e
+FK filtering project (issue #25211) PRQ3.2 backport
+
+  includes fixes for related issues:
+
+   #27769: Record id shown in grid filtering, when adding a new column to the grid
+   #27303: direct link filtered by FK column doesn't work
+   #27706: Wrong filtering when there are records with the same identifier
+   #27297: Unexpected behavior when a record is created with lazy filtering activated
+   #27788: Filters don't work properly on Manage Stock
+
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_FIELD.xml
+--- a/modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_FIELD.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_FIELD.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -61,6 +61,10 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
++      <column name="ALLOWFILTERBYIDENTIFIER" primaryKey="false" required="true" type="VARCHAR" size="60" autoIncrement="false">
++        <default><![CDATA[D]]></default>
++        <onCreateDefault><![CDATA['D']]></onCreateDefault>
++      </column>
+       <foreign-key foreignTable="AD_CLIENT" name="OBUIAPP_GC_FIELD_CLIENT">
+         <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+       </foreign-key>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_SYSTEM.xml
+--- a/modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_SYSTEM.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_SYSTEM.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -57,6 +57,10 @@
+         <default><![CDATA[Y]]></default>
+         <onCreateDefault/>
+       </column>
++      <column name="ALLOWFILTERBYIDENTIFIER" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
++        <default><![CDATA[Y]]></default>
++        <onCreateDefault><![CDATA['Y']]></onCreateDefault>
++      </column>
+       <foreign-key foreignTable="AD_CLIENT" name="OBUIAPP_GC_SYSTEM_CLIENT">
+         <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+       </foreign-key>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_TAB.xml
+--- a/modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_TAB.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src-db/database/model/tables/OBUIAPP_GC_TAB.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -61,6 +61,10 @@
+         <default><![CDATA[D]]></default>
+         <onCreateDefault/>
+       </column>
++      <column name="ALLOWFILTERBYIDENTIFIER" primaryKey="false" required="true" type="VARCHAR" size="60" autoIncrement="false">
++        <default><![CDATA[D]]></default>
++        <onCreateDefault><![CDATA['D']]></onCreateDefault>
++      </column>
+       <foreign-key foreignTable="AD_CLIENT" name="OBUIAPP_GC_TAB_CLIENT">
+         <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+       </foreign-key>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src-db/database/sourcedata/AD_COLUMN.xml
+--- a/modules/org.openbravo.client.application/src-db/database/sourcedata/AD_COLUMN.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src-db/database/sourcedata/AD_COLUMN.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -1348,7 +1348,7 @@
+ <!--26DAD0E63D554C5FA0493765032BA0B0-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
+ <!--26DAD0E63D554C5FA0493765032BA0B0-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+ <!--26DAD0E63D554C5FA0493765032BA0B0-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
+-<!--26DAD0E63D554C5FA0493765032BA0B0-->  <POSITION><![CDATA[16]]></POSITION>
++<!--26DAD0E63D554C5FA0493765032BA0B0-->  <POSITION><![CDATA[14]]></POSITION>
+ <!--26DAD0E63D554C5FA0493765032BA0B0-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
+ <!--26DAD0E63D554C5FA0493765032BA0B0-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
+ <!--26DAD0E63D554C5FA0493765032BA0B0-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
+@@ -3689,6 +3689,43 @@
+ <!--7D8D82CFE40847E9ADB6B45344432038-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
+ <!--7D8D82CFE40847E9ADB6B45344432038--></AD_COLUMN>
+ 
++<!--7E5D4C62298D4310A12AB5F28B9D2C51--><AD_COLUMN>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_COLUMN_ID><![CDATA[7E5D4C62298D4310A12AB5F28B9D2C51]]></AD_COLUMN_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <NAME><![CDATA[AllowFilterByIdentifier]]></NAME>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <DESCRIPTION><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually.]]></DESCRIPTION>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <HELP><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually. If this flag is unchecked, then the foreign keys would only be filterable by selecting some options from the filter drop down, which has better performance.]]></HELP>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <COLUMNNAME><![CDATA[Allowfilterbyidentifier]]></COLUMNNAME>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_TABLE_ID><![CDATA[F167EB822B8A4284AC37D5B40B785D51]]></AD_TABLE_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_REFERENCE_ID><![CDATA[17]]></AD_REFERENCE_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_REFERENCE_VALUE_ID><![CDATA[892231CFE03848758D74B0209B801C14]]></AD_REFERENCE_VALUE_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <FIELDLENGTH><![CDATA[60]]></FIELDLENGTH>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <DEFAULTVALUE><![CDATA[D]]></DEFAULTVALUE>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <SEQNO><![CDATA[180]]></SEQNO>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_ELEMENT_ID><![CDATA[DD25DA6ACBD5424B89E09A93A5D4656C]]></AD_ELEMENT_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <POSITION><![CDATA[16]]></POSITION>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--7E5D4C62298D4310A12AB5F28B9D2C51--></AD_COLUMN>
++
+ <!--7E68B314346145448A5D06B0EE98AFC9--><AD_COLUMN>
+ <!--7E68B314346145448A5D06B0EE98AFC9-->  <AD_COLUMN_ID><![CDATA[7E68B314346145448A5D06B0EE98AFC9]]></AD_COLUMN_ID>
+ <!--7E68B314346145448A5D06B0EE98AFC9-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -7137,7 +7174,7 @@
+ <!--B85EDCE11C844C52904C24B4246BE515-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
+ <!--B85EDCE11C844C52904C24B4246BE515-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+ <!--B85EDCE11C844C52904C24B4246BE515-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
+-<!--B85EDCE11C844C52904C24B4246BE515-->  <POSITION><![CDATA[17]]></POSITION>
++<!--B85EDCE11C844C52904C24B4246BE515-->  <POSITION><![CDATA[15]]></POSITION>
+ <!--B85EDCE11C844C52904C24B4246BE515-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
+ <!--B85EDCE11C844C52904C24B4246BE515-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
+ <!--B85EDCE11C844C52904C24B4246BE515-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
+@@ -7650,6 +7687,43 @@
+ <!--CF2A28A6B90547D8ABBCFFA026A7EFE9-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
+ <!--CF2A28A6B90547D8ABBCFFA026A7EFE9--></AD_COLUMN>
+ 
++<!--CF562906BE6342239337F14D04D92759--><AD_COLUMN>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_COLUMN_ID><![CDATA[CF562906BE6342239337F14D04D92759]]></AD_COLUMN_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--CF562906BE6342239337F14D04D92759-->  <NAME><![CDATA[AllowFilterByIdentifier]]></NAME>
++<!--CF562906BE6342239337F14D04D92759-->  <DESCRIPTION><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually.]]></DESCRIPTION>
++<!--CF562906BE6342239337F14D04D92759-->  <HELP><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually. If this flag is unchecked, then the foreign keys would only be filterable by selecting some options from the filter drop down, which has better performance.]]></HELP>
++<!--CF562906BE6342239337F14D04D92759-->  <COLUMNNAME><![CDATA[Allowfilterbyidentifier]]></COLUMNNAME>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_TABLE_ID><![CDATA[8A16662B37184121A1EDAA89890E160C]]></AD_TABLE_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_REFERENCE_ID><![CDATA[17]]></AD_REFERENCE_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_REFERENCE_VALUE_ID><![CDATA[892231CFE03848758D74B0209B801C14]]></AD_REFERENCE_VALUE_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <FIELDLENGTH><![CDATA[60]]></FIELDLENGTH>
++<!--CF562906BE6342239337F14D04D92759-->  <DEFAULTVALUE><![CDATA[D]]></DEFAULTVALUE>
++<!--CF562906BE6342239337F14D04D92759-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--CF562906BE6342239337F14D04D92759-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--CF562906BE6342239337F14D04D92759-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
++<!--CF562906BE6342239337F14D04D92759-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--CF562906BE6342239337F14D04D92759-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--CF562906BE6342239337F14D04D92759-->  <SEQNO><![CDATA[170]]></SEQNO>
++<!--CF562906BE6342239337F14D04D92759-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--CF562906BE6342239337F14D04D92759-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--CF562906BE6342239337F14D04D92759-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_ELEMENT_ID><![CDATA[DD25DA6ACBD5424B89E09A93A5D4656C]]></AD_ELEMENT_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--CF562906BE6342239337F14D04D92759-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--CF562906BE6342239337F14D04D92759-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--CF562906BE6342239337F14D04D92759-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--CF562906BE6342239337F14D04D92759-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
++<!--CF562906BE6342239337F14D04D92759-->  <POSITION><![CDATA[16]]></POSITION>
++<!--CF562906BE6342239337F14D04D92759-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--CF562906BE6342239337F14D04D92759-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--CF562906BE6342239337F14D04D92759-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--CF562906BE6342239337F14D04D92759-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--CF562906BE6342239337F14D04D92759-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--CF562906BE6342239337F14D04D92759--></AD_COLUMN>
++
+ <!--D3F8F1142D914AD0ACAD03B45BEB3E9F--><AD_COLUMN>
+ <!--D3F8F1142D914AD0ACAD03B45BEB3E9F-->  <AD_COLUMN_ID><![CDATA[D3F8F1142D914AD0ACAD03B45BEB3E9F]]></AD_COLUMN_ID>
+ <!--D3F8F1142D914AD0ACAD03B45BEB3E9F-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -8768,6 +8842,42 @@
+ <!--F7DE0BA73FA64A68B898495072729D12-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
+ <!--F7DE0BA73FA64A68B898495072729D12--></AD_COLUMN>
+ 
++<!--F900AB0A4EA649598EA364C23D6D2533--><AD_COLUMN>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <AD_COLUMN_ID><![CDATA[F900AB0A4EA649598EA364C23D6D2533]]></AD_COLUMN_ID>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <NAME><![CDATA[AllowFilterByIdentifier]]></NAME>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <DESCRIPTION><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually.]]></DESCRIPTION>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <HELP><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually. If this flag is unchecked, then the foreign keys would only be filterable by selecting some options from the filter drop down, which has better performance.]]></HELP>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <COLUMNNAME><![CDATA[Allowfilterbyidentifier]]></COLUMNNAME>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <AD_TABLE_ID><![CDATA[5D50320222DD4865ADFD50364C84291D]]></AD_TABLE_ID>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <AD_REFERENCE_ID><![CDATA[20]]></AD_REFERENCE_ID>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <FIELDLENGTH><![CDATA[1]]></FIELDLENGTH>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <DEFAULTVALUE><![CDATA[Y]]></DEFAULTVALUE>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <SEQNO><![CDATA[150]]></SEQNO>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <AD_ELEMENT_ID><![CDATA[DD25DA6ACBD5424B89E09A93A5D4656C]]></AD_ELEMENT_ID>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <POSITION><![CDATA[15]]></POSITION>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--F900AB0A4EA649598EA364C23D6D2533-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--F900AB0A4EA649598EA364C23D6D2533--></AD_COLUMN>
++
+ <!--FB5E84CB6C4A4EC8A812F87563B5FC4E--><AD_COLUMN>
+ <!--FB5E84CB6C4A4EC8A812F87563B5FC4E-->  <AD_COLUMN_ID><![CDATA[FB5E84CB6C4A4EC8A812F87563B5FC4E]]></AD_COLUMN_ID>
+ <!--FB5E84CB6C4A4EC8A812F87563B5FC4E-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src-db/database/sourcedata/AD_ELEMENT.xml
+--- a/modules/org.openbravo.client.application/src-db/database/sourcedata/AD_ELEMENT.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src-db/database/sourcedata/AD_ELEMENT.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -666,6 +666,20 @@
+ <!--DC806316C0494E3CBE88A1F4216DB641-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
+ <!--DC806316C0494E3CBE88A1F4216DB641--></AD_ELEMENT>
+ 
++<!--DD25DA6ACBD5424B89E09A93A5D4656C--><AD_ELEMENT>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <AD_ELEMENT_ID><![CDATA[DD25DA6ACBD5424B89E09A93A5D4656C]]></AD_ELEMENT_ID>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <COLUMNNAME><![CDATA[AllowFilterByIdentifier]]></COLUMNNAME>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <NAME><![CDATA[Allow Filtering Foreign Keys by its Identifier]]></NAME>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <PRINTNAME><![CDATA[Allow Filtering Foreign Keys by its iIdentifier]]></PRINTNAME>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <DESCRIPTION><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually.]]></DESCRIPTION>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <HELP><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually. If this flag is unchecked, then the foreign keys would only be filterable by selecting some options from the filter drop down, which has better performance.]]></HELP>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
++<!--DD25DA6ACBD5424B89E09A93A5D4656C--></AD_ELEMENT>
++
+ <!--E726F553F3C04DE791C8E9C1752227F9--><AD_ELEMENT>
+ <!--E726F553F3C04DE791C8E9C1752227F9-->  <AD_ELEMENT_ID><![CDATA[E726F553F3C04DE791C8E9C1752227F9]]></AD_ELEMENT_ID>
+ <!--E726F553F3C04DE791C8E9C1752227F9-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src-db/database/sourcedata/AD_FIELD.xml
+--- a/modules/org.openbravo.client.application/src-db/database/sourcedata/AD_FIELD.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src-db/database/sourcedata/AD_FIELD.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -63,6 +63,34 @@
+ <!--031B7409581E4A5A893D04C057B93CF9-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--031B7409581E4A5A893D04C057B93CF9--></AD_FIELD>
+ 
++<!--03724122C8F744FDB387B47B7907E0D3--><AD_FIELD>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <AD_FIELD_ID><![CDATA[03724122C8F744FDB387B47B7907E0D3]]></AD_FIELD_ID>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <NAME><![CDATA[Allow Filtering Foreign Keys by its Identifier]]></NAME>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <DESCRIPTION><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually.]]></DESCRIPTION>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <HELP><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually. If this flag is unchecked, then the foreign keys would only be filterable by selecting some options from the filter drop down, which has better performance.]]></HELP>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <AD_TAB_ID><![CDATA[D26230D6D21546C6970E79FF1C51165E]]></AD_TAB_ID>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <AD_COLUMN_ID><![CDATA[7E5D4C62298D4310A12AB5F28B9D2C51]]></AD_COLUMN_ID>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISDISPLAYED><![CDATA[Y]]></ISDISPLAYED>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <DISPLAYLENGTH><![CDATA[60]]></DISPLAYLENGTH>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISREADONLY><![CDATA[N]]></ISREADONLY>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <SEQNO><![CDATA[120]]></SEQNO>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <SHOWINRELATION><![CDATA[Y]]></SHOWINRELATION>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
++<!--03724122C8F744FDB387B47B7907E0D3-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
++<!--03724122C8F744FDB387B47B7907E0D3--></AD_FIELD>
++
+ <!--03743E0195424F98A7FB273DCB1757EF--><AD_FIELD>
+ <!--03743E0195424F98A7FB273DCB1757EF-->  <AD_FIELD_ID><![CDATA[03743E0195424F98A7FB273DCB1757EF]]></AD_FIELD_ID>
+ <!--03743E0195424F98A7FB273DCB1757EF-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -1680,6 +1708,34 @@
+ <!--4FE399927E2A4173BACE92E889B779AA-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--4FE399927E2A4173BACE92E889B779AA--></AD_FIELD>
+ 
++<!--50FB7470536A44D69F0EB34B18B9D1FB--><AD_FIELD>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <AD_FIELD_ID><![CDATA[50FB7470536A44D69F0EB34B18B9D1FB]]></AD_FIELD_ID>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <NAME><![CDATA[Allow Filtering Foreign Keys by its Identifier]]></NAME>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <DESCRIPTION><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually.]]></DESCRIPTION>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <HELP><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually. If this flag is unchecked, then the foreign keys would only be filterable by selecting some options from the filter drop down, which has better performance.]]></HELP>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <AD_TAB_ID><![CDATA[13FE911F7F684A47801DF55525BAD4A1]]></AD_TAB_ID>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <AD_COLUMN_ID><![CDATA[F900AB0A4EA649598EA364C23D6D2533]]></AD_COLUMN_ID>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISDISPLAYED><![CDATA[Y]]></ISDISPLAYED>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <DISPLAYLENGTH><![CDATA[1]]></DISPLAYLENGTH>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISREADONLY><![CDATA[N]]></ISREADONLY>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <SEQNO><![CDATA[100]]></SEQNO>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <SHOWINRELATION><![CDATA[Y]]></SHOWINRELATION>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
++<!--50FB7470536A44D69F0EB34B18B9D1FB-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
++<!--50FB7470536A44D69F0EB34B18B9D1FB--></AD_FIELD>
++
+ <!--516959378C7148DDA982C5C655796CBB--><AD_FIELD>
+ <!--516959378C7148DDA982C5C655796CBB-->  <AD_FIELD_ID><![CDATA[516959378C7148DDA982C5C655796CBB]]></AD_FIELD_ID>
+ <!--516959378C7148DDA982C5C655796CBB-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -4919,6 +4975,34 @@
+ <!--FA25A0E775044EE180C711CC19F8E225-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--FA25A0E775044EE180C711CC19F8E225--></AD_FIELD>
+ 
++<!--FB4E108A4D8944D29345E465442749F2--><AD_FIELD>
++<!--FB4E108A4D8944D29345E465442749F2-->  <AD_FIELD_ID><![CDATA[FB4E108A4D8944D29345E465442749F2]]></AD_FIELD_ID>
++<!--FB4E108A4D8944D29345E465442749F2-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--FB4E108A4D8944D29345E465442749F2-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--FB4E108A4D8944D29345E465442749F2-->  <NAME><![CDATA[Allow Filtering Foreign Keys by its Identifier]]></NAME>
++<!--FB4E108A4D8944D29345E465442749F2-->  <DESCRIPTION><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually.]]></DESCRIPTION>
++<!--FB4E108A4D8944D29345E465442749F2-->  <HELP><![CDATA[If this flag is checked, then the user can filter foreign keys either by selecting some options from the filter drop down or by entering text manually. If this flag is unchecked, then the foreign keys would only be filterable by selecting some options from the filter drop down, which has better performance.]]></HELP>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--FB4E108A4D8944D29345E465442749F2-->  <AD_TAB_ID><![CDATA[49B33DC2EDFD45A48EECE139AD5E9AC9]]></AD_TAB_ID>
++<!--FB4E108A4D8944D29345E465442749F2-->  <AD_COLUMN_ID><![CDATA[CF562906BE6342239337F14D04D92759]]></AD_COLUMN_ID>
++<!--FB4E108A4D8944D29345E465442749F2-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISDISPLAYED><![CDATA[Y]]></ISDISPLAYED>
++<!--FB4E108A4D8944D29345E465442749F2-->  <DISPLAYLENGTH><![CDATA[60]]></DISPLAYLENGTH>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISREADONLY><![CDATA[N]]></ISREADONLY>
++<!--FB4E108A4D8944D29345E465442749F2-->  <SEQNO><![CDATA[110]]></SEQNO>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--FB4E108A4D8944D29345E465442749F2-->  <SHOWINRELATION><![CDATA[Y]]></SHOWINRELATION>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
++<!--FB4E108A4D8944D29345E465442749F2-->  <AD_MODULE_ID><![CDATA[9BA0836A3CD74EE4AB48753A47211BCC]]></AD_MODULE_ID>
++<!--FB4E108A4D8944D29345E465442749F2-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
++<!--FB4E108A4D8944D29345E465442749F2-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--FB4E108A4D8944D29345E465442749F2-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
++<!--FB4E108A4D8944D29345E465442749F2-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
++<!--FB4E108A4D8944D29345E465442749F2--></AD_FIELD>
++
+ <!--FBB6C7E587984DBC9AB858EC876EC1E5--><AD_FIELD>
+ <!--FBB6C7E587984DBC9AB858EC876EC1E5-->  <AD_FIELD_ID><![CDATA[FBB6C7E587984DBC9AB858EC876EC1E5]]></AD_FIELD_ID>
+ <!--FBB6C7E587984DBC9AB858EC876EC1E5-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml
+--- a/modules/org.openbravo.client.application/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -10,6 +10,7 @@
+ <!--090A37D22E61FE94012E621729090048-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--090A37D22E61FE94012E621729090048-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--090A37D22E61FE94012E621729090048-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--090A37D22E61FE94012E621729090048-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--090A37D22E61FE94012E621729090048--></OBSERDS_DATASOURCE>
+ 
+ <!--3C1148C0AB604DE1B51B7EA4112C325F--><OBSERDS_DATASOURCE>
+@@ -23,6 +24,7 @@
+ <!--3C1148C0AB604DE1B51B7EA4112C325F-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--3C1148C0AB604DE1B51B7EA4112C325F-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--3C1148C0AB604DE1B51B7EA4112C325F-->  <USEASTABLEDATAORIGIN><![CDATA[Y]]></USEASTABLEDATAORIGIN>
++<!--3C1148C0AB604DE1B51B7EA4112C325F-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--3C1148C0AB604DE1B51B7EA4112C325F--></OBSERDS_DATASOURCE>
+ 
+ <!--99B9CC42FDEA4CA7A4EE35BC49D61E0E--><OBSERDS_DATASOURCE>
+@@ -36,6 +38,7 @@
+ <!--99B9CC42FDEA4CA7A4EE35BC49D61E0E-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--99B9CC42FDEA4CA7A4EE35BC49D61E0E-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--99B9CC42FDEA4CA7A4EE35BC49D61E0E-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--99B9CC42FDEA4CA7A4EE35BC49D61E0E-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--99B9CC42FDEA4CA7A4EE35BC49D61E0E--></OBSERDS_DATASOURCE>
+ 
+ <!--C17951F970E942FD9F3771B7BE91D049--><OBSERDS_DATASOURCE>
+@@ -49,6 +52,7 @@
+ <!--C17951F970E942FD9F3771B7BE91D049-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--C17951F970E942FD9F3771B7BE91D049-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--C17951F970E942FD9F3771B7BE91D049-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--C17951F970E942FD9F3771B7BE91D049-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--C17951F970E942FD9F3771B7BE91D049--></OBSERDS_DATASOURCE>
+ 
+ </data>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src/org/openbravo/client/application/templates/ob-pick-and-execute-grid.js.ftl
+--- a/modules/org.openbravo.client.application/src/org/openbravo/client/application/templates/ob-pick-and-execute-grid.js.ftl	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src/org/openbravo/client/application/templates/ob-pick-and-execute-grid.js.ftl	Wed Oct 29 11:35:01 2014 +0100
+@@ -47,7 +47,10 @@
+   </#if>
+   <#if data.lazyFiltering>
+   lazyFiltering: ${data.lazyFiltering?string},
+-  </#if>    
++  </#if>  
++  <#if data.alwaysFilterFksByIdentifier>
++  alwaysFilterFksByIdentifier: ${data.alwaysFilterFksByIdentifier?string},
++  </#if>   
+   dummy: true
+ </@compress>
+ }
+\ No newline at end of file
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src/org/openbravo/client/application/templates/ob-view-grid.js.ftl
+--- a/modules/org.openbravo.client.application/src/org/openbravo/client/application/templates/ob-view-grid.js.ftl	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src/org/openbravo/client/application/templates/ob-view-grid.js.ftl	Wed Oct 29 11:35:01 2014 +0100
+@@ -41,6 +41,9 @@
+     <#if data.lazyFiltering>
+         lazyFiltering: ${data.lazyFiltering?string},
+     </#if>    
++    <#if data.alwaysFilterFksByIdentifier>
++        alwaysFilterFksByIdentifier: ${data.alwaysFilterFksByIdentifier?string},
++    </#if>       
+     //List of properties  that must be always included in this grid
+     requiredGridProperties: [
+     <#list data.requiredGridProperties as property>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src/org/openbravo/client/application/window/OBViewGridComponent.java
+--- a/modules/org.openbravo.client.application/src/org/openbravo/client/application/window/OBViewGridComponent.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src/org/openbravo/client/application/window/OBViewGridComponent.java	Wed Oct 29 11:35:01 2014 +0100
+@@ -46,6 +46,7 @@
+ import org.openbravo.model.ad.ui.Tab;
+ import org.openbravo.model.common.order.Order;
+ import org.openbravo.model.common.order.OrderLine;
++import org.openbravo.service.datasource.DataSource;
+ import org.openbravo.service.db.DalConnectionProvider;
+ import org.openbravo.service.json.JsonConstants;
+ 
+@@ -435,4 +436,11 @@
+       return false;
+     }
+   }
++
++  public boolean getAlwaysFilterFksByIdentifier() {
++    DataSource dataSource = tab.getTable().getObserdsDatasource();
++    // always filter using the identifier if the grid fetches its data from a manual datasource and
++    // if that datasource does not support filtering foreign keys using their ids
++    return (dataSource != null && !dataSource.isSupportIdFkFiltering());
++  }
+ }
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/src/org/openbravo/client/application/window/OBViewUtil.java
+--- a/modules/org.openbravo.client.application/src/org/openbravo/client/application/window/OBViewUtil.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src/org/openbravo/client/application/window/OBViewUtil.java	Wed Oct 29 11:35:01 2014 +0100
+@@ -176,13 +176,14 @@
+     Boolean canFilter = null;
+     Boolean filterOnChange = null;
+     Boolean lazyFiltering = null;
++    Boolean allowFkFilterByIdentifier = null;
+     String operator = null;
+     Long thresholdToFilter = null;
+     JSONObject result = new JSONObject();
+ 
+     if (field != null && field.getId() != null) {
+       if (canSort == null || canFilter == null || operator == null || filterOnChange == null
+-          || thresholdToFilter == null) {
++          || thresholdToFilter == null || allowFkFilterByIdentifier == null) {
+         List<Object> fieldParams = new ArrayList<Object>();
+         String fieldConfsHql = " as p where p.field.id = ? ";
+         fieldParams.add(field.getId());
+@@ -217,6 +218,13 @@
+               filterOnChange = false;
+             }
+           }
++          if (allowFkFilterByIdentifier == null) {
++            if ("Y".equals(fieldConfs.get(0).getAllowFilterByIdentifier())) {
++              allowFkFilterByIdentifier = true;
++            } else if ("N".equals(fieldConfs.get(0).getAllowFilterByIdentifier())) {
++              allowFkFilterByIdentifier = false;
++            }
++          }
+           if (thresholdToFilter == null) {
+             thresholdToFilter = fieldConfs.get(0).getThresholdToFilter();
+           }
+@@ -225,7 +233,7 @@
+     }
+ 
+     if (canSort == null || canFilter == null || operator == null || filterOnChange == null
+-        || thresholdToFilter == null) {
++        || thresholdToFilter == null || allowFkFilterByIdentifier == null) {
+       List<Object> tabParams = new ArrayList<Object>();
+       String tabConfsHql = " as p where p.tab.id = ? ";
+       tabParams.add(tab.getId());
+@@ -267,6 +275,14 @@
+             lazyFiltering = false;
+           }
+         }
++        if (allowFkFilterByIdentifier == null) {
++          if ("Y".equals(tabConfs.get(0).getAllowFilterByIdentifier())) {
++            allowFkFilterByIdentifier = true;
++          } else if ("N".equals(tabConfs.get(0).getAllowFilterByIdentifier())) {
++            allowFkFilterByIdentifier = false;
++          }
++        }
++
+         if (thresholdToFilter == null) {
+           thresholdToFilter = tabConfs.get(0).getThresholdToFilter();
+         }
+@@ -296,6 +312,9 @@
+         if (thresholdToFilter == null) {
+           thresholdToFilter = sysConfs.get(0).getThresholdToFilter();
+         }
++        if (allowFkFilterByIdentifier == null) {
++          allowFkFilterByIdentifier = sysConfs.get(0).isAllowFilterByIdentifier();
++        }
+       }
+     }
+ 
+@@ -335,6 +354,9 @@
+       if (thresholdToFilter != null) {
+         result.put("thresholdToFilter", thresholdToFilter);
+       }
++      if (allowFkFilterByIdentifier != null) {
++        result.put("allowFkFilterByIdentifier", allowFkFilterByIdentifier);
++      }
+     } catch (JSONException e) {
+       log.error("Couldn't get field property value");
+     }
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/formitem/ob-formitem-fk-filter.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/formitem/ob-formitem-fk-filter.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/formitem/ob-formitem-fk-filter.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -42,6 +42,11 @@
+   changeOnKeypress: true,
+   addUnknownValues: true,
+   defaultToFirstOption: false,
++  // filterType = {'id', 'identifier'}
++  // filterType = 'id' means that the foreign key will be filtered using the record ids. This is only possible when filtering the grid by selecting a record from the filter drop down
++  // filterType = 'identifier' means that the foreign key will be filtered using the record ids
++  filterType: 'identifier',
++  filterAuxCache: [],
+ 
+   emptyPickListMessage: OB.I18N.getLabel('OBUISC_ListGrid.emptyMessage'),
+ 
+@@ -62,6 +67,15 @@
+     this.displayField = this.criteriaDisplayField || OB.Constants.IDENTIFIER;
+     this.valueField = this.criteriaDisplayField || OB.Constants.IDENTIFIER;
+ 
++    // if this field was being filtered by its id before being recreated, reset its filter type an its filterAuxCache
++    if (this.grid && this.grid.sourceWidget && this.grid.sourceWidget.filterByIdFields && this.grid.sourceWidget.filterByIdFields.contains(this.name)) {
++      this.filterType = 'id';
++      if (this.grid.sourceWidget.fkCacheCopy && this.grid.sourceWidget.fkCacheCopy.find('fieldName', this.name)) {
++        this.filterAuxCache = this.grid.sourceWidget.fkCacheCopy.find('fieldName', this.name).cache;
++      }
++
++    }
++
+     this.pickListProperties = {
+ 
+       // make sure that we send the same parameters as the grid
+@@ -146,6 +160,11 @@
+     this.observe(grid, "dataArrived", "observer.setForceReload()");
+ 
+     this.multipleValueSeparator = ' or ';
++
++    // if the filter by identifier has been disabled using grid configuration, set the filter type to 'id'
++    if (this.allowFkFilterByIdentifier === false && !grid.alwaysFilterFksByIdentifier) {
++      this.filterType = 'id';
++    }
+   },
+ 
+   destroy: function () {
+@@ -195,13 +214,42 @@
+   },
+ 
+   blur: function () {
+-    if (this._hasChanged) {
++    if (this._hasChanged && this.allowFkFilterByIdentifier === false) {
++      // close the picklist if the item is due to a user tab action
++      if (isc.EH.getKeyName() === 'Tab') {
++        this.pickList.hide();
++      }
++      // restore the filter editor with the previous criteria
++      this.setCriterion(this.getAppliedCriteria());
++      // do not perform a filter action on blur if the filtering by identifier is not allowed
++    } else if (this._hasChanged && this.allowFkFilterByIdentifier !== false) {
+       this.form.grid.performAction();
+     }
+     delete this._hasChanged;
+     this.Super('blur', arguments);
+   },
+ 
++  // returns the criteria for this field that is applied to the data that the grid is currently showing
++  // this.getCriteria() would return the modified criteria that needs to be reverted
++  getAppliedCriteria: function () {
++    var currentGridCriteria = this.grid.sourceWidget.getCriteria(),
++        i, emptyCriteria = {
++        operator: "and",
++        _constructor: "AdvancedCriteria",
++        criteria: []
++        };
++    if (!currentGridCriteria || !currentGridCriteria.criteria) {
++      return emptyCriteria;
++    }
++    for (i = 0; i < currentGridCriteria.criteria.length; i++) {
++      if (currentGridCriteria.criteria[i].fieldName === this.name) {
++        return currentGridCriteria.criteria[i];
++      }
++    }
++    // if no criteria was found for this field, return an empty criteria
++    return emptyCriteria;
++  },
++
+   // overridden otherwise the picklist fields from the grid field
+   // are being used
+   getPickListFields: function () {
+@@ -239,7 +287,8 @@
+   // combine the value of the field with the overall grid
+   // filter values
+   getPickListFilterCriteria: function () {
+-    var pickListCriteria = this.getCriterion(),
++    var forceFilterByIdentifier = true,
++        pickListCriteria = this.getCriterion(null, forceFilterByIdentifier),
+         gridCriteria, i, criteriaFieldName = this.getCriteriaFieldName();
+ 
+     if (this.form.grid.sourceWidget.lazyFiltering) {
+@@ -304,10 +353,15 @@
+     }
+   },
+ 
+-  getCriterion: function (textMatchStyle) {
+-    var value = this.getCriteriaValue(),
+-        operator, fieldName, crit;
++  getCriterion: function (textMatchStyle, forceFilterByIdentifier) {
++    var value, operator, fieldName, crit;
+ 
++    // sometimes (i.e. when the filter drop down is populated) it is needed to force a filter using the identifier
++    // if the filter using the identifier is not allowed, the filter type will be reverted to 'id' at the end of this function
++    if (forceFilterByIdentifier) {
++      this.filterType = 'identifier';
++    }
++    value = this.getCriteriaValue();
+     if (value === null || isc.is.emptyString(value)) {
+       return;
+     }
+@@ -335,14 +389,22 @@
+       crit = this.replaceCriterionOperator(crit, value, this.operator);
+     }
+ 
++    if (this.allowFkFilterByIdentifier === false && !this.grid.view.alwaysFilterFksByIdentifier) {
++      this.filterType = 'id';
++    }
++
+     return crit;
+   },
+ 
+   getOperator: function (textMatchStyle) {
+-    if (this.operator && this.operator !== 'iContains') {
+-      return this.operator;
++    if (this.filterType === 'id') {
++      return 'equals';
+     } else {
+-      return this.Super('getOperator', arguments);
++      if (this.operator && this.operator !== 'iContains') {
++        return this.operator;
++      } else {
++        return this.Super('getOperator', arguments);
++      }
+     }
+   },
+ 
+@@ -366,15 +428,21 @@
+ 
+   setCriterion: function (criterion) {
+     var i, value, values = [],
+-        operators, valueSet = false,
+-        criteria = criterion ? criterion.criteria : null;
++        operators = isc.DataSource.getSearchOperators(),
++        valueSet = false,
++        criteria = criterion ? criterion.criteria : null,
++        identifier;
+     if (criteria && criteria.length && criterion.operator === 'or') {
+-      operators = isc.DataSource.getSearchOperators();
+       for (i = 0; i < criteria.length; i++) {
+         //handles case where column filter symbols are removed. Refer Issue https://issues.openbravo.com/view.php?id=23925
+         if (criteria[i].operator !== "iContains" && criteria[i].operator !== "contains" && criteria[i].operator !== "regexp") {
+-          if (operators[criteria[i].operator] && (operators[criteria[i].operator].ID === criteria[i].operator) && operators[criteria[i].operator].symbol && criteria[i].value && (criteria[i].value.indexOf(operators[criteria[i].operator].symbol) === -1)) {
+-            values.push(operators[criteria[i].operator].symbol + criteria[i].value);
++          value = criteria[i].value;
++          if (operators[criteria[i].operator] && (operators[criteria[i].operator].ID === criteria[i].operator) && operators[criteria[i].operator].symbol && value && (value.indexOf(operators[criteria[i].operator].symbol) === -1)) {
++            identifier = this.getRecordIdentifierFromId(value);
++            if (this.filterType === 'id' && identifier) {
++              value = identifier;
++            }
++            values.push(operators[criteria[i].operator].symbol + value);
+             valueSet = true;
+           }
+         }
+@@ -386,6 +454,17 @@
+       this.setValue(values);
+     } else {
+       value = this.buildValueExpressions(criterion);
++      if (this.filterType === 'id') {
++        identifier = this.getRecordIdentifierFromId(value);
++        if (identifier) {
++          value = identifier;
++        }
++      }
++      if (criterion.operator !== "iContains" && criterion.operator !== "contains" && criterion.operator !== "regexp") {
++        if (operators[criterion.operator] && (operators[criterion.operator].ID === criterion.operator) && operators[criterion.operator].symbol && value && (value.indexOf(operators[criterion.operator].symbol) === -1)) {
++          value = operators[criterion.operator].symbol + value;
++        }
++      }
+       this.setValue(value);
+     }
+     // if iBetweenInclusive operator is used, delete the ZZZZZZZZZZ
+@@ -400,7 +479,11 @@
+   // see also the setValuesAsCriteria in ob-grid-js which again translates
+   // back
+   getCriteriaFieldName: function () {
+-    return this.criteriaField || this.name + OB.Constants.FIELDSEPARATOR + OB.Constants.IDENTIFIER;
++    if (this.filterType === 'id') {
++      return this.name;
++    } else {
++      return this.criteriaField || this.name + OB.Constants.FIELDSEPARATOR + OB.Constants.IDENTIFIER;
++    }
+   },
+ 
+   // solve a small bug in the value expressions
+@@ -456,5 +539,75 @@
+       }
+     }
+     return false;
++  },
++
++  pickValue: function (value) {
++    // this is needed to discern if the text has been changed automatically when a record is selected, or manually by the user
++    this._pickingValue = true;
++    this.Super('pickValue', arguments);
++    delete this._pickingValue;
++  },
++
++  handleChanged: function (value) {
++    if (!this.grid.sourceWidget.alwaysFilterFksByIdentifier && (this._pickingValue || this.allowFkFilterByIdentifier === false)) {
++      // if the filter text has changed because a value has been ficked from the filter drop down, use the id filter
++      // do this also if the only filter type allowed is 'id'
++      this.filterType = 'id';
++    } else {
++      // otherwise use the standard filter using the record identifier
++      this.filterType = 'identifier';
++    }
++    this.Super('handleChanged', arguments);
++  },
++
++  // if the filterType is ID, try to return the record ids instead of the record identifiers
++  getCriteriaValue: function () {
++    var value, values = this.getValue(),
++        record, i, criteriaValues = [],
++        recordIds;
++    if (values && this.filterType === 'id') {
++      for (i = 0; i < values.length; i++) {
++        value = values[i];
++        if (value.startsWith('==')) {
++          // if the value has the equals operator prefix, get rid of it
++          value = value.substring(2);
++        }
++        recordIds = this.getRecordIdsFromIdentifier(value);
++        if (!recordIds) {
++          // if the record is not found  or it does not have an id, use the standard criteria value
++          return this.Super('getCriteriaValue', arguments);
++        } else {
++          criteriaValues.addAll(recordIds);
++        }
++      }
++      return criteriaValues;
++    } else {
++      return this.Super('getCriteriaValue', arguments);
++    }
++  },
++
++  // given an identifier, returns an array of the filter picklist records that have that identifier 
++  getRecordIdsFromIdentifier: function (identifier) {
++    var records, recordIds = [],
++        i;
++    if (this.pickList && this.pickList.data.find(OB.Constants.IDENTIFIER, identifier)) {
++      records = this.pickList.data.findAll(OB.Constants.IDENTIFIER, identifier);
++    } else if (this.filterAuxCache && this.filterAuxCache.find(OB.Constants.IDENTIFIER, identifier)) {
++      records = this.filterAuxCache.findAll(OB.Constants.IDENTIFIER, identifier);
++    }
++    for (i = 0; i < records.length; i++) {
++      recordIds.add(records[i][OB.Constants.ID]);
++    }
++    return recordIds;
++  },
++
++  getRecordIdentifierFromId: function (id) {
++    var recordIdentifier;
++    if (this.pickList && this.pickList.data.find(OB.Constants.ID, id)) {
++      recordIdentifier = this.pickList.data.find(OB.Constants.ID, id)[OB.Constants.IDENTIFIER];
++    } else if (this.filterAuxCache && this.filterAuxCache.find(OB.Constants.ID, id)) {
++      recordIdentifier = this.filterAuxCache.find(OB.Constants.ID, id)[OB.Constants.IDENTIFIER];
++    }
++    return recordIdentifier;
+   }
+ });
+\ No newline at end of file
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/ob-view-form.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/ob-view-form.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/ob-view-form.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -266,7 +266,11 @@
+   },
+ 
+   editNewRecord: function (preventFocus) {
++    var grid = this.view.viewGrid;
+     this.clearValues();
++    if (grid.lazyFiltering && !isc.isA.ResultSet(grid.data)) {
++      OB.Utilities.createResultSetManually(grid);
++    }
+     var ret = this.Super('editNewRecord', arguments);
+     this.doEditRecordActions(preventFocus, true);
+     return ret;
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-grid.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-grid.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-grid.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -635,11 +635,12 @@
+             delete grid.filterHasChanged;
+             delete grid.sortingHasChanged;
+             delete grid._filteringAndSortingManually;
+-          } else if (!isc.isA.ResultSet(grid.data)) {
++          } else if (!isc.isA.ResultSet(grid.data) || grid.serverDataNotLoaded) {
+             // The initial data has not been loaded yet, refreshGrid
+             // refreshGrid applies also the current sorting
+             grid.refreshGrid();
+             delete grid.sortingHasChanged;
++            delete grid.serverDataNotLoaded;
+           } else if (grid.sortingHasChanged) {
+             grid.setSort(grid.savedSortSpecifiers, true);
+             delete grid.sortingHasChanged;
+@@ -760,6 +761,71 @@
+     this.checkShowFilterFunnelIcon(criteria);
+   },
+ 
++  // overwrites setFields to store the list of fk columns filtered using its id
++  // this info is then used when the filter field is recreated
++  setFields: function (newFields) {
++    this.filterByIdFields = this.getFilterByIdFields();
++    if (this.filterByIdFields.length > 0) {
++      this.fkCacheCopy = this.getFKFilterAuxiliaryCache(this.getCriteria());
++    }
++    this.Super('setFields', arguments);
++    delete this.fkCacheCopy;
++    delete this.filterByIdFields;
++  },
++
++  // returns the list of fk fields that are currently being filtered using their id
++  getFilterByIdFields: function () {
++    var fields, i, filterByIdFields = [];
++    if (this.filterEditor && this.filterEditor.getEditForm()) {
++      fields = this.filterEditor.getEditForm().getFields();
++      for (i = 0; i < fields.length; i++) {
++        if (fields[i].filterType === 'id') {
++          filterByIdFields.push(fields[i].name);
++        }
++      }
++    }
++    return filterByIdFields;
++  },
++
++  // returns an object containing the foreign key filter cache of all the filter fields whose current filter type is 'id'
++  getFKFilterAuxiliaryCache: function (criteria) {
++    var filterField, criterion, filterLength = criteria.criteria.length,
++        fkFilterAuxCache = [],
++        innerCache = [],
++        filterEditForm, cacheElement, i;
++    if (!this.filterEditor || !this.filterEditor.getEditForm()) {
++      return fkFilterAuxCache;
++    }
++    filterEditForm = this.filterEditor.getEditForm();
++    for (i = 0; i < filterLength; i++) {
++      criterion = criteria.criteria[i];
++      filterField = filterEditForm.getField(criterion.fieldName);
++      innerCache = [];
++      if (filterField && filterField.filterType === 'id') {
++        if (criterion.criteria) {
++          for (i = 0; i < criterion.criteria.length; i++) {
++            cacheElement = {};
++            cacheElement.fieldName = criterion.criteria[i].fieldName;
++            cacheElement[OB.Constants.ID] = criterion.criteria[i].value;
++            cacheElement[OB.Constants.IDENTIFIER] = filterField.getRecordIdentifierFromId(criterion.criteria[i].value);
++            innerCache.add(cacheElement);
++          }
++        } else {
++          cacheElement = {};
++          cacheElement.fieldName = criterion.fieldName;
++          cacheElement[OB.Constants.ID] = criterion.value;
++          cacheElement[OB.Constants.IDENTIFIER] = filterField.getRecordIdentifierFromId(criterion.value);
++          innerCache.add(cacheElement);
++        }
++        fkFilterAuxCache.add({
++          fieldName: criterion.fieldName,
++          cache: innerCache
++        });
++      }
++    }
++    return fkFilterAuxCache;
++  },
++
+   setSingleRecordFilterMessage: function () {
+     var showMessageProperty, showMessage;
+ 
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-view-grid.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-view-grid.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-view-grid.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -963,7 +963,10 @@
+ 
+     if (includeFilter) {
+       state.filter = this.getCriteria();
+-
++      if (state.filter) {
++        // store the foreign key filter auxiliary cache. this is needed if the grid contains any filter column whose current filter type is 'id'
++        state.filterAuxCache = this.getFKFilterAuxiliaryCache(state.filter);
++      }
+       if (!this.filterClause) {
+         state.noFilterClause = true;
+       }
+@@ -1098,6 +1101,8 @@
+       if (this.filterEditor && !this.filterEditor.getEditForm()) {
+         this.filterEditor.setValuesAsCriteria(localState.filter);
+       }
++      // if any filter fields of the stored view was using the 'id' filter type, load its auxiliary cache
++      this.loadFilterAuxiliaryCache(localState.filterAuxCache);
+       // this initial criteria needs to be removed in order to properly
+       // manage filtering clean up
+       this.initialCriteriaSetBySavedView = true;
+@@ -1105,6 +1110,22 @@
+     }
+   },
+ 
++  // loads the foreign key filter auxiliary cache of all the filter fields that were using the 'id' filter type when the view was saved
++  loadFilterAuxiliaryCache: function (filterAuxCache) {
++    var i, cacheElement, filterField;
++    if (!filterAuxCache || !isc.isA.Array(filterAuxCache) || filterAuxCache.length === 0) {
++      return;
++    }
++    for (i = 0; i < filterAuxCache.length; i++) {
++      cacheElement = filterAuxCache[i];
++      filterField = this.filterEditor.getEditForm().getField(cacheElement.fieldName);
++      filterField.filterType = 'id';
++      if (filterField) {
++        filterField.filterAuxCache = cacheElement.cache;
++      }
++    }
++  },
++
+   // overridden to also store the group mode
+   // http://forums.smartclient.com/showthread.php?p=93877#post93877
+   getGroupState: function () {
+@@ -1189,7 +1210,7 @@
+   },
+ 
+   setView: function (view) {
+-    var dataPageSizeaux, length, i, crit, groupByMaxRecords;
++    var dataPageSizeaux, length, i, crit, groupByMaxRecords, fkCache;
+ 
+     this.view = view;
+ 
+@@ -1214,6 +1235,10 @@
+     if (this.view.tabId === this.view.standardWindow.additionalCriteriaTabId && this.view.standardWindow.additionalCriteria) {
+       crit = isc.JSON.decode(unescape(this.view.standardWindow.additionalCriteria));
+       this.setCriteria(crit);
++      if (this.view.standardWindow.fkCache) {
++        this.fkCache = isc.JSON.decode(unescape(this.view.standardWindow.fkCache));
++        // cannot apply the fkCache yet because the grid might not have a filter editor yet
++      }
+       delete this.view.standardWindow.additionalCriteria;
+     }
+     // if there is no autoexpand field then just divide the space
+@@ -1482,6 +1507,12 @@
+ 
+     this.resetEmptyMessage();
+     this.view.updateTabTitle();
++    // apply the fk cache to ensure the identifiers of the filtered foreign keys are shown
++    if (this.fkCache) {
++      this.loadFilterAuxiliaryCache(this.fkCache);
++      // delete it to avoid loading the cache more than once
++      delete this.fkCache;
++    }
+ 
+     /*
+      * In case the url contains advanced criteria, the initial criteria contains the criteria to be applied. So it should not be deleted.
+@@ -1630,6 +1661,11 @@
+       this.actionAfterDataArrived = null;
+     }
+ 
++
++    if (this.data.manualResultSet && !this.data.useClientFiltering) {
++      this.data.useClientFiltering = true;
++    }
++
+     return ret;
+   },
+ 
+@@ -2284,7 +2320,8 @@
+       menuItems.add({
+         title: OB.I18N.getLabel('OBUIAPP_UseAsFilter'),
+         click: function () {
+-          var value;
++          var value, filterFormItem = grid.filterEditor.getEditForm().getField(field.name),
++              cacheElement = {};
+           // a foreign key field, use the displayfield/identifier
+           if (field.fkField && field.displayField) {
+             value = record[field.displayField];
+@@ -2293,10 +2330,19 @@
+           }
+           // assume a date range filter item
+           if (isc.isA.Date(value) && field.filterEditorType === 'OBMiniDateRangeItem') {
+-            grid.filterEditor.getEditForm().getField(field.name).setSingleDateValue(value);
++            filterFormItem.setSingleDateValue(value);
+           } else {
+             grid.filterEditor.getEditForm().setValue(field.name, OB.Utilities.encodeSearchOperator(value));
+           }
++          if (field.filterEditorType === 'OBFKFilterTextItem' && filterFormItem) {
++            filterFormItem.filterType = 'id';
++            if (!filterFormItem.getRecordIdentifierFromId(record[field.name])) {
++              // if the filter editor does not know about this record, add the its id and its identifier to the auxiliary filter cache              
++              cacheElement[OB.Constants.ID] = record[field.name];
++              cacheElement[OB.Constants.IDENTIFIER] = record[field.name + OB.Constants.FIELDSEPARATOR + OB.Constants.IDENTIFIER];
++              filterFormItem.filterAuxCache.add(cacheElement);
++            }
++          }
+           var criteria = grid.filterEditor.getEditForm().getValuesAsCriteria();
+           grid.checkShowFilterFunnelIcon(criteria);
+           grid.filterData(criteria);
+@@ -2721,6 +2767,11 @@
+     } else {
+       insertRow = rowNum + 1;
+     }
++
++    if (this.lazyFiltering && !isc.isA.ResultSet(this.data)) {
++      OB.Utilities.createResultSetManually(this);
++    }
++
+     this.createNewRecordForEditing(insertRow);
+     this.startEditing(insertRow);
+     this.recomputeCanvasComponents(insertRow);
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/main/ob-standard-view.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/main/ob-standard-view.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/main/ob-standard-view.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -702,7 +702,7 @@
+ 
+   getDirectLinkUrl: function () {
+     var url = window.location.href,
+-        crit;
++        crit, fkCache;
+     var qIndex = url.indexOf('?');
+     var dIndex = url.indexOf('#');
+     var index = -1;
+@@ -735,6 +735,13 @@
+           prettyPrint: false,
+           dateFormat: 'dateConstructor'
+         }));
++        fkCache = this.viewGrid.getFKFilterAuxiliaryCache(crit);
++        if (isc.isA.Array(fkCache) && fkCache.length > 0) {
++          url = url + '&fkCache=' + escape(isc.JSON.encode(fkCache, {
++            prettyPrint: false,
++            dateFormat: 'dateConstructor'
++          })) + '&';
++        }
+       }
+     }
+ 
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/process/ob-pick-and-execute-grid.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/process/ob-pick-and-execute-grid.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/process/ob-pick-and-execute-grid.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -138,6 +138,7 @@
+ 
+     this.orderByClause = this.gridProperties.orderByClause;
+     this.sqlOrderByClause = this.gridProperties.sqlOrderByClause;
++    this.alwaysFilterFksByIdentifier = this.gridProperties.alwaysFilterFksByIdentifier;
+ 
+     this.checkboxFieldProperties = isc.addProperties({}, this.checkboxFieldProperties | {}, {
+       canFilter: true,
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/toolbar/ob-toolbar.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/toolbar/ob-toolbar.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/toolbar/ob-toolbar.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -108,7 +108,6 @@
+     action: function () {
+       var view = this.view,
+           grid = view.viewGrid;
+-
+       // In case of no record selected getRecordIndex(undefined) returns -1,
+       // which is the top position, other case it adds bellow current selected row.
+       if (grid.getSelectedRecord()) {
+@@ -131,7 +130,8 @@
+ 
+   NEW_DOC_BUTTON_PROPERTIES: {
+     action: function () {
+-      this.view.newDocument();
++      var view = this.view;
++      view.newDocument();
+     },
+     buttonType: 'newDoc',
+     sortPosition: 10,
+@@ -1514,6 +1514,8 @@
+     }
+   },
+ 
++
++
+   addMembers: 'null',
+ 
+   leftMembers: [],
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.application/web/org.openbravo.client.application/js/utilities/ob-utilities.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/utilities/ob-utilities.js	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/utilities/ob-utilities.js	Wed Oct 29 11:35:01 2014 +0100
+@@ -379,6 +379,9 @@
+     if (urlParams.criteria) {
+       view.additionalCriteriaTabId = data.tabId;
+       view.additionalCriteria = urlParams.criteria;
++      if (urlParams.fkCache) {
++        view.fkCache = urlParams.fkCache;
++      }
+     }
+ 
+     if (urlParams.replaceDefaultFilter) {
+@@ -1247,4 +1250,19 @@
+     }
+   }
+   return -1;
++};
++
++//** {{{ OB.Utilities.createResultSetManually }}} **
++//
++// Creates a ResultSet manually for a grid
++// Parameters:
++//  * {{{grid}}} The grid whose ResultSet will be created manually
++OB.Utilities.createResultSetManually = function (grid) {
++  grid.dataProperties.dataSource = grid.dataSource;
++  grid.dataProperties.initialData = [];
++  grid.dataProperties.resultSize = 100;
++  grid.dataProperties.useClientFiltering = false;
++  grid.dataProperties.manualResultSet = true;
++  grid.setData(grid.createDataModel());
++  grid.serverDataNotLoaded = true;
+ };
+\ No newline at end of file
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.kernel/src/org/openbravo/client/kernel/KernelUtils.java
+--- a/modules/org.openbravo.client.kernel/src/org/openbravo/client/kernel/KernelUtils.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.kernel/src/org/openbravo/client/kernel/KernelUtils.java	Wed Oct 29 11:35:01 2014 +0100
+@@ -502,4 +502,22 @@
+     }
+     return targetColumnName;
+   }
++
++  /**
++   * Returns true if any of the identifier properties of the provided entity is nullable
++   * 
++   * @param entity
++   *          entity whose identifier might be comprised by nullable properties
++   * @return true if at least one of the identifier properties of the provided entity is nullable,
++   *         false if all of them are mandatory
++   */
++  public static boolean hasNullableIdentifierProperties(Entity entity) {
++    List<Property> identifierProperties = entity.getIdentifierProperties();
++    for (Property property : identifierProperties) {
++      if (!property.isMandatory()) {
++        return true;
++      }
++    }
++    return false;
++  }
+ }
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.kernel/src/org/openbravo/client/kernel/reference/ForeignKeyUIDefinition.java
+--- a/modules/org.openbravo.client.kernel/src/org/openbravo/client/kernel/reference/ForeignKeyUIDefinition.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.kernel/src/org/openbravo/client/kernel/reference/ForeignKeyUIDefinition.java	Wed Oct 29 11:35:01 2014 +0100
+@@ -63,6 +63,11 @@
+       }
+     }
+ 
++    Boolean allowFkFilterByIdentifier = (Boolean) readGridConfigurationSetting("allowFkFilterByIdentifier");
++    if (Boolean.FALSE.equals(allowFkFilterByIdentifier)) {
++      append = append + ", allowFkFilterByIdentifier: " + allowFkFilterByIdentifier.toString();
++    }
++
+     return super.getFilterEditorPropertiesProperty(field) + append;
+   }
+ 
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.client.querylist/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml
+--- a/modules/org.openbravo.client.querylist/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.querylist/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -11,6 +11,7 @@
+ <!--DD17275427E94026AD721067C3C91C18-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--DD17275427E94026AD721067C3C91C18-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--DD17275427E94026AD721067C3C91C18-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--DD17275427E94026AD721067C3C91C18-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--DD17275427E94026AD721067C3C91C18--></OBSERDS_DATASOURCE>
+ 
+ </data>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.service.datasource/src-db/database/model/tables/OBSERDS_DATASOURCE.xml
+--- a/modules/org.openbravo.service.datasource/src-db/database/model/tables/OBSERDS_DATASOURCE.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.service.datasource/src-db/database/model/tables/OBSERDS_DATASOURCE.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -65,6 +65,10 @@
+         <default><![CDATA[N]]></default>
+         <onCreateDefault><![CDATA['N']]></onCreateDefault>
+       </column>
++      <column name="IDFKFILTERING" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
++        <default><![CDATA[Y]]></default>
++        <onCreateDefault><![CDATA['N']]></onCreateDefault>
++      </column>
+       <foreign-key foreignTable="AD_CLIENT" name="OBSERDS_DS_AD_CLIENT">
+         <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+       </foreign-key>
+@@ -84,6 +88,7 @@
+         <unique-column name="NAME"/>
+       </unique>
+       <check name="OBSERDS_DS_DATAORIGIN_CHECK"><![CDATA[USEASTABLEDATAORIGIN IN ('Y', 'N')]]></check>
++      <check name="OBSERDS_DS_IDFK_CHECK"><![CDATA[IDFKFILTERING IN ('Y', 'N')]]></check>
+       <check name="OBSERDS_DS_ISACTIVE_CHECK"><![CDATA[ISACTIVE IN ('Y', 'N')]]></check>
+     </table>
+   </database>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_COLUMN.xml
+--- a/modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_COLUMN.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_COLUMN.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -179,6 +179,42 @@
+ <!--21517DD232744C1AA340826C3569D4A6-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
+ <!--21517DD232744C1AA340826C3569D4A6--></AD_COLUMN>
+ 
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9--><AD_COLUMN>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <AD_COLUMN_ID><![CDATA[25BF4B44D6F44B78B51F2FDCFE2ED0C9]]></AD_COLUMN_ID>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <NAME><![CDATA[SupportIdFkFiltering]]></NAME>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <DESCRIPTION><![CDATA[If this flag is checked, when a foreign key is filtered by selecting a value from the filter drop down, the foreign key will be filtered using its id.]]></DESCRIPTION>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <HELP><![CDATA[If this flag is checked, when a foreign key is filtered by selecting a value from the filter drop down, the foreign key will be filtered using its id. If this flag is not checked, the foreign key will be filtered using its identifier. ]]></HELP>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <COLUMNNAME><![CDATA[Idfkfiltering]]></COLUMNNAME>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <AD_TABLE_ID><![CDATA[B3283A801AAC411582CAAF6B99640CD8]]></AD_TABLE_ID>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <AD_REFERENCE_ID><![CDATA[20]]></AD_REFERENCE_ID>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <FIELDLENGTH><![CDATA[1]]></FIELDLENGTH>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <DEFAULTVALUE><![CDATA[Y]]></DEFAULTVALUE>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <SEQNO><![CDATA[170]]></SEQNO>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <AD_ELEMENT_ID><![CDATA[8D2CB81FF7474F4180695E423B6B7829]]></AD_ELEMENT_ID>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <AD_MODULE_ID><![CDATA[A44B9BA75C354D8FB2E3F7D6EB6BFDC4]]></AD_MODULE_ID>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <POSITION><![CDATA[17]]></POSITION>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--25BF4B44D6F44B78B51F2FDCFE2ED0C9--></AD_COLUMN>
++
+ <!--25C39503BBF34AA1BFE3DEB34B457FE8--><AD_COLUMN>
+ <!--25C39503BBF34AA1BFE3DEB34B457FE8-->  <AD_COLUMN_ID><![CDATA[25C39503BBF34AA1BFE3DEB34B457FE8]]></AD_COLUMN_ID>
+ <!--25C39503BBF34AA1BFE3DEB34B457FE8-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_ELEMENT.xml
+--- a/modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_ELEMENT.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_ELEMENT.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -56,6 +56,20 @@
+ <!--73C534367AFA4C28A9F8767D59AAE37E-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
+ <!--73C534367AFA4C28A9F8767D59AAE37E--></AD_ELEMENT>
+ 
++<!--8D2CB81FF7474F4180695E423B6B7829--><AD_ELEMENT>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <AD_ELEMENT_ID><![CDATA[8D2CB81FF7474F4180695E423B6B7829]]></AD_ELEMENT_ID>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <COLUMNNAME><![CDATA[Idfkfiltering]]></COLUMNNAME>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <NAME><![CDATA[Support Filtering Foreign Key Columns Using Their ID]]></NAME>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <PRINTNAME><![CDATA[Support Filtering Foreign Key Columns Using Their ID]]></PRINTNAME>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <DESCRIPTION><![CDATA[If this flag is checked, when a foreign key is filtered by selecting a value from the filter drop down, the foreign key will be filtered using its id.]]></DESCRIPTION>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <HELP><![CDATA[If this flag is checked, when a foreign key is filtered by selecting a value from the filter drop down, the foreign key will be filtered using its id. If this flag is not checked, the foreign key will be filtered using its identifier. ]]></HELP>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <AD_MODULE_ID><![CDATA[A44B9BA75C354D8FB2E3F7D6EB6BFDC4]]></AD_MODULE_ID>
++<!--8D2CB81FF7474F4180695E423B6B7829-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
++<!--8D2CB81FF7474F4180695E423B6B7829--></AD_ELEMENT>
++
+ <!--9D90F1136B8048D590DC661CF73DFCF6--><AD_ELEMENT>
+ <!--9D90F1136B8048D590DC661CF73DFCF6-->  <AD_ELEMENT_ID><![CDATA[9D90F1136B8048D590DC661CF73DFCF6]]></AD_ELEMENT_ID>
+ <!--9D90F1136B8048D590DC661CF73DFCF6-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_FIELD.xml
+--- a/modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_FIELD.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.service.datasource/src-db/database/sourcedata/AD_FIELD.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -254,6 +254,35 @@
+ <!--5D087C6130C74B369C612362E56CC8BA-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--5D087C6130C74B369C612362E56CC8BA--></AD_FIELD>
+ 
++<!--6A71A186573D4AD3819455A65678D21B--><AD_FIELD>
++<!--6A71A186573D4AD3819455A65678D21B-->  <AD_FIELD_ID><![CDATA[6A71A186573D4AD3819455A65678D21B]]></AD_FIELD_ID>
++<!--6A71A186573D4AD3819455A65678D21B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--6A71A186573D4AD3819455A65678D21B-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--6A71A186573D4AD3819455A65678D21B-->  <NAME><![CDATA[Support Filtering Foreign Key Columns Using Their ID]]></NAME>
++<!--6A71A186573D4AD3819455A65678D21B-->  <DESCRIPTION><![CDATA[If this flag is checked, when a foreign key is filtered by selecting a value from the filter drop down, the foreign key will be filtered using its id.]]></DESCRIPTION>
++<!--6A71A186573D4AD3819455A65678D21B-->  <HELP><![CDATA[If this flag is checked, when a foreign key is filtered by selecting a value from the filter drop down, the foreign key will be filtered using its id. If this flag is not checked, the foreign key will be filtered using its identifier. ]]></HELP>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--6A71A186573D4AD3819455A65678D21B-->  <AD_TAB_ID><![CDATA[EFA7EFCFC6E14827B109D88F236A0B6C]]></AD_TAB_ID>
++<!--6A71A186573D4AD3819455A65678D21B-->  <AD_COLUMN_ID><![CDATA[25BF4B44D6F44B78B51F2FDCFE2ED0C9]]></AD_COLUMN_ID>
++<!--6A71A186573D4AD3819455A65678D21B-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISDISPLAYED><![CDATA[Y]]></ISDISPLAYED>
++<!--6A71A186573D4AD3819455A65678D21B-->  <DISPLAYLOGIC><![CDATA[@Useastabledataorigin@='Y']]></DISPLAYLOGIC>
++<!--6A71A186573D4AD3819455A65678D21B-->  <DISPLAYLENGTH><![CDATA[1]]></DISPLAYLENGTH>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISREADONLY><![CDATA[N]]></ISREADONLY>
++<!--6A71A186573D4AD3819455A65678D21B-->  <SEQNO><![CDATA[85]]></SEQNO>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--6A71A186573D4AD3819455A65678D21B-->  <SHOWINRELATION><![CDATA[N]]></SHOWINRELATION>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
++<!--6A71A186573D4AD3819455A65678D21B-->  <AD_MODULE_ID><![CDATA[A44B9BA75C354D8FB2E3F7D6EB6BFDC4]]></AD_MODULE_ID>
++<!--6A71A186573D4AD3819455A65678D21B-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
++<!--6A71A186573D4AD3819455A65678D21B-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--6A71A186573D4AD3819455A65678D21B-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
++<!--6A71A186573D4AD3819455A65678D21B-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
++<!--6A71A186573D4AD3819455A65678D21B--></AD_FIELD>
++
+ <!--6D0F8AB4136E408A88EA140CDE117814--><AD_FIELD>
+ <!--6D0F8AB4136E408A88EA140CDE117814-->  <AD_FIELD_ID><![CDATA[6D0F8AB4136E408A88EA140CDE117814]]></AD_FIELD_ID>
+ <!--6D0F8AB4136E408A88EA140CDE117814-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.service.datasource/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml
+--- a/modules/org.openbravo.service.datasource/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.service.datasource/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -11,6 +11,7 @@
+ <!--15E4FE4F91BF4776AA326FA798CC9F53-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--15E4FE4F91BF4776AA326FA798CC9F53-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--15E4FE4F91BF4776AA326FA798CC9F53-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--15E4FE4F91BF4776AA326FA798CC9F53-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--15E4FE4F91BF4776AA326FA798CC9F53--></OBSERDS_DATASOURCE>
+ 
+ </data>
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.service.json/src/org/openbravo/service/json/AdvancedQueryBuilder.java
+--- a/modules/org.openbravo.service.json/src/org/openbravo/service/json/AdvancedQueryBuilder.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.service.json/src/org/openbravo/service/json/AdvancedQueryBuilder.java	Wed Oct 29 11:35:01 2014 +0100
+@@ -158,6 +158,11 @@
+   private String distinctPropertyPath;
+   private DataEntityQueryService subDataEntityQueryService;
+ 
++  // map that indicates, for a property, if its join definition is used only in joins used for
++  // filtering the grid
++  // see issue https://issues.openbravo.com/view.php?id=26279
++  private Map<String, Boolean> gridFilterExclusiveJoinMap = new HashMap<String, Boolean>();
++
+   private int aliasOffset = 0;
+ 
+   public Entity getEntity() {
+@@ -235,8 +240,16 @@
+       // if the property allows null values, use a left join instead an inner join
+       if (!distinctPropertyPath.contains(DalUtil.FIELDSEPARATOR)
+           && subEntity.getProperty(distinctPropertyPath).allowNullValues()) {
++        String joinType = null;
++        // if all the identifier properties of the subentity are mandatory, an inner join can be
++        // used
++        if (KernelUtils.hasNullableIdentifierProperties(subEntity)) {
++          joinType = " left join ";
++        } else {
++          joinType = " inner join ";
++        }
+         whereClause += " exists (select 1 from " + subEntity.getName() + " "
+-            + subEntityQueryBuilder.getJoinClause() + " left join "
++            + subEntityQueryBuilder.getJoinClause() + joinType
+             + subEntityQueryBuilder.getMainAlias() + DalUtil.DOT + distinctPropertyPath + " as i "
+             + subentityWhere + " i = " + mainAlias + subEntityClientOrg + ") ";
+       } else {
+@@ -248,7 +261,6 @@
+ 
+       typedParameters.addAll(subEntityQueryBuilder.typedParameters);
+     }
+-
+     return whereClause;
+   }
+ 
+@@ -594,7 +606,8 @@
+ 
+     String clause = null;
+     if (orNesting > 0) {
+-      clause = resolveJoins(properties, useFieldName);
++      boolean fromCriteria = true;
++      clause = resolveJoins(properties, useFieldName, fromCriteria);
+     } else if (getMainAlias() != null) {
+       clause = getMainAlias() + DalUtil.DOT + useFieldName.trim();
+     } else {
+@@ -849,8 +862,9 @@
+       prefix = getMainAlias() + DalUtil.DOT;
+     } else if (key.endsWith(JsonConstants.IDENTIFIER)) {
+       final String propPath = key.substring(0, key.indexOf(JsonConstants.IDENTIFIER) - 1);
++      boolean fromCriteria = true;
+       final String join = resolveJoins(JsonUtils.getPropertiesOnPath(getEntity(), propPath),
+-          propPath);
++          propPath, fromCriteria);
+       prefix = join + DalUtil.DOT;
+     } else if (index == -1) {
+       prefix = "";
+@@ -1213,7 +1227,8 @@
+       if (properties.isEmpty() || lastProperty.isOneToMany()) {
+         continue;
+       }
+-      resolveJoins(properties, getMainAlias());
++      boolean fromCriteria = false;
++      resolveJoins(properties, getMainAlias(), fromCriteria);
+     }
+ 
+     // make sure that the join clauses are computed
+@@ -1367,9 +1382,9 @@
+         path = orderByExpression[0];
+         direction = " " + orderByExpression[1] + " ";
+       }
+-
++      boolean fromCriteria = false;
+       final String resolvedPath = resolveJoins(JsonUtils.getPropertiesOnPath(getEntity(), path),
+-          path);
++          path, fromCriteria);
+       sb.append(resolvedPath);
+       sb.append(direction);
+     }
+@@ -1551,9 +1566,15 @@
+     setMainAlias(JsonConstants.MAIN_ALIAS);
+   }
+ 
++  public String resolveJoins(List<Property> props, String originalPath) {
++    // by default use fromCriteria = false. that way if resolveJoins is called without the
++    // fromCriteria parameter, a 'left join' will be used, which is the previous standard behavior
++    return resolveJoins(props, originalPath, false);
++  }
++
+   // Resolves the list of properties against existing join definitions
+   // creates new join definitions when necessary
+-  public String resolveJoins(List<Property> props, String originalPath) {
++  public String resolveJoins(List<Property> props, String originalPath, boolean fromCriteria) {
+     String alias = getMainAlias();
+     if (alias == null) {
+       return originalPath;
+@@ -1564,6 +1585,9 @@
+       boolean found = false;
+       for (JoinDefinition joinDefinition : joinDefinitions) {
+         if (joinDefinition.appliesTo(alias, prop)) {
++          if (!fromCriteria) {
++            gridFilterExclusiveJoinMap.put(prop.getName(), Boolean.FALSE);
++          }
+           alias = joinDefinition.getJoinAlias();
+           joinedPropertyIndex = index;
+           found = true;
+@@ -1586,6 +1610,11 @@
+       final JoinDefinition joinDefinition = new JoinDefinition();
+       joinDefinition.setOwnerAlias(alias);
+       joinDefinition.setProperty(prop);
++      if (fromCriteria) {
++        gridFilterExclusiveJoinMap.put(prop.getName(), Boolean.TRUE);
++      } else {
++        gridFilterExclusiveJoinMap.put(prop.getName(), Boolean.FALSE);
++      }
+       joinDefinitions.add(joinDefinition);
+ 
+       // move the result up to use the new JoinDefinition
+@@ -1634,7 +1663,18 @@
+         return " left outer join " + (fetchJoin ? "fetch " : "")
+             + (ownerAlias != null ? ownerAlias + DalUtil.DOT : "") + propName + " as " + joinAlias;
+       } else {
+-        return " left join " + (fetchJoin ? "fetch " : "")
++        String joinType = null;
++        // if all the identifier properties of the target entity are mandatory, and if the joined
++        // entity is used only in where clauses resulting from filtering the grid, an inner join can
++        // be used
++        if (KernelUtils.hasNullableIdentifierProperties(property.getTargetEntity())
++            || !(Boolean.TRUE.equals(gridFilterExclusiveJoinMap.get(property.getName())))) {
++          joinType = " left join ";
++        } else {
++          joinType = " inner join ";
++        }
++
++        return joinType + (fetchJoin ? "fetch " : "")
+             + (ownerAlias != null ? ownerAlias + DalUtil.DOT : "") + propName + " as " + joinAlias;
+       }
+     }
+@@ -1723,7 +1763,8 @@
+   public void addSelectFunctionPart(String function, String field) {
+     String localField = field;
+     final List<Property> properties = JsonUtils.getPropertiesOnPath(getEntity(), localField);
+-    localField = resolveJoins(properties, localField);
++    boolean fromCriteria = false;
++    localField = resolveJoins(properties, localField, fromCriteria);
+     if (properties.size() > 0) {
+       final Property lastProperty = properties.get(properties.size() - 1);
+       if (lastProperty.getTargetEntity() != null) {
+@@ -1747,7 +1788,8 @@
+     String localSelectClausePart = selectClausePart;
+     final List<Property> properties = JsonUtils.getPropertiesOnPath(getEntity(),
+         localSelectClausePart);
+-    localSelectClausePart = resolveJoins(properties, localSelectClausePart);
++    boolean fromCriteria = false;
++    localSelectClausePart = resolveJoins(properties, localSelectClausePart, fromCriteria);
+     selectClauseParts.add(localSelectClausePart);
+   }
+ 
+diff -r 6af26661c789 -r 85e6d391edff modules/org.openbravo.userinterface.selector/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml
+--- a/modules/org.openbravo.userinterface.selector/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.userinterface.selector/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -11,6 +11,7 @@
+ <!--5C8B84FA41CE4876B26B9E96A9E909BD-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--5C8B84FA41CE4876B26B9E96A9E909BD-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--5C8B84FA41CE4876B26B9E96A9E909BD-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--5C8B84FA41CE4876B26B9E96A9E909BD-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--5C8B84FA41CE4876B26B9E96A9E909BD--></OBSERDS_DATASOURCE>
+ 
+ <!--83B60C4C19AE4A9EBA947B948C5BA04D--><OBSERDS_DATASOURCE>
+@@ -24,6 +25,7 @@
+ <!--83B60C4C19AE4A9EBA947B948C5BA04D-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--83B60C4C19AE4A9EBA947B948C5BA04D-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--83B60C4C19AE4A9EBA947B948C5BA04D-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--83B60C4C19AE4A9EBA947B948C5BA04D-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--83B60C4C19AE4A9EBA947B948C5BA04D--></OBSERDS_DATASOURCE>
+ 
+ <!--F8DD408F2F3A414188668836F84C21AF--><OBSERDS_DATASOURCE>
+@@ -36,6 +38,7 @@
+ <!--F8DD408F2F3A414188668836F84C21AF-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--F8DD408F2F3A414188668836F84C21AF-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--F8DD408F2F3A414188668836F84C21AF-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--F8DD408F2F3A414188668836F84C21AF-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--F8DD408F2F3A414188668836F84C21AF--></OBSERDS_DATASOURCE>
+ 
+ </data>
+diff -r 6af26661c789 -r 85e6d391edff src-db/database/sourcedata/AD_DATASET_TABLE.xml
+--- a/src-db/database/sourcedata/AD_DATASET_TABLE.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/src-db/database/sourcedata/AD_DATASET_TABLE.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -546,6 +546,20 @@
+ <!--2BF53DD296E011DDBB12001B388C61A4-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--2BF53DD296E011DDBB12001B388C61A4--></AD_DATASET_TABLE>
+ 
++<!--2C051109458D4CB197FEEA1C93E2870B--><AD_DATASET_TABLE>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <AD_DATASET_TABLE_ID><![CDATA[2C051109458D4CB197FEEA1C93E2870B]]></AD_DATASET_TABLE_ID>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <AD_DATASET_ID><![CDATA[D81C5C810AEF47C690E4F688ABC8AAC8]]></AD_DATASET_ID>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <AD_TABLE_ID><![CDATA[5D50320222DD4865ADFD50364C84291D]]></AD_TABLE_ID>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <INCLUDEALLCOLUMNS><![CDATA[Y]]></INCLUDEALLCOLUMNS>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <WHERECLAUSE><![CDATA[client.id=:ClientID]]></WHERECLAUSE>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <EXCLUDEAUDITINFO><![CDATA[N]]></EXCLUDEAUDITINFO>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <ISBUSINESSOBJECT><![CDATA[N]]></ISBUSINESSOBJECT>
++<!--2C051109458D4CB197FEEA1C93E2870B-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--2C051109458D4CB197FEEA1C93E2870B--></AD_DATASET_TABLE>
++
+ <!--2CF09B09E5794F808BEC9E719DFFA108--><AD_DATASET_TABLE>
+ <!--2CF09B09E5794F808BEC9E719DFFA108-->  <AD_DATASET_TABLE_ID><![CDATA[2CF09B09E5794F808BEC9E719DFFA108]]></AD_DATASET_TABLE_ID>
+ <!--2CF09B09E5794F808BEC9E719DFFA108-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -588,6 +602,20 @@
+ <!--2FF759C157354DE998B30336180BEB16-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--2FF759C157354DE998B30336180BEB16--></AD_DATASET_TABLE>
+ 
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6--><AD_DATASET_TABLE>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <AD_DATASET_TABLE_ID><![CDATA[31C9C2AB8FF84CFE85DA1889AEF788B6]]></AD_DATASET_TABLE_ID>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <AD_DATASET_ID><![CDATA[D81C5C810AEF47C690E4F688ABC8AAC8]]></AD_DATASET_ID>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <AD_TABLE_ID><![CDATA[8A16662B37184121A1EDAA89890E160C]]></AD_TABLE_ID>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <INCLUDEALLCOLUMNS><![CDATA[Y]]></INCLUDEALLCOLUMNS>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <WHERECLAUSE><![CDATA[client.id=:ClientID]]></WHERECLAUSE>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <EXCLUDEAUDITINFO><![CDATA[N]]></EXCLUDEAUDITINFO>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <ISBUSINESSOBJECT><![CDATA[N]]></ISBUSINESSOBJECT>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--31C9C2AB8FF84CFE85DA1889AEF788B6--></AD_DATASET_TABLE>
++
+ <!--3266B4828B424567AA9BA9B2D39AA31B--><AD_DATASET_TABLE>
+ <!--3266B4828B424567AA9BA9B2D39AA31B-->  <AD_DATASET_TABLE_ID><![CDATA[3266B4828B424567AA9BA9B2D39AA31B]]></AD_DATASET_TABLE_ID>
+ <!--3266B4828B424567AA9BA9B2D39AA31B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -1538,6 +1566,20 @@
+ <!--A639D7416530498CA90324D6724A3AD1-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--A639D7416530498CA90324D6724A3AD1--></AD_DATASET_TABLE>
+ 
++<!--A6C439C37A074EA1B735A2770D5EBC4C--><AD_DATASET_TABLE>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <AD_DATASET_TABLE_ID><![CDATA[A6C439C37A074EA1B735A2770D5EBC4C]]></AD_DATASET_TABLE_ID>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <AD_DATASET_ID><![CDATA[D81C5C810AEF47C690E4F688ABC8AAC8]]></AD_DATASET_ID>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <AD_TABLE_ID><![CDATA[F167EB822B8A4284AC37D5B40B785D51]]></AD_TABLE_ID>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <INCLUDEALLCOLUMNS><![CDATA[Y]]></INCLUDEALLCOLUMNS>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <WHERECLAUSE><![CDATA[client.id=:ClientID]]></WHERECLAUSE>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <EXCLUDEAUDITINFO><![CDATA[N]]></EXCLUDEAUDITINFO>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <ISBUSINESSOBJECT><![CDATA[N]]></ISBUSINESSOBJECT>
++<!--A6C439C37A074EA1B735A2770D5EBC4C-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--A6C439C37A074EA1B735A2770D5EBC4C--></AD_DATASET_TABLE>
++
+ <!--A72FABDEBAE111DD89C5001B388C61A4--><AD_DATASET_TABLE>
+ <!--A72FABDEBAE111DD89C5001B388C61A4-->  <AD_DATASET_TABLE_ID><![CDATA[A72FABDEBAE111DD89C5001B388C61A4]]></AD_DATASET_TABLE_ID>
+ <!--A72FABDEBAE111DD89C5001B388C61A4-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 6af26661c789 -r 85e6d391edff src-db/database/sourcedata/OBSERDS_DATASOURCE.xml
+--- a/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Thu Oct 23 17:31:32 2014 +0000
++++ b/src-db/database/sourcedata/OBSERDS_DATASOURCE.xml	Wed Oct 29 11:35:01 2014 +0100
+@@ -10,6 +10,7 @@
+ <!--2B21809CD7E3464FBFBD5FD60DFC3959-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--2B21809CD7E3464FBFBD5FD60DFC3959-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--2B21809CD7E3464FBFBD5FD60DFC3959-->  <USEASTABLEDATAORIGIN><![CDATA[Y]]></USEASTABLEDATAORIGIN>
++<!--2B21809CD7E3464FBFBD5FD60DFC3959-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--2B21809CD7E3464FBFBD5FD60DFC3959--></OBSERDS_DATASOURCE>
+ 
+ <!--2F5B70D7F12E4F5C8FE20D6F17D69ECF--><OBSERDS_DATASOURCE>
+@@ -22,6 +23,7 @@
+ <!--2F5B70D7F12E4F5C8FE20D6F17D69ECF-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--2F5B70D7F12E4F5C8FE20D6F17D69ECF-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--2F5B70D7F12E4F5C8FE20D6F17D69ECF-->  <USEASTABLEDATAORIGIN><![CDATA[Y]]></USEASTABLEDATAORIGIN>
++<!--2F5B70D7F12E4F5C8FE20D6F17D69ECF-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--2F5B70D7F12E4F5C8FE20D6F17D69ECF--></OBSERDS_DATASOURCE>
+ 
+ <!--610BEAE5E223447DBE6FF672B703F72F--><OBSERDS_DATASOURCE>
+@@ -34,6 +36,7 @@
+ <!--610BEAE5E223447DBE6FF672B703F72F-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--610BEAE5E223447DBE6FF672B703F72F-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--610BEAE5E223447DBE6FF672B703F72F-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--610BEAE5E223447DBE6FF672B703F72F-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--610BEAE5E223447DBE6FF672B703F72F--></OBSERDS_DATASOURCE>
+ 
+ <!--6654D607F650425A9DFF7B6961D54920--><OBSERDS_DATASOURCE>
+@@ -47,6 +50,7 @@
+ <!--6654D607F650425A9DFF7B6961D54920-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--6654D607F650425A9DFF7B6961D54920-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--6654D607F650425A9DFF7B6961D54920-->  <USEASTABLEDATAORIGIN><![CDATA[Y]]></USEASTABLEDATAORIGIN>
++<!--6654D607F650425A9DFF7B6961D54920-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--6654D607F650425A9DFF7B6961D54920--></OBSERDS_DATASOURCE>
+ 
+ <!--90034CAE96E847D78FBEF6D38CB1930D--><OBSERDS_DATASOURCE>
+@@ -59,6 +63,7 @@
+ <!--90034CAE96E847D78FBEF6D38CB1930D-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--90034CAE96E847D78FBEF6D38CB1930D-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--90034CAE96E847D78FBEF6D38CB1930D-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--90034CAE96E847D78FBEF6D38CB1930D-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--90034CAE96E847D78FBEF6D38CB1930D--></OBSERDS_DATASOURCE>
+ 
+ <!--BE2735798ECC4EF88D131F16F1C4EC72--><OBSERDS_DATASOURCE>
+@@ -72,6 +77,7 @@
+ <!--BE2735798ECC4EF88D131F16F1C4EC72-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--BE2735798ECC4EF88D131F16F1C4EC72-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--BE2735798ECC4EF88D131F16F1C4EC72-->  <USEASTABLEDATAORIGIN><![CDATA[N]]></USEASTABLEDATAORIGIN>
++<!--BE2735798ECC4EF88D131F16F1C4EC72-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--BE2735798ECC4EF88D131F16F1C4EC72--></OBSERDS_DATASOURCE>
+ 
+ <!--DF3ACC1626CB4469B4ABBD3713D71D4E--><OBSERDS_DATASOURCE>
+@@ -84,6 +90,7 @@
+ <!--DF3ACC1626CB4469B4ABBD3713D71D4E-->  <OBCLKER_TEMPLATE_ID><![CDATA[2BAD445C2A0343C58E455F9BD379C690]]></OBCLKER_TEMPLATE_ID>
+ <!--DF3ACC1626CB4469B4ABBD3713D71D4E-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--DF3ACC1626CB4469B4ABBD3713D71D4E-->  <USEASTABLEDATAORIGIN><![CDATA[Y]]></USEASTABLEDATAORIGIN>
++<!--DF3ACC1626CB4469B4ABBD3713D71D4E-->  <IDFKFILTERING><![CDATA[Y]]></IDFKFILTERING>
+ <!--DF3ACC1626CB4469B4ABBD3713D71D4E--></OBSERDS_DATASOURCE>
+ 
+ </data>
+diff -r 6af26661c789 -r 85e6d391edff src/org/openbravo/common/datasource/ReturnFromCustomerPickEditLineDatasource.java
+--- a/src/org/openbravo/common/datasource/ReturnFromCustomerPickEditLineDatasource.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/src/org/openbravo/common/datasource/ReturnFromCustomerPickEditLineDatasource.java	Wed Oct 29 11:35:01 2014 +0100
+@@ -327,6 +327,8 @@
+           if (fieldName.equals("product$_identifier")) {
+             filterClause.append(" AND COALESCE(rol.m_product_identifier,ip.name) ilike '%" + value
+                 + "%'");
++          } else if (fieldName.equals("product")) {
++            filterClause.append(" AND rol.m_product_id = '" + value + "'");
+           } else if (fieldName.equals("inOutDocumentNumber")) {
+             filterClause.append(" AND i.documentno ilike '%" + value + "%'");
+           } else if (fieldName.equals("movementDate")) {
+@@ -336,11 +338,16 @@
+             filterClause.append(buildComplexFilter("il.movementqty", operatorName, value));
+           } else if (fieldName.equals("uOM$_identifier")) {
+             filterClause.append(" AND c_uom_id ilike '%" + value + "%'");
++          } else if (fieldName.equals("uOM")) {
++            filterClause.append(" AND rol.c_uom_id = '" + value + "'");
+           } else if (fieldName.equals("attributeSetValue$_identifier")) {
+             filterClause
+                 .append(" AND COALESCE(rol.m_attributesetinstance_identifier, iat.description) ilike '%"
+                     + value + "%'");
++          } else if (fieldName.equals("attributeSetValue")) {
++            filterClause.append(" AND rol.m_attributesetinstance_id = '" + value + "'");
+           }
++
+         }
+       }
+     } catch (JSONException e) {
+diff -r 6af26661c789 -r 85e6d391edff src/org/openbravo/common/datasource/StockReservationPickAndEditDataSource.java
+--- a/src/org/openbravo/common/datasource/StockReservationPickAndEditDataSource.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/src/org/openbravo/common/datasource/StockReservationPickAndEditDataSource.java	Wed Oct 29 11:35:01 2014 +0100
+@@ -271,6 +271,9 @@
+                     Restrictions.ilike(Warehouse.PROPERTY_NAME, "%" + myJSONObject.get("value")
+                         + "%"));
+               }
++            } else if (myJSONObject.get("fieldName").equals("warehouse")
++                && myJSONObject.get("operator").equals("equals") && myJSONObject.has("value")) {
++              myCriterion = Restrictions.eq(Warehouse.PROPERTY_ID, myJSONObject.get("value"));
+             }
+           }
+           if (myCriterion != null) {
+@@ -396,6 +399,9 @@
+                     Restrictions.ilike(Locator.PROPERTY_SEARCHKEY, "%" + myJSONObject.get("value")
+                         + "%"));
+               }
++            } else if (myJSONObject.get("fieldName").equals("storageBin")
++                && operator.equals("equals") && myJSONObject.has("value")) {
++              myCriterion = Restrictions.eq(Locator.PROPERTY_ID, myJSONObject.get("value"));
+             }
+           }
+           if (myCriterion != null) {
+@@ -500,7 +506,8 @@
+                   .equals(criteria.getString("operator")))) {
+           filterCriteria.put(criteria.getString("fieldName"), criteria.toString());
+         } else if (criteria.has("operator")
+-            && ("iEquals".equals(criteria.getString("operator")) || "iContains".equals(criteria
++            && ("equals".equals(criteria.getString("operator"))
++                || "iEquals".equals(criteria.getString("operator")) || "iContains".equals(criteria
+                 .getString("operator")))) {
+ 
+           if (filterCriteria.containsKey(criteria.getString("fieldName"))) {
+@@ -526,24 +533,40 @@
+     Reservation reservation = null;
+     // Filters
+     List<Warehouse> warehousesFiltered = null;
+-    if (filterCriteria.get("warehouse$_identifier") != null) {
+-      warehousesFiltered = getFilteredWarehouse(filterCriteria.get("warehouse$_identifier"),
+-          parameters);
++    if (filterCriteria.get("warehouse$_identifier") != null
++        || filterCriteria.get("warehouse") != null) {
++      String warehouseCriteria = filterCriteria.get("warehouse$_identifier");
++      if (warehouseCriteria == null) {
++        warehouseCriteria = filterCriteria.get("warehouse");
++      }
++      warehousesFiltered = getFilteredWarehouse(warehouseCriteria, parameters);
+     }
+     List<Locator> locatorsFiltered = null;
+-    if (filterCriteria.get("storageBin$_identifier") != null) {
+-      locatorsFiltered = getFilteredStorageBin(filterCriteria.get("storageBin$_identifier"),
+-          parameters);
++    if (filterCriteria.get("storageBin$_identifier") != null
++        || filterCriteria.get("storageBin") != null) {
++      String locatorCriteria = filterCriteria.get("storageBin$_identifier");
++      if (locatorCriteria == null) {
++        locatorCriteria = filterCriteria.get("storageBin");
++      }
++      locatorsFiltered = getFilteredStorageBin(locatorCriteria, parameters);
+     }
+     List<AttributeSetInstance> attributesFiltered = null;
+-    if (filterCriteria.get("attributeSetValue$_identifier") != null) {
+-      attributesFiltered = getFilteredAttribute(
+-          filterCriteria.get("attributeSetValue$_identifier"), parameters);
++    if (filterCriteria.get("attributeSetValue$_identifier") != null
++        || filterCriteria.get("attributeSetValue") != null) {
++      String attributesCriteria = filterCriteria.get("attributeSetValue$_identifier");
++      if (attributesCriteria == null) {
++        attributesCriteria = filterCriteria.get("attributeSetValue");
++      }
++      attributesFiltered = getFilteredAttribute(attributesCriteria, parameters);
+     }
+     List<OrderLine> orderLinesFiltered = null;
+-    if (filterCriteria.get("purchaseOrderLine$_identifier") != null) {
+-      orderLinesFiltered = getFilteredOrderline(
+-          filterCriteria.get("purchaseOrderLine$_identifier"), parameters);
++    if (filterCriteria.get("purchaseOrderLine$_identifier") != null
++        || filterCriteria.get("purchaseOrderLine") != null) {
++      String orderLinesCriteria = filterCriteria.get("purchaseOrderLine$_identifier");
++      if (orderLinesCriteria == null) {
++        orderLinesCriteria = filterCriteria.get("purchaseOrderLine");
++      }
++      orderLinesFiltered = getFilteredOrderline(orderLinesCriteria, parameters);
+     }
+     String availableQtyFilterCriteria = "";
+     if (filterCriteria.get("availableQty") != null) {
+@@ -702,6 +725,10 @@
+                     Restrictions.ilike(AttributeSetInstance.PROPERTY_DESCRIPTION, "%"
+                         + myJSONObject.get("value") + "%"));
+               }
++            } else if (myJSONObject.get("fieldName").equals("attributeSetValue")
++                && operator.equals("equals") && myJSONObject.has("value")) {
++              myCriterion = Restrictions.eq(AttributeSetInstance.PROPERTY_ID,
++                  myJSONObject.get("value"));
+             }
+           }
+           if (myCriterion != null) {
+@@ -755,6 +782,11 @@
+                         + org.openbravo.model.common.order.Order.PROPERTY_DOCUMENTNO, "%"
+                         + getOrderDocumentNo((String) myJSONObject.get("value")) + "%"));
+               }
++            } else if (myJSONObject.getString("fieldName").equals("purchaseOrderLine")
++                && operator.equals("equals") && myJSONObject.has("value")) {
++              myCriterion = Restrictions.eq("o."
++                  + org.openbravo.model.common.order.Order.PROPERTY_ID,
++                  getOrderDocumentNo((String) myJSONObject.get("value")));
+             }
+           }
+           if (myCriterion != null) {

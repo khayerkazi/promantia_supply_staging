@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEPO">
+    <function name="IM_VALIDATEPO" type="VARCHAR">
+      <parameter name="puserid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validatepoitem Record; -- validating all records from temp table 
+  validatedocinpo Record; 
+  v_count NUMBER:=0;
+  v_numeric boolean:=FALSE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_userid  VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_duplicateboxnumber VARCHAR(255) :='';
+  v_boxnumbercheck VARCHAR(255) :='';
+  v_flag boolean := TRUE;
+  v_validateflag NUMBER:=0;
+  v_mcdd NUMBER:=0;
+  v_edd_minimum DATE ;
+BEGIN
+
+v_userid=puserid;
+
+FOR validatepoitem IN 
+-- Selecting all rows from i_corder table
+
+(SELECT im_corder_id,fob_price,currency ,itemcode, quantity, warehouse ,supplierean,cdd FROM im_corder where validated='N' and createdby=v_userid) LOOP
+
+v_flag:=TRUE;
+
+--check if item code exists
+IF (validatepoitem.itemcode IS NULL OR TRIM(BOTH ' ' FROM validatepoitem.itemcode) = '') THEN
+  v_missingErrorNotice := 'Item Code cannot be Blank, ';
+END IF; 
+IF ((to_number(validatepoitem.quantity) IS NULL) OR (to_number(validatepoitem.quantity)=0)) THEN
+  v_missingErrorNotice := 'Qty cannot be Blank or Zero, ';
+END IF;
+IF (validatepoitem.warehouse IS NULL OR TRIM(BOTH ' ' FROM validatepoitem.warehouse) = '') THEN
+  v_missingErrorNotice := 'Warehouse cannot be Blank, ';
+END IF;
+IF (validatepoitem.supplierean IS NULL OR TRIM(BOTH ' ' FROM validatepoitem.supplierean) = '') THEN
+  v_missingErrorNotice := 'Supplier EAN code cannot be Blank, ';
+END IF;
+IF (validatepoitem.cdd IS NULL) THEN
+  v_missingErrorNotice := 'CDD cannot be Blank, ';
+END IF;
+IF (validatepoitem.currency IS NULL OR TRIM(BOTH ' ' FROM validatepoitem.currency) = '') THEN
+  v_missingErrorNotice := 'Currency cannot be Blank, ';
+END IF;
+IF (validatepoitem.fob_price IS NULL OR TRIM(BOTH ' ' FROM validatepoitem.fob_price) = '') THEN
+  v_missingErrorNotice := 'COST+ cannot be Blank, ';
+END IF;
+IF (validatepoitem.currency IS NULL OR TRIM(BOTH ' ' FROM validatepoitem.currency) = '') THEN
+  v_missingErrorNotice := 'Currency cannot be Blank, ';
+END IF;
+
+
+
+--check if item code exits in erp
+select count(*) INTO v_count from c_currency where iso_code=validatepoitem.currency;
+IF (v_count=0) THEN
+v_missingErrorNotice := v_missingErrorNotice || ' Currency Does Not Exit in ERP, ';
+END IF;
+
+
+--check if item code exits in erp
+select count(*) INTO v_count from m_product where name=validatepoitem.itemcode;
+IF (v_count=0) THEN
+
+       v_missingErrorNotice := v_missingErrorNotice || ' Item Code Does Not Exit in ERP, ';
+END IF;
+--check duplicate Item code in po for same document number
+select count(itemcode) INTO v_count  from im_corder where itemcode=validatepoitem.itemcode and cdd=validatepoitem.cdd;
+IF (v_count > 1 ) THEN      
+      v_missingErrorNotice := v_missingErrorNotice || ' Duplicate Item Codes in PO, ';
+END IF;
+--check if warehouse exits in erp
+select count(name) INTO v_count from m_warehouse where name=validatepoitem.warehouse;
+IF (v_count=0 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || ' Warehouse Does Not Exit in ERP, ';
+END IF;
+--check if supplier exists
+SELECT count(*) into v_count From c_bpartner where trim(em_cl_supplierno)=trim(validatepoitem.supplierean) and isvendor='Y'; 
+IF (v_count=0) THEN
+      v_missingErrorNotice := v_missingErrorNotice || ' Supplier does not exsist in ERP, ';
+END IF;
+--check if supplier address exists
+/*SELECT count(*) into v_count From c_bpartner_location 
+where c_bpartner_id in (select distinct c_bpartner_id from c_bpartner where em_cl_supplierno=validatepoitem.supplierean and isvendor='Y'); 
+IF (v_count=0 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || ' Supplier Address is not defined, ';
+END IF;*/
+--check currency
+select (validatepoitem.fob_price ~ '[0-9]') into v_numeric from im_corder;
+if(v_numeric=false) THEN
+	v_missingErrorNotice := v_missingErrorNotice || ' COST+ should be numeric, ';
+END IF;
+--check CDD
+select isfinite(validatepoitem.cdd) into v_numeric from im_corder;
+if(v_numeric=false) THEN
+	v_missingErrorNotice := v_missingErrorNotice || ' CDD is not a valid date, ';
+END IF;
+select length(to_char(cdd)) into v_count from im_corder;
+if(v_count<10) THEN
+	v_missingErrorNotice := v_missingErrorNotice || ' CDD is not a valid date,instead use yyyyMMdd format ';
+END IF;
+
+if(validatepoitem.supplierean = '301000519968') then
+select now()+32 into v_edd_minimum from dual;
+
+if(validatepoitem.cdd<v_edd_minimum) THEN
+	v_missingErrorNotice := v_missingErrorNotice || ' CDD is not a valid date,should not be less than today + 32 days ';
+END IF;
+
+END IF;
+--check if price is uploaded in erp
+select count(*) INTO v_count from m_productprice where m_pricelist_version_id='0F39C05C15EE4E5BB50BD5FEC1645DA1'
+and m_product_id=(select m_product_id from m_product where name=validatepoitem.itemcode);
+IF (v_count=0) THEN
+       v_missingErrorNotice := v_missingErrorNotice || ' Please upload the prices in ERP, ';
+END IF;
+
+
+IF v_missingErrorNotice ='' THEN
+    UPDATE im_corder SET im_errormsg = v_missingErrorNotice, validated = 'Y' where im_corder_id=validatepoitem.im_corder_id;
+	
+ELSE 
+    UPDATE im_corder SET im_errormsg = v_missingErrorNotice, validated= 'N' where im_corder_id=validatepoitem.im_corder_id;
+   v_flag=FALSE;
+
+END IF; 
+ v_missingErrorNotice :='';
+ END LOOP; 
+
+IF v_flag=TRUE THEN
+RETURN TRUE;
+ELSE
+RETURN FALSE;
+END IF;
+END IM_VALIDATEPO
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_SREQLINE_TRG">
+    <trigger name="SW_SREQLINE_TRG" table="SW_SREQLINE" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[Req_STATUS TEXT;
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF TG_OP='DELETE' THEN
+   SELECT docstatus
+   INTO Req_STATUS
+   FROM sw_srequisition
+   WHERE sw_srequisition_id=:OLD.sw_srequisition_id ;
+   IF Req_STATUS ='CO' THEN
+   RAISE NO_DATA_FOUND;
+    END IF;
+	
+  END IF;
+
+  IF TG_OP='DELETE' THEN 
+   RETURN OLD;
+  ELSE RETURN NEW;
+  END IF; 
+  
+END SW_SREQLINE_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_REF_NAME">
+    <function name="SW_REF_NAME" type="VARCHAR">
+      <parameter name="p_movementtype" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_movementtype character varying(60);
+BEGIN
+ select ad_ref_list.name INTO v_movementtype
+ from ad_ref_list,ad_reference
+      WHERE ad_ref_list.ad_reference_id=ad_reference.ad_reference_id
+      and ad_ref_list.value = p_movementtype
+      and ad_reference.name='SW_MovementType';
+
+RETURN v_movementtype;
+END SW_REF_NAME
+]]></body>
+    </function>
+  </database>

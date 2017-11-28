@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER INMD_STATUTORY_AFTER_TRG">
+    <trigger name="INMD_STATUTORY_AFTER_TRG" table="AD_ORG" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_n NUMBER;
+v_range VARCHAR(32);
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+   
+   IF((INSERTING) OR (UPDATING)) THEN
+    SELECT COUNT(*)
+        INTO v_n
+        FROM inmd_taxdetails where inmd_taxdetails.ad_org_id = :new.ad_org_id ;
+     IF (v_n=0) THEN
+      --   RAISE NO_DATA_FOUND ; 
+
+      INSERT INTO inmd_taxdetails(
+            inmd_taxdetails_id, ad_client_id, ad_org_id, isactive, created, 
+            createdby, updated, updatedby, type_of_company, large_taxpayer, 
+            large_taxpayer_unit,    legalentity_pan_no)
+        VALUES (get_uuid(), :new.ad_client_id, :new.ad_org_id, 'Y', now(), 
+            :new.createdby, now(), :new.updatedby, 'O', 'Y', 
+            '',  '');
+     END IF;
+   END IF;
+END INMD_STATUTORY_AFTER_TRG
+]]></body>
+    </trigger>
+  </database>

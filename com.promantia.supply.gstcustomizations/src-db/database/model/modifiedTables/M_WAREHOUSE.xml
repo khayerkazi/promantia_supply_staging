@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_WAREHOUSE">
+    <table name="M_WAREHOUSE" primaryKey="M_WAREHOUSE_KEY">
+      <column name="EM_GS_GSTIN" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_GS_SEQUENCE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_GS_INTRASEQUENCE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="AD_SEQUENCE" name="EM_GS_WAREHOUSE_INTRASEQUENCE">
+        <reference local="EM_GS_INTRASEQUENCE" foreign="AD_SEQUENCE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_SEQUENCE" name="EM_GS_WAREHOUSE_SEQUENCE">
+        <reference local="EM_GS_SEQUENCE" foreign="AD_SEQUENCE_ID"/>
+      </foreign-key>
+    </table>
+  </database>

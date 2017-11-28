@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ORDERLINE">
+    <table name="C_ORDERLINE" primaryKey="C_ORDERLINE_KEY">
+      <index name="EM_FS_ORDERLINE_DATEORDERED" unique="false">
+        <index-column name="DATEORDERED"/>
+      </index>
+    </table>
+  </database>

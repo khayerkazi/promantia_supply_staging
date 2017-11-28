@@ -1,0 +1,19 @@
+diff -r feef7446ba40 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/pointofsale.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/pointofsale.js	Fri Nov 21 17:00:45 2014 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/pointofsale.js	Fri Dec 19 04:11:25 2014 +0530
+@@ -10,6 +10,7 @@
+ /*global OB, Backbone, enyo, $, confirm, _, localStorage */
+ 
+ // Point of sale main window view
++OB.OBPOSPointOfSale.currentWindow = OB.OBPOSPointOfSale.currentWindow || {};
+ enyo.kind({
+   name: 'OB.OBPOSPointOfSale.UI.PointOfSale',
+   kind: 'OB.UI.WindowView',
+@@ -852,6 +853,7 @@
+     this.waterfall('onClearEditBox', inEvent);
+   },
+   init: function () {
++	OB.OBPOSPointOfSale.currentWindow = this ;
+     var receipt, receiptList, LeftColumnCurrentView;
+     this.inherited(arguments);
+     receipt = this.model.get('order');

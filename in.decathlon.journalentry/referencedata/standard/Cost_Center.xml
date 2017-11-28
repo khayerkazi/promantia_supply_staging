@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Costcenter id="0EF7A356CB59448B83B00FD5B96083DC" identifier="1010800013">
+    <id>0EF7A356CB59448B83B00FD5B96083DC</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.261Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.261Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800013</searchKey>
+    <name>1010800013</name>
+    <description>Cochin Coastal Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="16E000FF38254F49BB8D0168607CE9E6" identifier="1010800003">
+    <id>16E000FF38254F49BB8D0168607CE9E6</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.260Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.260Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800003</searchKey>
+    <name>1010800003</name>
+    <description>Bannerghatta Karnataka Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="2C5836E8A65143ACABC241E7AFBBE892" identifier="1010800002">
+    <id>2C5836E8A65143ACABC241E7AFBBE892</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.259Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.259Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800002</searchKey>
+    <name>1010800002</name>
+    <description>Whitefield Karnataka Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="446459C604D5411BA10C71E016991B41" identifier="1010800001">
+    <id>446459C604D5411BA10C71E016991B41</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.258Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.258Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800001</searchKey>
+    <name>1010800001</name>
+    <description>Sarjapur Karnataka	Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="6143A0EA8BFC4575A5657E84B4533E17" identifier="60108NECOM">
+    <id>6143A0EA8BFC4575A5657E84B4533E17</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.257Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-28T10:34:54.534Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>60108NECOM</searchKey>
+    <name>60108NECOM</name>
+    <description>Ecommerce</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="69F6C79A4C2A48A58B2C25899F26C7E5" identifier="1010800004">
+    <id>69F6C79A4C2A48A58B2C25899F26C7E5</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.257Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.257Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800004</searchKey>
+    <name>1010800004</name>
+    <description>Thane Maharashtra	Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="6AD230819E894EC2981D7BA85DDF2E43" identifier="1010800006">
+    <id>6AD230819E894EC2981D7BA85DDF2E43</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.256Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.256Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800006</searchKey>
+    <name>1010800006</name>
+    <description>Hyderabad Andhra Pradesh Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="90EE99AA2A534CC0A0D20F00F3C67271" identifier="Primary Cost Category">
+    <id>90EE99AA2A534CC0A0D20F00F3C67271</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.256Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.256Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>PCC</searchKey>
+    <name>Primary Cost Category</name>
+    <description xsi:nil="true"/>
+    <summaryLevel>true</summaryLevel>
+  </Costcenter>
+  <Costcenter id="9C580595549F4C06A3F438B959E928DB" identifier="1010800014">
+    <id>9C580595549F4C06A3F438B959E928DB</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.255Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.255Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800014</searchKey>
+    <name>1010800014</name>
+    <description>Ludhiana Punjab Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="A21941728A2B47B790E99E53722C17F7" identifier="1010800009">
+    <id>A21941728A2B47B790E99E53722C17F7</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.254Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.254Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800009</searchKey>
+    <name>1010800009</name>
+    <description>Pune 1 Maharashtra Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="A6B0713E401B4088BC6B92C214D50ED9" identifier="1010800005">
+    <id>A6B0713E401B4088BC6B92C214D50ED9</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.254Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.254Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800005</searchKey>
+    <name>1010800005</name>
+    <description>Ahemdabad Gujrat Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="C335758045F449B585FA34D6BE0A7AFE" identifier="1010800010">
+    <id>C335758045F449B585FA34D6BE0A7AFE</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.253Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.253Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800010</searchKey>
+    <name>1010800010</name>
+    <description>Chandigarh Punjab Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="C42B076DC87B4A9CAEA20012B61DFFD0" identifier="INDMI">
+    <id>C42B076DC87B4A9CAEA20012B61DFFD0</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.253Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.253Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>INDMI</searchKey>
+    <name>INDMI</name>
+    <description xsi:nil="true"/>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="C757B3A8216E4B62B6BC3750558B012F" identifier="1010800008">
+    <id>C757B3A8216E4B62B6BC3750558B012F</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.252Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.252Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800008</searchKey>
+    <name>1010800008</name>
+    <description>Bellary road Karnataka Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="D8D50CE5A9C14ABD8A4ADDD483EDA873" identifier="1010800011">
+    <id>D8D50CE5A9C14ABD8A4ADDD483EDA873</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.252Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.252Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800011</searchKey>
+    <name>1010800011</name>
+    <description>Nashik Store Maharashtra</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="EC69377834BF4577997F9608BF257747" identifier="1010800012">
+    <id>EC69377834BF4577997F9608BF257747</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.251Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.251Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800012</searchKey>
+    <name>1010800012</name>
+    <description>Mysore road Karnataka	Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+  <Costcenter id="F4EF2415214241258741A59EB0144266" identifier="1010800007">
+    <id>F4EF2415214241258741A59EB0144266</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T23:01:08.250Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-07T23:01:08.250Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <searchKey>1010800007</searchKey>
+    <name>1010800007</name>
+    <description>Coimbatore Tamil Nadu Store</description>
+    <summaryLevel>false</summaryLevel>
+  </Costcenter>
+</ob:Openbravo>

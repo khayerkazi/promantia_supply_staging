@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_SHUTTELWH">
+    <function name="SW_SHUTTELWH" type="NULL">
+      <parameter name="pshuttelid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';  
+v_Record_ID VARCHAR(32);
+V_docstatus  VARCHAR(32);
+V_shutteldate VARCHAR(32);
+V_documentno VARCHAR(32);
+V_ad_org_id VARCHAR(32); 
+V_Client_ID VARCHAR(32); 
+V_locatorfrom VARCHAR(32); 
+V_locatorto VARCHAR(32); 
+V_locatorID VARCHAR(32); 
+V_Boxno VARCHAR(32); 
+V_attributese VARCHAR(32); 
+V_timediff NUMBER;
+storeOrg VARCHAR(32); 
+storeFromLocator VARCHAR(32); 
+storeToLocator VARCHAR(32); 
+Cur_Parameter RECORD;
+Cur_suttleline RECORD;
+
+BEGIN 
+DBMS_OUTPUT.PUT_LINE('Updating p_storerequisition - Processing ' || pshuttelid) ;
+v_ResultStr:='PInstanceNotFound'; AD_UPDATE_PINSTANCE(pshuttelid, NULL, 'Y', NULL, NULL) ;
+
+BEGIN 
+--BODY
+--Get Parameters
+--RAISE v_mtcount;	
+v_ResultStr:='ReadingParameters';
+FOR Cur_Parameter IN
+	(SELECT i.Record_ID, i.AD_User_ID, i.AD_Client_ID, i.AD_Org_ID,
+	p.ParameterName, p.P_String, p.P_Number, p.P_Date
+	FROM AD_PInstance i
+	LEFT JOIN AD_PInstance_Para p
+	ON i.AD_PInstance_ID=p.AD_PInstance_ID
+	WHERE i.AD_PInstance_ID=pshuttelid
+	ORDER BY p.SeqNo) LOOP
+	v_Record_ID:=Cur_Parameter.Record_ID;
+END LOOP; 
+-- Get Parameter
+END;
+
+--raise exception 'v_Record_ID %', v_Record_ID;
+SELECT DATE_PART('day', now()::timestamp - shutteldate::timestamp) * 24 + DATE_PART('hour', now()::timestamp - shutteldate::timestamp) INTO V_timediff from sw_shuttel where  sw_shuttel_id=v_Record_ID;
+
+--IF (V_timediff > 24) THEN 
+--RAISE EXCEPTION ' Shuttle Correction Time Has Been Passed ' ;
+--END IF;
+
+--raise exception 'v_Record_ID %', v_Record_ID;
+SELECT ad_org_id, ad_client_id, docstatus, shutteldate,documentno INTO V_ad_org_id, V_Client_ID,  V_docstatus, V_shutteldate,V_documentno from sw_shuttel where sw_shuttel_id=v_Record_ID; 
+
+if(V_docstatus = 'DR') THEN 
+--SELECT locatorefrom, locatoreto INTO V_locatorfrom, V_locatorto FROM sw_movementlocatore WHERE ad_org_id=V_ad_org_id and movementype ='SC';
+FOR Cur_suttleline IN (select m_product_id, createdby,updatedby, qtyshuttel, isaccepted	 FROM sw_shuttellines WHERE sw_shuttel_id=v_Record_ID)
+LOOP
+	--If not accepted by WH
+	IF (Cur_suttleline.isaccepted = 'N') THEN 
+
+		--- M_transection entry for sotre 
+		SELECT ad_org_id INTO storeOrg FROM 
+		sw_srequisition WHERE documentno = V_documentno limit 1;
+
+		--Get from and to locator
+		SELECT locatorefrom, locatoreto into storeFromLocator,storeToLocator FROM sw_movementlocatore 
+		WHERE ad_org_id = storeOrg and movementype ='SC';
+
+		--Get locator from picklist
+		SELECT m_locator_id INTO V_locatorID FROM 
+		sw_picklist WHERE m_product_id=Cur_suttleline.m_product_id 
+		and documentno = V_documentno order by created desc limit 1;
+
+		--Set Shuttle LocatorTo
+		V_locatorto='7962790FDD8843EF9B2E4CFB8364C12A';
+					
+		INSERT INTO M_Transaction
+		(
+		M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+		Created, CreatedBy, Updated, UpdatedBy,
+		MovementType, M_Locator_ID, M_Product_ID, 
+		MovementDate, MovementQty, C_UOM_ID,
+		em_sw_locatorto_id,em_sw_movementtype,em_sw_documentno
+		)
+		VALUES
+		(
+		get_uuid(), V_Client_ID, V_ad_org_id, 'Y',
+		now(), Cur_suttleline.updatedby, now(), Cur_suttleline.updatedby,
+		'M+',V_locatorto , Cur_suttleline.m_product_id, 
+		now(), (TO_NUMBER(Cur_suttleline.qtyshuttel)*-1), '100',
+		V_locatorID,'SOUTWH',V_documentno
+		);
+		INSERT INTO M_Transaction
+		(
+		M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+		Created, CreatedBy, Updated, UpdatedBy,
+		MovementType, M_Locator_ID, M_Product_ID, 
+		MovementDate, MovementQty, C_UOM_ID,
+		em_sw_locatorto_id,em_sw_movementtype,em_sw_documentno
+		)
+		VALUES
+		(
+		get_uuid(), V_Client_ID, storeOrg, 'Y',
+		now(), Cur_suttleline.updatedby, now(), Cur_suttleline.updatedby,
+		'M+',storeFromLocator , Cur_suttleline.m_product_id, 
+		now(), (TO_NUMBER(Cur_suttleline.qtyshuttel)*-1), '100',
+		storeToLocator,'ITC',V_documentno
+		);
+		--If accpeted by WH	
+	ELSE 
+		--Get locator and box from piclist
+		SELECT m_locator_id, boxno INTO V_locatorID, V_Boxno FROM sw_picklist WHERE m_product_id=Cur_suttleline.m_product_id and documentno=V_documentno order by created desc limit 1;
+		IF ((V_Boxno IS NULL) OR (V_Boxno='')) THEN 
+			V_attributese = '0';
+			V_locatorID = 'F0F02D9BAFD540B0896371A95F0B5A13'	;
+		ELSE 
+		SELECT m_attributesetinstance_id INTO V_attributese FROM m_attributesetinstance WHERE lot=V_Boxno and isactive='Y' order by created desc limit 1 ;			
+		END IF;
+		
+		IF((V_locatorID IS NULL) OR (V_locatorID = '')) THEN
+			--Dyuti Changes Start
+			SELECT m_locator_id INTO V_locatorID From sw_picklist WHERE documentno = V_documentno 
+			and m_product_id = Cur_suttleline.m_product_id order by created desc limit 1;
+			--Dyuti changes End
+		END IF;
+
+		V_locatorto = '7962790FDD8843EF9B2E4CFB8364C12A';
+
+		--M_transection entry for warehouse 
+		INSERT INTO M_Transaction
+		(
+		M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+		Created, CreatedBy, Updated, UpdatedBy,
+		MovementType, M_Locator_ID, M_Product_ID, 
+		MovementDate, MovementQty, C_UOM_ID,
+		em_sw_locatorto_id,em_sw_movementtype,em_sw_documentno, m_attributesetinstance_id
+		)
+		VALUES
+		(
+		get_uuid(), V_Client_ID, V_ad_org_id, 'Y',
+		now(), Cur_suttleline.createdby, now(), Cur_suttleline.createdby,
+		'M+', V_locatorID, Cur_suttleline.m_product_id, 
+		now(), (TO_NUMBER(Cur_suttleline.qtyshuttel)*-1), '100',
+		V_locatorto,'ITC',V_documentno, V_attributese
+		);
+
+		
+		--Dyuti Changes Start
+		INSERT INTO M_Transaction
+		(
+		M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+		Created, CreatedBy, Updated, UpdatedBy,
+		MovementType, M_Locator_ID, M_Product_ID, 
+		MovementDate, MovementQty, C_UOM_ID,
+		em_sw_locatorto_id,em_sw_movementtype,em_sw_documentno, m_attributesetinstance_id
+		)
+		VALUES
+		(
+		get_uuid(), V_Client_ID, V_ad_org_id, 'Y',
+		now(), Cur_suttleline.createdby, now(), Cur_suttleline.createdby,
+		'M+', V_locatorto, Cur_suttleline.m_product_id, 
+		now(), TO_NUMBER(Cur_suttleline.qtyshuttel), '100',
+		V_locatorID,'SINWH',V_documentno, '0'
+		);
+		--Dyuti Changes End
+	END IF;
+	v_ResultStr:= 'Done' ;
+END LOOP;
+UPDATE sw_shuttel SET processed = 'Y', docstatus = 'CD' where sw_shuttel_id = v_Record_ID;
+ELSE 
+RAISE EXCEPTION 'Correction already done';
+v_ResultStr:= 'ERROR';
+END IF;
+
+--RAISE EXCEPTION 'v_ResultStr  %',v_ResultStr;
+END SW_SHUTTELWH
+]]></body>
+    </function>
+  </database>

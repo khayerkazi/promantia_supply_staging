@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="SearchItemReport" pageWidth="2675" pageHeight="842" columnWidth="2635" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="594"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select (cacstock_unrsv-cac_rsv) as cacstock,(carstock_unrsv-car_rsv) as carstock,brand,modelname,modelcode,pdtname,m_Product_Id,cl_Model_Id, size,color, NatofPdt,dept,sport,sportscat,combrand,
+	merchandisecat,BLUEPRODUCT,lifestage,supplier,ssjstore,bgtstore,plastore,thnstore,ahmdstore,itrstore,itrhub,shmstore,mysstore,zrkstore,klmstore,cmbstore,wagstore,ludstore,cacstock_unrsv,carstock_unrsv,canstore,
+	DPPQuantity,coalesce(to_char(min(innerEDD),'dd/mm/yyyy'),'N/A') as EDD
+
+         from
+	(select b.name as brand,lower(p.EM_cl_MODELNAME) as modelname,p.EM_cl_MODELCODE::numeric as modelcode, p.name as pdtname,p.m_Product_Id as m_Product_Id,
+            m.Cl_Model_Id as cl_Model_Id,p.em_cl_size as size,c.name as color, np.name as NatofPdt,d.name as dept,
+
+            sd.name as sport,m.SPORT_CATEGORY as sportscat,
+            cb.name as combrand, m.MERCHANDISE_CATEGORY as merchandisecat,m.BLUEPRODUCT,p.EM_cl_LIFESTAGE as lifestage,
+
+            bp.name as supplier,
+
+
+    coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id='02AA5CD37B824B13981EA21D3B178807' and  m_product_id=p.m_product_id),0),'0') as ssjstore,
+    coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id='90CEBD428F6044A2B1E9DF418419EC6B' and  m_product_id=p.m_product_id),0),'0') as bgtstore
+        ,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id='35067080552A4BD2BAD56971FCAEF6FC' and  m_product_id=p.m_product_id),0),'0') as plastore
+        ,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id='C18E3AFA8F204082B3E75652C60A92C5' and  m_product_id=p.m_product_id),0),'0') as thnstore
+        ,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id='4B7A095B2FD342FA99A0BCAD2500A1EC' and  m_product_id=p.m_product_id),0),'0') as ahmdstore
+        ,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id='AD7E7FA452EE4B1CBC970CD656970AC6' and  m_product_id=p.m_product_id ),0),'0') as itrstore
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable Hub') and  m_product_id=p.m_product_id),0),'0') as itrhub
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable IN1006') and  m_product_id=p.m_product_id),0),'0') as shmstore
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable IN1007') and  m_product_id=p.m_product_id),0),'0') as mysstore
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable IN1008') and  m_product_id=p.m_product_id),0),'0') as zrkstore
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable IN1009') and  m_product_id=p.m_product_id),0),'0') as klmstore
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable IN1010') and  m_product_id=p.m_product_id),0),'0') as cmbstore
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable IN1011') and  m_product_id=p.m_product_id),0),'0') as wagstore
+	,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id=(select m_locator_id from m_locator where value like 'Saleable IN1012') and  m_product_id=p.m_product_id),0),'0') as ludstore
+        ,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id IN
+		(select m_locator_id from m_locator where m_warehouse_id in
+		(select m_warehouse_id from m_warehouse where em_sw_iscac = 'Y'))
+		and  m_product_id=p.m_product_id and m_attributesetinstance_id = '0'),0),'0') as cacstock_unrsv
+        ,coalesce(round((select sum(qtyonhand) from m_storage_detail where m_locator_id IN
+		(select m_locator_id from m_locator where m_warehouse_id in
+		(select m_warehouse_id from m_warehouse where em_sw_iscar = 'Y'))
+		and  m_product_id=p.m_product_id and m_attributesetinstance_id <> '0'),0),'0') as carstock_unrsv,
+        coalesce(sum(can.cac_qty::numeric(10)),0) as canstore,
+
+		coalesce(round((select sum(quantity-releasedqty) from m_reservation_stock
+		where m_locator_id in (select m_locator_id from m_locator where m_warehouse_id
+		in (select m_warehouse_id from m_warehouse where em_sw_iscac = 'Y')) and
+		m_reservation_id in (select m_reservation_id from m_reservation where
+		m_product_id = p.m_product_id)),0),'0') as cac_rsv,
+
+		coalesce(round((select sum(quantity-releasedqty) from m_reservation_stock
+		where m_locator_id in (select m_locator_id from m_locator where m_warehouse_id
+		in (select m_warehouse_id from m_warehouse where em_sw_iscar = 'Y')) and
+		m_reservation_id in (select m_reservation_id from m_reservation where
+		m_product_id = p.m_product_id)),0),'0') as car_rsv,
+
+        (select CASE WHEN (coalesce(col.em_sw_confirmedqty,0) = '0')
+		THEN
+		coalesce(col.qtyordered,0)
+		ELSE
+		coalesce(col.em_sw_confirmedqty,0)
+		END) as DPPQuantity,
+        (select co.em_sw_estshipdate from c_order co where co.c_order_id= col.c_order_id) as innerEDD
+
+
+            from m_product p right join cl_model m on (m.cl_model_id=p.em_cl_model_id)
+            left join cl_natureofproduct np on(np.CL_NATUREOFPRODUCT_ID = m.CL_NATUREOFPRODUCT_ID)
+            left join cl_brand b on (b.cl_brand_id = m.cl_brand_id)
+            left join cl_color c on (c.cl_color_id = p.em_cl_color_id)
+            left join cl_department d on (d.cl_department_id=m.cl_department_id)
+            left join cl_sport s on (s.cl_sport_id=m.cl_sport_id)
+            left join cl_component_brand cb on (cb.cl_component_brand_id = m.cl_component_brand_id)
+            left join cl_purchasing pc on (pc.cl_model_id=m.cl_model_id)
+            left join c_bpartner bp on (bp.c_bpartner_id=pc.c_bpartner_id)
+            left join cl_storedept sd on (sd.cl_storedept_id=m.cl_storedept_id)
+            left join cl_canstock can on(can.item_code=p.name)
+
+
+            left join c_orderline col on (col.m_product_id = p.m_product_id
+
+            AND col.c_order_id IN
+            (select co.c_order_id from c_order co where co.c_order_id = col.c_order_id
+            AND co.c_doctype_id in (select c_doctype_id from c_doctype where name like 'Purchase Order%')
+
+            AND co.em_sw_postatus in ('VD','IP','Underway','CD')
+	    AND co.docstatus != 'CO'
+            AND not exists (select c_order_id from m_inout where co.c_order_id = c_order_id )
+            ))
+
+
+
+            where p.isactive='Y'
+           AND p.AD_Client_ID IN ('1')
+           AND p.AD_Org_ID IN ('1')
+
+            AND 1=1
+
+            group by p.EM_cl_MODELNAME,b.name,p.EM_cl_MODELCODE,p.name,p.m_Product_Id,m.Cl_Model_Id,
+            p.em_cl_size,c.name, np.name,d.name,s.name,m.SPORT_CATEGORY,cb.name,
+            m.MERCHANDISE_CATEGORY,m.BLUEPRODUCT,p.EM_cl_LIFESTAGE,bp.name,sd.name,
+            col.em_sw_confirmedqty,col.c_order_id,col.qtyordered
+            order by innerEDD ASC) as master
+
+            group by brand,modelname,modelcode,pdtname,m_Product_Id,cl_Model_Id, size,color, NatofPdt,dept,sport,sportscat,combrand,
+			merchandisecat,BLUEPRODUCT,lifestage,supplier,ssjstore,bgtstore,plastore,thnstore,ahmdstore,itrstore,itrhub,shmstore,mysstore,zrkstore,klmstore,cmbstore,wagstore,ludstore,cacstock_unrsv,carstock_unrsv,cac_rsv,car_rsv,canstore,
+			DPPQuantity order by modelcode ASC, pdtname ASC, size ASC]]>
+	</queryString>
+	<field name="cacstock" class="java.math.BigDecimal"/>
+	<field name="carstock" class="java.math.BigDecimal"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="modelcode" class="java.math.BigDecimal"/>
+	<field name="pdtname" class="java.lang.String"/>
+	<field name="m_product_id" class="java.lang.String"/>
+	<field name="cl_model_id" class="java.lang.String"/>
+	<field name="size" class="java.lang.String"/>
+	<field name="color" class="java.lang.String"/>
+	<field name="natofpdt" class="java.lang.String"/>
+	<field name="dept" class="java.lang.String"/>
+	<field name="sport" class="java.lang.String"/>
+	<field name="sportscat" class="java.lang.String"/>
+	<field name="combrand" class="java.lang.String"/>
+	<field name="merchandisecat" class="java.lang.String"/>
+	<field name="blueproduct" class="java.lang.String"/>
+	<field name="lifestage" class="java.lang.String"/>
+	<field name="supplier" class="java.lang.String"/>
+	<field name="ssjstore" class="java.math.BigDecimal"/>
+	<field name="bgtstore" class="java.math.BigDecimal"/>
+	<field name="plastore" class="java.math.BigDecimal"/>
+	<field name="thnstore" class="java.math.BigDecimal"/>
+	<field name="ahmdstore" class="java.math.BigDecimal"/>
+	<field name="itrstore" class="java.math.BigDecimal"/>
+	<field name="itrhub" class="java.math.BigDecimal"/>
+	<field name="shmstore" class="java.math.BigDecimal"/>
+	<field name="mysstore" class="java.math.BigDecimal"/>
+	<field name="zrkstore" class="java.math.BigDecimal"/>
+	<field name="klmstore" class="java.math.BigDecimal"/>
+	<field name="cmbstore" class="java.math.BigDecimal"/>
+	<field name="wagstore" class="java.math.BigDecimal"/>
+	<field name="ludstore" class="java.math.BigDecimal"/>
+	<field name="cacstock_unrsv" class="java.math.BigDecimal"/>
+	<field name="carstock_unrsv" class="java.math.BigDecimal"/>
+	<field name="canstore" class="java.math.BigDecimal"/>
+	<field name="dppquantity" class="java.math.BigDecimal"/>
+	<field name="edd" class="java.lang.String"/>
+	<field name="ndastore" class="java.math.BigDecimal"/>
+	<field name="mohstore" class="java.math.BigDecimal"/>
+	<field name="nskstore" class="java.math.BigDecimal"/>
+	<field name="hubstock" class="java.math.BigDecimal"/>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="580" y="0" width="347" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Search Item Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="-20" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="80" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="380" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Size]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="480" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Color]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="580" y="0" width="135" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NatureOfProduct]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="715" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="815" y="0" width="112" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SJR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="927" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[BGT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1014" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[WFS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1101" y="0" width="82" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[THN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1183" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[AHMD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2333" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ITR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1270" y="0" width="86" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SHM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1356" y="0" width="89" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MYS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1445" y="0" width="90" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ZRK]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1535" y="0" width="85" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[KLM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1620" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CMB]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2496" y="0" width="78" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CAC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2574" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Life Stage]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2171" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CAR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1720" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[WAG]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1820" y="0" width="89" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LUD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1909" y="0" width="86" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NDA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1995" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MOH]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2082" y="0" width="89" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NSK]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2252" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[HUB]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2414" y="0" width="82" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ITR HUB]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="-20" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="80" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="180" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{modelcode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="280" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{pdtname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="380" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{size}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="480" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{color}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="580" y="0" width="135" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{natofpdt}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="715" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{sport}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="815" y="0" width="112" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{ssjstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="927" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{bgtstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1014" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{plastore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1101" y="0" width="82" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{thnstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1183" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{ahmdstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2333" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{itrstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1270" y="0" width="86" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{shmstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1356" y="0" width="89" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{mysstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1445" y="0" width="90" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{zrkstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1535" y="0" width="85" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{klmstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1620" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cmbstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2496" y="0" width="78" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cacstock}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2574" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{lifestage}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2171" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{carstock}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1720" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{wagstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1820" y="0" width="89" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{ludstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1909" y="0" width="86" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{ndastore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1995" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{mohstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2082" y="0" width="89" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{nskstore}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2252" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{hubstock}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2414" y="0" width="82" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{itrhub}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>
+

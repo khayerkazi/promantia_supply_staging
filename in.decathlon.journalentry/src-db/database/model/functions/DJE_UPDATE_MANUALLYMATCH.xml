@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DJE_UPDATE_MANUALLYMATCH">
+    <function name="DJE_UPDATE_MANUALLYMATCH" type="NULL">
+      <parameter name="copy_path" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Cur_Master RECORD;
+v_count  NUMBER; 
+declare sql text;
+
+BEGIN 
+
+CREATE TEMP TABLE temp24(AccountElement VARCHAR(32),LedgerName VARCHAR(60),alias  VARCHAR(60),match VARCHAR(60))
+   ON COMMIT PRESERVE ROWS;
+
+copy temp24 from '/home/ubuntu/opt/Book1.csv' using delimiters ',' csv header; 
+
+--sql := 'COPY temp23 FROM ' || quote_literal(copy_path) || ' using delimiters '','' csv header';
+--RAISE NOTICE '%', sql;
+--execute sql;home/ubuntu/opt/Book1.csv
+
+FOR Cur_Master IN (select AccountElement, LedgerName,c_elementvalue.c_elementvalue_id as elementId from temp24
+left join c_elementvalue on c_elementvalue.value = AccountElement)
+LOOP
+
+select count(*) into v_count from dje_ledger_master where ledger_name = Cur_Master.LedgerName and match ='UM';
+DBMS_OUTPUT.PUT_LINE(v_count);
+
+  
+IF(v_count > 0) THEN
+
+UPDATE dje_ledger_master SET c_elementvalue_id = Cur_Master.elementId ;
+
+
+END IF;
+END LOOP;
+END DJE_UPDATE_MANUALLYMATCH
+]]></body>
+    </function>
+  </database>

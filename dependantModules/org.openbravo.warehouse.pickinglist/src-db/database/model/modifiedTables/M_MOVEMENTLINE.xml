@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_MOVEMENTLINE">
+    <table name="M_MOVEMENTLINE" primaryKey="M_MOVEMENTLINE_KEY">
+      <column name="EM_OBWPL_PICKINGLIST_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_GROUP_PICKINGLIST_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_COMPLETE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_ITEMSTATUS" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_EDITITEM" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_ALLOWDELETE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_RAISEINCIDENCE" primaryKey="false" required="true" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_INCIDENCE_REASON" primaryKey="false" required="false" type="NVARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_REJECT" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_PICKEDQTY" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_PICKINGLISTPROBLEM_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_PLPROBLEMGENERATOR_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_REMOVEFROMPROBLEM" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="OBWPL_PICKINGLISTPROBLEM" name="EM_OBWPL_M_MOVLINE_PLPROBGEN">
+        <reference local="EM_OBWPL_PLPROBLEMGENERATOR_ID" foreign="OBWPL_PICKINGLISTPROBLEM_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="OBWPL_PICKINGLISTPROBLEM" name="EM_OBWPL_M_MOVLINE_PLPROBLEM">
+        <reference local="EM_OBWPL_PICKINGLISTPROBLEM_ID" foreign="OBWPL_PICKINGLISTPROBLEM_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="OBWPL_PICKINGLIST" name="EM_OBWPL_MOVEMENTLINE_GROUP_PL">
+        <reference local="EM_OBWPL_GROUP_PICKINGLIST_ID" foreign="OBWPL_PICKINGLIST_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="OBWPL_PICKINGLIST" name="EM_OBWPL_MOVEMENTLINE_PICKING">
+        <reference local="EM_OBWPL_PICKINGLIST_ID" foreign="OBWPL_PICKINGLIST_ID"/>
+      </foreign-key>
+      <index name="EM_OBWPL_PLIST_INDEX" unique="false">
+        <index-column name="EM_OBWPL_PICKINGLIST_ID"/>
+      </index>
+      <index name="EM_OBWPL_PLISTGROUP_INDEX" unique="false">
+        <index-column name="EM_OBWPL_GROUP_PICKINGLIST_ID"/>
+      </index>
+      <check name="EM_OBWPL_MVMTLINE_DELETE_CHK"><![CDATA[EM_OBWPL_ALLOWDELETE IN ('Y', 'N')]]></check>
+    </table>
+  </database>

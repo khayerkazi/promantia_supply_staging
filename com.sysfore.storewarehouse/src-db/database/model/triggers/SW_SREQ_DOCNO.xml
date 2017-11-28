@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_SREQ_DOCNO">
+    <trigger name="SW_SREQ_DOCNO" table="SW_SREQUISITION" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_docno VARCHAR;
+
+BEGIN
+IF TG_OP='INSERT' THEN
+
+IF(:NEW.iswarehouse='N') THEN
+
+SELECT (max(to_number(documentno)+1)) into v_docno from sw_srequisition 
+where ad_org_id=:NEW.ad_org_id and iswarehouse='N' ;
+
+:NEW.documentno=to_char(v_docno);
+
+ELSE
+SELECT (max(to_number(documentno)+1)) into v_docno from sw_srequisition 
+where ad_org_id=:NEW.ad_org_id and iswarehouse='Y';
+
+:NEW.documentno=to_char(v_docno);
+
+END IF;
+
+END IF;
+
+
+END SW_SREQ_DOCNO
+]]></body>
+    </trigger>
+  </database>

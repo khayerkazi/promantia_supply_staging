@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE OBWSHIP_SHIPPING">
+    <table name="OBWSHIP_SHIPPING" primaryKey="OBWSHIP_SHIPPING_KEY">
+      <column name="EM_GS_UNIQUENO" primaryKey="false" required="false" type="VARCHAR" size="12" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

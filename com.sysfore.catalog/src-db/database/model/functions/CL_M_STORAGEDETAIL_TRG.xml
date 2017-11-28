@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION CL_M_STORAGEDETAIL_TRG">
+    <function name="CL_M_STORAGEDETAIL_TRG" type="VARCHAR">
+      <body><![CDATA[v_product character varying(32);
+v_qtyonhand NUMBER:=0;
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF; 
+END IF;
+
+IF TG_OP = 'INSERT' THEN
+
+   INSERT INTO CL_WHSTOCK (cl_whstock_id,ad_client_id,ad_org_id,created,createdby,
+   updated,updatedby,isactive,m_product_id, whstock) 
+   VALUES (get_uuid(),NEW.ad_client_id,NEW.ad_org_id,NEW.created,NEW.createdby,
+   NEW.updated,NEW.updatedby,NEW.isactive,NEW.m_product_id, NEW.qtyonhand);
+
+ELSE IF TG_OP = 'UPDATE' THEN
+
+select sd.qtyonhand,sd.m_product_id
+into v_qtyonhand,v_product
+from m_storage_detail sd 
+inner join m_locator l on (sd.m_locator_id = l.m_locator_id)
+inner join m_warehouse w on (w.m_warehouse_id=l.m_warehouse_id)
+where w.name LIKE '%Saleable Whitefield%';
+
+--RAISE EXCEPTION 'Product ID:%',v_product;
+
+--UPDATE cl_whstock SET whstock = v_qtyonhand WHERE m_product_id = v_product;
+UPDATE cl_whstock SET whstock = NEW.qtyonhand WHERE m_product_id = NEW.m_product_id;
+--UPDATE cl_whstock SET whstock = '100' WHERE m_product_id = 'E6E652B916944F4DAC566516FE6D3BE1';
+
+--"E6E652B916944F4DAC566516FE6D3BE1"
+
+--RAISE EXCEPTION 'Product ID:%',V_QTYONHAND;
+
+END IF;
+END IF;
+
+            
+IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END CL_M_STORAGEDETAIL_TRG
+]]></body>
+    </function>
+  </database>

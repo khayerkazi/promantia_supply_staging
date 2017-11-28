@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_RESERVATION">
+    <table name="M_RESERVATION" primaryKey="M_RESERVATION_KEY">
+      <column name="EM_DSC_SHIPMENTNAME" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

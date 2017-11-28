@@ -1,0 +1,99 @@
+This file contains a description of the usage of Compiere Inc. assets within
+Openbravo ERP and the changes that Openbravo implemented on those assets.
+
+Java and XSQL Code
+------------------
+Some Java and XSQL files are inspired by Compiere ERP & CRM v.2.5.0c. In 
+particular, some of Openbravo Java classes use some Compiere files as model
+and replicate their business logic in a different implementation.
+The following list contains the name of the Openbravo files that have been
+developed in this manner and maps them to the Compiere files that have been
+used as model:
+
+  Openbravo Path                              Openbravo File                Compiere Path                    Compiere file
+  --------------                              --------------                -------------                   -------------
+  src/org/openbravo/erpCommon/process         ImportAccount.java            base/src/org/compiere/process   ImportAccount.java
+  src/org/openbravo/erpCommon/process         ImportAccountServlet.java     base/src/org/compiere/process   ImportAccount.java
+  src/org/openbravo/erpCommon/process         ImportAccount_data.xsql       base/src/org/compiere/process   ImportAccount.java
+  src/org/openbravo/erpCommon/process         ImportBPartner.java           base/src/org/compiere/process   ImportBPartner.java
+  src/org/openbravo/erpCommon/process         ImportBPartnerServlet.java    base/src/org/compiere/process   ImportBPartner.java
+  src/org/openbravo/erpCommon/process         ImportBPartner_data.xsql      base/src/org/compiere/process   ImportBPartner.java
+  src/org/openbravo/erpCommon/process         ImportOrder.java              base/src/org/compiere/process   ImportOrder.java
+  src/org/openbravo/erpCommon/process         ImportOrderServlet.java       base/src/org/compiere/process   ImportOrder.java
+  src/org/openbravo/erpCommon/process         ImportOrderServlet_data.xsql  base/src/org/compiere/process   ImportOrder.java
+  src/org/openbravo/erpCommon/process         ImportOrder_data.xsql         base/src/org/compiere/process   ImportOrder.java
+
+PL/SQL Code
+-----------
+The following PL/SQL functions, procedures and triggers were originally
+developed by Compiere Inc. and distributed in Compiere ERP & CRM v.2.5.0c. 
+Openbravo has modified them in order to satisfy its own functional and
+technical requirements. Whenever the name was change, the PL/SQL object is 
+listed with its new name and the original Compiere name is reported in brackets.
+This PL/SQL code is currently distributed by Openbravo using XML files stored
+in the /src-db/database folder and named after the database objects
+themselves. Each file properly identifies Compiere Inc. as the original 
+developer using comments.
+  Type          Name
+  ----          ----
+  PROCEDURE     AD_IMPFORMAT_COPY
+
+Database Tables
+---------------
+The following database tables and views were originally designed by Compiere
+Inc. and distributed in Compiere ERP & CRM v.2.5.0c.
+Openbravo modified them in order to satisfy its own functional and technical
+requirements. Whenever the name was change, the table is listed with its new
+name and the original Compiere name is reported in brackets:
+
+  AD_IMPFORMAT
+  AD_IMPFORMAT_ROW
+  I_BANKSTATEMENT
+  I_BPARTNER
+  I_ELEMENTVALUE
+  I_GLJOURNAL
+  I_INVENTORY
+  I_INVOICE
+  I_ORDER
+  I_PRODUCT
+
+These tables and views are currently distributed by Openbravo using XML files
+stored in the /src-db/database folder and named after the tables themselves.
+
+Database Records
+----------------
+The following database tables contain records that have been originally 
+defined by Compiere Inc. and distributed in Compiere ERP & CRM v.2.5.0c.
+Openbravo modified them in order to satisfy its own functional and
+technical requirements:
+
+  AD_COLUMN
+  AD_ELEMENT
+  AD_FIELD
+  AD_FORM
+  AD_IMPFORMAT
+  AD_IMPFORMAT_ROW
+  AD_MENU
+  AD_PREFERENCE
+  AD_PROCESS
+  AD_PROCESS_PARA
+  AD_REFERENCE
+  AD_REF_LIST
+  AD_REF_TABLE
+  AD_TAB
+  AD_TABLE
+  AD_TREENODE
+  AD_VAL_RULE
+  AD_WINDOW
+
+These tables also contain additional records that have been autonomously 
+defined by Openbravo. The  records derived by Compiere can be identified by
+their ID range:
+        - Records identified by an ID lower than 100000 are based upon
+          Compiere
+        - Records identified by an ID higher or equal to 100000 have been 
+          added by Openbravo
+The content of these tables is currently distributed by Openbravo using XML
+files stored in the /src-db/database folder and named after the tables
+themselves.
+

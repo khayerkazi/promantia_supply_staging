@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+   
+  <bean>
+       <name>ShipmentWS</name>
+       <class>in.decathlon.ibud.shipment.supply.ShipmentWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   
+</provider>
+

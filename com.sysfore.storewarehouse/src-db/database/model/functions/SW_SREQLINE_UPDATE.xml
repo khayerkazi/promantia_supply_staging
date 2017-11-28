@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_SREQLINE_UPDATE">
+    <function name="SW_SREQLINE_UPDATE" type="VARCHAR">
+      <parameter name="p_qtyshipped" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_warehouseid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_shippedondate" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_storerequline" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_user" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2006 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  -- Logistice
+v_client_ID character varying(32);
+v_org_ID character varying(32);
+v_orgFrom_ID character varying(32);
+v_wh character varying(32);
+v_user_ID character varying(32);
+v_sreqline_ID character varying(32);
+v_wh_id  character varying(32);
+v_warehouseto_ID character varying(32);
+v_warehousefrom_ID character varying(32);
+v_locatorto_ID character varying(32);
+v_locatorfrom_ID character varying(32);
+v_locator_ID character varying(32);
+v_product_ID character varying(32);
+v_MoveDate character varying(60);
+v_qtyshipto character varying(60);
+v_qtyshipfrom NUMBER:= 0;
+v_srcqty NUMBER;
+v_desqty NUMBER;
+v_whto_id character varying(32);
+NextNo character varying(32);
+v_modelname character varying(60);
+v_size character varying(60);
+v_color character varying(60);
+v_documentno character varying(60);
+v_AQ NUMBER;
+v_BQ NUMBER;
+v_AQ1 NUMBER;
+v_BQ1 NUMBER;
+v_moved NUMBER;
+v_movementtype character varying(60);
+  
+BEGIN
+       --RAISE EXCEPTION 'Failed';
+
+    IF (p_storerequline IS NOT NULL) THEN
+
+      SELECT sw_sreqline.m_product_id,ad_org.ad_org_id ,sw_sreqline.createdby,sw_srequisition.documentno 
+      INTO v_product_ID,v_orgFrom_ID,v_user_ID,v_documentno
+      from sw_sreqline,ad_org,sw_srequisition
+      where sw_sreqline.ad_org_id = ad_org.ad_org_id
+        and sw_sreqline.sw_sreqline_id = p_storerequline;
+
+     --RAISE EXCEPTION 'p_storerequline: %',p_storerequline;
+
+select m_warehouse.m_warehouse_id,m_locator.m_locator_id 
+  INTO v_warehousefrom_ID,v_locatorfrom_ID
+from m_locator,m_warehouse,ad_org
+where m_locator.m_warehouse_id = m_warehouse.m_warehouse_id
+and lower(m_warehouse.name) LIKE lower('%Transit%')
+and m_locator.ad_org_id = ad_org.ad_org_id
+and m_warehouse.ad_org_id= v_orgFrom_ID;
+
+      --RAISE EXCEPTION 'v_locatorfrom_ID: %',v_locatorfrom_ID;
+
+      UPDATE SW_Sreqline SET
+                    qtyship=TO_NUMBER(p_qtyshipped),
+                    m_warehouse_id=v_wh,
+                    shippedondate=TO_DATE(p_shippedondate)
+       WHERE SW_Sreqline_id = p_storerequline;
+  
+      IF p_warehouseid IS NOT NULL THEN
+            SELECT m_locator.m_locator_id,m_locator.ad_client_id,
+      m_locator.ad_org_id,m_locator.createdby,m_locator.m_warehouse_id
+      INTO v_locatorto_ID,v_client_ID,v_org_ID,v_user_ID,v_warehouseto_ID
+      FROM m_locator,m_warehouse,ad_org
+      where m_locator.m_warehouse_id = m_warehouse.m_warehouse_id
+      and m_locator.ad_org_id = ad_org.ad_org_id
+      and lower(m_locator.value) LIKE lower('%Stock%')-- change salable to Stock for moving stock to return stock bin 
+      and m_warehouse.ad_org_id = p_warehouseid;
+	
+
+      /*select ml.m_locator_id,ml.m_warehouse_id  
+      INTO v_wh_id,v_whto_id
+      from m_warehouse mw,m_locator ml
+      where ml.m_warehouse_id = mw.m_warehouse_id
+      and ml.m_warehouse_id = v_wh; */
+      END IF;
+ --
+ /*
+    SELECT m_storage_detail.qtyonhand 
+    INTO v_srcqty
+    from m_storage_detail,m_product,m_locator,m_warehouse
+    where m_storage_detail.m_product_id = m_product.m_product_id
+    and m_storage_detail.m_locator_id = m_locator.m_locator_id
+    and m_locator.m_warehouse_id = m_warehouse.m_warehouse_id
+    AND m_storage_detail.m_product_id = v_product_ID 
+    AND m_locator.m_warehouse_id = v_warehousefrom_ID;
+
+    SELECT m_storage_detail.qtyonhand INTO v_desqty
+    from m_storage_detail,m_product,m_locator,m_warehouse
+    where m_storage_detail.m_product_id = m_product.m_product_id
+    and m_storage_detail.m_locator_id = m_locator.m_locator_id
+    and m_locator.m_warehouse_id = m_warehouse.m_warehouse_id
+    AND m_storage_detail.m_product_id = v_product_ID
+    AND m_locator.m_warehouse_id = v_warehouseto_ID;
+ --
+    
+      --SELECT * INTO  NextNo FROM AD_Sequence_Next('M_Transaction', v_client_ID) ;
+      --RAISE EXCEPTION 'v_locatorfrom_ID: %',v_locatorfrom_ID;
+      --RAISE EXCEPTION 'v_locatorto_ID: %',v_locatorto_ID;
+
+--for color, modelname, size,
+	
+	select clm.name, p.em_cl_size, clc.name into v_modelname, v_size, v_color from cl_model clm, m_product p, cl_color clc where 		  		p.m_product_id=v_product_ID and
+	p.em_cl_model_id=clm.cl_model_id and p.em_cl_color_id=clc.cl_color_id;		
+--
+*/ 
+
+	
+         INSERT INTO M_Transaction
+           (
+              M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType, M_Locator_ID, M_Product_ID, 
+              MovementDate, MovementQty, EM_SW_Sreqline_ID, C_UOM_ID,
+	      em_sw_locatorto_id,em_sw_movementtype
+            )
+            VALUES
+            (
+              get_uuid(), v_client_ID, p_warehouseid, 'Y',
+              now(), p_user, now(), p_user,
+             'M-', v_locatorfrom_ID, v_product_ID, 
+              TO_DATE(p_shippedondate), (TO_NUMBER(p_qtyshipped)*-1), p_storerequline, '100',
+	      v_locatorto_ID,'SRN'
+            );
+
+	 --
+         INSERT INTO M_Transaction
+           (
+              M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType, M_Locator_ID, M_Product_ID, 
+              MovementDate, MovementQty, EM_SW_Sreqline_ID, C_UOM_ID,
+	      em_sw_locatorto_id,em_sw_movementtype
+            )
+            VALUES
+            (
+              get_uuid(), v_client_ID, p_warehouseid, 'Y',
+              now(), p_user, now(), p_user,
+             'M-', v_locatorto_ID, v_product_ID, 
+              TO_DATE(p_shippedondate), TO_NUMBER(p_qtyshipped), p_storerequline, '100',
+	      v_locatorfrom_ID,'SRN'
+            );
+
+   v_sreqline_ID := p_storerequline;
+  IF v_sreqline_ID IS NOT NULL THEN
+   v_qtyshipto := TO_NUMBER(p_qtyshipped);
+   v_MoveDate := TO_DATE(p_shippedondate);
+   --RAISE EXCEPTION 'v_srcqty: %',v_srcqty;
+--PERFORM SW_RETURN_TRANSACTION(v_org_ID,TO_NUMBER(p_qtyshipped),v_warehousefrom_ID, v_warehouseto_ID, TO_DATE,(p_shippedondate),v_sreqline_ID,v_srcqty, v_desqty, p_user);
+    
+  END IF;
+
+            RETURN 'SUCCESS';
+  ELSE
+     RETURN 'FAILED';
+  END IF;
+--RETURN 'SUCCESS';
+END SW_SREQLINE_UPDATE
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2008 Openbravo SLU 
+ * All Rights Reserved.  (SW_SRECEIPT.DOCUMENTNO  ||' & ' ||CL_BRAND.NAME) AS DOCUMENTNO,
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<SqlClass name="CreditNote2Data" package="com.sysfore.sankalpcrm.ad_forms">
+	<SqlMethod name="selectactivecreditnoteHead" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+	   select rc_creditnote_id as scno, c_bpartner_id as memid,documentno as docno from rc_creditnote where processed='N' and processing='Y' and createdby=?
+       ]]>
+    </Sql>
+	<Parameter name="createdby"/>
+	</SqlMethod>
+	<SqlMethod name="deleteselectedline" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+	   delete from rc_creditnoteline where rc_creditnoteline_id=?
+       ]]>
+    </Sql>
+	<Parameter name="rcCreditnotelineId"/>
+	</SqlMethod>
+	<SqlMethod name="selecttotal" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+	   select sum(linetotal) from rc_creditnoteline where rc_creditnote_id=?
+       ]]>
+    </Sql>
+	<Parameter name="rcCreditnotelineId"/>
+	</SqlMethod>
+	
+	<SqlMethod name="selectdocno" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       select documentno as docno from rc_creditnote where rc_creditnote_id=?
+       ]]>
+    </Sql>
+    <Parameter name="rcCreditnotelineId"/>
+    </SqlMethod>
+    
+    <SqlMethod name="selectorg" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       select ad_org_id as orgId from rc_creditnote where rc_creditnote_id=?
+       ]]>
+    </Sql>
+    <Parameter name="rcCreditnotelineId"/>
+    </SqlMethod>
+	
+	<SqlMethod name="updatenote" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+	   update rc_creditnote set processing='N',  processed='Y' where rc_creditnote_id=?
+       ]]>
+    </Sql>
+	<Parameter name="rcCreditnotelineId"/>
+	</SqlMethod>
+	</SqlClass>

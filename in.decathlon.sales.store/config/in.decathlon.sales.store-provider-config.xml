@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <provider>
+   <bean>
+       <name>unsubscribecust</name>
+       <class>in.decathlon.sales.store.UnsubscribeEmailWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   
+ </provider>

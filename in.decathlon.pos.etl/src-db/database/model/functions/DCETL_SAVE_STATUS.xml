@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DCETL_SAVE_STATUS">
+    <function name="DCETL_SAVE_STATUS" type="NULL">
+      <parameter name="p_dcetl_pos_config_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_etlname" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_status" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_count integer ;
+  BEGIN
+     select count(*) into v_count from dcetl_etl_status where dcetl_pos_config_id = p_dcetl_pos_config_id and etlname = p_etlname ;
+     if ( v_count = 0 ) then
+	INSERT INTO dcetl_etl_status(
+            dcetl_etl_status_id, dcetl_pos_config_id, etlname, issuccessful, 
+            ad_client_id, ad_org_id, isactive, created, createdby, updated, 
+            updatedby, last_updated_time, last_attempted_time, current_status, 
+            last_failure_message)
+          select get_uuid(), p_dcetl_pos_config_id , p_etlname , NULL , 
+          (select ad_client_id from dcetl_pos_config where dcetl_pos_config_id=p_dcetl_pos_config_id) , 
+          (select ad_org_id  from dcetl_pos_config where dcetl_pos_config_id=p_dcetl_pos_config_id) , 
+          'Y' ,now() , '100' , now(), '100' ,CASE when p_status = 'S' 
+           then now() ELSE null end  , now(), p_status, 
+           p_message;
+       
+     else   
+UPDATE dcetl_etl_status
+   SET  
+       updated=now(), updatedby='100' , 
+       last_updated_time=CASE when p_status = 'S' then now() 
+       ELSE last_updated_time end , last_attempted_time=now(), 
+       current_status=p_status, last_failure_message=p_message
+ where dcetl_pos_config_id = p_dcetl_pos_config_id and etlname = p_etlname ;
+
+     end if;
+  RETURN;
+END DCETL_SAVE_STATUS
+]]></body>
+    </function>
+  </database>

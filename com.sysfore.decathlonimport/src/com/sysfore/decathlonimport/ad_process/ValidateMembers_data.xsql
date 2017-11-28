@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<SqlClass name="ValidateMembersData" package="com.sysfore.decathlonimport.ad_process">
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+
+       Select ad_client_id, ad_org_id, im_importmembers_id, im_status, im_option, im_salutation, im_name,
+       im_name2, im_add1, im_add2, im_add3, im_add4, im_mob, im_email, im_postal, im_city, im_state
+       from im_importmembers
+       Where ad_client_id=?
+      ]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+  </SqlMethod>
+  <SqlMethod name="validateMember" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+
+       SELECT im_validateimportmembers(?) from Dual
+      ]]>
+    </Sql>
+   <Parameter name="ad_client_id"/>
+  </SqlMethod>
+ </SqlClass>

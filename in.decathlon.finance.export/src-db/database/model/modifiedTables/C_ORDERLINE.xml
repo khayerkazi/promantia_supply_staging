@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ORDERLINE">
+    <table name="C_ORDERLINE" primaryKey="C_ORDERLINE_KEY">
+      <index name="EM_DFEX_INVOICE_SORT_IDX1" unique="false">
+        <index-column name="DATEORDERED"/>
+        <index-column name="AD_ORG_ID"/>
+        <index-column name="M_PRODUCT_ID"/>
+        <index-column name="C_TAX_ID"/>
+      </index>
+    </table>
+  </database>

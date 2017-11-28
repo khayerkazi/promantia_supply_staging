@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <provider>
+   <bean>
+       <name>catalog_ws</name>
+       <class>in.decathlon.supply.oba.webservice.CatalogWS</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>readXL</name>
+       <class>in.decathlon.supply.oba.webservice.ExcelReader</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>createorders</name>
+       <class>in.decathlon.supply.oba.webservice.CreateOrders</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>canStockUpdator</name>
+       <class>in.decathlon.supply.oba.webservice.CANStockWS</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>

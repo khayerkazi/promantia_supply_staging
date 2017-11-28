@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DJE_BPMPCATEGORY_PROCE">
+    <function name="DJE_BPMPCATEGORY_PROCE" type="NULL">
+      <body><![CDATA[Cur_bpgroup RECORD;
+v_C_AcctSchema_ID	          VARCHAR(32); 
+v_C_Receivable_Acct               VARCHAR(32); 
+v_v_liability_acct                VARCHAR(32); 
+v_writeoff_acct                   VARCHAR(32); 
+v_notinvoicedreceipts_acct        VARCHAR(32);
+v_bp_groupid                      VARCHAR(32);
+v_p_revenue_acct                  VARCHAR(32);
+v_p_expense_acct                  VARCHAR(32);
+v_p_asset_acct                    VARCHAR(32);
+v_p_cogs_acct                     VARCHAR(32);
+v_p_cogs_return_acct              VARCHAR(32);
+v_p_revenue_return_acct           VARCHAR(32);
+v_category_id                     VARCHAR(32);
+
+BEGIN 
+
+
+SELECT 
+
+ad_Org_AcctSchema.C_AcctSchema_ID, 
+C_AcctSchema_Default.C_Receivable_Acct,
+C_AcctSchema_Default.v_liability_acct,
+C_AcctSchema_Default.writeoff_acct,
+C_AcctSchema_Default.notinvoicedreceipts_acct,
+C_AcctSchema_Default.p_revenue_acct,
+C_AcctSchema_Default.p_expense_acct,
+C_AcctSchema_Default.p_asset_acct,
+C_AcctSchema_Default.p_cogs_acct,
+C_AcctSchema_Default.p_cogs_return_acct,
+C_AcctSchema_Default.p_revenue_return_acct
+
+INTO 
+v_C_AcctSchema_ID,
+v_C_Receivable_Acct,
+v_v_liability_acct,
+v_writeoff_acct,
+v_notinvoicedreceipts_acct,
+v_p_revenue_acct,
+v_p_expense_acct,
+v_p_asset_acct,
+v_p_cogs_acct,
+v_p_cogs_return_acct,
+v_p_revenue_return_acct
+
+
+FROM  C_AcctSchema_Default , ad_Org_AcctSchema 
+WHERE C_AcctSchema_Default.C_AcctSchema_ID = ad_Org_AcctSchema.C_AcctSchema_ID;
+
+FOR  Cur_bpgroup IN(SELECT c_bp_group_id from c_bp_group WHERE c_bp_group.name IN('Customer','Vendor'))
+
+LOOP
+
+INSERT INTO c_bp_group_acct 
+(c_bp_group_acct_id,c_acctschema_id,c_bp_group_id,ad_client_id,ad_org_id,isactive,
+Created, CreatedBy, Updated, UpdatedBy,c_receivable_acct, v_liability_acct,writeoff_acct,
+notinvoicedreceipts_acct)
+VALUES(get_uuid(),v_C_AcctSchema_ID, Cur_bpgroup.c_bp_group_id,'187D8FC945A5481CB41B3EE767F80DBB','0','Y',
+now(), '100', now(), '100',v_C_Receivable_Acct,v_v_liability_acct,v_writeoff_acct,v_notinvoicedreceipts_acct
+);
+
+END LOOP;
+
+SELECT m_product_category_id INTO v_category_id from m_product_category
+WHERE m_product_category.name='Standard';
+
+
+INSERT INTO m_product_category_acct(m_product_category_acct_id,m_product_category_id,c_acctschema_id,
+ad_client_id,ad_org_id,isactive, Created, CreatedBy, Updated, UpdatedBy,
+p_revenue_acct,p_expense_acct,p_asset_acct, p_cogs_acct,
+p_cogs_return_acct,p_revenue_return_acct)
+VALUES(get_uuid(),v_category_id,v_C_AcctSchema_ID,'187D8FC945A5481CB41B3EE767F80DBB','0','Y',
+now(), '100', now(), '100',v_p_revenue_acct,v_p_expense_acct,v_p_asset_acct,
+v_p_cogs_acct,v_p_cogs_return_acct,v_p_revenue_return_acct);
+END DJE_BPMPCATEGORY_PROCE
+]]></body>
+    </function>
+  </database>

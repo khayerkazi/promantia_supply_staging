@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_INVOICE">
+    <table name="C_INVOICE" primaryKey="C_INVOICE_KEY">
+      <column name="EM_ECOM_PRINT_INVOICE" primaryKey="false" required="false" type="VARCHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_ECOM_ORDER_RECEIPTNO" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_ECOM_RETURNORDER" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_ECOM_SHIPPINGLABEL" primaryKey="false" required="false" type="VARCHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

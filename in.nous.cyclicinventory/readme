@@ -1,0 +1,4 @@
+There are 3 WebServices in Cyclic inventory module:
+1. CyclicInventory: Used to upload the inventoried quantities to ERP.
+2. CyclicInventoryMStorageDetail: Used to fetch data from MStorageDetail table 
+3. CyclicInventoryQueries: Used to run DB queries required by Play schedulers

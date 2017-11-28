@@ -1,0 +1,31 @@
+diff -r f69a319e7e71 in.decathlon.ibud.picklistext/src-db/database/model/triggers/IBUDPK_RESTRICT_RESERVEDSTOCK.xml
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/in.decathlon.ibud.picklistext/src-db/database/model/triggers/IBUDPK_RESTRICT_RESERVEDSTOCK.xml	Tue Jul 07 18:20:03 2015 +0530
+@@ -0,0 +1,27 @@
++<?xml version="1.0"?>
++  <database name="TRIGGER IBUDPK_RESTRICT_RESERVEDSTOCK">
++    <trigger name="IBUDPK_RESTRICT_RESERVEDSTOCK" table="M_INVENTORYLINE" fires="before" insert="true" update="true" delete="false" foreach="row">
++      <body><![CDATA[
++  v_qtycount NUMBER:= 0;
++  v_reservedqty NUMBER:= 0;
++  v_Message VARCHAR(2000):='';
++        
++BEGIN
++    
++IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
++
++ IF(UPDATING OR INSERTING) THEN
++	
++	IF(:NEW.qtycount < :NEW.reservedqty) THEN
++
++	v_Message := '@CannotReduceReservedStock@';
++	RAISE v_Message;
++
++	END IF;
++
++ END IF;
++  
++END IBUDPK_RESTRICT_RESERVEDSTOCK
++]]></body>
++    </trigger>
++  </database>

@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report_subreport" pageWidth="600" pageHeight="802" columnWidth="600" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 9">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 9_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 9_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 9_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 10">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 10_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 10_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 10_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 11">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 11_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 11_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 11_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 12">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 12_TH" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 12_CH" mode="Opaque" backcolor="#FFBFBF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 12_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="style1" fontName="DejaVu Serif" fontSize="8"/>
+	<subDataset name="Table Dataset 1">
+		<parameter name="DOCUMENT_ID" class="java.lang.String">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<parameter name="BASE_DESIGN" class="java.lang.String">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[select m_product.name as pname, c_tax.rate as rate, c_orderlinetax.taxamt as taxamt,ol.gross_unit_price,ol.line_gross_amount,ol.qtyordered,model.name as modelname,
+coalesce(ol.em_sync_mrp,ol.gross_unit_price) as mrpprice
+from c_orderline ol
+left join m_product on m_product.m_product_id =ol.m_product_id
+left join c_tax on c_tax.c_tax_id=ol.c_tax_id
+left join c_orderlineTax on c_orderlinetax.c_orderline_id =ol.c_orderline_id
+left join cl_model model on model.cl_model_id =m_product.em_cl_model_id
+
+where ol.c_order_id =$P{DOCUMENT_ID}]]>
+		</queryString>
+		<field name="pname" class="java.lang.String"/>
+		<field name="rate" class="java.math.BigDecimal"/>
+		<field name="taxamt" class="java.math.BigDecimal"/>
+		<field name="gross_unit_price" class="java.math.BigDecimal"/>
+		<field name="line_gross_amount" class="java.math.BigDecimal"/>
+		<field name="qtyordered" class="java.math.BigDecimal"/>
+		<field name="modelname" class="java.lang.String"/>
+		<field name="mrpprice" class="java.math.BigDecimal"/>
+		<variable name="linegros" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$F{line_gross_amount}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DOCUMENT_ID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select m_product.name as pname, c_tax.rate as rate, c_orderlinetax.taxamt as taxamt,ol.gross_unit_price,ol.line_gross_amount,ol.qtyordered,model.name as modelname
+from c_orderline ol
+left join m_product on m_product.m_product_id =ol.m_product_id
+left join c_tax on c_tax.c_tax_id=ol.c_tax_id
+left join c_orderlineTax on c_orderlinetax.c_orderline_id =ol.c_orderline_id
+left join cl_model model on model.cl_model_id =m_product.em_cl_model_id
+
+where ol.c_order_id =$P{DOCUMENT_ID}]]>
+	</queryString>
+	<field name="pname" class="java.lang.String"/>
+	<field name="rate" class="java.math.BigDecimal"/>
+	<field name="taxamt" class="java.math.BigDecimal"/>
+	<field name="gross_unit_price" class="java.math.BigDecimal"/>
+	<field name="line_gross_amount" class="java.math.BigDecimal"/>
+	<field name="qtyordered" class="java.math.BigDecimal"/>
+	<field name="modelname" class="java.lang.String"/>
+	<variable name="lgros" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{line_gross_amount}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="80" splitType="Stretch">
+			<componentElement>
+				<reportElement key="table 12" positionType="Float" stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="674" height="80"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Table Dataset 1">
+						<datasetParameter name="BASE_DESIGN">
+							<datasetParameterExpression><![CDATA[$P{BASE_DESIGN}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="DOCUMENT_ID">
+							<datasetParameterExpression><![CDATA[$P{DOCUMENT_ID}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="58">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="58" height="43" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="9" isBold="false"/>
+								</textElement>
+								<text><![CDATA[<b>Item Code</b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<textField pattern="" isBlankWhenNull="true">
+								<reportElement style="style1" x="0" y="0" width="58" height="20" isPrintWhenDetailOverflows="true"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{pname}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="131">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<box>
+								<rightPen lineWidth="0.0"/>
+							</box>
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="131" height="43" backcolor="#FFFFFF">
+									<printWhenExpression><![CDATA[$F{mrpprice}!=null]]></printWhenExpression>
+								</reportElement>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="9" isBold="false"/>
+								</textElement>
+								<text><![CDATA[<b>Description</b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<box>
+								<rightPen lineWidth="0.0"/>
+							</box>
+							<textField pattern="" isBlankWhenNull="true">
+								<reportElement style="style1" isPrintRepeatedValues="false" x="0" y="0" width="131" height="20" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="2"/>
+								<textElement verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="52">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<box>
+								<pen lineWidth="0.0"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.0"/>
+								<bottomPen lineWidth="0.0"/>
+								<rightPen lineWidth="0.0"/>
+							</box>
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="52" height="43" backcolor="#FFFFFF"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="8" isBold="false"/>
+								</textElement>
+								<text><![CDATA[<b>Unit MRP Price</b><b>(Inc Tax)
+</b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.0"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.0"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.0"/>
+							</box>
+							<textField pattern="###0.00;(###0.00)" isBlankWhenNull="true">
+								<reportElement style="style1" x="0" y="0" width="52" height="20">
+									<printWhenExpression><![CDATA[$F{mrpprice}!=null]]></printWhenExpression>
+								</reportElement>
+								<box rightPadding="3">
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{mrpprice}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="37">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="37" height="43"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="9"/>
+								</textElement>
+								<text><![CDATA[<b>Qty.</b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement style="style1" x="0" y="0" width="37" height="20"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyordered}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="71">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="71" height="43" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="9" isBold="false"/>
+								</textElement>
+								<text><![CDATA[<b>Decathlon Unit Price(IncTax)</b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0.00;(###0.00)" isBlankWhenNull="true">
+								<reportElement style="style1" x="0" y="0" width="70" height="20"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{gross_unit_price}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="44">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="44" height="43" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="9" isBold="false"/>
+								</textElement>
+								<text><![CDATA[<b>VAT%</b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement style="style1" x="0" y="0" width="43" height="20"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{rate}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="60">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="60" height="43" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="9" isBold="false"/>
+								</textElement>
+								<text><![CDATA[<b>VAT Amount</b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement style="style1" x="0" y="0" width="59" height="20"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxamt}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="57">
+						<jr:columnHeader style="table 12_CH" height="43" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="57" height="43"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+									<font fontName="DejaVu Serif" size="9"/>
+								</textElement>
+								<text><![CDATA[<b>Amount*<b>]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 12_CH" height="0" rowSpan="1"/>
+						<jr:detailCell style="table 12_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement style="style1" mode="Opaque" x="0" y="0" width="57" height="20" backcolor="#C0C0C0"/>
+								<box rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName=""/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{line_gross_amount}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+</jasperReport>

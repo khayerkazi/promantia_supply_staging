@@ -1,0 +1,133 @@
+diff --git a/src-db/database/sourcedata/OBUIAPP_PARAMETER.xml b/src-db/database/sourcedata/OBUIAPP_PARAMETER.xml
+--- a/src-db/database/sourcedata/OBUIAPP_PARAMETER.xml
++++ b/src-db/database/sourcedata/OBUIAPP_PARAMETER.xml
+@@ -144,6 +144,27 @@
+ <!--53767CC7F20840C7AE945275E179319F-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
+ <!--53767CC7F20840C7AE945275E179319F--></OBUIAPP_PARAMETER>
+ 
++<!--9A915418247A4AA282EF857139DBEAD9--><OBUIAPP_PARAMETER>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <OBUIAPP_PARAMETER_ID><![CDATA[9A915418247A4AA282EF857139DBEAD9]]></OBUIAPP_PARAMETER_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <NAME><![CDATA[Storage Bin Name]]></NAME>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <SEQNO><![CDATA[15]]></SEQNO>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <COLUMNNAME><![CDATA[Locator_Name]]></COLUMNNAME>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <STARTINNEWLINE><![CDATA[N]]></STARTINNEWLINE>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--9A915418247A4AA282EF857139DBEAD9--></OBUIAPP_PARAMETER>
++
+ <!--53B71BBF2F654266B15B42B894A847F6--><OBUIAPP_PARAMETER>
+ <!--53B71BBF2F654266B15B42B894A847F6-->  <OBUIAPP_PARAMETER_ID><![CDATA[53B71BBF2F654266B15B42B894A847F6]]></OBUIAPP_PARAMETER_ID>
+ <!--53B71BBF2F654266B15B42B894A847F6-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src-db/database/sourcedata/OBUISEL_SELECTOR_FIELD.xml b/src-db/database/sourcedata/OBUISEL_SELECTOR_FIELD.xml
+--- a/src-db/database/sourcedata/OBUISEL_SELECTOR_FIELD.xml
++++ b/src-db/database/sourcedata/OBUISEL_SELECTOR_FIELD.xml
+@@ -2226,6 +2226,26 @@
+ <!--B28A7C25C0834B9798EE00D5A4C845F3-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
+ <!--B28A7C25C0834B9798EE00D5A4C845F3--></OBUISEL_SELECTOR_FIELD>
+ 
++<!--B4457439934E4712AA0F32ECB8E70799--><OBUISEL_SELECTOR_FIELD>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[B4457439934E4712AA0F32ECB8E70799]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <OBUISEL_SELECTOR_ID><![CDATA[DF44523511CE473381B1900BC30C1B4E]]></OBUISEL_SELECTOR_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_COLUMN_ID><![CDATA[D6C6D9A44360FD26E040007F01000176]]></AD_COLUMN_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <NAME><![CDATA[Brand]]></NAME>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <PROPERTY><![CDATA[brand]]></PROPERTY>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SORT><![CDATA[Y]]></SORT>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SORTNO><![CDATA[0]]></SORTNO>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--B4457439934E4712AA0F32ECB8E70799--></OBUISEL_SELECTOR_FIELD>
++
+ <!--B759B8BC264044D1A93CD79594A72F38--><OBUISEL_SELECTOR_FIELD>
+ <!--B759B8BC264044D1A93CD79594A72F38-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[B759B8BC264044D1A93CD79594A72F38]]></OBUISEL_SELECTOR_FIELD_ID>
+ <!--B759B8BC264044D1A93CD79594A72F38-->  <OBUISEL_SELECTOR_ID><![CDATA[A35B6EC33A2243018915908AEB1B3F5E]]></OBUISEL_SELECTOR_ID>
+diff --git a/src/org/openbravo/materialmgmt/CreateInventoryCountListProcess.java b/src/org/openbravo/materialmgmt/CreateInventoryCountListProcess.java
+--- a/src/org/openbravo/materialmgmt/CreateInventoryCountListProcess.java
++++ b/src/org/openbravo/materialmgmt/CreateInventoryCountListProcess.java
+@@ -93,6 +93,11 @@
+       }
+       locatorListOfLocatorIdList.add(locatorIdList);
+ 
++      String locatorName = null;
++      if (params.get("Locator_Name") != JSONObject.NULL) {
++        locatorName = (String) params.get("Locator_Name");
++      }
++
+       // Retrieve products inside a list of lists (each inner list contains 1000 records at max)
+       JSONArray productsArray = params.getJSONArray("M_Product_ID");
+       int productsCount = 1;
+@@ -148,7 +153,7 @@
+           for (List<String> prodIdList : productListOfProductIdList) {
+ 
+             message = createInventoryLines(strInventoryId, locIdList, prodIdList, qtyRange,
+-                regularization, abc, excludeReserved);
++                regularization, abc, excludeReserved, locatorName);
+ 
+             if ("error".equals(message.getType())) {
+               break;
+@@ -201,7 +206,7 @@
+    */
+   private OBError createInventoryLines(String strInventoryId, List<String> locatorIdList,
+       List<String> productIdList, String qtyRange, boolean regularization, String abc,
+-      boolean excludeReserved) {
++      boolean excludeReserved, String locatorName) {
+ 
+     OBError message = new OBError();
+ 
+@@ -263,7 +268,7 @@
+ 
+       ScrollableResults storageDetailsSR = getStorageDetailList(inventory.getClient().getId(),
+           productIdList, locatorIdList, abc, inventory.getWarehouse().getId(), null,
+-          strInventoryId, qtyRange, excludeReserved);
++          strInventoryId, qtyRange, excludeReserved, locatorName);
+       int i = 0;
+       while (storageDetailsSR.next()) {
+         StorageDetail storageDetail = (StorageDetail) storageDetailsSR.get(0);
+@@ -577,7 +582,8 @@
+    */
+   private ScrollableResults getStorageDetailList(String strClientId, List<String> strProductIdList,
+       List<String> strStorageBinIdList, String abc, String strWarehouseId,
+-      String strProductCategoryId, String strInventoryId, String qtyRange, boolean excludeReserved) {
++      String strProductCategoryId, String strInventoryId, String qtyRange, boolean excludeReserved,
++      String locatorName) {
+ 
+     StringBuffer where = new StringBuffer();
+     where.append(" as sd");
+@@ -590,6 +596,9 @@
+     if (strStorageBinIdList.size() > 0) {
+       where.append("   and sd.storageBin.id in :storageBinIdList");
+     }
++    if (locatorName != null) {
++      where.append("   and sd.storageBin.searchKey like :locatorName");
++    }
+     if (abc != null) {
+       where.append("   and :abc in (select po.abc");
+       where.append("                from ProductOrg po");
+@@ -633,6 +642,9 @@
+     if (strStorageBinIdList.size() > 0) {
+       sdQry.setNamedParameter("storageBinIdList", strStorageBinIdList);
+     }
++    if (locatorName != null) {
++      sdQry.setNamedParameter("locatorName", "%" + locatorName + "%");
++    }
+     if (abc != null) {
+       sdQry.setNamedParameter("abc", abc);
+     }

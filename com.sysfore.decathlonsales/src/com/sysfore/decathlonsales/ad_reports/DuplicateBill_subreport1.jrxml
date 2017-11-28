@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DuplicateBill_subreport1" pageWidth="481" pageHeight="802" whenNoDataType="AllSectionsNoDetail" columnWidth="481" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="RECEIPTID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_RECEIPTID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{RECEIPTID} == null || $P{RECEIPTID}.equals("")) ? "" : "AND ds_paymentinfo.receiptno='" + $P{RECEIPTID} + "'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Total" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="AUX_ORDERID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+	ds_paymentinfo.paymentmode,
+	ds_paymentinfo.identifier,
+	ds_paymentinfo.amount,
+        sum(ds_paymentinfo.amount) as specificamount
+FROM c_order
+left join ds_paymentinfo on c_order.em_ds_receiptno = ds_paymentinfo.receiptno
+Where 1=1
+$P!{AUX_RECEIPTID}
+$P!{AUX_ORDERID}
+group by paymentmode,identifier,amount
+order by paymentmode]]>
+	</queryString>
+	<field name="paymentmode" class="java.lang.String"/>
+	<field name="identifier" class="java.lang.String"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<field name="specificamount" class="java.math.BigDecimal"/>
+	<variable name="groupsum" class="java.math.BigDecimal" resetType="Group" resetGroup="DISCLAMATERGROUP" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal(0)]]></initialValueExpression>
+	</variable>
+	<variable name="TotalSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<variable name="Change" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$V{TotalSum}.subtract($P{Total})]]></variableExpression>
+	</variable>
+	<group name="normal">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band height="119" splitType="Stretch">
+				<staticText>
+					<reportElement key="staticText-2" x="147" y="12" width="159" height="27"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[CUSTOMER HAPPINESS CENTER:
+       vijay.nair@decathlon.in
+    Telephone : +91 76767 98989
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-3" x="147" y="39" width="159" height="18"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[VISIT US AT
+www.decathlon.in
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-4" x="76" y="57" width="300" height="10"/>
+					<box leftPadding="78"/>
+					<textElement textAlignment="Justified">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Sale is subject to the terms and condition]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-5" x="76" y="67" width="300" height="10"/>
+					<box leftPadding="78"/>
+					<textElement textAlignment="Justified">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[of customer registration form.  In respect]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-6" x="76" y="77" width="300" height="10"/>
+					<box leftPadding="78"/>
+					<textElement textAlignment="Justified">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[of the goods  covered  by this invoice,  no]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-7" x="76" y="87" width="300" height="10"/>
+					<box leftPadding="78"/>
+					<textElement textAlignment="Justified">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[credit  of the  additional duty  of customs]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-8" x="76" y="97" width="300" height="10"/>
+					<box leftPadding="78"/>
+					<textElement textAlignment="Justified">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[levied under section  3(5) of the customs]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-9" x="76" y="107" width="300" height="10"/>
+					<box leftPadding="78"/>
+					<textElement textAlignment="Justified">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[         Tariff Act shall be accessible.]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-4" x="120" y="10" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement key="line-5" x="120" y="54" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement key="line-6" x="116" y="116" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement key="staticText-10" x="135" y="0" width="61" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Change:]]></text>
+				</staticText>
+				<textField pattern="###0" isBlankWhenNull="true">
+					<reportElement key="textField" x="247" y="0" width="61" height="10"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$V{Change}==null?"Rs.0.00":"Rs."+$V{Change}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="DISCLAMATERGROUP">
+		<groupExpression><![CDATA[$F{paymentmode}]]></groupExpression>
+		<groupHeader>
+			<band height="10" splitType="Stretch">
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" isPrintRepeatedValues="false" x="135" y="0" width="61" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[(($F{paymentmode} == "cash" || $F{paymentmode}.equals("cash")) ? "Cash" :(($F{paymentmode} == "card" || $F{paymentmode}.equals("card")) ? "Card" :(($F{paymentmode} == "cheque" || $F{paymentmode}.equals("cheque")) ? "Cheque" :(($F{paymentmode} == "voucher" || $F{paymentmode}.equals("voucher")) ? "Voucher" :"" ) ) ) )]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="11" splitType="Stretch">
+				<textField evaluationTime="Auto" pattern="" isBlankWhenNull="true">
+					<reportElement key="textField" x="213" y="0" width="95" height="10"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$V{groupsum}==null?"Rs.0.00":"Rs."+$V{groupsum}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement key="staticText-1" x="135" y="0" width="61" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7" isBold="false" pdfFontName="Helvetica"/>
+					</textElement>
+					<text><![CDATA[Tendered:]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="135" y="0" width="61" height="10" isRemoveLineWhenBlank="true"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{identifier}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="247" y="0" width="61" height="10"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{amount}==null?"":"Rs."+$F{amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

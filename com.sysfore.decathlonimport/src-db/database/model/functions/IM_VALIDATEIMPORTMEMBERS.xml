@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPORTMEMBERS">
+    <function name="IM_VALIDATEIMPORTMEMBERS" type="VARCHAR">
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[cur_parameter Record;
+  v_count NUMBER:=0;
+  v_countMob NUMBER:=0;
+  v_countMob1 NUMBER;
+  v_countEmail NUMBER:=0;
+  v_countEmail1 NUMBER;
+  v_postallen NUMBER;
+  v_moblen NUMBER;
+  v_countvalue NUMBER;
+  v_statusref character varying(32);
+  v_countstatus NUMBER;
+  v_countbpcategory NUMBER;
+  v_countsalutation NUMBER;
+  v_countcompany NUMBER;
+  v_countdata NUMBER;
+  v_oxylanedata NUMBER;
+  v_countOrgId1 NUMBER; 
+  v_countOrgId2 NUMBER;
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  --v_fobpriceErrorNotice VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_countregion NUMBER;
+  v_sourcecountstatus NUMBER;
+  v_user_id character varying(32);
+  
+  
+BEGIN
+v_user_id=user_id;
+  FOR cur_parameter IN (SELECT *
+  FROM im_importmembers where createdby=v_user_id)
+  LOOP
+  /*IF (cur_parameter.value IS NULL) THEN
+  	v_missingErrorNotice := 'Search key is Mandatory, ';
+  END IF;
+
+   Select count(*) INTO v_countvalue from im_importmembers where value=cur_parameter.value;
+
+  IF (v_countvalue>1) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Search Key is already exist, ';
+  END IF;*/
+
+  -- Ststus---
+  IF (cur_parameter.im_status IS NULL) THEN
+  	v_missingErrorNotice := 'Status is Mandatory, ';
+  --END IF;
+  Else 
+  Select Ad_Reference_Id INTO v_statusref from Ad_Reference where name='RC_Status';
+  
+  Select count(*) INTO v_countstatus from AD_Ref_List Where Ad_Reference_Id=v_statusref
+  And lower(name)= lower(cur_parameter.im_status);
+
+  IF(v_countstatus='0') THEN
+     v_missingErrorNotice := 'Status is not defined, ';
+  END IF;
+  END IF;
+
+  --SOURCE VALIDATION
+  IF (cur_parameter.em_rc_source IS NULL) THEN
+  	v_missingErrorNotice := 'Source is Mandatory, ';
+  Else
+  Select Ad_Reference_Id INTO v_statusref from Ad_Reference where name='RC_Source';
+  
+  Select count(*) INTO v_sourcecountstatus from AD_Ref_List Where Ad_Reference_Id=v_statusref
+  And lower(value)= lower(cur_parameter.em_rc_source);
+
+  IF(v_sourcecountstatus='0') THEN
+     v_missingErrorNotice := 'Source is not defined, ';
+  END IF;
+  END IF;
+
+  -- Opt In--
+  IF (cur_parameter.im_option IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Opt In is Mandatory, ';
+  END IF;
+
+  --Salutation--
+
+   IF (cur_parameter.im_salutation IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Salutation is Mandatory, ';
+  --END IF;
+  ELSE
+   Select count(*) INTO v_countsalutation from C_Greeting where lower(name)= lower(cur_parameter.im_salutation);
+
+  IF(v_countsalutation='0') THEN
+     v_missingErrorNotice := 'Salutation is not defined, ';
+  END IF;
+ END IF;
+
+ --First name--
+   IF (cur_parameter.im_name IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'First Name is Mandatory, ';
+  END IF;
+
+--Last name--
+    IF (cur_parameter.im_name2 IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Last Name is Mandatory, ';
+  END IF;
+
+  --Organization Id--
+
+    IF (cur_parameter.company IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Organization Id is Mandatory, ';
+  --END IF;
+
+  Else 
+ Select count(*) INTO v_countcompany 
+ from RC_Company where lower(DocumentNo)=lower(cur_parameter.company) and ad_client_id=cur_parameter.ad_client_id ;
+  IF(v_countcompany='0') THEN
+     v_missingErrorNotice := 'Organization Id is not defined, ';
+  --END IF;
+  ELSE    -- If org id is no unique the commenet this else  08.10.10
+ -- Select count(*) INTO v_countOrgId1 
+  --  from im_importmembers where company=cur_parameter.company;
+  --Select count(*) INTO v_countOrgId2 from C_Bpartner where ReferenceNo=cur_parameter.company;
+  --RAISE v_countMob; 
+  --IF (v_countOrgId1>1 OR v_countOrgId2>=1) THEN
+  --	v_missingErrorNotice := v_missingErrorNotice || 'Organization Id is already exist, ';
+  --END IF;
+  END IF;
+  END IF;
+
+  /* IF (cur_parameter.bpcategory IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Business Partner Category is Mandatory, ';
+  END IF;*/
+ --Bp Category  --
+  Select count(*) INTO v_countbpcategory from C_BP_Group where lower(name)= lower(cur_parameter.bpcategory)
+  And ad_client_id=cur_parameter.ad_client_id ;
+
+  IF(v_countbpcategory='0') THEN
+     v_missingErrorNotice := 'Business Partner Category is not defined, ';
+  END IF;
+
+  --address1 --
+  IF (cur_parameter.im_add1 IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Address1 is Mandatory, ';
+  END IF;
+
+    IF (cur_parameter.im_add2 IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Address2 is Mandatory, ';
+  END IF;
+--Mobileno --
+   IF (cur_parameter.im_mob IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Mobileno is Mandatory, ';
+  --END IF;
+  ELSE
+  Select count(*) INTO v_countMob from im_importmembers where im_mob=cur_parameter.im_mob
+  and createdby=v_user_id;
+  Select count(*) INTO v_countMob1 from C_Bpartner where EM_RC_Mobile=cur_parameter.im_mob
+  and createdby=v_user_id;
+  --RAISE v_countMob; 
+  IF (v_countMob>1 OR v_countMob1>=1) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Mobileno is already exist, ';
+  --END IF;
+  ELSE
+   Select length(im_mob) INTO v_moblen from Im_importmembers Where im_mob=cur_parameter.im_mob and createdby=v_user_id; 
+    IF(v_moblen < 10 OR v_moblen> 10 ) THEN
+   v_missingErrorNotice := v_missingErrorNotice || 'Mobile No should be 10 digit , ';
+  END IF;
+  END IF;
+  END IF;
+  -- email  --
+
+   Select count(*) INTO v_countEmail from im_importmembers where im_email=cur_parameter.im_email and createdby=v_user_id;
+  -- RAISE v_countEmail; 
+   Select count(*) INTO v_countEmail1 from C_Bpartner where EM_RC_Email=cur_parameter.im_email;
+    IF (v_countEmail>1 OR v_countEmail1>=1) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Email is already exist, ';
+  END IF;
+  -- Postal--
+   IF (cur_parameter.im_postal IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Postal Code is Mandatory, ';
+  --END IF;
+ELSE
+  Select length(im_postal) INTO v_postallen from Im_importmembers Where im_postal=cur_parameter.im_postal and createdby=v_user_id; 
+
+  IF(v_postallen < 6) THEN
+   v_missingErrorNotice := v_missingErrorNotice || 'Postal Code should be either 6 digit or greater than it, ';
+  END IF;
+  END IF;
+
+  --City--
+ IF (cur_parameter.im_city IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'City is Mandatory, ';
+  	 
+  END IF;
+  	 Select count(*) 
+     INTO v_countregion 
+ from c_region where lower(name)=lower(cur_parameter.im_state); 
+ 
+ -- State --
+  IF (cur_parameter.im_state IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'State is Mandatory, ';
+  Else IF
+  (v_countregion=0) THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'State is not existed,';
+  END IF;
+  END IF;
+-- Oxylane  --
+ Select count(*) into v_countdata from IM_importmembers where createdby=v_user_id;
+-- Select count(*) into v_oxylanedata from RC_Oxylane Where OxylaneStatus='NA';
+
+ --IF (v_oxylanedata < v_countdata) THEN
+  --	v_missingErrorNotice := v_missingErrorNotice || 'No Sufficient Decathlon ID, ';
+  --END IF;
+ 
+  
+  --RAISE NOTICE '%','v_missingErrorNotice' || v_missingErrorNotice ;
+ IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice; --|| 'is Mandatory ';
+  END IF;
+
+  --RAISE NOTICE '%','v_messageImport' || v_messageImport ;
+  IF v_messageImport = '' THEN
+    UPDATE Im_importmembers SET errormessage = v_messageImport, validated = 'Y' 
+    where Im_importmembers_id=cur_parameter.Im_importmembers_id and createdby=v_user_id;
+  ELSE 
+    UPDATE Im_importmembers SET errormessage = v_messageImport, validated = 'N' 
+    where Im_importmembers_id=cur_parameter.Im_importmembers_id and createdby=v_user_id;
+    v_flag :=FALSE;
+  END IF;
+  v_missingErrorNotice := '';
+  v_messageImport := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPORTMEMBERS
+]]></body>
+    </function>
+  </database>

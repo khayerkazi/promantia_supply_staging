@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE CL_IMPLANTATION">
+    <table name="CL_IMPLANTATION" primaryKey="CL_IMPLANTATION_ID">
+      <index name="EM_SW_IMPLAN_PRODUCT" unique="false">
+        <index-column name="M_PRODUCT_ID"/>
+      </index>
+    </table>
+  </database>

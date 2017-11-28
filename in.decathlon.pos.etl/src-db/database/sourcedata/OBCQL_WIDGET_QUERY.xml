@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<data>
+<!--36717AFB473F432699C52690ED38F4FE--><OBCQL_WIDGET_QUERY>
+<!--36717AFB473F432699C52690ED38F4FE-->  <OBCQL_WIDGET_QUERY_ID><![CDATA[36717AFB473F432699C52690ED38F4FE]]></OBCQL_WIDGET_QUERY_ID>
+<!--36717AFB473F432699C52690ED38F4FE-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--36717AFB473F432699C52690ED38F4FE-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--36717AFB473F432699C52690ED38F4FE-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--36717AFB473F432699C52690ED38F4FE-->  <OBKMO_WIDGET_CLASS_ID><![CDATA[BDC3BC1B8A14451A90D3C1D72DC5A750]]></OBKMO_WIDGET_CLASS_ID>
+<!--36717AFB473F432699C52690ED38F4FE-->  <HQL><![CDATA[select etlstatus.organization.name as organizationName,etlstatus.dcetlPosConfig.terminalName as Terminalname, etlstatus.eTLName as Etlname, etlstatus.lastAttemptedTime as Last_Attempted_Time, etlstatus.lastUpdatedTime as Last_Updated_Time, etlstatus.currentStatus as Current_Status 
+from dcetl_etl_status etlstatus where
+etlstatus.organization.name  like :organizationName and
+@optional_filters@
+]]></HQL>
+<!--36717AFB473F432699C52690ED38F4FE-->  <TYPE><![CDATA[HQL]]></TYPE>
+<!--36717AFB473F432699C52690ED38F4FE--></OBCQL_WIDGET_QUERY>
+
+</data>

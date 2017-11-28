@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Retail Order Report" pageWidth="2877" pageHeight="842" orientation="Landscape" columnWidth="2877" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="ORDER_ID" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select c_bpartner.em_cl_supplierno,c_bpartner.name as suppliername, c_order.documentno as order_no, c_order.POReference as orderreference, cl_brand.name as brand,
+       cl_model.imancode, cl_model.imancode, c_order.em_sw_modelcode as model_code, c_orderline.em_sw_itemcode as item_code,
+       c_orderline.em_sw_size as size, c_order.em_sw_modelname as item_description,c_orderline.em_sw_orderqty as qty,
+       c_orderline.qtyordered as confirmed_qty,c_orderline.qtyordered as commodity_qty,c_orderline.em_sw_noofparcel as total_cartons,
+       c_orderline.priceactual as unit_price,c_orderline.em_sw_volpcb as cbm,c_order.datepromised as cdd,
+       c_orderline.em_ds_cessionprice as cession_price,c_orderline.em_ds_ccunitprice as candc_price,c_orderline.em_ds_mrpprice as mrp_price,
+       c_currency.iso_code as currency
+
+from c_order inner join c_orderline
+on c_orderline.c_order_id = c_order.c_order_id
+inner join c_bpartner
+on c_order.c_bpartner_id = c_bpartner.c_bpartner_id
+inner join cl_brand
+on c_order.em_sw_brand_id = cl_brand.cl_brand_id
+inner join m_product
+on c_orderline.m_product_id = m_product.m_product_id
+inner join cl_model
+on m_product.em_cl_model_id = cl_model.cl_model_id
+inner join c_currency
+on c_order.c_currency_id = c_currency.c_currency_id
+where c_order.issotrx='N'
+and c_order.c_order_id IN ($P{ORDER_ID})]]>
+	</queryString>
+	<field name="em_cl_supplierno" class="java.lang.String"/>
+	<field name="suppliername" class="java.lang.String"/>
+	<field name="order_no" class="java.lang.String"/>
+	<field name="orderreference" class="java.lang.String"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="imancode" class="java.lang.String"/>
+	<field name="model_code" class="java.lang.String"/>
+	<field name="item_code" class="java.lang.String"/>
+	<field name="size" class="java.lang.String"/>
+	<field name="item_description" class="java.lang.String"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="confirmed_qty" class="java.math.BigDecimal"/>
+	<field name="commodity_qty" class="java.math.BigDecimal"/>
+	<field name="total_cartons" class="java.math.BigDecimal"/>
+	<field name="unit_price" class="java.math.BigDecimal"/>
+	<field name="cbm" class="java.math.BigDecimal"/>
+	<field name="cdd" class="java.sql.Timestamp"/>
+	<field name="cession_price" class="java.math.BigDecimal"/>
+	<field name="candc_price" class="java.math.BigDecimal"/>
+	<field name="mrp_price" class="java.math.BigDecimal"/>
+	<field name="currency" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-1" x="793" y="0" width="1054" height="20"/>
+				<box>
+					<topPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<bottomPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<rightPen lineWidth="0.0" lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[RETAIL ORDER SHEET]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-33" x="0" y="0" width="601" height="20"/>
+				<box>
+					<topPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<bottomPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<rightPen lineWidth="0.0" lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DPP]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-35" x="1986" y="0" width="191" height="20"/>
+				<box>
+					<topPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<bottomPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<rightPen lineWidth="0.0" lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[WAREHOUSE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-36" x="2177" y="0" width="411" height="20"/>
+				<box>
+					<topPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<bottomPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<rightPen lineWidth="0.0" lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DECATHLON SPORTS INDIA]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="20" splitType="Prevent">
+			<staticText>
+				<reportElement key="staticText-75" x="0" y="0" width="2780" height="20"/>
+				<box>
+					<topPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<bottomPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<rightPen lineWidth="0.0" lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-9" x="0" y="0" width="1426" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[BRAND MANAGERS/RETAIL SUPPLIERS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-10" x="1426" y="0" width="970" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DPP CONFIRMATION]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-12" x="0" y="20" width="127" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Supplier No.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-13" x="307" y="20" width="142" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Order No.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-14" x="601" y="20" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[BRAND]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-15" x="697" y="20" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[IMAN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" x="793" y="20" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Model Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-17" x="889" y="20" width="112" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-18" x="1001" y="20" width="80" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Size]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-19" x="1081" y="20" width="207" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Item Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-20" x="1288" y="20" width="138" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-21" x="1426" y="20" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CONFIRMED QTY
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-22" x="1522" y="20" width="104" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[PCB QTY ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-23" x="1626" y="20" width="104" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[TOTAL CARTONS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-25" x="1986" y="20" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CBM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-26" x="2082" y="20" width="95" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CDD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-27" x="2177" y="20" width="219" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ESR Comments]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-28" x="2396" y="20" width="193" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[RS Comments]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-29" x="2589" y="20" width="95" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Cession Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-30" x="2684" y="20" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[C&C Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-32" x="2396" y="0" width="479" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[BRAND MANAGERS/RETAIL SUPPLIERS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-74" x="2780" y="20" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[MRP Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-76" x="127" y="20" width="180" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Supplier Name.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-77" x="449" y="20" width="152" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Order Reference.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-78" x="1730" y="20" width="117" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[UNIT PRICE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-79" x="1847" y="20" width="139" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CURRENCY]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="0" y="0" width="127" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{em_cl_supplierno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="307" y="0" width="142" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{order_no}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="601" y="0" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="697" y="0" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{imancode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="889" y="0" width="112" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{item_code}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="793" y="0" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{model_code}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="1001" y="0" width="80" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{size}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="1081" y="0" width="207" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{item_description}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="1288" y="0" width="138" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="1426" y="0" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{confirmed_qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="1522" y="0" width="104" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{commodity_qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="1626" y="0" width="104" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{total_cartons}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="1730" y="0" width="117" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{unit_price}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="1986" y="0" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cbm}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="2082" y="0" width="95" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{cdd}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="2589" y="0" width="95" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cession_price}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="2684" y="0" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{candc_price}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" x="2780" y="0" width="96" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{mrp_price}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-64" x="2177" y="0" width="219" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-65" x="2396" y="0" width="193" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-1" x="127" y="0" width="180" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{suppliername}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-2" x="449" y="0" width="152" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{orderreference}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField-5" x="1847" y="0" width="139" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{currency}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

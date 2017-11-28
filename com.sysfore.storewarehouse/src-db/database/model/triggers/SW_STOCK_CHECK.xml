@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_STOCK_CHECK">
+    <trigger name="SW_STOCK_CHECK" table="SW_SREQUISITION" fires="before" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_qtyreq NUMBER:=0;
+v_whqty NUMBER:=0 ;
+v_product character varying;
+v_itemcode character varying;
+v_msg character varying :='';
+v_count NUMBER:=0;
+v_flag NUMBER:=0;
+CUR_LINE RECORD;
+CUR_WH RECORD;
+counter NUMBER:=0 ;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF UPDATING  THEN
+
+FOR CUR_LINE IN 
+(select m_product_id,qtyreq From sw_sreqline where sw_srequisition_id=:NEW.sw_srequisition_id and createdby=:NEW.createdby 
+and sw_srequisition_id=(select sw_srequisition_id from sw_srequisition where requisitionstatus='DR' and sw_srequisition_id=:NEW.sw_srequisition_id and createdby<>'100') ) LOOP 
+v_qtyreq:=CUR_LINE.qtyreq;
+v_product:=CUR_LINE.m_product_id;
+
+--RAISE EXCEPTION 'CUR_LINE.qtyreq %',CUR_LINE.qtyreq;
+
+SELECT COALESCE(sum(qtyonhand),0)+COALESCE((select sum(qtyordered) from i_order 
+where (ad_org_id='B2D0E3B212614BA6989ADCA3074FC423' OR ad_org_id='076DD16AEA914588A919422D1C5FF037') and processed='N' 
+and m_product_id=sd.m_product_id group by m_product_id),0) into v_whqty From m_storage_detail sd where 
+sd.m_product_id =v_product and sd.qtyonhand>0 and sd.m_locator_id in(select m_locator_id from m_locator where m_warehouse_id in  (select m_warehouse_id from m_warehouse where name ilike 'Saleable%' and ad_org_id='603C6A266B4C40BCAD87C5C43DDF53EE')) group by sd.m_product_id;
+
+
+
+
+IF (v_whqty is null) THEN 
+v_whqty:=0;
+
+END IF;
+	
+	--Get itemcode
+	Select name into v_itemcode from m_product where m_product_id=CUR_LINE.m_product_id;
+	
+	IF(CUR_LINE.qtyreq > v_whqty) THEN 
+	
+	
+	v_msg:=v_msg || ' Itemcode: '||v_itemcode||', Warehouse Stock: '||v_whqty;
+	
+	
+	END IF;
+
+	
+
+END LOOP;
+
+IF (v_msg IS NOT NULL AND v_msg!='') THEN
+RAISE EXCEPTION 'Requested Quantity cannot be more than Warehouse stock. %',v_msg;
+END IF;
+
+END IF;
+
+END SW_STOCK_CHECK
+]]></body>
+    </trigger>
+  </database>

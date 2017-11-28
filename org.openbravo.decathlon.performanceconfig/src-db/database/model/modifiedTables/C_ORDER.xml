@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ORDER">
+    <table name="C_ORDER" primaryKey="C_ORDER_KEY">
+      <index name="EM_DECPERF_ORDER_DATEID" unique="false">
+        <index-column name="DATEORDERED"/>
+        <index-column name="C_ORDER_ID"/>
+      </index>
+    </table>
+  </database>

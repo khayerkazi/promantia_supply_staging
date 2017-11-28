@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_GOODS_SHIP">
+    <function name="SW_GOODS_SHIP" type="NULL">
+      <parameter name="p_inout_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_ResultStr VARCHAR2(2000):='';
+  v_Client_ID VARCHAR(32);
+  v_WH_ID VARCHAR(32);  	  
+  v_Org_ID VARCHAR(32);
+  v_SOrg_ID VARCHAR(32);
+  v_docno_No VARCHAR(32);
+  v_mlocator_ID VARCHAR(32);
+  v_user VARCHAR(32);
+  v_reline_ID VARCHAR(32);
+  v_Record_ID VARCHAR(32);	
+  v_User_ID VARCHAR(32);	
+  v_MoveDate VARCHAR(32);
+  v_reqstatus VARCHAR(32);
+  v_srcqty VARCHAR(32);
+  v_scc NUMBER;
+  v_mtcount NUMBER;
+ --
+ TYPE RECORD IS REF CURSOR;
+    Cur_Parameter RECORD;
+    Cur_IrLine RECORD;
+    Cur_SLine RECORD;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Updating p_storerequisition - Processing ' || p_inout_id) ;
+  v_ResultStr:='PInstanceNotFound';
+  AD_UPDATE_PINSTANCE(p_inout_id, NULL, 'Y', NULL, NULL) ;
+ 
+ -- Get Parameters
+    v_ResultStr:='Order Processed';
+    FOR Cur_Parameter IN
+      (SELECT i.Record_ID, i.AD_User_ID, i.AD_Client_ID, i.AD_Org_ID,
+        p.ParameterName, p.P_String, p.P_Number, p.P_Date
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=p_inout_id
+      ORDER BY p.SeqNo) LOOP
+      v_Record_ID:=Cur_Parameter.Record_ID;
+      v_User_ID:=Cur_Parameter.AD_User_ID;
+      END LOOP; -- Get Parameter
+          
+
+
+update m_inout set em_sw_shippedstatus='PR',em_sw_isshipped='Y' where m_inout_id=v_Record_ID;
+
+   
+      AD_UPDATE_PINSTANCE(p_inout_id, NULL, 'N', 1, v_ResultStr);
+END SW_GOODS_SHIP
+]]></body>
+    </function>
+  </database>

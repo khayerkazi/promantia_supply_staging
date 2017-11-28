@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportFirstBuyer" pageWidth="1836" pageHeight="400" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="1796" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="220"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="REPORT_SUBTITLE" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT (o.em_rc_oxylaneno::numeric) as DecathlonID,
+      '' as MemberName, '' as Lastname,
+      'DECATHLON DEFAULT' as MemberOrg,
+      (o.em_ds_posno::numeric) as POS,
+      ad.name as Store,
+      (select name from ad_user where ad_user_id=o.ad_user_id) as CashierName,
+      o.created::date as Date,
+      to_char(o.created::timestamp, 'HH24:MI:SS') as Time,
+      '' as Email,
+      '' as Mobile,
+      '' as Landline,
+      '' as PostalCode,
+      o.documentno as BillNo,
+      sum(ol.em_ds_lotqty + ol.em_ds_boxqty + ol.em_ds_unitqty) as BillQty,
+      sum(ol.em_ds_lotprice * ol.em_ds_lotqty + ol.em_ds_boxprice * ol.em_ds_boxqty +
+     CASE WHEN (ol.gross_unit_price=0 OR ol.gross_unit_price is null) then round(ol.priceactual,2) else ol.gross_unit_price end
+      * ol.em_ds_unitqty) AS BillAmount,
+      o.em_ds_chargeamt as TransportCost,
+      (o.em_ds_ratesatisfaction::numeric) as Feedback
+
+      FROM  c_order o
+      join c_orderline ol on o.c_order_id = ol.c_order_id
+      join ad_org ad  on ad.ad_org_id = o.AD_ORG_ID
+      join
+      (select min(created) as created from c_order
+    group by em_rc_oxylaneno, ad_org_id) fp on fp.created = o.created
+      WHERE
+      1=1
+      AND o.c_return_reason_id is null
+      AND o.created between ? and ?
+      AND o.issotrx='Y'
+      GROUP BY o.created, o.em_rc_oxylaneno,
+      MemberName, Lastname, ad.name, o.em_ds_posno,
+      o.ad_user_id,
+      o.documentno, o.em_ds_chargeamt,
+      o.em_ds_ratesatisfaction
+      ORDER BY Date desc, Time desc]]>
+	</queryString>
+	<field name="DecathlonID" class="java.math.BigDecimal"/>
+	<field name="MemberName" class="java.lang.String"/>
+	<field name="Lastname" class="java.lang.String"/>
+	<field name="MemberOrg" class="java.lang.String"/>
+	<field name="POS" class="java.math.BigDecimal"/>
+	<field name="Store" class="java.lang.String"/>
+	<field name="CashierName" class="java.lang.String"/>
+	<field name="Date" class="java.util.Date"/>
+	<field name="Time" class="java.lang.String"/>
+	<field name="Email" class="java.lang.String"/>
+	<field name="Mobile" class="java.math.BigDecimal"/>
+	<field name="Landline" class="java.math.BigDecimal"/>
+	<field name="PostalCode" class="java.math.BigDecimal"/>
+	<field name="BillNo" class="java.lang.String"/>
+	<field name="BillQty" class="java.math.BigDecimal"/>
+	<field name="BillAmount" class="java.math.BigDecimal"/>
+	<field name="TransportCost" class="java.math.BigDecimal"/>
+	<field name="Feedback" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="23" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="1" width="1816" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ First Buyer Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="-20" y="0" width="99" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Decathlon ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="224" y="0" width="149" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Member Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="79" y="0" width="145" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Member Org]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="473" y="0" width="43" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[POS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="516" y="0" width="94" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="610" y="0" width="183" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cashier Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="793" y="0" width="73" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="866" y="0" width="72" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Time]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1283" y="0" width="77" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Postal Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1487" y="0" width="51" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bill Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1538" y="0" width="76" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bill Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1614" y="0" width="102" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Transport Cost]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="938" y="0" width="154" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Email]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1092" y="0" width="97" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Mobile]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1360" y="0" width="127" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bill No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1716" y="0" width="80" height="22"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Feedback]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1189" y="0" width="94" height="22"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Landline]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="373" y="0" width="100" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Last Name]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="-20" y="0" width="99" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{DecathlonID}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="224" y="0" width="149" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{MemberName}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="79" y="0" width="145" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{MemberOrg}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="473" y="0" width="43" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{POS}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="516" y="0" width="94" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{Store}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="793" y="0" width="73" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement/>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{Date}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="1360" y="0" width="127" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{BillNo}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="938" y="0" width="154" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{Email}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="1092" y="0" width="97" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Mobile}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="1716" y="0" width="80" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Feedback}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="610" y="0" width="183" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CashierName}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="866" y="0" width="72" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{Time}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="1283" y="0" width="77" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{PostalCode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="1538" y="0" width="76" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{BillAmount}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="1487" y="0" width="51" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{BillQty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="1614" y="0" width="102" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{TransportCost}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1189" y="0" width="94" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Top"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Landline}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="373" y="0" width="100" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{Lastname}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<summary>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="1796" height="25">
+					<printWhenExpression><![CDATA[$V{COLUMN_COUNT}==0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No data found for given inputs]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_LOCATOR">
+    <table name="M_LOCATOR" primaryKey="M_LOCATOR_KEY">
+      <column name="EM_OBWHS_TYPE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

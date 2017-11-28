@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE DJE_LEDGER_TXN">
+    <table name="DJE_LEDGER_TXN" primaryKey="DJE_LEDGER_TXN_KEY">
+      <column name="EM_DFEX_THIRD_NUM" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

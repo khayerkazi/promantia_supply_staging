@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_SRECEIPT_POST0">
+    <function name="SW_SRECEIPT_POST0" type="VARCHAR">
+      <parameter name="p_storereceipt" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2006 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  -- Logistice
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Result NUMBER:=1; -- 0=failure
+  v_Record_ID VARCHAR2(32);
+  v_User_ID VARCHAR2(32):='0';
+  v_DocAction VARCHAR2(60);
+  v_DocStatus VARCHAR2(60);
+  v_Aux NUMBER;
+  v_flag boolean := TRUE;
+
+  --  Parameter
+  TYPE RECORD IS REF CURSOR;
+    Cur_Parameter RECORD;
+    Cur_IrLine RECORD;
+BEGIN
+  --RAISE NOTICE '%','Updating PInstance - Processing ' || p_PInstance_ID ;
+  --v_ResultStr:='PInstanceNotFound';
+  --PERFORM AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'Y', NULL, NULL) ;
+
+  BEGIN --BODY
+    -- Get Parameters
+    v_Record_ID := p_storereceipt;
+    
+    --RAISE EXCEPTION '-%-', v_Record_ID;
+    SELECT DocAction, DocStatus INTO v_DocAction, v_DocStatus
+    FROM sw_sreceipt
+    WHERE sw_sreceipt_ID = v_Record_ID;
+
+    v_ResultStr := 'sw_sreceipt ' || v_Record_ID || ', DocAction=' || v_DocAction || ', DocStatus=' || v_DocStatus ;
+
+    --Check if receipt has lines
+
+   
+    -- Order Closed, Voided or Reversed - No action possible
+
+    IF(v_DocStatus IN('CL', 'VO', 'RE')) THEN
+      RAISE_APPLICATION_ERROR(-20000, '@AlreadyPosted@') ;
+    ELSIF (v_DocStatus = 'DR') THEN
+      
+        v_ResultStr := 'Complete the receipt: ' || v_Record_ID;
+        UPDATE sw_sreceipt
+        SET DocStatus = 'CO',
+            DocAction = 'CL',
+            Processed = 'Y'
+        WHERE sw_sreceipt_ID = v_Record_ID;
+	--RAISE NO_DATA_FOUND;
+      
+    ELSIF (v_DocStatus = 'CO') THEN
+      IF (v_DocAction = 'CL') THEN
+        v_ResultStr := 'Close receipt lines';
+      ELSIF (v_DocAction = 'RE' ) THEN
+        v_ResultStr := 'Reactivate the store receipt: ' || v_Record_ID;
+        UPDATE sw_sreceipt
+        SET DocStatus = 'DR',
+            DocAction = 'CO'
+        WHERE sw_sreceipt_ID = v_Record_ID;
+      ELSE
+        RAISE_APPLICATION_ERROR(-20000, '@ActionNotAllowedHere@');
+      END IF;
+    END IF;
+  END; 
+
+     IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END SW_SRECEIPT_POST0
+]]></body>
+    </function>
+  </database>

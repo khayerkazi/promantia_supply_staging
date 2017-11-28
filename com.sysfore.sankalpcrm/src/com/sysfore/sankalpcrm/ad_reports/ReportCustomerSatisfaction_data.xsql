@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+TO_CHAR(o.dateordered,'HH:MM:SS') - This is for comment
+-->
+
+
+<SqlClass name="ReportCustomerSatisfactionData" package="com.sysfore.sankalpcrm.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[select a.documentno,a.date,
+a.times,a.POSNO,a.em_ds_chargeamt,a.Store,a.em_rc_oxylane,a.membername,a.name2,a.ad_org_id,a.postalcode,a.emailaddress,
+a.MobileNo,a.Landline,a.CustomerSatisfaction,a.companyname,a.natureofbusiness,a.name,sum(a.em_ds_grandtotalamt) as em_ds_grandtotalamt,
+sum(a.billqyt) as billqyt  
+ from (select TO_CHAR(o.dateordered,'DD-MM-YYYY') as date, TO_CHAR(o.dateordered,'hh24:mi:ss') as times,
+ o.em_ds_posno as POSNO, o.em_ds_chargeamt,
+ case when o.documentno like '*ECOM*%' then 'Ecommerce' when o.documentno like '*B2B*%' then 'B2B' else org.name end as Store,
+  case when o.documentno like '*ECOM*%' then substring(o.documentno from 2 for char_length(o.documentno)-5) when o.documentno 
+    like '*B2B*%' then substring(o.documentno from 2 for char_length(o.documentno)-5) 
+ else o.documentno end as documentno,
+  case when o.em_ds_bpartner_id is not null then bb.em_rc_oxylane else
+  o.em_rc_oxylaneno end as em_rc_oxylane,case when o.em_ds_bpartner_id is not null then bb.name else 
+  '' end as membername,
+  case when o.em_ds_bpartner_id is not null then bb.name2 else
+  '' end as name2,o.ad_org_id,
+     case when o.em_ds_bpartner_id is not null then bb.em_rc_zipcode else '' end as postalcode,
+     case when o.em_ds_bpartner_id is not null then bb.em_rc_email else '' end as emailaddress,
+     case when o.em_ds_bpartner_id is not null then bb.em_rc_mobile else '' end as MobileNo,
+     case when o.em_ds_bpartner_id is not null then bb.em_rc_landline else '' end as Landline,
+     CASE
+     WHEN o.em_ds_ratesatisfaction='1' THEN 'Not Satisfied'
+     WHEN o.em_ds_ratesatisfaction='2' THEN 'Satisfied'
+     WHEN o.em_ds_ratesatisfaction='3' THEN 'Very Satisfied'
+     ELSE 'no satisfaction rate'
+     END as CustomerSatisfaction,
+    case when o.em_ds_bpartner_id is not null then cc.companyname else
+     'DECATHLON DEFAULT' end as companyname,n.name as natureofbusiness,(case when org.name in ('B2B','Ecommerce') then (sum(ol.em_sw_confirmedqty)) else (sum(ol.qtyordered)) END) as billqyt,sum(round(ol.em_ds_linenetamt,2)) as em_ds_grandtotalamt,u.name
+                from c_order o
+                left join c_orderline ol on (ol.c_order_id=o.c_order_id)
+        left join c_bpartner bb on (o.em_ds_bpartner_id=bb.c_bpartner_id)
+            left join c_bpartner_location bl on (o.c_bpartner_location_id=bl.c_bpartner_location_id)
+                left join c_location l on (bl.c_location_id=l.c_location_id)
+                left join rc_company c on (c.rc_company_id=bb.em_rc_company_id)
+        left join rc_company cc on (cc.rc_company_id=bb.em_rc_company_id)
+                left join rc_natbusi n on (n.rc_natbusi_id=c.rc_natbusi_id)
+                left join ad_user u on (u.ad_user_id=o.ad_user_id)
+            left join ad_org org on (org.AD_Org_ID=o.AD_Org_ID)
+                where o.totallines<>0 and o.c_return_reason_id is null and o.isactive='Y' and o.docstatus not in ('DR','VO') and case WHEN org.name in ('B2B','Ecommerce') THEN o.issotrx='N' else o.issotrx='Y' END
+        AND o.AD_Client_ID IN ('1')
+        AND o.AD_Org_ID IN ('1')
+        AND 1=1             
+ group by o.documentno, o.ad_org_id,u.name,o.dateordered,
+                c.companyname,n.name,o.em_ds_posno,org.name,
+ o.em_ds_ratesatisfaction,
+ o.em_ds_chargeamt,em_ds_receiptno,o.em_ds_grandtotalamt,bb.name,bb.name2,cc.companyname, bb.em_rc_oxylane,o.em_rc_oxylaneno,
+ bb.em_rc_zipcode,bb.em_rc_email,bb.em_rc_mobile,bb.em_rc_landline,o.em_ds_bpartner_id  order by o.documentno) a 
+ group by a.documentno,a.date,
+ a.times,a.POSNO,a.em_ds_chargeamt,a.Store,a.em_rc_oxylane,a.membername,a.name2,a.ad_org_id,a.postalcode,a.emailaddress,
+ a.MobileNo,a.Landline,a.CustomerSatisfaction,a.companyname,a.natureofbusiness,a.name order by a.documentno
+     ]]></Sql>
+     <Parameter name="adUserClient" type="replace" optional="true" after="o.AD_Client_ID IN (" text="'1'"/>
+      <Parameter name="adUserOrg" type="replace" optional="true" after="o.AD_Org_ID IN (" text="'1'"/>
+      <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[AND ol.dateordered >= to_date(?)]]></Parameter>
+    <Parameter name="dateTo" optional="true" after="AND 1=1"><![CDATA[AND ol.dateordered < to_date(?)]]></Parameter>
+  </SqlMethod>
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>

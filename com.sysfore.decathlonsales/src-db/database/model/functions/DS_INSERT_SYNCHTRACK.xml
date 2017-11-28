@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DS_INSERT_SYNCHTRACK">
+    <function name="DS_INSERT_SYNCHTRACK" type="NULL">
+      <parameter name="p_synchname" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_storename" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_posname" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_issuccess" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[BEGIN
+    insert into ds_synch_tracking(ds_synch_tracking_id,ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby,synchname,storename,synchronizationtime,issuccessful,posname)
+	values(get_uuid(),'0','0','Y',now(),'0',now(),'0',p_synchname,p_storename,now(),p_issuccess,p_posname);
+END DS_INSERT_SYNCHTRACK
+]]></body>
+    </function>
+  </database>

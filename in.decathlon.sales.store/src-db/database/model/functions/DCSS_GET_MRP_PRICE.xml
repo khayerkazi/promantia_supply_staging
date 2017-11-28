@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DCSS_GET_MRP_PRICE">
+    <function name="DCSS_GET_MRP_PRICE" type="NUMERIC">
+      <parameter name="productid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2006 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+/*************************************************************************
+* Title: AD_ShortName
+************************************************************************/
+ DECLARE 
+
+ v_mrpprice NUMBER;
+ pricelistId VARCHAR(32);
+
+ 
+BEGIN
+
+ select m_pricelist_id  INTO pricelistId from  m_pricelist where name like 'DMI CATALOGUE' ;
+ 
+
+--SELECT EM_CL_MRPPRICE INTO v_mrpprice FROM M_PRODUCTPRICE WHERE M_PRICELIST_VERSION_ID = pricelistId
+--(select m_pricelist_version_id from m_pricelist_version where validfrom =
+--(select max(validfrom) from m_pricelist_version where m_pricelist_id =  and validfrom < now()))
+--AND m_pricelist_id = pricelistId) AND m_PRODUCT_ID = 'E246B812F9824B6789F10E6552172925'
+
+
+SELECT EM_CL_MRPPRICE INTO v_mrpprice FROM M_PRODUCTPRICE WHERE M_PRICELIST_VERSION_ID = 
+(select m_pricelist_version_id from m_pricelist_version where validfrom =
+(select max(validfrom) from m_pricelist_version where m_pricelist_id = pricelistId and validfrom < now())
+AND m_pricelist_id =pricelistId) AND m_PRODUCT_ID =productId;
+
+ RETURN v_mrpprice;
+END DCSS_GET_MRP_PRICE
+]]></body>
+    </function>
+  </database>

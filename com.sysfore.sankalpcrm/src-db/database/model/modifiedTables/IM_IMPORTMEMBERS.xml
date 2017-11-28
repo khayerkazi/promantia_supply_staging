@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE IM_IMPORTMEMBERS">
+    <table name="IM_IMPORTMEMBERS" primaryKey="IM_IMPORTMEMBERS_KEY">
+      <column name="EM_RC_SOURCE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_RC_COMMENTS" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

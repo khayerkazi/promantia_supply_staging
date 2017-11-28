@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_CREATE_NEW_PO_NZ">
+    <function name="SW_CREATE_NEW_PO_NZ" type="NULL">
+      <parameter name="p_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_new_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_orgid VARCHAR(32);
+v_uuid VARCHAR(32);
+v_lineid VARCHAR(32);
+v_ordered NUMBER:=0;
+v_ordered_qty NUMBER:=0;
+v_sum NUMBER:=0;
+v_docno  VARCHAR(60);
+v_sorder_id2   VARCHAR(32);
+v_sorder_id1  VARCHAR(32);
+v_count NUMBER:=0;
+CUR_LINE RECORD;
+v_record RECORD;
+v_res_id VARCHAR(32);
+s_org_id VARCHAR(32);
+v_product_id VARCHAR(32);
+v_isEcom NUMBER:=0;
+BEGIN
+
+--GET LINES FROM RESERVATION BASED ON LOCATION SUM UP AND CREATE NEW PO
+
+select count(*) into v_count from m_reservation mr, m_reservation_stock mrs where 
+mr.c_orderline_id in (select c_orderline_id from c_orderline where c_order_id=p_order_id) 
+and mr.m_reservation_id=mrs.m_reservation_id and mrs.m_locator_id in (select m_locator_id from m_locator where
+m_warehouse_id in (select m_warehouse_id from m_warehouse where name = 'Saleable Hub') and isactive= 'Y');
+
+
+select count(ad_org_id) into v_isEcom from ad_org where name in ('B2B','Ecommerce') and ad_org_id=(select ad_org_id from c_order where
+c_order_id=p_order_id) ;
+
+if (v_isEcom>0) then
+
+select documentno into v_docno
+from c_order where c_doctypetarget_id =
+(select c_doctype_id from c_doctype where name ='Purchase Order' and isactive='Y' )
+and ad_org_id=(select ad_org_id from c_order where c_order_id = p_order_id) and c_order_id = p_order_id; 
+
+else
+
+select coalesce(Max(replace(replace(replace(replace(replace(documentno,'*',''),'CAR',''),'HUB',''),'CAC',''),'-','')::numeric),0)+1 into v_docno
+from c_order where c_doctypetarget_id =
+(select c_doctype_id from c_doctype where name ='Purchase Order' and isactive='Y' )
+and ad_org_id=(select ad_org_id from c_order where c_order_id = p_order_id); 
+end if;
+
+IF(v_count>0) THEN
+-- CREATING PO HEADER
+v_uuid:=p_new_order_id;
+
+select ad_org_id into s_org_id from ad_org where name = (select name from c_bpartner where c_bpartner_id =(select c_bpartner_id from c_order where c_order_id=p_order_id)) 
+								   and em_sw_iswarehouse = 'Y';
+		--select max(documentno) into v from c_order
+		--insert into temp_table values('here'); 
+		INSERT INTO c_order(
+		    c_order_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+		    updated, updatedby, issotrx, documentno, docstatus, docaction, 
+		    processing, processed, c_doctype_id, c_doctypetarget_id, description, 
+		    isdelivered, isinvoiced, isprinted, isselected, salesrep_id, 
+		    dateordered, datepromised, dateprinted, dateacct, c_bpartner_id, 
+		    billto_id, c_bpartner_location_id, poreference, isdiscountprinted, 
+		    c_currency_id, paymentrule, c_paymentterm_id, invoicerule, deliveryrule, 
+		    freightcostrule, freightamt, deliveryviarule, m_shipper_id, c_charge_id, 
+		    chargeamt, priorityrule, totallines, grandtotal, m_warehouse_id, 
+		    m_pricelist_id, istaxincluded, c_campaign_id, c_project_id, c_activity_id, 
+		    posted, ad_user_id, copyfrom, dropship_bpartner_id, dropship_location_id, 
+		    dropship_user_id, isselfservice, ad_orgtrx_id, user1_id, user2_id, 
+		    deliverynotes, c_incoterms_id, incotermsdescription, generatetemplate, 
+		    delivery_location_id, copyfrompo, fin_paymentmethod_id, fin_payment_priority_id, 
+		    rm_pickfromshipment, rm_receivematerials, rm_createinvoice, c_return_reason_id, 
+		    rm_addorphanline, a_asset_id, calculate_promotions, c_costcenter_id, 
+		    convertquotation, c_reject_reason_id, validuntil, quotation_id, 
+		    so_res_status, em_ds_totalitemqty, em_ds_totalpriceadj, em_ds_posno, 
+		    em_ds_time, em_ds_receiptno, em_ds_ratesatisfaction, em_ds_grandtotalamt, 
+		    em_ds_chargeamt, em_rc_mobileno, em_rc_oxylaneno, em_sw_hscode, 
+		    em_sw_modelcode, em_sw_modelname, em_sw_dept_id, em_sw_brand_id, 
+		    em_sw_expdeldate, em_sw_estshipdate, em_sw_actshipdate, em_sw_pricelistver, 
+		    em_sw_currency, em_sw_postatus, em_obwpl_generatepicking, 
+		    em_obwpl_isinpickinglist, em_sw_isauto_order, em_sw_po_reference, em_cl_storedept_id,em_sw_isimplantation,em_ds_bpartner_id)
+		select v_uuid, ad_client_id, ad_org_id, isactive, created, createdby, 
+		    updated, updatedby, issotrx, v_docno||'*HUB', 'DR', 'CO', 
+		    processing, processed, c_doctype_id, c_doctypetarget_id, description, 
+		    isdelivered, isinvoiced, isprinted, isselected, salesrep_id, 
+		    dateordered, datepromised, dateprinted, dateacct, c_bpartner_id, 
+		    billto_id, c_bpartner_location_id, poreference, isdiscountprinted, 
+		    c_currency_id, paymentrule, c_paymentterm_id, invoicerule, deliveryrule, 
+		    freightcostrule, freightamt, deliveryviarule, m_shipper_id, c_charge_id, 
+		    chargeamt, priorityrule, 0, 0, m_warehouse_id, 
+		    m_pricelist_id, istaxincluded, c_campaign_id, c_project_id, c_activity_id, 
+		    posted, ad_user_id, copyfrom, dropship_bpartner_id, dropship_location_id, 
+		    dropship_user_id, isselfservice, ad_orgtrx_id, user1_id, user2_id, 
+		    deliverynotes, c_incoterms_id, incotermsdescription, generatetemplate, 
+		    delivery_location_id, copyfrompo, fin_paymentmethod_id, fin_payment_priority_id, 
+		    rm_pickfromshipment, rm_receivematerials, rm_createinvoice, c_return_reason_id, 
+		    rm_addorphanline, a_asset_id, calculate_promotions, c_costcenter_id, 
+		    convertquotation, c_reject_reason_id, validuntil, quotation_id, 
+		    so_res_status, em_ds_totalitemqty, em_ds_totalpriceadj, em_ds_posno, 
+		    em_ds_time, em_ds_receiptno, em_ds_ratesatisfaction, em_ds_grandtotalamt, 
+		    em_ds_chargeamt, em_rc_mobileno, em_rc_oxylaneno, em_sw_hscode, 
+		    em_sw_modelcode, em_sw_modelname, em_sw_dept_id, em_sw_brand_id, 
+		    em_sw_expdeldate, em_sw_estshipdate, em_sw_actshipdate, em_sw_pricelistver, 
+		    em_sw_currency, em_sw_postatus, em_obwpl_generatepicking, 
+		    em_obwpl_isinpickinglist, 'Y', '',em_cl_storedept_id,em_sw_isimplantation,em_ds_bpartner_id
+		    from c_order
+		    where c_order_id = p_order_id;
+
+
+FOR CUR_LINE IN (select sum(mrs.quantity) as qty, mr.c_orderline_id,mr.em_idsd_ispcbpick from m_reservation mr, m_reservation_stock mrs where 
+mr.c_orderline_id in (select c_orderline_id from c_orderline where c_order_id=p_order_id) 
+and mr.m_reservation_id=mrs.m_reservation_id and mrs.m_locator_id in (select m_locator_id from m_locator where
+m_warehouse_id in (select m_warehouse_id from m_warehouse where name = 'Saleable Hub') and isactive= 'Y') group by mr.c_orderline_id,mr.em_idsd_ispcbpick)
+LOOP
+	v_lineid:=get_uuid();   
+
+	INSERT INTO c_orderline(
+            c_orderline_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby, c_order_id, line, c_bpartner_id, c_bpartner_location_id, 
+            dateordered, datepromised, datedelivered, dateinvoiced, description, 
+            m_product_id, m_warehouse_id, directship, c_uom_id, qtyordered, 
+            qtyreserved, qtydelivered, qtyinvoiced, m_shipper_id, c_currency_id, 
+            pricelist, priceactual, pricelimit, linenetamt, discount, freightamt, 
+            c_charge_id, chargeamt, c_tax_id, s_resourceassignment_id, ref_orderline_id, 
+            m_attributesetinstance_id, isdescription, quantityorder, m_product_uom_id, 
+            m_offer_id, pricestd, cancelpricead, c_order_discount_id, iseditlinenetamt, 
+            taxbaseamt, m_inoutline_id, c_return_reason_id, gross_unit_price, 
+            line_gross_amount, grosspricelist, c_costcenter_id, grosspricestd, 
+            a_asset_id, m_warehouse_rule_id, user1_id, quotationline_id, 
+            user2_id, create_reservation, c_project_id, so_res_status, manage_reservation, 
+            manage_prereservation, explode, bom_parent_id, em_ds_salesexcl, 
+            em_ds_taxamount, em_ds_lotqty, em_ds_lotprice, em_ds_boxqty, 
+            em_ds_boxprice, em_ds_unitqty, em_ds_cessionprice, em_ds_ccunitprice, 
+            em_ds_mrpprice, em_ds_linenetamt, em_sw_orderqty, em_sw_suppliercode, 
+            em_sw_volpcb, em_sw_ntwtpcb, em_sw_grwtpcb, em_sw_noofparcel, 
+            em_sw_itemcode, em_sw_recqty, 
+            em_sw_confirmedqty)
+            select v_lineid, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby, v_uuid, line, c_bpartner_id, c_bpartner_location_id, 
+            dateordered, datepromised, datedelivered, dateinvoiced, description, 
+            m_product_id, m_warehouse_id, directship, c_uom_id, qtyordered, 
+            0, qtydelivered, qtyinvoiced, m_shipper_id, c_currency_id, 
+            pricelist, priceactual, pricelimit, linenetamt, discount, freightamt, 
+            c_charge_id, chargeamt, c_tax_id, s_resourceassignment_id, ref_orderline_id, 
+            m_attributesetinstance_id, isdescription, quantityorder, m_product_uom_id, 
+            m_offer_id, pricestd, cancelpricead, c_order_discount_id, iseditlinenetamt, 
+            taxbaseamt, m_inoutline_id, c_return_reason_id, gross_unit_price, 
+            line_gross_amount, grosspricelist, c_costcenter_id, grosspricestd, 
+            a_asset_id, m_warehouse_rule_id, user1_id, quotationline_id, 
+            user2_id, create_reservation, c_project_id, so_res_status, manage_reservation, 
+            manage_prereservation, explode, bom_parent_id, em_ds_salesexcl, 
+            em_ds_taxamount, em_ds_lotqty, em_ds_lotprice, em_ds_boxqty, 
+            em_ds_boxprice, em_ds_unitqty, em_ds_cessionprice, em_ds_ccunitprice, 
+            em_ds_mrpprice, em_ds_linenetamt, em_sw_orderqty, em_sw_suppliercode, 
+            em_sw_volpcb, em_sw_ntwtpcb, em_sw_grwtpcb, em_sw_noofparcel, 
+            em_sw_itemcode, em_sw_recqty, 
+            CUR_LINE.qty
+            from c_orderline
+            where c_orderline_id = CUR_LINE.c_orderline_id;
+
+v_res_id = get_uuid();
+--and CUR_LINE.em_idsd_ispcbpick<>'Y'
+IF(CUR_LINE.qty >0) THEN
+select m_product_id into v_product_id from c_orderline
+            where c_orderline_id = CUR_LINE.c_orderline_id;
+-- raise exception '%','Inside create PO';
+INSERT INTO m_reservation(
+		    m_reservation_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_product_id, quantity, c_uom_id, 
+		    c_orderline_id, ad_user_id, c_bpartner_id, m_attributesetinstance_id, 
+		    reservedqty, releasedqty, res_status, res_process, 
+		    managereservation_pe)
+		    select v_res_id, ad_client_id, s_org_id, 'Y', now(), '100', 
+			now(), '100', m_product_id, CUR_LINE.qty, c_uom_id, v_lineid, null, 
+			c_bpartner_id, m_attributesetinstance_id,0, 0, 'CO', 'HO','' from c_orderline
+            where c_orderline_id = CUR_LINE.c_orderline_id;
+END IF;
+
+UPDATE m_reservation_stock set m_reservation_id=v_res_id, c_orderline_id=v_lineid where m_reservation_stock_id in (select m_reservation_stock_id from m_reservation mr, m_reservation_stock mrs where 
+mr.c_orderline_id in (select c_orderline_id from c_orderline where c_order_id=p_order_id) 
+and mr.m_reservation_id=mrs.m_reservation_id and mrs.m_locator_id in (select m_locator_id from m_locator where
+m_warehouse_id in (select m_warehouse_id from m_warehouse where  name = 'Saleable Hub') and isactive= 'Y') and mr.m_product_id=v_product_id);
+
+			
+END LOOP;
+
+
+--POSTING NEW PO
+
+ IDSD_DC_POST1(v_uuid);
+--CREATE NEW SO FOR NEW PO
+v_sorder_id2:=get_uuid();  
+ SW_CREATE_NEW_SALES_ORDER(v_uuid,v_sorder_id2);
+
+END IF;
+
+FOR v_record in (select sum(mrs.quantity) as qty, mr.c_orderline_id as id from m_reservation mr, m_reservation_stock mrs where 
+mr.c_orderline_id in (select c_orderline_id from c_orderline where c_order_id=p_order_id) 
+and mr.m_reservation_id=mrs.m_reservation_id and mrs.m_locator_id in (select m_locator_id from m_locator where
+m_warehouse_id in (select m_warehouse_id from m_warehouse where name = 'Saleable Hub') and isactive= 'Y') group by mr.c_orderline_id)
+LOOP
+
+UPDATE c_orderline set em_sw_confirmedqty=v_record.qty where c_orderline_id= v_record.id;
+END LOOP;
+
+
+UPDATE c_order set documentno=v_docno||'*HUB' where c_order_id= p_order_id;
+
+--Update PO status as Void if all lines' Confirmed Qty are 0 
+	Select count(*) into v_count from C_Orderline where C_Order_ID = p_order_id and em_sw_confirmedqty > 0;
+		--raise exception '%' , v_count ;
+		IF (v_count = 0 )  THEN
+			--UPDATE c_order set DOCSTATUS='VO' where C_Order_ID = p_order_id;
+		END IF;
+		
+v_sorder_id1:=get_uuid();   
+ SW_CREATE_NEW_SALES_ORDER(p_order_id,v_sorder_id1);
+		--raise exception '%','after creating second SO'||v_docno;
+END SW_CREATE_NEW_PO_NZ
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,462 @@
+diff --git a/src-db/database/model/functions/C_ORDER_POST1.xml b/src-db/database/model/functions/C_ORDER_POST1.xml
+--- a/src-db/database/model/functions/C_ORDER_POST1.xml
++++ b/src-db/database/model/functions/C_ORDER_POST1.xml
+@@ -1185,7 +1185,7 @@
+                 -- Update reservation when possible.
+                 -- Read reservation.
+                 SELECT r.quantity, r.reservedqty, r.releasedqty, r.res_status,
+-                      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - COALESCE(rs.releasedqty, 0) ELSE 0 END), 0)
++                      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0)
+                   INTO v_quantity, v_reservedqty, v_releasedqty, v_res_status,
+                       v_allocated
+                 FROM m_reservation r
+@@ -1203,10 +1203,10 @@
+                     --Reservation quantity to decrease with more reserved quantity than new quantity, unreserve stock
+                     v_pendingtounreserve := v_reservedqty - cur_orderline.qtyordered;
+                     FOR cur_res_stock IN (
+-                        SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++                        SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+                         FROM m_reservation_stock
+                         WHERE m_reservation_id = v_reservation_id
+-                        ORDER BY COALESCE(releasedqty, 0), quantity - COALESCE(releasedqty, 0)
++                        ORDER BY releasedqty, quantity - releasedqty
+                     ) LOOP
+                       v_qtyaux := LEAST(v_pendingtounreserve, cur_res_stock.reservedqty);
+                       UPDATE m_reservation_stock
+@@ -1226,7 +1226,7 @@
+                     -- Delete reservation lines with quantity zero.
+                     DELETE FROM m_reservation_stock
+                     WHERE quantity = 0
+-                      AND COALESCE(releasedqty, 0) = 0
++                      AND releasedqty = 0
+                       AND m_reservation_id = v_reservation_id;
+                   END IF;
+                   UPDATE m_reservation
+diff --git a/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml b/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml
+--- a/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml
++++ b/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml
+@@ -221,7 +221,7 @@
+               LEFT JOIN m_reservation res ON res.c_orderline_id = ol.c_orderline_id AND res.res_status NOT IN ('CL', 'DR')
+               -- Prereserved purchase orders
+               LEFT JOIN (
+-                  SELECT rs.c_orderline_id, SUM(rs.quantity - COALESCE(rs.releasedqty, 0)) AS reservedqty
++                  SELECT rs.c_orderline_id, SUM(rs.quantity - rs.releasedqty) AS reservedqty
+                   FROM m_reservation r
+                       JOIN m_reservation_stock rs ON r.m_reservation_id = rs.m_reservation_id
+                   WHERE rs.c_orderline_id IS NOT NULL
+diff --git a/src-db/database/model/functions/M_CREATE_RESERVE_FROM_SOL.xml b/src-db/database/model/functions/M_CREATE_RESERVE_FROM_SOL.xml
+--- a/src-db/database/model/functions/M_CREATE_RESERVE_FROM_SOL.xml
++++ b/src-db/database/model/functions/M_CREATE_RESERVE_FROM_SOL.xml
+@@ -92,7 +92,7 @@
+   ) LOOP
+     M_RESERVE_STOCK_MANUAL(v_reservation_id, 'SD', cur_shipments.m_storage_detail_id, cur_shipments.movementqty, p_user_id, 'N', v_res_stock_id);
+     UPDATE m_reservation_stock
+-    SET releasedqty = COALESCE(releasedqty, 0) + cur_shipments.movementqty
++    SET releasedqty = releasedqty + cur_shipments.movementqty
+     WHERE m_reservation_stock_id = v_res_stock_id;
+   END LOOP;
+ 
+diff --git a/src-db/database/model/functions/M_GET_STOCK_PARAM.xml b/src-db/database/model/functions/M_GET_STOCK_PARAM.xml
+--- a/src-db/database/model/functions/M_GET_STOCK_PARAM.xml
++++ b/src-db/database/model/functions/M_GET_STOCK_PARAM.xml
+@@ -172,7 +172,7 @@
+         WHERE r.m_reservation_id = v_reservation_id
+           AND rs.isallocated = 'Y'
+           AND rs.quantity > 0
+-          AND rs.quantity <> COALESCE(rs.releasedqty, 0)
++          AND rs.quantity <> rs.releasedqty
+           AND rs.m_locator_id IS NOT NULL
+     ) LOOP
+       INSERT INTO m_stock_proposed (
+diff --git a/src-db/database/model/functions/M_INOUT_POST.xml b/src-db/database/model/functions/M_INOUT_POST.xml
+--- a/src-db/database/model/functions/M_INOUT_POST.xml
++++ b/src-db/database/model/functions/M_INOUT_POST.xml
+@@ -536,7 +536,7 @@
+                         WHERE m_locator_id = cur_inoutline.m_locator_id
+                           AND COALESCE(m_attributesetinstance_id, '0') = COALESCE(cur_inoutline.m_attributesetinstance_id, '0')
+                           AND m_reservation_id = v_reservation_id
+-                          AND COALESCE(releasedqty, 0) > 0
++                          AND releasedqty > 0
+                         ORDER BY CASE isallocated WHEN 'N' THEN 0 ELSE 1 END
+                     ) LOOP
+                       v_undoqty := LEAST(v_qtyaux, cur_released_stock.releasedqty);
+@@ -560,7 +560,7 @@
+                       SELECT rs.*
+                       FROM m_reservation_stock rs JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+                       WHERE rs.c_orderline_id = cur_inoutline.c_orderline_id
+-                        AND rs.quantity <> COALESCE(rs.releasedqty, 0)
++                        AND rs.quantity <> rs.releasedqty
+                         AND rs.m_locator_id IS NULL
+                         AND r.res_status NOT IN ('DR', 'CL')
+                   ) LOOP
+@@ -603,7 +603,7 @@
+                   DELETE FROM m_reservation_stock
+                   WHERE c_orderline_id = cur_inoutline.c_orderline_id
+                     AND quantity = 0
+-                    AND COALESCE(releasedqty, 0) = 0;
++                    AND releasedqty = 0;
+                 END;
+               ELSIF (cur_inout.issotrx = 'N' AND cur_inoutline.canceled_inoutline_id IS NOT NULL AND v_qty < 0) THEN
+                 -- Revert to pre-reservations
+@@ -637,7 +637,7 @@
+                 BEGIN
+                   v_pendingqty:=v_penqty;
+                   FOR cur_reserve_stock IN (
+-                      SELECT rs.quantity, COALESCE(rs.releasedqty,0) AS releasedqty, rs.m_reservation_stock_id, rs.m_reservation_id,
++                      SELECT rs.quantity, rs.releasedqty AS releasedqty, rs.m_reservation_stock_id, rs.m_reservation_id,
+                           rs.ad_org_id, rs.ad_client_id, rs.isallocated
+                       FROM m_reservation_stock rs JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+                       WHERE rs.c_orderline_id = cur_inoutline.c_orderline_id
+@@ -689,7 +689,7 @@
+                   DELETE FROM m_reservation_stock
+                   WHERE c_orderline_id = cur_inoutline.c_orderline_id
+                     AND quantity = 0
+-                    AND COALESCE(releasedqty, 0) = 0;
++                    AND releasedqty = 0;
+                 END;
+ 
+               END IF;
+diff --git a/src-db/database/model/functions/M_MOVEMENT_POST.xml b/src-db/database/model/functions/M_MOVEMENT_POST.xml
+--- a/src-db/database/model/functions/M_MOVEMENT_POST.xml
++++ b/src-db/database/model/functions/M_MOVEMENT_POST.xml
+@@ -196,7 +196,7 @@
+           END IF;
+           
+           IF (cur_moveline.m_reservation_id IS NOT NULL) THEN
+-            SELECT COALESCE(SUM(quantity - COALESCE(releasedqty,0)), 0) INTO v_reservedqty
++            SELECT COALESCE(SUM(quantity - releasedqty), 0) INTO v_reservedqty
+             FROM m_reservation_stock
+             WHERE m_reservation_id = cur_moveline.m_reservation_id
+               AND m_locator_id = cur_moveline.m_locator_id
+@@ -222,7 +222,7 @@
+               AND m_product_uom_id IS NULL;
+             v_reservedqty := cur_moveline.movementqty;
+             FOR cur_res_stock IN (
+-                SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty,0) AS reservedqty, isallocated
++                SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty, isallocated
+                 FROM m_reservation_stock
+                 WHERE m_reservation_id = cur_moveline.m_reservation_id
+                   AND m_locator_id = cur_moveline.m_locator_id
+diff --git a/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml b/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml
+--- a/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml
++++ b/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml
+@@ -75,7 +75,7 @@
+   cur_not_allocated_stock  RECORD;
+ BEGIN
+   SELECT r.m_product_id, r.c_uom_id, COALESCE(r.reservedqty, 0), COALESCE(r.releasedqty, 0), r.quantity - COALESCE(r.reservedqty, 0),
+-      COALESCE(SUM(alloc.quantity - COALESCE(alloc.releasedqty, 0)), 0),
++      COALESCE(SUM(alloc.quantity - alloc.releasedqty), 0),
+       r.m_warehouse_id, r.m_locator_id, r.m_attributesetinstance_id, r.res_status
+     INTO v_product_id, v_uom_id, v_this_reservedqty, v_this_releasedqty, v_this_notreserved,
+       v_this_allocated,
+@@ -100,10 +100,10 @@
+     AND COALESCE(sd.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
+     AND sd.m_locator_id = p_locator_id;
+     
+-  SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty, 0)), 0),
+-      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
+-      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
+-      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0)
++  SELECT COALESCE(SUM(rs.quantity - rs.releasedqty), 0),
++      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0)
+     INTO v_stock_res, v_stock_alloc, v_this_sd_alloc, v_this_sd_noalloc
+   FROM m_reservation_stock rs
+     JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+@@ -165,12 +165,12 @@
+ 
+       --If exists not allocated stock it has to be unreserved before reserving the new one.
+       FOR cur_reserved_stock IN (
+-          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+           FROM m_reservation_stock
+           WHERE m_reservation_id = p_reservation_id
+             AND isallocated = 'N'
+-            AND quantity != COALESCE(releasedqty,0)
+-          ORDER BY quantity - COALESCE(releasedqty,0)
++            AND quantity != releasedqty
++          ORDER BY quantity - releasedqty
+       ) LOOP
+         v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+         UPDATE m_reservation_stock
+@@ -192,7 +192,7 @@
+     -- Finally take other reservation's not allocated stock.
+     v_ResultStr := 'Reserve other reservations stock';
+     FOR cur_not_allocated_stock IN (
+-        SELECT r.m_reservation_id, rs.quantity, COALESCE(rs.releasedqty,0) as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
++        SELECT r.m_reservation_id, rs.quantity, rs.releasedqty as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
+                r.ad_client_id, r.ad_org_id, r.m_product_id, r.c_uom_id, r.m_attributesetinstance_id, r.m_locator_id, r.m_warehouse_id,
+                r.c_orderline_id
+         FROM m_reservation_stock rs
+@@ -204,7 +204,7 @@
+           AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
+           AND rs.isallocated = 'N'
+           AND r.res_status NOT IN ('HO', 'CL', 'DR')
+-          AND rs.quantity != COALESCE(rs.releasedqty,0)
++          AND rs.quantity != rs.releasedqty
+     ) LOOP
+       v_qtytorelease := LEAST(v_qtyfromother, cur_not_allocated_stock.quantity - cur_not_allocated_stock.releasedqty);
+       
+@@ -212,11 +212,11 @@
+         --The new reserved stock is higher than the pending quantity to reserve, other reserved stock must be unreserved.
+         v_qtytounreserve := v_qtytorelease - COALESCE(v_this_notreserved, 0);
+         FOR cur_reserved_stock IN (
+-            SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++            SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+             FROM m_reservation_stock
+             WHERE m_reservation_id = p_reservation_id
+               AND isallocated = 'N'
+-              AND quantity != COALESCE(releasedqty,0)
++              AND quantity != releasedqty
+         ) LOOP
+           v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+           UPDATE m_reservation_stock
+@@ -312,7 +312,7 @@
+   -- Release stock reserved in the reservation.
+   v_ResultStr := 'Release reserved stock';
+   FOR cur_reserved_stock IN (
+-      SELECT quantity - COALESCE(releasedqty,0) AS reservedqty, m_reservation_stock_id, isallocated
++      SELECT quantity - releasedqty AS reservedqty, m_reservation_stock_id, isallocated
+       FROM m_reservation_stock
+       WHERE m_locator_id = p_locator_id
+         AND COALESCE(m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
+@@ -321,7 +321,7 @@
+   ) LOOP
+     v_qtytorelease := LEAST(cur_reserved_stock.reservedqty, v_pendingtorelease);
+     UPDATE m_reservation_stock
+-    SET releasedqty = COALESCE(releasedqty,0) + v_qtytorelease,
++    SET releasedqty = releasedqty + v_qtytorelease,
+         updated = now(),
+         updatedby = p_user_id
+     WHERE m_reservation_stock_id = cur_reserved_stock.m_reservation_stock_id;
+diff --git a/src-db/database/model/functions/M_RESERVATION_POST.xml b/src-db/database/model/functions/M_RESERVATION_POST.xml
+--- a/src-db/database/model/functions/M_RESERVATION_POST.xml
++++ b/src-db/database/model/functions/M_RESERVATION_POST.xml
+@@ -124,10 +124,10 @@
+       END IF;
+       -- Convert prereservation to reserve if purchase order is receipt.
+       FOR cur_prereserve IN (
+-          SELECT rs.m_reservation_stock_id, rs.quantity, COALESCE(rs.releasedqty, 0) AS releasedqty, rs.c_orderline_id
++          SELECT rs.m_reservation_stock_id, rs.quantity, rs.releasedqty AS releasedqty, rs.c_orderline_id
+           FROM m_reservation_stock rs
+           WHERE rs.m_reservation_id = v_reservation_id
+-            AND rs.quantity - COALESCE(rs.releasedqty, 0) > 0
++            AND rs.quantity - rs.releasedqty > 0
+             AND rs.c_orderline_id IS NOT NULL
+       ) LOOP
+         v_qtytoreserve := cur_prereserve.quantity - cur_prereserve.releasedqty;
+@@ -187,7 +187,7 @@
+         DELETE FROM m_reservation_stock
+         WHERE c_orderline_id = cur_prereserve.c_orderline_id
+           AND quantity = 0
+-          AND COALESCE(releasedqty, 0) = 0;
++          AND releasedqty = 0;
+       END LOOP;
+       -- Check that stock is still available
+       FOR cur_not_available IN (
+@@ -200,7 +200,7 @@
+                                              AND sd.m_product_uom_id IS NULL
+                                              AND sd.m_attributesetinstance_id = rs.m_attributesetinstance_id
+                                              AND sd.m_locator_id = rs.m_locator_id
+-        WHERE rs.quantity - COALESCE(rs.releasedqty, 0) > sd.qtyonhand - sd.reservedqty
++        WHERE rs.quantity - rs.releasedqty > sd.qtyonhand - sd.reservedqty
+           AND rs.m_reservation_id = v_reservation_id
+           AND rs.m_locator_id IS NOT NULL
+       ) LOOP
+@@ -319,12 +319,12 @@
+       
+       -- Convert to pre-reserve reservations related to purchase orders that are not released.
+       FOR cur_prereserve IN (
+-          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty, c_orderline_id
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty, c_orderline_id
+           FROM m_reservation_stock
+           WHERE m_reservation_id = v_reservation_id
+             AND c_orderline_id IS NOT NULL
+             AND m_locator_id IS NOT NULL
+-            AND quantity - COALESCE(releasedqty, 0) > 0
++            AND quantity - releasedqty > 0
+       ) LOOP
+         -- Check if exists a pre-reserve for the purchase order line.
+         SELECT COUNT(*), MAX(m_reservation_stock_id)
+@@ -358,7 +358,7 @@
+       DELETE FROM m_reservation_stock
+       WHERE m_reservation_id = v_reservation_id
+         AND quantity = 0
+-        AND COALESCE(releasedqty, 0) = 0;
++        AND releasedqty = 0;
+ 
+       UPDATE c_order
+       SET so_res_status = CASE WHEN v_reservedcount > 0 THEN 'PR'
+diff --git a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+--- a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
++++ b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+@@ -88,7 +88,7 @@
+     p_result := 1;
+   END IF;
+   SELECT r.m_product_id, r.c_uom_id, COALESCE(r.reservedqty, 0), COALESCE(r.releasedqty, 0), r.quantity - COALESCE(r.reservedqty, 0),
+-      COALESCE(SUM(alloc.quantity - COALESCE(alloc.releasedqty, 0)), 0),
++      COALESCE(SUM(alloc.quantity - alloc.releasedqty), 0),
+       r.m_warehouse_id, r.m_locator_id, r.m_attributesetinstance_id, r.res_status
+     INTO v_product_id, v_uom_id, v_this_reservedqty, v_this_releasedqty, v_this_notreserved,
+       v_this_allocated,
+@@ -140,10 +140,10 @@
+     AND sd.m_attributesetinstance_id = v_attributesetinstance_id
+     AND sd.m_locator_id = p_locator_id;
+     
+-  SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty, 0)), 0),
+-      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
+-      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
+-      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0)
++  SELECT COALESCE(SUM(rs.quantity - rs.releasedqty), 0),
++      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0)
+     INTO v_stock_res, v_stock_alloc, v_this_sd_alloc, v_this_sd_noalloc
+   FROM m_reservation_stock rs
+     JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+@@ -200,13 +200,13 @@
+ 
+       --If exists not allocated stock it has to be unreserved before reserving the new one.
+       FOR cur_reserved_stock IN (
+-          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+           FROM m_reservation_stock
+           WHERE m_reservation_id = p_reservation_id
+             AND isallocated = 'N'
+-            AND quantity <> COALESCE(releasedqty,0)
++            AND quantity <> releasedqty
+             AND (m_attributesetinstance_id <> v_attributesetinstance_id OR m_locator_id <> p_locator_id)
+-          ORDER BY quantity - COALESCE(releasedqty,0)
++          ORDER BY quantity - releasedqty
+       ) LOOP
+         v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+         UPDATE m_reservation_stock
+@@ -235,7 +235,7 @@
+   -- Finally take other reservation's not allocated stock.
+   v_ResultStr := 'Reserve other reservations stock';
+   FOR cur_not_allocated_stock IN (
+-      SELECT r.m_reservation_id, rs.quantity, COALESCE(rs.releasedqty,0) as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
++      SELECT r.m_reservation_id, rs.quantity, rs.releasedqty as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
+              r.ad_client_id, r.ad_org_id, r.m_product_id, r.c_uom_id, r.m_attributesetinstance_id, r.m_locator_id, r.m_warehouse_id,
+              r.c_orderline_id
+       FROM m_reservation_stock rs
+@@ -247,7 +247,7 @@
+         AND rs.m_attributesetinstance_id = v_attributesetinstance_id
+         AND rs.isallocated = 'N'
+         AND r.res_status NOT IN ('HO', 'CL', 'DR')
+-        AND rs.quantity <> COALESCE(rs.releasedqty,0)
++        AND rs.quantity <> rs.releasedqty
+   ) LOOP
+     v_qtytorelease := LEAST(v_pendingtoreallocate, cur_not_allocated_stock.quantity - cur_not_allocated_stock.releasedqty);
+     
+@@ -258,12 +258,12 @@
+       v_qtytounreserve := v_qtytorelease - v_this_notreserved;
+       v_this_notreserved := 0;
+       FOR cur_reserved_stock IN (
+-          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+           FROM m_reservation_stock
+           WHERE m_reservation_id = p_reservation_id
+             AND isallocated = 'N'
+             AND (m_attributesetinstance_id <> v_attributesetinstance_id OR m_locator_id <> p_locator_id)
+-            AND quantity <> COALESCE(releasedqty,0)
++            AND quantity <> releasedqty
+       ) LOOP
+ 
+         v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+diff --git a/src-db/database/model/tables/M_RESERVATION_STOCK.xml b/src-db/database/model/tables/M_RESERVATION_STOCK.xml
+--- a/src-db/database/model/tables/M_RESERVATION_STOCK.xml
++++ b/src-db/database/model/tables/M_RESERVATION_STOCK.xml
+@@ -57,9 +57,9 @@
+         <default><![CDATA[0]]></default>
+         <onCreateDefault><![CDATA['0']]></onCreateDefault>
+       </column>
+-      <column name="RELEASEDQTY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+-        <default/>
+-        <onCreateDefault/>
++      <column name="RELEASEDQTY" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
++        <default><![CDATA[0]]></default>
++        <onCreateDefault><![CDATA[0]]></onCreateDefault>
+       </column>
+       <foreign-key foreignTable="M_ATTRIBUTESETINSTANCE" name="M_RESERVATION_STOCK_ATTRSETINS">
+         <reference local="M_ATTRIBUTESETINSTANCE_ID" foreign="M_ATTRIBUTESETINSTANCE_ID"/>
+diff --git a/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml b/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
+--- a/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
++++ b/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
+@@ -37,7 +37,7 @@
+ 
+   IF (INSERTING OR UPDATING) THEN
+     v_reservedqtydiff := COALESCE(:NEW.quantity, 0);
+-    v_releasedqtydiff := COALESCE(:NEW.releasedqty, 0);
++    v_releasedqtydiff := :NEW.releasedqty;
+     v_reservation_id := :NEW.m_reservation_id;
+     v_attributesetinstance_id := :NEW.m_attributesetinstance_id;
+     v_locator_id := :NEW.m_locator_id;
+@@ -52,9 +52,9 @@
+ 
+   IF (UPDATING OR DELETING) THEN
+     v_reservedqtydiff := v_reservedqtydiff - COALESCE(:OLD.quantity, 0);
+-    v_releasedqtydiff := v_releasedqtydiff - COALESCE(:OLD.releasedqty, 0);
++    v_releasedqtydiff := v_releasedqtydiff - :OLD.releasedqty;
+     IF (:OLD.isallocated = 'Y') THEN
+-      v_allocatedqtydiff := v_allocatedqtydiff - COALESCE(:OLD.quantity, 0) + COALESCE(:OLD.releasedqty, 0);
++      v_allocatedqtydiff := v_allocatedqtydiff - COALESCE(:OLD.quantity, 0) + :OLD.releasedqty;
+     END IF;
+     v_reservation_id := :OLD.m_reservation_id;
+   END IF;
+@@ -70,7 +70,7 @@
+   IF (v_reservedqtydiff <> 0 OR v_releasedqtydiff <> 0 or v_allocatedqtydiff <> 0) THEN
+          UPDATE m_reservation
+          SET reservedqty = COALESCE(reservedqty, 0) + v_reservedqtydiff,
+-             releasedqty = COALESCE(releasedqty, 0) + v_releasedqtydiff
++             releasedqty = releasedqty + v_releasedqtydiff
+          WHERE m_reservation_id = v_reservation_id;
+          SELECT res_status, m_product_id, c_uom_id INTO v_resstatus, v_m_product_id, v_c_uom_id FROM   m_reservation where m_reservation_id = v_reservation_id;
+          IF(v_resstatus <> 'DR') THEN
+diff --git a/src-db/database/model/triggers/M_RESERVATION_TRG.xml b/src-db/database/model/triggers/M_RESERVATION_TRG.xml
+--- a/src-db/database/model/triggers/M_RESERVATION_TRG.xml
++++ b/src-db/database/model/triggers/M_RESERVATION_TRG.xml
+@@ -80,8 +80,8 @@
+   IF (UPDATING) THEN
+     IF (:OLD.res_status = 'DR' AND :NEW.res_status <> 'DR') THEN
+       FOR cur_reservationstock IN (
+-	      select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id, SUM(rs.quantity - coalesce(rs.releasedqty,0)) as reservedqty, 
+-				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - coalesce(rs.releasedqty,0)) ELSE 0 END) as allocatedqty
++	      select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id, SUM(rs.quantity - rs.releasedqty) as reservedqty, 
++				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - rs.releasedqty) ELSE 0 END) as allocatedqty
+ 				from m_reservation r, m_reservation_stock rs
+ 				where r.m_reservation_id = :NEW.m_reservation_id
+ 				and r.m_reservation_id = rs.m_reservation_id
+@@ -100,8 +100,8 @@
+     END IF;
+     IF (:OLD.res_status <> 'DR' AND :NEW.res_status = 'DR') THEN
+       FOR cur_reservationstock IN (
+-	      select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id, SUM(rs.quantity - coalesce(rs.releasedqty,0)) as reservedqty, 
+-				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - coalesce(rs.releasedqty,0)) ELSE 0 END) as allocatedqty
++	      select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id, SUM(rs.quantity - rs.releasedqty) as reservedqty, 
++				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - rs.releasedqty) ELSE 0 END) as allocatedqty
+ 				from m_reservation r, m_reservation_stock rs
+ 				where r.m_reservation_id = :NEW.m_reservation_id
+ 				and r.m_reservation_id = rs.m_reservation_id
+diff --git a/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml b/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml
+--- a/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml
++++ b/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml
+@@ -48,7 +48,7 @@
+                       AND COALESCE(rs.m_attributesetinstance_id, '0') = :NEW.m_attributesetinstance_id
+                       AND rs.m_locator_id = :NEW.m_locator_id);
+       IF (v_count > 0) THEN
+-        SELECT COALESCE(sum(rs.quantity - COALESCE(rs.releasedqty,0)), 0), sd.qtyonhand
++        SELECT COALESCE(sum(rs.quantity - rs.releasedqty), 0), sd.qtyonhand
+           INTO v_reserved, v_onhand
+         FROM m_reservation_stock rs
+             JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+diff --git a/src-db/database/model/views/M_RESERVEDGOODMNT_PICK_EDIT.xml b/src-db/database/model/views/M_RESERVEDGOODMNT_PICK_EDIT.xml
+--- a/src-db/database/model/views/M_RESERVEDGOODMNT_PICK_EDIT.xml
++++ b/src-db/database/model/views/M_RESERVEDGOODMNT_PICK_EDIT.xml
+@@ -1,4 +1,4 @@
+ <?xml version="1.0"?>
+   <database name="VIEW M_RESERVEDGOODMNT_PICK_EDIT">
+-    <view name="M_RESERVEDGOODMNT_PICK_EDIT"><![CDATA[SELECT rs.m_reservation_stock_id AS m_reservedgoodmnt_pick_edit_id, rs.m_reservation_id, r.ad_client_id, r.ad_org_id, rs.isactive, r.updated, r.updatedby, r.created, r.createdby, to_char('N') AS ob_selected, rs.m_locator_id, r.c_orderline_id, rs.quantity, COALESCE(rs.releasedqty, 0) AS releasedqty, NULL AS m_locatorto_id, to_number('0') AS movementqty, rs.m_attributesetinstance_id FROM m_reservation r JOIN m_reservation_stock rs ON r.m_reservation_id = rs.m_reservation_id WHERE rs.m_locator_id IS NOT NULL AND (rs.quantity - COALESCE(rs.releasedqty, 0)) > 0]]></view>
++    <view name="M_RESERVEDGOODMNT_PICK_EDIT"><![CDATA[SELECT rs.m_reservation_stock_id AS m_reservedgoodmnt_pick_edit_id, rs.m_reservation_id, r.ad_client_id, r.ad_org_id, rs.isactive, r.updated, r.updatedby, r.created, r.createdby, to_char('N') AS ob_selected, rs.m_locator_id, r.c_orderline_id, rs.quantity, rs.releasedqty AS releasedqty, NULL AS m_locatorto_id, to_number('0') AS movementqty, rs.m_attributesetinstance_id FROM m_reservation r JOIN m_reservation_stock rs ON r.m_reservation_id = rs.m_reservation_id WHERE rs.m_locator_id IS NOT NULL AND (rs.quantity - rs.releasedqty) > 0]]></view>
+   </database>

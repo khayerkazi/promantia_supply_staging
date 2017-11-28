@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_INOUT">
+    <table name="M_INOUT" primaryKey="M_INOUT_KEY">
+      <index name="EM_DS_MIDOCNO" unique="false">
+        <index-column name="MOVEMENTTYPE"/>
+        <index-column name="PROCESSED"/>
+        <index-column name="UPDATED"/>
+        <index-column name="DOCUMENTNO"/>
+        <index-column name="M_INOUT_ID"/>
+      </index>
+    </table>
+  </database>

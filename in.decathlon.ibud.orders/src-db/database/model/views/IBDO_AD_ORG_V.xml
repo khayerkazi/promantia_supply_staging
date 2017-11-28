@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW IBDO_AD_ORG_V">
+    <view name="IBDO_AD_ORG_V"><![CDATA[SELECT ad_org.ad_org_id AS ibdo_ad_org_v_id, '0'::varchar(32) AS ad_org_id, ad_org.ad_client_id, ad_org.isactive, ad_org.created, ad_org.createdby, ad_org.updated, ad_org.updatedby, ad_org.value, ad_org.name FROM ad_org WHERE ad_org.em_sw_iswarehouse = 'Y' AND ad_org.em_sw_isstore = 'N']]></view>
+  </database>

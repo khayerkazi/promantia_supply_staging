@@ -1,0 +1,1164 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DFEX_MAP_DEFINITION id="1A012F2F1DFB422CB0E07D095E0ACC6D" identifier="1.0.0">
+    <id>1A012F2F1DFB422CB0E07D095E0ACC6D</id>
+    <active>true</active>
+    <creationDate transient="true">2013-12-23T14:35:17.585Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-12-23T14:35:17.585Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <version>1.0.0</version>
+    <transactionType>C</transactionType>
+    <system>EONE</system>
+    <template>Company.xml</template>
+    <dFEXDOCUMENTSECTIONList>
+      <DFEX_DOCUMENT_SECTION id="64AD7271E8334BACBA93B03BC8F71E3C" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster">
+        <id>64AD7271E8334BACBA93B03BC8F71E3C</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.587Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.587Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>V</nodename>
+        <nodePath>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="1A012F2F1DFB422CB0E07D095E0ACC6D" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="2A567FC9DF934184A87B94FAD9C6DDED" identifier="DFEX_NODE_MAP (2A567FC9DF934184A87B94FAD9C6DDED)">
+            <id>2A567FC9DF934184A87B94FAD9C6DDED</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.593Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.593Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>IN</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>70</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:CountryCode</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="2CD6888D890A45BA881C4AA1ADAAD535" identifier="DFEX_NODE_MAP (2CD6888D890A45BA881C4AA1ADAAD535)">
+            <id>2CD6888D890A45BA881C4AA1ADAAD535</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.593Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.593Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>CNAME</obproperty>
+            <lineNo>20</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Name</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="7A1178BA1DD841C6A8D6E4513720807C" identifier="DFEX_NODE_MAP (7A1178BA1DD841C6A8D6E4513720807C)">
+            <id>7A1178BA1DD841C6A8D6E4513720807C</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.592Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.592Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>STATE</obproperty>
+            <lineNo>120</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:CountrySubDivisionCode</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="887B6285726048629444747929B58C4F" identifier="DFEX_NODE_MAP (887B6285726048629444747929B58C4F)">
+            <id>887B6285726048629444747929B58C4F</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.592Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.592Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>ADDR1</obproperty>
+            <lineNo>40</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:LineTwo</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="8E7FEB3BC4704049A76191B217FF2CF8" identifier="DFEX_NODE_MAP (8E7FEB3BC4704049A76191B217FF2CF8)">
+            <id>8E7FEB3BC4704049A76191B217FF2CF8</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.591Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.591Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>CMOBILE</obproperty>
+            <lineNo>90</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Contact/oxit:Communication[1]/oxit:DialNumber</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="99C4F97292644A0893CD5180F755BA5A" identifier="DFEX_NODE_MAP (99C4F97292644A0893CD5180F755BA5A)">
+            <id>99C4F97292644A0893CD5180F755BA5A</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.591Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.591Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>CITY</obproperty>
+            <lineNo>60</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:CityName</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="9ACFFDB61A0D408AAE2EBC1F8747C249" identifier="DFEX_NODE_MAP (9ACFFDB61A0D408AAE2EBC1F8747C249)">
+            <id>9ACFFDB61A0D408AAE2EBC1F8747C249</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.590Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.590Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>CMAIL</obproperty>
+            <lineNo>100</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Contact/oxit:Communication[2]/oxit:Text</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="C288F23B05604BC8B086FD157BB8847E" identifier="DFEX_NODE_MAP (C288F23B05604BC8B086FD157BB8847E)">
+            <id>C288F23B05604BC8B086FD157BB8847E</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.590Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.590Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>ADDR2</obproperty>
+            <lineNo>50</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:LineThree</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="D11CDD2100594F779E8A57214FC158D1" identifier="DFEX_NODE_MAP (D11CDD2100594F779E8A57214FC158D1)">
+            <id>D11CDD2100594F779E8A57214FC158D1</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.589Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2014-01-09T12:39:43.759Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>TNUM</obproperty>
+            <lineNo>10</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:PartyIDs/oxit:ID[@schemeAgencyName='EONE']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="E76421BB3901411D9053435989DDC80F" identifier="DFEX_NODE_MAP (E76421BB3901411D9053435989DDC80F)">
+            <id>E76421BB3901411D9053435989DDC80F</id>
+            <active>false</active>
+            <creationDate transient="true">2013-12-23T14:35:17.589Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.589Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>ADDR</obproperty>
+            <lineNo>30</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:LineOne</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="F89C7935BD204DA1AA88382E0892F814" identifier="DFEX_NODE_MAP (F89C7935BD204DA1AA88382E0892F814)">
+            <id>F89C7935BD204DA1AA88382E0892F814</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.588Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.588Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>PIN</obproperty>
+            <lineNo>80</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:PostalCode</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="FAD60EDF4BD84162859F3A8A8EA96727" identifier="DFEX_NODE_MAP (FAD60EDF4BD84162859F3A8A8EA96727)">
+            <id>FAD60EDF4BD84162859F3A8A8EA96727</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.588Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.588Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>ADDR3</obproperty>
+            <lineNo>110</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="64AD7271E8334BACBA93B03BC8F71E3C" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:DataArea/oxit:PartyMaster/oxit:Location/oxit:Address/oxit:LineFour</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+      <DFEX_DOCUMENT_SECTION id="946A627135B54D9B8F3981894DCCD4BA" identifier="/oxit:SyncPartyMaster/oxit:ApplicationArea">
+        <id>946A627135B54D9B8F3981894DCCD4BA</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.586Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.586Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>H</nodename>
+        <nodePath>/oxit:SyncPartyMaster/oxit:ApplicationArea</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="1A012F2F1DFB422CB0E07D095E0ACC6D" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="5E5380CA4C5D484EB4D3DA9511D0F102" identifier="DFEX_NODE_MAP (5E5380CA4C5D484EB4D3DA9511D0F102)">
+            <id>5E5380CA4C5D484EB4D3DA9511D0F102</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.587Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.587Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>CTS</obproperty>
+            <lineNo>30</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="946A627135B54D9B8F3981894DCCD4BA" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:ApplicationArea"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:ApplicationArea/oxit:CreationDateTime</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="7F22E71C75E44140B4F087A083450BBD" identifier="DFEX_NODE_MAP (7F22E71C75E44140B4F087A083450BBD)">
+            <id>7F22E71C75E44140B4F087A083450BBD</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.587Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.587Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>EXACTIERS</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>20</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="946A627135B54D9B8F3981894DCCD4BA" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:ApplicationArea"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:ApplicationArea/oxit:Receiver/oxit:LogicalID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="BFAC3B07C4F849F58C8317EC5B2B8738" identifier="DFEX_NODE_MAP (BFAC3B07C4F849F58C8317EC5B2B8738)">
+            <id>BFAC3B07C4F849F58C8317EC5B2B8738</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.586Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.586Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>OPENBRAVO</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>10</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="946A627135B54D9B8F3981894DCCD4BA" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:SyncPartyMaster/oxit:ApplicationArea"/>
+            <xpathName>/oxit:SyncPartyMaster/oxit:ApplicationArea/oxit:Sender/oxit:LogicalID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+    </dFEXDOCUMENTSECTIONList>
+    <dfexGlCategoryList/>
+  </DFEX_MAP_DEFINITION>
+  <DFEX_MAP_DEFINITION id="C9664E4DB11A4F13BAE43A50AF49B5DB" identifier="1.0.0">
+    <id>C9664E4DB11A4F13BAE43A50AF49B5DB</id>
+    <active>true</active>
+    <creationDate transient="true">2013-12-23T14:35:17.564Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-12-23T14:35:17.564Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <version>1.0.0</version>
+    <transactionType>SP</transactionType>
+    <system>EONE</system>
+    <template>PosSaleTemplate.xml</template>
+    <dFEXDOCUMENTSECTIONList>
+      <DFEX_DOCUMENT_SECTION id="33353928E2E74DC1AEE853176ADC2F60" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine">
+        <id>33353928E2E74DC1AEE853176ADC2F60</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.578Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.578Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>L</nodename>
+        <nodePath>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="C9664E4DB11A4F13BAE43A50AF49B5DB" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="0B85A2BE322042559897B5CA862AD0EE" identifier="DFEX_NODE_MAP (0B85A2BE322042559897B5CA862AD0EE)">
+            <id>0B85A2BE322042559897B5CA862AD0EE</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.585Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.585Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>1</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>10</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Quantity</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="36E191A0C0354D3EA6D1A3318128AAC3" identifier="DFEX_NODE_MAP (36E191A0C0354D3EA6D1A3318128AAC3)">
+            <id>36E191A0C0354D3EA6D1A3318128AAC3</id>
+            <active>false</active>
+            <creationDate transient="true">2013-12-23T14:35:17.584Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.584Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>LEDGERALIAS</obproperty>
+            <lineNo>40</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='AmountType']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="43513A203AD342A29CB1D96A8A31FF97" identifier="DFEX_NODE_MAP (43513A203AD342A29CB1D96A8A31FF97)">
+            <id>43513A203AD342A29CB1D96A8A31FF97</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.584Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.584Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>LEDGER</obproperty>
+            <lineNo>30</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='SelectionCode']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="587620192AA748E6883D4857E886E970" identifier="DFEX_NODE_MAP (587620192AA748E6883D4857E886E970)">
+            <id>587620192AA748E6883D4857E886E970</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.583Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.583Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>OBLEDGER</obproperty>
+            <lineNo>70</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='Remark']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="7776AAD583AD453E9E9A4611D6A6CDA2" identifier="DFEX_NODE_MAP (7776AAD583AD453E9E9A4611D6A6CDA2)">
+            <id>7776AAD583AD453E9E9A4611D6A6CDA2</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.582Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.582Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>LINE</obproperty>
+            <lineNo>80</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:LineNumber</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="8ACAB33377A941F18E55B6F292F7B2F1" identifier="DFEX_NODE_MAP (8ACAB33377A941F18E55B6F292F7B2F1)">
+            <id>8ACAB33377A941F18E55B6F292F7B2F1</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.581Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.581Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>MAMT</obproperty>
+            <lineNo>100</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:OxAmountsList[@type='companyLocalCurrency']/oxit:TypedAmount/oxit:Amount</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="901D7A6D7E2242AFAC2878D104494771" identifier="DFEX_NODE_MAP (901D7A6D7E2242AFAC2878D104494771)">
+            <id>901D7A6D7E2242AFAC2878D104494771</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.581Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.581Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>COST</obproperty>
+            <lineNo>20</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:EnterpriseUnit/oxit:CostCenterID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="A66FBF0142D647DC9FE42FEA54A7711D" identifier="DFEX_NODE_MAP (A66FBF0142D647DC9FE42FEA54A7711D)">
+            <id>A66FBF0142D647DC9FE42FEA54A7711D</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.580Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.580Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>OBLEDGER</obproperty>
+            <lineNo>60</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='Description2']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="C8B5F0BA978244B38BCBAB9EB13C444A" identifier="DFEX_NODE_MAP (C8B5F0BA978244B38BCBAB9EB13C444A)">
+            <id>C8B5F0BA978244B38BCBAB9EB13C444A</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.579Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.579Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>OBLEDGER</obproperty>
+            <lineNo>50</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='Description1']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="DDBB4A12B1D44EB48A878F0F1BFB6903" identifier="DFEX_NODE_MAP (DDBB4A12B1D44EB48A878F0F1BFB6903)">
+            <id>DDBB4A12B1D44EB48A878F0F1BFB6903</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.578Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.578Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>MAMT</obproperty>
+            <lineNo>90</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="33353928E2E74DC1AEE853176ADC2F60" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:OxAmountsList[@type='invoiceCurrency']/oxit:TypedAmount/oxit:Amount</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+      <DFEX_DOCUMENT_SECTION id="4EF8FFBD715845F084C26E5E43F49B27" identifier="/oxit:PostJournalEntry/oxit:ApplicationArea">
+        <id>4EF8FFBD715845F084C26E5E43F49B27</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.575Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.575Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>H</nodename>
+        <nodePath>/oxit:PostJournalEntry/oxit:ApplicationArea</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="C9664E4DB11A4F13BAE43A50AF49B5DB" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="96777976F66540E8BCEBBCD40098F631" identifier="DFEX_NODE_MAP (96777976F66540E8BCEBBCD40098F631)">
+            <id>96777976F66540E8BCEBBCD40098F631</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.577Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.577Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>Openbravo</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>10</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="4EF8FFBD715845F084C26E5E43F49B27" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:ApplicationArea"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:ApplicationArea/oxit:Sender/oxit:LogicalID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="992BBB74202E4250A83D5C6E36AE71D1" identifier="DFEX_NODE_MAP (992BBB74202E4250A83D5C6E36AE71D1)">
+            <id>992BBB74202E4250A83D5C6E36AE71D1</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.576Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.576Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>CTS</obproperty>
+            <lineNo xsi:nil="true"/>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="4EF8FFBD715845F084C26E5E43F49B27" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:ApplicationArea"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:ApplicationArea/oxit:CreationDateTime</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+      <DFEX_DOCUMENT_SECTION id="8A579CB291394914812BCDD36695280F" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry">
+        <id>8A579CB291394914812BCDD36695280F</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.566Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.566Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>V</nodename>
+        <nodePath>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="C9664E4DB11A4F13BAE43A50AF49B5DB" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="2025BEABB6784758B8A1378133804666" identifier="DFEX_NODE_MAP (2025BEABB6784758B8A1378133804666)">
+            <id>2025BEABB6784758B8A1378133804666</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.575Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.575Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>1</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>30</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:CurrencyExchangeRate/oxit:RateNumeric</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="6FC6C1ED08364319AE1E08712553723D" identifier="DFEX_NODE_MAP (6FC6C1ED08364319AE1E08712553723D)">
+            <id>6FC6C1ED08364319AE1E08712553723D</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.574Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.574Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>1</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>80</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:Sequence</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="721139AD71014D11A3222608340470BC" identifier="DFEX_NODE_MAP (721139AD71014D11A3222608340470BC)">
+            <id>721139AD71014D11A3222608340470BC</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.573Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.573Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>INR</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>90</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:OxInvoiceCurrency</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="741159E6981840D5AA43FD7D64ED51C2" identifier="DFEX_NODE_MAP (741159E6981840D5AA43FD7D64ED51C2)">
+            <id>741159E6981840D5AA43FD7D64ED51C2</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.572Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.572Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>INR</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>100</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:OxCompanyLocalCurrency</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="89E7B949CC9E4BF4821DC5476CA93BCB" identifier="DFEX_NODE_MAP (89E7B949CC9E4BF4821DC5476CA93BCB)">
+            <id>89E7B949CC9E4BF4821DC5476CA93BCB</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.571Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.571Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>OBS</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>70</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:OxApplicationCode</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="B6ADEAB211C44CB09B4439A56117BD01" identifier="DFEX_NODE_MAP (B6ADEAB211C44CB09B4439A56117BD01)">
+            <id>B6ADEAB211C44CB09B4439A56117BD01</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.570Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.570Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>Openbravo</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>40</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:EntryCreator/oxit:ID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="BC1F7D57D4BF4E41B8F0C1F9C0AC3ED0" identifier="DFEX_NODE_MAP (BC1F7D57D4BF4E41B8F0C1F9C0AC3ED0)">
+            <id>BC1F7D57D4BF4E41B8F0C1F9C0AC3ED0</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.570Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.570Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>DATE</obproperty>
+            <lineNo>10</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:AccountingDate/oxit:PostDateTime</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="D362FBFE6F1045B2AE49F9F85212C386" identifier="DFEX_NODE_MAP (D362FBFE6F1045B2AE49F9F85212C386)">
+            <id>D362FBFE6F1045B2AE49F9F85212C386</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.569Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.569Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>DATE</obproperty>
+            <lineNo>20</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:SourceDocumentReference/oxit:InvoiceReference/oxit:DocumentDateTime</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="E163B04C3FF2446AB4E6E2435920A21A" identifier="DFEX_NODE_MAP (E163B04C3FF2446AB4E6E2435920A21A)">
+            <id>E163B04C3FF2446AB4E6E2435920A21A</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.568Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.568Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>IN1</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>60</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:ExecutionPlatform/oxit:ID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="EFB3D56963D244D4B97DF614BF4A256D" identifier="DFEX_NODE_MAP (EFB3D56963D244D4B97DF614BF4A256D)">
+            <id>EFB3D56963D244D4B97DF614BF4A256D</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.567Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.567Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>Sales</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>50</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="8A579CB291394914812BCDD36695280F" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:Description</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+    </dFEXDOCUMENTSECTIONList>
+    <dfexGlCategoryList>
+      <dfex_gl_category id="7F8B521E6D0846829775142A3072514E" identifier="sales pos">
+        <id>7F8B521E6D0846829775142A3072514E</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.565Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.565Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <commercialName>sales pos</commercialName>
+        <gLCategory id="102C08DF5D4341D5B7FDF758632503D2" entity-name="FinancialMgmtGLCategory" identifier="AR Invoice"/>
+        <dfexMapDefinition id="C9664E4DB11A4F13BAE43A50AF49B5DB" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+      </dfex_gl_category>
+      <dfex_gl_category id="BB17F758DBD14A53BA2CF866828F2D59" identifier="sales pos">
+        <id>BB17F758DBD14A53BA2CF866828F2D59</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.565Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.565Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <commercialName>sales pos</commercialName>
+        <gLCategory id="562E5DED41F44059B9565B700348C481" entity-name="FinancialMgmtGLCategory" identifier="AR Invoice (Decathlon)"/>
+        <dfexMapDefinition id="C9664E4DB11A4F13BAE43A50AF49B5DB" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+      </dfex_gl_category>
+    </dfexGlCategoryList>
+  </DFEX_MAP_DEFINITION>
+  <DFEX_MAP_DEFINITION id="ECE32503284C45F0BF1FB76A29711C2E" identifier="1.0.0">
+    <id>ECE32503284C45F0BF1FB76A29711C2E</id>
+    <active>true</active>
+    <creationDate transient="true">2013-12-23T14:35:17.547Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-12-23T14:35:17.547Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <version>1.0.0</version>
+    <transactionType>S</transactionType>
+    <system>EONE</system>
+    <template>ecomTemplate.xml</template>
+    <dFEXDOCUMENTSECTIONList>
+      <DFEX_DOCUMENT_SECTION id="5DD805D9E93D4BF59148B897AFCC52C6" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]">
+        <id>5DD805D9E93D4BF59148B897AFCC52C6</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.561Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.561Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>L</nodename>
+        <nodePath>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="ECE32503284C45F0BF1FB76A29711C2E" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="00FA064196C945EAA32122848FC97AEC" identifier="DFEX_NODE_MAP (00FA064196C945EAA32122848FC97AEC)">
+            <id>00FA064196C945EAA32122848FC97AEC</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.564Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.564Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>LINE</obproperty>
+            <lineNo>60</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="5DD805D9E93D4BF59148B897AFCC52C6" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:LineNumber</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="226F49B12890495D9BF2524DD5660EBD" identifier="DFEX_NODE_MAP (226F49B12890495D9BF2524DD5660EBD)">
+            <id>226F49B12890495D9BF2524DD5660EBD</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.563Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.563Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>COST</obproperty>
+            <lineNo>20</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="5DD805D9E93D4BF59148B897AFCC52C6" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:EnterpriseUnit/oxit:CostCenterID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="27393606ADEB4048BAD53AC50C723CCB" identifier="DFEX_NODE_MAP (27393606ADEB4048BAD53AC50C723CCB)">
+            <id>27393606ADEB4048BAD53AC50C723CCB</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.563Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.563Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>00</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>40</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="5DD805D9E93D4BF59148B897AFCC52C6" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='AmountType']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="7F3775D398EE4E4781B71918D3F2C784" identifier="DFEX_NODE_MAP (7F3775D398EE4E4781B71918D3F2C784)">
+            <id>7F3775D398EE4E4781B71918D3F2C784</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.562Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.562Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>MAMT</obproperty>
+            <lineNo>70</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="5DD805D9E93D4BF59148B897AFCC52C6" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:OxAmountsList/oxit:TypedAmount/oxit:Amount</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="99F747DD1EC640B2947E1A4D2953A160" identifier="DFEX_NODE_MAP (99F747DD1EC640B2947E1A4D2953A160)">
+            <id>99F747DD1EC640B2947E1A4D2953A160</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.562Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.562Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>OBLEDGER</obproperty>
+            <lineNo>50</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="5DD805D9E93D4BF59148B897AFCC52C6" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='Description2']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="CACA1745DB9645DDA84B4D2F98B1D7A4" identifier="DFEX_NODE_MAP (CACA1745DB9645DDA84B4D2F98B1D7A4)">
+            <id>CACA1745DB9645DDA84B4D2F98B1D7A4</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.561Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.561Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>LEDGER</obproperty>
+            <lineNo>30</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="5DD805D9E93D4BF59148B897AFCC52C6" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[1]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='SelectionCode']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+      <DFEX_DOCUMENT_SECTION id="D341F99F4D5247EFBACCE3D716F77E6D" identifier="/oxit:PostJournalEntry/oxit:ApplicationArea">
+        <id>D341F99F4D5247EFBACCE3D716F77E6D</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.559Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.559Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>H</nodename>
+        <nodePath>/oxit:PostJournalEntry/oxit:ApplicationArea</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="ECE32503284C45F0BF1FB76A29711C2E" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="36E72A9F54614A10A7B2F520087E53BB" identifier="DFEX_NODE_MAP (36E72A9F54614A10A7B2F520087E53BB)">
+            <id>36E72A9F54614A10A7B2F520087E53BB</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.560Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.560Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty xsi:nil="true"/>
+            <lineNo>10</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="D341F99F4D5247EFBACCE3D716F77E6D" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:ApplicationArea"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:ApplicationArea/oxit:Sender/oxit:LogicalID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="D9A48D2422F7400CB2D23E97471E9EF1" identifier="DFEX_NODE_MAP (D9A48D2422F7400CB2D23E97471E9EF1)">
+            <id>D9A48D2422F7400CB2D23E97471E9EF1</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.559Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.559Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>CTS</obproperty>
+            <lineNo>20</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="D341F99F4D5247EFBACCE3D716F77E6D" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:ApplicationArea"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:ApplicationArea/oxit:CreationDateTime</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+      <DFEX_DOCUMENT_SECTION id="DADD6A71FC444A5EBB9B13332C79DF7E" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]">
+        <id>DADD6A71FC444A5EBB9B13332C79DF7E</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.554Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.554Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>C</nodename>
+        <nodePath>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="ECE32503284C45F0BF1FB76A29711C2E" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="04DC13F4CE15427EB58D67E7A1023E08" identifier="DFEX_NODE_MAP (04DC13F4CE15427EB58D67E7A1023E08)">
+            <id>04DC13F4CE15427EB58D67E7A1023E08</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.558Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.558Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>TAXAMT</obproperty>
+            <lineNo>70</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:OxAmountsList/oxit:TypedAmount[@type='Tax']/oxit:Amount</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="4B13571FA2E44F4BA5D322BC79646AC6" identifier="DFEX_NODE_MAP (4B13571FA2E44F4BA5D322BC79646AC6)">
+            <id>4B13571FA2E44F4BA5D322BC79646AC6</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.558Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.558Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>MAMT</obproperty>
+            <lineNo>60</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:OxAmountsList/oxit:TypedAmount[@type='Net']/oxit:Amount</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="5384018E78BC4C3FBFD34E23A727CEFA" identifier="DFEX_NODE_MAP (5384018E78BC4C3FBFD34E23A727CEFA)">
+            <id>5384018E78BC4C3FBFD34E23A727CEFA</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.557Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.557Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>LINE</obproperty>
+            <lineNo>90</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:LineNumber</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="5E70B643482B4E83831AC760FB5F420F" identifier="DFEX_NODE_MAP (5E70B643482B4E83831AC760FB5F420F)">
+            <id>5E70B643482B4E83831AC760FB5F420F</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.557Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.557Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>LEDGER</obproperty>
+            <lineNo>30</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='SelectionCode']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="8EE6DFDF43474535AF68382FB6B852F6" identifier="DFEX_NODE_MAP (8EE6DFDF43474535AF68382FB6B852F6)">
+            <id>8EE6DFDF43474535AF68382FB6B852F6</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.556Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.556Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>TOTAMT</obproperty>
+            <lineNo>80</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:OxAmountsList/oxit:TypedAmount[@type='Total']/oxit:Amount</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="BF23F15C5DBF4552882F9A608A9ACE0C" identifier="DFEX_NODE_MAP (BF23F15C5DBF4552882F9A608A9ACE0C)">
+            <id>BF23F15C5DBF4552882F9A608A9ACE0C</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.556Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.556Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>00</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>40</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='AmountType']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="E05A5C07B8684AADB40CEECAC81408EF" identifier="DFEX_NODE_MAP (E05A5C07B8684AADB40CEECAC81408EF)">
+            <id>E05A5C07B8684AADB40CEECAC81408EF</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.555Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.555Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>COST</obproperty>
+            <lineNo>20</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:EnterpriseUnit/oxit:CostCenterID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="E1161020BA6C4673831B104524A075AE" identifier="DFEX_NODE_MAP (E1161020BA6C4673831B104524A075AE)">
+            <id>E1161020BA6C4673831B104524A075AE</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.555Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.555Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>OBLEDGER</obproperty>
+            <lineNo>50</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="DADD6A71FC444A5EBB9B13332C79DF7E" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine[2]"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryLine/oxit:Description[@type='Description2']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+      <DFEX_DOCUMENT_SECTION id="E6861A6780FC484CB0F9F75237A599A5" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry">
+        <id>E6861A6780FC484CB0F9F75237A599A5</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.549Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.549Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <nodename>V</nodename>
+        <nodePath>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry</nodePath>
+        <reportSet xsi:nil="true"/>
+        <dfexMapDefinition id="ECE32503284C45F0BF1FB76A29711C2E" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+        <dFEXNODEMAPList>
+          <DFEX_NODE_MAP id="09BAF0033C47415183AEFBB3660B29B9" identifier="DFEX_NODE_MAP (09BAF0033C47415183AEFBB3660B29B9)">
+            <id>09BAF0033C47415183AEFBB3660B29B9</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.554Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.554Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>DATE</obproperty>
+            <lineNo>10</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:AccountingDate/oxit:PostDateTime</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="1E9AAE01E9644752A7FD74206FBA84EF" identifier="DFEX_NODE_MAP (1E9AAE01E9644752A7FD74206FBA84EF)">
+            <id>1E9AAE01E9644752A7FD74206FBA84EF</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.553Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.553Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>INR</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>100</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:OxInvoiceCurrency</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="2198CBC404E64FEBAC39AF9625D8DDE3" identifier="DFEX_NODE_MAP (2198CBC404E64FEBAC39AF9625D8DDE3)">
+            <id>2198CBC404E64FEBAC39AF9625D8DDE3</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.553Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.553Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>INR</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>110</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:OxCompanyLocalCurrency</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="69A92E04E0AD44AE8373916285A94E7D" identifier="DFEX_NODE_MAP (69A92E04E0AD44AE8373916285A94E7D)">
+            <id>69A92E04E0AD44AE8373916285A94E7D</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.552Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2014-02-07T19:39:30.267Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>VNUM</obproperty>
+            <lineNo>70</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:SourceDocumentReference/oxit:InvoiceReference/oxit:DocumentID/oxit:ID</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="8AC99ACB29C842068225904C5CB43BF4" identifier="DFEX_NODE_MAP (8AC99ACB29C842068225904C5CB43BF4)">
+            <id>8AC99ACB29C842068225904C5CB43BF4</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.552Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.552Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>1</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>90</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:Sequence</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="9A33D5CE077F4D7C978F70512422BFB9" identifier="DFEX_NODE_MAP (9A33D5CE077F4D7C978F70512422BFB9)">
+            <id>9A33D5CE077F4D7C978F70512422BFB9</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.551Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.551Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>Ecommerce Sales</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>60</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:Description</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="A99196F234F04646BF497DA3D12C6BCF" identifier="DFEX_NODE_MAP (A99196F234F04646BF497DA3D12C6BCF)">
+            <id>A99196F234F04646BF497DA3D12C6BCF</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.551Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.551Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>DATE</obproperty>
+            <lineNo>30</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:SourceDocumentReference/oxit:InvoiceReference/oxit:DocumentDateTime</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="AE9BA4CF24444964B825C5F70E472F75" identifier="DFEX_NODE_MAP (AE9BA4CF24444964B825C5F70E472F75)">
+            <id>AE9BA4CF24444964B825C5F70E472F75</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.550Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2014-02-05T18:47:54.157Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue xsi:nil="true"/>
+            <obproperty>TNUM</obproperty>
+            <lineNo>50</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:Party/oxit:PartyIDs/oxit:ID[@schemeName='ThirdNumber']</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="D397443F80F0429A946FA1E8F2D1918A" identifier="DFEX_NODE_MAP (D397443F80F0429A946FA1E8F2D1918A)">
+            <id>D397443F80F0429A946FA1E8F2D1918A</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.550Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.550Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>ECS</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>80</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:OxApplicationCode</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+          <DFEX_NODE_MAP id="F93E8F2C2AA94F7881B33E73CB73AF52" identifier="DFEX_NODE_MAP (F93E8F2C2AA94F7881B33E73CB73AF52)">
+            <id>F93E8F2C2AA94F7881B33E73CB73AF52</id>
+            <active>true</active>
+            <creationDate transient="true">2013-12-23T14:35:17.549Z</creationDate>
+            <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <updated transient="true">2013-12-23T14:35:17.549Z</updated>
+            <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+            <defaultValue>1</defaultValue>
+            <obproperty xsi:nil="true"/>
+            <lineNo>40</lineNo>
+            <parameter xsi:nil="true"/>
+            <dfexDocumentSection id="E6861A6780FC484CB0F9F75237A599A5" entity-name="DFEX_DOCUMENT_SECTION" identifier="/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry"/>
+            <xpathName>/oxit:PostJournalEntry/oxit:DataArea/oxit:JournalEntry/oxit:JournalEntryHeader/oxit:CurrencyExchangeRate/oxit:RateNumeric</xpathName>
+            <dFEXATTRIBUTEMAPList/>
+          </DFEX_NODE_MAP>
+        </dFEXNODEMAPList>
+      </DFEX_DOCUMENT_SECTION>
+    </dFEXDOCUMENTSECTIONList>
+    <dfexGlCategoryList>
+      <dfex_gl_category id="2B74B01508F04711A8808F6E67D6A4DC" identifier="AR Invoice">
+        <id>2B74B01508F04711A8808F6E67D6A4DC</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.548Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.548Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <commercialName>AR Invoice</commercialName>
+        <gLCategory id="102C08DF5D4341D5B7FDF758632503D2" entity-name="FinancialMgmtGLCategory" identifier="AR Invoice"/>
+        <dfexMapDefinition id="ECE32503284C45F0BF1FB76A29711C2E" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+      </dfex_gl_category>
+      <dfex_gl_category id="945F70CB7BE64F819B6E513B4CB5D9FE" identifier="AR Invoice(Decathlon)">
+        <id>945F70CB7BE64F819B6E513B4CB5D9FE</id>
+        <active>true</active>
+        <creationDate transient="true">2013-12-23T14:35:17.548Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2013-12-23T14:35:17.548Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <commercialName>AR Invoice(Decathlon)</commercialName>
+        <gLCategory id="562E5DED41F44059B9565B700348C481" entity-name="FinancialMgmtGLCategory" identifier="AR Invoice (Decathlon)"/>
+        <dfexMapDefinition id="ECE32503284C45F0BF1FB76A29711C2E" entity-name="DFEX_MAP_DEFINITION" identifier="1.0.0"/>
+      </dfex_gl_category>
+    </dfexGlCategoryList>
+  </DFEX_MAP_DEFINITION>
+</ob:Openbravo>

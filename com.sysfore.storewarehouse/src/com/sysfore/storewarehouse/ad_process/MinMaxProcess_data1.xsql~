@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2009 Openbravo S.L.U.
+ ******************************************************************************
+-->
+ 
+<SqlClass name="MinMaxProcessData1" package="com.sysfore.storewarehouse.ad_process">
+<SqlMethod name="billCountSeven" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+    SELECT count(distinct dateordered) as billcount, coalesce(sum(qtyordered),0) as qtyordered FROM c_orderline 
+    where  m_product_id=? 
+    and dateordered > now() - integer '7' and dateordered <= now() and ad_org_id=?
+    ]]>
+    </Sql>
+    <Parameter name="mProductId"/>
+    <Parameter name="orgId"/>
+</SqlMethod>
+<SqlMethod name="billCountFourteen" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+    SELECT count(distinct dateordered) as billcount, coalesce(sum(qtyordered),0) as qtyordered FROM c_orderline 
+    where  m_product_id=? 
+    and dateordered > now()- integer '14' and dateordered <= now() and ad_org_id=?
+    ]]>
+    </Sql>
+    <Parameter name="mProductId"/>
+    <Parameter name="orgId"/>
+</SqlMethod>
+<SqlMethod name="billCountLastYearSeven" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+    SELECT count(distinct dateordered) as billcount, coalesce(sum(qtyordered),0) as qtyordered FROM c_orderline 
+    where  m_product_id=?
+    and dateordered > now() - interval '1 year' - integer '7' and dateordered <= now()- interval '1 year'
+    and ad_org_id=?
+    ]]>
+    </Sql>
+    <Parameter name="mProductId"/>
+    <Parameter name="orgId"/>
+</SqlMethod>
+<SqlMethod name="updateMinMax" type="preparedStatement"  connection="true" return="rowCount">
+    <Sql>
+    <![CDATA[
+    update cl_minmax set minqty=to_number(?), maxqty=to_number(?) where m_product_id=? and ad_org_id=?
+    ]]>
+    </Sql>
+    <Parameter name="minValue"/>
+    <Parameter name="maxValue"/>
+    <Parameter name="mProductId"/>
+    <Parameter name="orgId"/>
+</SqlMethod>
+<SqlMethod name="updateimplantation" type="preparedStatement"  connection="true" return="rowCount">
+    <Sql>
+    <![CDATA[
+    update cl_implantation set isimplanted='Y' where m_product_id=? and store_implanted=?
+    ]]>
+    </Sql>
+     <Parameter name="mProductId"/>
+    <Parameter name="orgId"/>
+</SqlMethod>
+</SqlClass>

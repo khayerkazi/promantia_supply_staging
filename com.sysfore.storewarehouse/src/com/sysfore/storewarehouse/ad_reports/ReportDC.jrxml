@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportDClist" pageWidth="880" pageHeight="842" columnWidth="840" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="AD_ORG_ID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_ORG" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{AD_ORG_ID}.equals("") ? " " : " AND l.AD_ORG_ID = '" + $P{AD_ORG_ID} + "'"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT ad.name as org,h.documentno as documentno,l.qtyreq qtyrequested,
+clb.name as Brand,l.created as Date,p.name as Itemcode,d.name storedept,au.name as username
+From sw_sreqline l,sw_srequisition h,m_product p,ad_org ad,cl_department d,cl_model b,cl_brand clb,ad_user au
+where h.created>=current_date
+and  l.m_product_id=p.m_product_id
+and p.em_cl_model_id=b.cl_model_id and clb.cl_brand_id=l.cl_brand_id
+and b.cl_department_id=d.cl_department_id and ad.ad_org_id=l.ad_org_id
+and h.sw_srequisition_id=l.sw_srequisition_id and l.ad_org_id=h.ad_org_id
+and au.ad_user_id=h.createdby
+and 1=1
+$P!{aux_ORG}
+ORDER BY d.name,l.created]]>
+	</queryString>
+	<field name="org" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="qtyrequested" class="java.math.BigDecimal"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="date" class="java.sql.Timestamp"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="storedept" class="java.lang.String"/>
+	<field name="username" class="java.lang.String"/>
+	<background>
+		<band/>
+	</background>
+	<title>
+		<band height="20">
+			<staticText>
+				<reportElement x="311" y="0" width="220" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DCReport]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20">
+			<staticText>
+				<reportElement x="179" y="0" width="132" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Document Number]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="531" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="631" y="0" width="129" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Quantity Requested]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="79" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="-20" y="0" width="99" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Organization]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="411" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="760" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[username]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="19">
+			<textField>
+				<reportElement x="760" y="0" width="100" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{username}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="311" y="0" width="100" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="179" y="0" width="132" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="531" y="0" width="100" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="631" y="0" width="129" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyrequested}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="411" y="0" width="120" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{storedept}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="-20" y="0" width="99" height="19"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{org}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="79" y="0" width="100" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

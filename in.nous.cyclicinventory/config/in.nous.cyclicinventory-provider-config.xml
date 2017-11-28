@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <provider>
+   <bean>
+       <name>cyclicinventory</name>
+       <class>in.nous.cyclicinventory.ad_webservices.CyclicInventory</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>cyclic_inventory_queries</name>
+       <class>in.nous.cyclicinventory.ad_webservices.CyclicInventoryQueries</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>cyclic_inventory_m_storagedetail</name>
+       <class>in.nous.cyclicinventory.ad_webservices.CyclicInventoryMStorageDetail</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>

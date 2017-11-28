@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION NDOC_MULTI_SEND_ORDER">
+    <function name="NDOC_MULTI_SEND_ORDER" type="NULL">
+      <parameter name="porderid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="paction" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="updatedby" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_Record_ID VARCHAR(32);
+v_orderStatus CHARACTER(2);
+v_action VARCHAR(32);
+v_updatedby VARCHAR(32);
+
+
+BEGIN 
+
+v_Record_ID:=porderid;
+v_action:=paction;
+v_updatedby:=updatedby;
+
+select em_sw_postatus into v_orderStatus From c_order where c_order_id=v_Record_ID;
+
+IF(v_action='sendorder') THEN
+	IF(v_orderStatus='DR') THEN
+		update c_order set em_sw_postatus='SO',updatedby=v_updatedby,updated=now() where c_order_id=v_Record_ID;
+	END IF;
+END IF;
+
+IF(v_action='updateorder') THEN
+	IF(v_orderStatus!='VO' OR v_orderStatus!='VD'OR v_orderStatus!='OC' OR v_orderStatus!='VD' OR v_orderStatus!='CL') THEN
+		update c_order set em_sw_postatus='MO',updatedby=v_updatedby,updated=now() where c_order_id=v_Record_ID;
+	END IF;
+END IF;
+
+IF(v_action='deleteorder') THEN
+	IF(v_orderStatus!= 'DR' OR v_orderStatus!= 'VO') THEN
+		update c_order set em_sw_postatus='VO',updatedby=v_updatedby,updated=now() where c_order_id=v_Record_ID;
+	END IF;
+END IF;
+END NDOC_MULTI_SEND_ORDER
+]]></body>
+    </function>
+  </database>

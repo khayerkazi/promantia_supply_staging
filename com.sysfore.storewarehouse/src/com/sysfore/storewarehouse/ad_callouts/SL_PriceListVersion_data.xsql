@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<SqlClass name="SLPriceListVersionData" package="com.sysfore.storewarehouse.ad_callouts">
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+      Select  M_Pricelist_Version_Id from  M_Pricelist_Version
+      Where M_Pricelist_Version.M_PriceList_Id IN (Select M_pricelist_Id From M_Pricelist Where lower(name) LIKE lower('%fob%'))
+      and M_Pricelist_Version.ValidFrom <= to_date(?) Order by M_Pricelist_Version.ValidFrom desc limit 1
+      ]]>
+    </Sql>
+    <Parameter name="modelcode"/>
+  </SqlMethod>
+
+</SqlClass>

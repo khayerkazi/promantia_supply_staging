@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <provider>
+  <bean>
+       <name>stickerdetailwebservice</name>
+       <class>in.nous.tools.mrpsticker.webservice.GetStickerDetailWebService</class>
+       <singleton>true</singleton>
+  </bean>
+  <bean>
+       <name>postbarcodedetails</name>
+       <class>in.nous.tools.mrpsticker.webservice.PostBarcodeDetails</class>
+       <singleton>true</singleton>
+  </bean>
+  <bean>
+       <name>getdscwhboxidlist</name>
+       <class>in.nous.tools.mrpsticker.webservice.GetDscWHBoxIDList</class>
+       <singleton>true</singleton>
+  </bean>
+
+  <bean>
+       <name>getdscwhlocationidlist</name>
+       <class>in.nous.tools.mrpsticker.webservice.GetDscWHLocationIDList</class>
+       <singleton>true</singleton>
+  </bean>
+
+  <bean>
+       <name>postbarcodedetailsforlocation</name>
+       <class>in.nous.tools.mrpsticker.webservice.PostBarcodeDetailsForLocation</class>
+       <singleton>true</singleton>
+  </bean>
+
+  <bean>
+       <name>attributesetinstance</name>
+       <class>in.nous.tools.mrpsticker.webservice.AttributeSetInstanceWs</class>
+       <singleton>true</singleton>
+  </bean>
+
+ </provider>
+
+

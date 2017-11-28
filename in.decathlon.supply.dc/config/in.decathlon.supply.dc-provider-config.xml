@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+	<bean>
+		<name>autodccreate</name>
+		<class>in.decathlon.supply.dc.StoreReplenishmentWFS</class>
+		<singleton>true</singleton>
+	</bean>
+	<bean>
+		<name>autodcclosing</name>
+		<class>in.decathlon.supply.dc.AutoDCClosing</class>
+		<singleton>true</singleton>
+	</bean>
+	<bean>
+       <name>picklisttool</name>
+       <class>in.decathlon.supply.dc.ad_webServices.PicklistToolWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>autodccreate2</name>
+       <class>in.decathlon.supply.dc.SubStoreReplenishmentWFS</class>
+       <singleton>true</singleton>
+   </bean>
+</provider>

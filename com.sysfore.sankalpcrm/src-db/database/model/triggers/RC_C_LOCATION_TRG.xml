@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER RC_C_LOCATION_TRG">
+    <trigger name="RC_C_LOCATION_TRG" table="C_LOCATION" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_postal NUMBER;
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF INSERTING OR UPDATING THEN
+
+   SELECT length(postal) INTO v_postal FROM C_LOCATION WHERE postal = :NEW.postal;
+         
+     IF ((v_postal > 6) OR (v_postal < 6)) THEN
+        RAISE EXCEPTION '@Postal Code Length must be 6...@';
+     END IF;   
+
+
+END IF;
+
+            
+END RC_C_LOCATION_TRG
+]]></body>
+    </trigger>
+  </database>

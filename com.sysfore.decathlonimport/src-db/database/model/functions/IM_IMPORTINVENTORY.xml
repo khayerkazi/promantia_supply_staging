@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPORTINVENTORY">
+    <function name="IM_IMPORTINVENTORY" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_role VARCHAR(32):='';
+  v_documentno VARCHAR(32):='';
+  v_header_id VARCHAR(32):='';
+  v_warehouse_id VARCHAR(32):='';
+  v_count NUMBER:= 0;
+  v_ResultStr VARCHAR(2000):='';
+
+BEGIN
+
+SELECT count(1) into v_count FROM i_inventory where processing = 'Y' and createdby != user_id;
+
+ IF(v_count > 0) THEN
+
+ RETURN 'ERROR:There is one Inventory is in progress, please wait for it to complete.';
+
+ ELSE
+
+ UPDATE i_inventory SET processing = 'Y',i_errormsg = null WHERE createdby = user_id;
+
+ SELECT TRIM(BOTH ' ' FROM UPPER(ar.name)), au.default_m_warehouse_id into v_role,v_warehouse_id  from ad_user au join ad_role ar on au.default_ad_role_id = ar.ad_role_id where au.ad_user_id = user_id;
+
+ IF(v_role = 'WAREHOUSE MANAGER') THEN
+
+ UPDATE i_inventory i SET i_errormsg = 'Duplicate records are present.' FROM (SELECT value, locatorvalue, lot, count(1) FROM i_inventory WHERE lot IS NOT NULL AND createdby = user_id GROUP BY value, locatorvalue, lot HAVING count(1) > 1) a WHERE i.value = a.value AND i.locatorvalue = a.locatorvalue AND i.lot = a.lot;
+
+  UPDATE i_inventory i SET i_errormsg = 'Duplicate records are present.' FROM (SELECT value, locatorvalue, count(1) FROM i_inventory WHERE lot IS NULL AND createdby = user_id GROUP BY value, locatorvalue HAVING count(1) > 1) a WHERE i.value = a.value AND i.locatorvalue = a.locatorvalue AND lot IS NULL;
+
+  SELECT count(1) INTO v_count FROM i_inventory WHERE i_errormsg IS NOT NULL AND createdby = user_id AND i_errormsg <> '';
+
+ IF(v_count > 0) THEN
+
+ RETURN 'ERROR:Duplicate records are present in file uploaded, Please correct the data and try again.';
+
+ ELSE
+
+ UPDATE i_inventory inv set i_errormsg='Cannot Reduce Reserved Stock Qtyonhand : '||c.qtyonhand|| ' and Reservedqty : '||c.reservedqty from (select b.value, b.locatorvalue, b.lot, b.qtycount, msd.qtyonhand, msd.reservedqty from m_storage_detail msd , (select mp.m_product_id, ml.m_locator_id, COALESCE(mt.m_attributesetinstance_id,'0') as m_attributesetinstance_id, i.value, i.locatorvalue, i.lot, i.qtycount from i_inventory i join m_product mp on i.value = mp.name join m_locator ml on i.locatorvalue = ml.value left join m_attributesetinstance mt on i.lot = mt.lot WHERE i.createdby = user_id) b where msd.m_product_id = b.m_product_id and msd.m_locator_id = b.m_locator_id and  msd.m_attributesetinstance_id = b.m_attributesetinstance_id and msd.reservedqty > 0) c where inv.value = c.value and inv.locatorvalue = c.locatorvalue and inv.lot = c.lot AND inv.createdby = user_id;
+
+SELECT count(1) INTO v_count FROM i_inventory WHERE i_errormsg IS NOT NULL AND createdby = user_id AND i_errormsg <> '';
+
+ IF(v_count > 0) THEN
+
+  RETURN 'ERROR:Error in the data uploaded , Please refer to errormsg, correct the data and try again.';
+  
+ ELSE
+
+ UPDATE i_inventory inv set em_im_validated = 'Y', i_errormsg = null from (select b.value, b.locatorvalue, b.lot from m_storage_detail msd , (select mp.m_product_id, ml.m_locator_id, COALESCE(mt.m_attributesetinstance_id,'0') as m_attributesetinstance_id, i.value, i.locatorvalue, i.lot from i_inventory i join m_product mp on i.value = mp.name join m_locator ml on i.locatorvalue = ml.value left join m_attributesetinstance mt on i.lot = mt.lot WHERE i.createdby = user_id) b where msd.m_product_id = b.m_product_id and msd.m_locator_id = b.m_locator_id and  msd.m_attributesetinstance_id = b.m_attributesetinstance_id) c where inv.value = c.value and inv.locatorvalue = c.locatorvalue and inv.lot = c.lot AND inv.createdby = user_id;
+
+INSERT INTO M_ATTRIBUTESETINSTANCE (M_ATTRIBUTESETINSTANCE_ID, AD_CLIENT_ID, AD_ORG_ID, ISACTIVE, CREATED, CREATEDBY, UPDATED, UPDATEDBY, M_ATTRIBUTESET_ID, SERNO, LOT, GUARANTEEDATE, description, M_LOT_ID, ISLOCKED, LOCK_DESCRIPTION) select get_uuid(), '187D8FC945A5481CB41B3EE767F80DBB', '603C6A266B4C40BCAD87C5C43DDF53EE', 'Y', now(),'100', now(),'100', 'BD85293DD63E4AAA9E29FE8C2A4206F8', NULL, a.lot, now(), ('L'||a.lot) ,NULL, 'N',NULL from (select lot from i_inventory where lot ilike 'B%') a where not exists (select lot from m_attributesetinstance where lot = a.lot );
+
+UPDATE i_inventory inv set em_im_validated = 'Y', i_errormsg = null from (select (select name from m_product where name = a.value) as value, (select value from m_locator where value = locatorvalue) as locatorvalue, (select lot from m_attributesetinstance where lot = a.lot) as lot from (select value,  locatorvalue, lot from i_inventory where em_im_validated = 'N' and lot is not null and createdby = user_id)a) c where inv.value = c.value and inv.locatorvalue = c.locatorvalue and inv.lot = c.lot;
+
+UPDATE i_inventory inv set em_im_validated = 'Y', i_errormsg = null from (select (select name from m_product where name = a.value) as value, (select value from m_locator where value = a.locatorvalue) as locatorvalue from (select value,  locatorvalue from i_inventory where em_im_validated = 'N' and lot is null and createdby = user_id) a ) c where inv.value = c.value and inv.locatorvalue = c.locatorvalue and inv.lot is null;
+
+ UPDATE i_inventory set i_errormsg = 'Itemcode or Location doesn''t exists in the system' where em_im_validated != 'Y' AND createdby = user_id;
+
+          SELECT count(1) INTO v_count FROM i_inventory WHERE i_errormsg IS NOT NULL AND i_errormsg <> '' AND createdby = user_id;
+
+ IF(v_count > 0) THEN
+
+ RETURN 'ERROR:Error in the data uploaded , Please refer to errormsg, correct the data and try again.';
+
+ ELSE
+
+SELECT count(1) INTO v_count FROM i_inventory WHERE i_errormsg IS NULL AND createdby = user_id;
+
+IF(v_count = 0) THEN
+
+RETURN 'ERROR:No Records uploaded to do inventory';
+
+ELSE
+ 
+ SELECT get_uuid(),'INV-'||to_char(now(), 'YYYYMMDDHH12MISS') INTO v_header_id,v_documentno FROM DUAL;
+
+ INSERT INTO m_inventory(m_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby,processing, processed, name, description, m_warehouse_id, movementdate, em_sw_movementtype) VALUES (v_header_id,'187D8FC945A5481CB41B3EE767F80DBB','603C6A266B4C40BCAD87C5C43DDF53EE','Y', now(), user_id, now(), user_id, 'N', 'N', v_documentno, 'Import Inventory - '||v_documentno, v_warehouse_id, now(),'I');
+
+ INSERT INTO m_inventoryline(m_inventoryline_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby,m_inventory_id,m_locator_id,m_product_id,line, qtycount,qtybook,reservedqty,description,c_uom_id,m_attributesetinstance_id) select get_uuid(), '187D8FC945A5481CB41B3EE767F80DBB','603C6A266B4C40BCAD87C5C43DDF53EE','Y', now(), user_id, now(), user_id, v_header_id, b.m_locator_id, b.m_product_id, '10', b.qtycount, COALESCE(msd.qtyonhand,0), COALESCE(msd.reservedqty,0), 'Import Inventory - '||v_documentno, COALESCE(msd.c_uom_id,'100'), COALESCE(b.m_attributesetinstance_id,'0') as m_attributesetinstance_id from m_storage_detail msd right join (select mp.m_product_id, ml.m_locator_id, COALESCE(mt.m_attributesetinstance_id,'0') as m_attributesetinstance_id, i.value, i.locatorvalue, i.lot, i.qtycount from i_inventory i join m_product mp on i.value = mp.name join m_locator ml on i.locatorvalue = ml.value left join m_attributesetinstance mt on i.lot = mt.lot WHERE i.createdby = user_id) b on msd.m_product_id = b.m_product_id and msd.m_locator_id = b.m_locator_id and  msd.m_attributesetinstance_id = b.m_attributesetinstance_id;
+
+ SELECT count(1) into v_count from m_inventoryline where m_inventory_id = v_header_id;
+
+ IF(v_count > 0)THEN
+ 
+ PERFORM IM_INVENTORY_POST1(v_header_id);
+
+ update m_inventory set processed='Y' where m_inventory_id = v_header_id;
+
+ delete from i_inventory where createdby = user_id;
+
+ RETURN 'Success:Inventory uploaded successfully - '||v_documentno;
+
+ ELSE
+
+ RETURN 'ERROR: Zero Records inserted';
+
+ END IF;
+
+ END IF;
+
+END IF;
+
+END IF;
+
+    END IF;
+   
+ ELSE
+
+ RETURN 'ERROR:You are not Authorized to do inventory, Only "WAREHOUSE MANAGER" Role is Authorized.';
+ 
+ END IF;
+
+END IF;
+
+EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  RETURN v_ResultStr;
+END IM_IMPORTINVENTORY
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,39 @@
+diff -r 2a15affa454e web/org.openbravo.warehouse.pickinglist/js/obwpl-createfromorder.js
+--- a/web/org.openbravo.warehouse.pickinglist/js/obwpl-createfromorder.js	Sun Nov 16 19:14:15 2014 +0530
++++ b/web/org.openbravo.warehouse.pickinglist/js/obwpl-createfromorder.js	Tue Nov 18 16:57:02 2014 +0530
+@@ -46,7 +46,6 @@
+     defaultToFirstOption: true,
+     redrawOnChange: true,
+     valueMap: {
+-      'NO-OUT': OB.I18N.getLabel('OBWPL_PLType_NoOut_Label'),
+       'OUT': OB.I18N.getLabel('OBWPL_PLType_Out_Label')
+     }
+   }, {
+-diff -r 2a15affa454e src/org/openbravo/warehouse/pickinglist/CreateActionHandler.java
+--- a/src/org/openbravo/warehouse/pickinglist/CreateActionHandler.java	Sun Nov 16 19:14:15 2014 +0530
++++ b/src/org/openbravo/warehouse/pickinglist/CreateActionHandler.java	Tue Nov 18 16:55:57 2014 +0530
+@@ -169,7 +169,7 @@
+       OBCriteria<Locator> critSB = OBDal.getInstance().createCriteria(Locator.class);
+       critSB.add(Restrictions.eq(Locator.PROPERTY_OBWHSTYPE, "OUT"));
+       critSB.add(Restrictions.eq(Locator.PROPERTY_WAREHOUSE, wh));
+-      critSB.addOrderBy(Locator.PROPERTY_SEARCHKEY, true);
++      critSB.addOrderBy(Locator.PROPERTY_SEARCHKEY, false);
+       List<Locator> outbounds = critSB.list();
+       JSONObject locators = new JSONObject();
+       for (Locator outbound : outbounds) {
+diff -r 6f6048c4679a dependantModules/org.openbravo.warehouse.pickinglist/src-db/database/sourcedata/AD_TAB.xml
+--- a/src-db/database/sourcedata/AD_TAB.xml	Mon Dec 15 22:28:12 2014 +0530
++++ b/src-db/database/sourcedata/AD_TAB.xml	Tue Dec 16 00:12:38 2014 +0530
+@@ -146,6 +146,11 @@
+ <!--7D68FFCA597C4F84BC385DBCA7A8308C-->  <ISSORTTAB><![CDATA[N]]></ISSORTTAB>
+ <!--7D68FFCA597C4F84BC385DBCA7A8308C-->  <AD_MODULE_ID><![CDATA[E3691C8A5B114769BB2C5254AFFF3E26]]></AD_MODULE_ID>
+ <!--7D68FFCA597C4F84BC385DBCA7A8308C-->  <UIPATTERN><![CDATA[STD]]></UIPATTERN>
++<!--7D68FFCA597C4F84BC385DBCA7A8308C-->  <HQLWHERECLAUSE><![CDATA[e.id in (select mml.id from OBWPL_pickinglist mml left join mml.materialMgmtInternalMovementLineEMOBWPLWarehousePickingListList pl
++left join pl.storageBin.warehouse wh 
++where exists ( select id from ADRole r where r.id = @#AD_Role_ID@ and r.clientAdmin = true ) or (mml.organization.id = @#AD_Org_ID@ and mml.organization.facstIsExternal = true and wh.id in 
++(select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@)) or 
++( coalesce(wh.ibdoWarehousetype,'') != 'FACST_External' and mml.organization.id = @#AD_Org_ID@ and mml.organization.facstIsExternal = false )))]]></HQLWHERECLAUSE>
+ <!--7D68FFCA597C4F84BC385DBCA7A8308C-->  <SHOWPARENTBUTTONS><![CDATA[Y]]></SHOWPARENTBUTTONS>
+ <!--7D68FFCA597C4F84BC385DBCA7A8308C-->  <DISABLE_PARENT_KEY_PROPERTY><![CDATA[N]]></DISABLE_PARENT_KEY_PROPERTY>
+ <!--7D68FFCA597C4F84BC385DBCA7A8308C-->  <ISREADONLYTREE><![CDATA[N]]></ISREADONLYTREE>
+

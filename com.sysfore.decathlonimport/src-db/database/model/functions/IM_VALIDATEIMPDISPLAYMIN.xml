@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPDISPLAYMIN">
+    <function name="IM_VALIDATEIMPDISPLAYMIN" type="VARCHAR">
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="adorg_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateDisplayMin Record;
+  v_itemcodeBlank Boolean :=true;
+  v_storeNameBlank Boolean :=true;
+  v_count NUMBER:=0;
+  v_countItem NUMBER:=0;
+  v_countDupItem NUMBER:=0;
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_storeErrorNotice VARCHAR(2000) := '';
+  v_storeErrorNotice2 VARCHAR(2000) := '';
+  v_negativeValErrorNotice VARCHAR(2000) := '';
+  v_itemCodeErrorNotice VARCHAR(2000) := '';
+  v_dupItemCodeErrorNotice VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_ad_org_id CHARACTER(40) :=null;
+  v_ad_org_id2 CHARACTER(40) :=null;
+  v_userid VARCHAR(32):='';
+
+BEGIN
+  v_userid=user_id;
+  v_ad_org_id=adorg_id;
+  FOR validateDisplayMin IN (SELECT distinct im_displaymin_id, ad_client_id, ad_org_id, itemcode, displaymin, store_name
+  FROM im_displaymin where createdby=v_userid)
+-- and ad_org_id=v_ad_org_id)
+  LOOP
+  
+  -- Empty checks
+  
+  IF (validateDisplayMin.itemcode IS NULL OR TRIM(BOTH ' ' FROM validateDisplayMin.itemcode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Item Code, ';
+  	v_itemcodeBlank := false;
+  END IF;
+    
+  IF (validateDisplayMin.store_name IS NULL  OR TRIM(BOTH ' ' FROM validateDisplayMin.store_name) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Store Name, ';
+  	v_storeNameBlank := false;
+  END IF;
+  
+  IF (validateDisplayMin.displaymin IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Displaymin ';
+  END IF;
+    
+  -- Negative checks
+  
+  IF (validateDisplayMin.displaymin < 0) THEN
+  	v_negativeValErrorNotice := v_negativeValErrorNotice || 'Displaymin';
+  END IF;
+  
+  IF(v_itemcodeBlank) THEN
+  SELECT COUNT(*) AS total INTO v_countItem FROM m_product WHERE lower(m_product.name)=lower(validateDisplayMin.itemcode);
+  IF (v_countItem = 0 ) THEN
+  	v_itemCodeErrorNotice := 'Incorrect Item Code ';
+  END IF;
+  END IF;
+
+  IF(v_storeNameBlank) THEN
+  SELECT COUNT(*) AS total INTO v_count FROM ad_org WHERE lower(ad_org.name)=lower(validateDisplayMin.store_name);
+  IF (v_count = 0 ) THEN
+  	v_storeErrorNotice2 := 'Incorrect Store Name ';
+  END IF;
+  END IF;
+  
+  SELECT ad_org_id AS ad_org INTO v_ad_org_id2 FROM ad_org WHERE lower(ad_org.name)=lower(validateDisplayMin.store_name);
+  
+--RAISE EXCEPTION 'v_ad_org_id2: %',v_ad_org_id2 ;
+
+  IF v_storeErrorNotice2 = '' THEN
+    IF v_ad_org_id != v_ad_org_id2 THEN
+      v_storeErrorNotice := v_storeErrorNotice ||'The current role is not allowed to do this import, ';
+    END IF;
+  END IF;
+  
+  SELECT COUNT(*) AS total INTO v_countDupItem FROM im_displaymin WHERE createdby=v_userid and im_displaymin.itemcode = validateDisplayMin.itemcode and im_displaymin.store_name=validateDisplayMin.store_name;
+
+  IF (v_countDupItem > 1 ) THEN
+      v_dupItemCodeErrorNotice := v_dupItemCodeErrorNotice ||'Duplicate ItemCode';
+  END IF;
+
+  IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice || 'is Blank' || ', ' || v_messageImport;
+  END IF;
+  
+  IF (v_storeErrorNotice != '') THEN
+  	  v_messageImport := v_storeErrorNotice || ', '  || v_messageImport;
+  END IF;
+  
+  IF (v_negativeValErrorNotice != '') THEN
+  	  v_messageImport := v_negativeValErrorNotice || ' ' ||'is negative' || ', '  || v_messageImport;
+  END IF;
+  
+  IF (v_itemCodeErrorNotice != '') THEN
+  	  v_messageImport := v_itemCodeErrorNotice || ','  || v_messageImport;
+  END IF;
+  
+  IF (v_storeErrorNotice2 != '') THEN
+  	  v_messageImport := v_storeErrorNotice2 || ','  || v_messageImport;
+  END IF;
+  
+  IF (v_dupItemCodeErrorNotice != '') THEN
+  	  v_messageImport := v_dupItemCodeErrorNotice || ', '  || v_messageImport;
+  END IF;
+  
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE im_displaymin SET im_errormsg = v_messageImport, validated = 'Y' 
+    where im_displaymin.im_displaymin_id=validateDisplayMin.im_displaymin_id
+    and createdby=v_userid;
+    
+  ELSE 
+    UPDATE im_displaymin SET im_errormsg = v_messageImport, validated = 'N' 
+    where im_displaymin.im_displaymin_id=validateDisplayMin.im_displaymin_id
+    and createdby=v_userid; 
+    v_flag :=FALSE;
+  END IF;
+  v_missingErrorNotice := '';
+  v_storeErrorNotice := '';
+  v_storeErrorNotice2 := '';
+  v_messageImport := '';
+  v_negativeValErrorNotice := '';
+  v_itemCodeErrorNotice := '';
+  v_dupItemCodeErrorNotice := '';
+  v_itemcodeBlank  :=true;
+  v_storeNameBlank :=true;
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPDISPLAYMIN
+]]></body>
+    </function>
+  </database>

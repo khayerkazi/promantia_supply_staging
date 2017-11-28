@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="ReportFastnSlowMovingData" package="com.sysfore.fastnslowmovingrpt.report">
+  <SqlClassComment></SqlClassComment>
+
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+     select org,brand,storedept,dept,merchandisecat,NatofPdt,modelname,size,color,modelcode,
+ itemcode,lifestage,sum(turnover) as turnover,sum(qty) as qty,sum(marginamt) as marginamt,
+ marginper as marginper,taxcat,sum(taxamt) as taxamt,curstock as curstock from (select case when co.documentno like '*ECOM%' then 'Ecommerce'
+                            when co.documentno like '*B2B%' then 'B2B' when co.documentno like 'B2B%' then 'B2B' else org.name end as org, br.name as brand, sd.name as storedept,dp.name as dept,
+     mdl.merchandise_category as merchandisecat,np.name as NatofPdt,mdl.name as modelname,p.em_cl_size as size, cl.name as color,
+     mdl.value as modelcode,  p.name as itemcode, p.EM_cl_LIFESTAGE as lifestage,(sum(round((em_ds_linenetamt),2)))as turnover,(case when org.name in ('B2B','Ecommerce') then (sum(col.em_sw_confirmedqty)) else (sum(col.qtyordered)) END) as qty,
+     sum(to_number(em_ds_marginamt)) as marginamt,
+     round((((sum(to_number(em_ds_marginamt))))/ 
+        CASE WHEN sum(em_ds_linenetamt) =0 THEN 1
+        WHEN sum(em_ds_linenetamt) <0 THEN (sum(em_ds_linenetamt)*-1)           
+        ELSE 
+        (sum(em_ds_linenetamt) )END )*100 ,2) as marginper 
+        ,
+    ct.name as taxcat,
+    round(sum(coalesce(col.em_ds_taxamount,0)),2) as taxamt
+    ,msd2.q as curstock
+    from
+    m_product p inner join c_orderline col on col.m_product_id=p.m_product_id 
+    left outer join (select m_product_id, sum(greatest(0,msd.qtyonhand)) as q from m_storage_detail msd where exists (select 1 from m_locator ml, m_warehouse mw where msd.m_locator_id = ml.m_locator_id and ml.m_warehouse_id = mw.m_warehouse_id and mw.name like 'Saleable%') group by msd.m_product_id) msd2 on col.m_product_id = msd2.m_product_id
+    inner join ad_org org on org.ad_org_id = col.ad_org_id 
+    inner join c_order co on (col.c_order_id=co.c_order_id and co.issotrx = coalesce(org.em_sw_isstore,'N'))
+    inner join c_tax ct on ct.c_tax_id = col.c_tax_id
+    inner join cl_model mdl on em_cl_model_id=mdl.cl_model_id
+    inner join cl_brand br on br.cl_brand_id = mdl.cl_brand_id
+    inner join cl_storedept sd on sd.cl_storedept_id=mdl.cl_storedept_id
+    inner join cl_department dp on dp.cl_department_id = mdl.cl_department_id
+    inner join cl_natureofproduct np on np.cl_natureofproduct_id=mdl.cl_natureofproduct_id
+    inner join cl_color cl on p.em_cl_color_id=cl.cl_color_id
+    where 1=1 and 1=2 and ? is not null and co.isactive='Y' and co.docstatus not in ('DR','VO') and co.totallines<>0
+    group by p.name,br.name,
+    mdl.merchandise_category,ct.name,org.name, mdl.value,p.EM_cl_LIFESTAGE, sd.name,mdl.name,dp.name,np.name,p.em_cl_size,cl.name,col.m_product_id,msd2.q,co.documentno
+    order by turnover desc)a 
+    group by itemcode,curstock,brand,merchandisecat,taxcat,org,modelcode,lifestage,storedept,modelname,dept,
+    NatofPdt,size,color,marginper
+     order by turnover desc
+     ]]></Sql>
+     
+     <Parameter name="parDateFrom" optional="true" after="1=1"><![CDATA[AND col.dateordered >= to_date(?)]]></Parameter>
+     <Parameter name="parDateTo" optional="true" after="1=1"><![CDATA[AND col.dateordered < to_date(?)]]></Parameter>
+     <Parameter name="parDateFrom1" optional="true" after="1=1"><![CDATA[AND co.dateordered >= to_date(?)]]></Parameter>
+     <Parameter name="parDateTo1" optional="true" after="1=1"><![CDATA[AND co.dateordered < to_date(?)]]></Parameter>
+     <Parameter name="clBrand" optional="true" type="argument" after="1=1"><![CDATA[ AND br.cl_brand_id IN]]></Parameter>
+     <Parameter name="clDepartment" optional="true" type="argument" after="1=1"><![CDATA[ AND dp.cl_department_id IN]]></Parameter>
+     <Parameter name="clSport" optional="true" type="argument" after="1=1"><![CDATA[ AND sp.cl_sport_id IN]]></Parameter>
+     <Parameter name="clStoredept" optional="true" type="argument" after="1=1"><![CDATA[ AND sd.cl_storedept_id IN]]></Parameter>
+     <Parameter name="parammerchandiseCategory" optional="true" after="1=1"><![CDATA[AND lower(mdl.merchandise_category) LIKE lower(?)]]></Parameter>
+     <Parameter name="paramNatureofProduct" optional="true" after="1=1"><![CDATA[AND  np.cl_natureofproduct_id= ?]]></Parameter>
+     <Parameter name="paramLifestage" optional="true" after="1=1"><![CDATA[AND p.EM_cl_LIFESTAGE= ?]]></Parameter>
+     <Parameter name="paramBlueproduct" optional="true" after="1=1"><![CDATA[AND mdl.blueproduct= ?]]></Parameter>
+     <Parameter name="clientCheckNotNull"/>
+  </SqlMethod>
+
+  <SqlMethod name="selectOrg" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+     select org,brand,storedept,dept,merchandisecat,NatofPdt,modelname,size,color,modelcode,
+ itemcode,lifestage,sum(turnover) as turnover,sum(qty) as qty,sum(marginamt) as marginamt,
+ marginper as marginper,taxcat,sum(taxamt) as taxamt,curstock as curstock from (select case when co.documentno like '*ECOM%' then 'Ecommerce'
+                            when co.documentno like '*B2B%' then 'B2B' when co.documentno like 'B2B%' then 'B2B' else org.name end as org, br.name as brand, sd.name as storedept,dp.name as dept,
+     mdl.merchandise_category as merchandisecat,np.name as NatofPdt,
+     mdl.name as modelname,p.em_cl_size as size, cl.name as color,
+     mdl.value as modelcode, p.name as itemcode, p.EM_cl_LIFESTAGE as lifestage,
+(sum(round((em_ds_linenetamt),2)))as turnover,
+     (case when org.name in ('B2B','Ecommerce') then (sum(col.em_sw_confirmedqty)) else (sum(col.qtyordered)) END) as qty,
+     sum(to_number(em_ds_marginamt)) as marginamt,
+		round(((((sum(to_number(em_ds_marginamt))))/ 
+		CASE WHEN sum(em_ds_linenetamt) =0 THEN 1
+		WHEN sum(em_ds_linenetamt) <0 THEN (sum(em_ds_linenetamt)*-1)	
+		ELSE 
+		(sum(em_ds_linenetamt) ) END)*100),2) as marginper,
+    ct.name as taxcat,
+    round(sum(coalesce(col.em_ds_taxamount,0)),2) as taxamt
+    ,msd2.q as curstock
+    from
+    m_product p inner join c_orderline col on col.m_product_id=p.m_product_id 
+    left outer join (select m_product_id, sum(greatest(0,msd.qtyonhand)) as q from m_storage_detail msd where exists (select 1 from m_locator ml, m_warehouse mw where msd.m_locator_id = ml.m_locator_id and ml.ad_org_id = ? and ml.m_warehouse_id = mw.m_warehouse_id and mw.name like 'Saleable%') group by msd.m_product_id) msd2 on col.m_product_id = msd2.m_product_id
+    inner join ad_org org on org.ad_org_id = col.ad_org_id 
+    inner join c_order co on  col.c_order_id=co.c_order_id and co.issotrx = coalesce(org.em_sw_isstore,'N')
+    inner join c_tax ct on ct.c_tax_id = col.c_tax_id
+    inner join cl_model mdl on em_cl_model_id=mdl.cl_model_id
+    inner join cl_brand br on br.cl_brand_id = mdl.cl_brand_id
+    inner join cl_storedept sd on sd.cl_storedept_id=mdl.cl_storedept_id
+	inner join cl_department dp on dp.cl_department_id = mdl.cl_department_id
+	inner join cl_natureofproduct np on np.cl_natureofproduct_id=mdl.cl_natureofproduct_id
+	inner join cl_color cl on p.em_cl_color_id=cl.cl_color_id
+    where 1=1 and 1=2 and col.ad_org_id = ? and co.isactive='Y' and co.docstatus not in ('DR','VO') and co.totallines<>0
+    group by p.name,br.name,
+    mdl.merchandise_category,mdl.name,ct.name,org.name,mdl.value,p.EM_cl_LIFESTAGE, sd.name,dp.name,np.name,p.em_cl_size,cl.name,col.ad_org_id,col.m_product_id,msd2.q,co.documentno
+    order by turnover desc)a 
+    group by itemcode,curstock,brand,merchandisecat,taxcat,org,modelcode,lifestage,storedept,modelname,dept,
+    NatofPdt,size,color,marginper
+     order by turnover desc 
+     ]]></Sql>
+			<Parameter name="LocOrg"/>
+     <Parameter name="parDateFrom" optional="true" after="1=1"><![CDATA[AND col.dateordered >= to_date(?)]]></Parameter>
+     <Parameter name="parDateTo" optional="true" after="1=1"><![CDATA[AND col.dateordered < to_date(?)]]></Parameter>
+     <Parameter name="parDateFrom1" optional="true" after="1=1"><![CDATA[AND co.dateordered >= to_date(?)]]></Parameter>
+     <Parameter name="parDateTo1" optional="true" after="1=1"><![CDATA[AND co.dateordered < to_date(?)]]></Parameter>
+     <Parameter name="clBrand" optional="true" type="argument" after="1=1"><![CDATA[ AND br.cl_brand_id IN]]></Parameter>
+     <Parameter name="clDepartment" optional="true" type="argument" after="1=1"><![CDATA[ AND dp.cl_department_id IN]]></Parameter>
+     <Parameter name="clSport" optional="true" type="argument" after="1=1"><![CDATA[ AND sp.cl_sport_id IN]]></Parameter>
+     <Parameter name="clStoredept" optional="true" type="argument" after="1=1"><![CDATA[ AND sd.cl_storedept_id IN]]></Parameter>
+     <Parameter name="parammerchandiseCategory" optional="true" after="1=1"><![CDATA[AND lower(mdl.merchandise_category) LIKE lower(?)]]></Parameter>
+     <Parameter name="paramNatureofProduct" optional="true" after="1=1"><![CDATA[AND  np.cl_natureofproduct_id= ?]]></Parameter>
+     <Parameter name="paramLifestage" optional="true" after="1=1"><![CDATA[AND p.EM_cl_LIFESTAGE= ?]]></Parameter>
+     <Parameter name="paramBlueproduct" optional="true" after="1=1"><![CDATA[AND mdl.blueproduct= ?]]></Parameter>
+     <Parameter name="Org"/>
+
+  </SqlMethod>
+
+  <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>

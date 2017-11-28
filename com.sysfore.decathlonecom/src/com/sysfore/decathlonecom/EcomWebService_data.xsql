@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+
+
+<SqlClass name="EcomWebServiceData" package="com.sysfore.decathlonecom">
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT c_bpartner_id,ad_client_id,ad_org_id,isactive,created,createdby,updated,updatedby,value,name,
+        description,issummary,isvendor,em_rc_source,em_rc_oxylane,em_rc_optin,em_rc_email,em_rc_mobile,em_rc_comments,em_rc_company_id,em_rc_status,em_rc_aikido,
+        em_rc_archery,em_rc_alpinism,em_rc_basketball,em_rc_badminton,em_rc_boxing,em_rc_cricket,em_rc_cycling,em_rc_climbing,em_rc_diving,em_rc_dance,em_rc_fishing,em_rc_football,
+        em_rc_fieldhockey,em_rc_fitness,em_rc_gym,em_rc_golf,em_rc_handball,em_rc_horseriding,em_rc_hiking,em_rc_judo,em_rc_karate,em_rc_kitesurfing,em_rc_paddle,em_rc_rollerskating,
+        em_rc_running,em_rc_rugby,em_rc_sailing,em_rc_skiing,em_rc_snowboarding,em_rc_squash,em_rc_surfing,em_rc_swimming,em_rc_tennis,em_rc_tabletennis,em_rc_volleyball,em_rc_windsurfing,
+        em_rc_yoga,invoicerule as address1, deliveryrule as address2,deliveryviarule as address3,socreditstatus as address4, ad_forced_org_id as postalcode,invoicegrouping as city,invoice_printformat as state,
+        fiscalcode as country from c_bpartner where ad_client_id = ?
+      ]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectSports" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT name,value from rc_sport where ad_client_id = ?
+      ]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+  </SqlMethod>
+  <SqlMethod name="selectGreetings" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT name,value from rc_greeting where ad_client_id = ?
+      ]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+  </SqlMethod>
+ </SqlClass>

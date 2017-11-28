@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_MOVEMENTLINE">
+    <table name="M_MOVEMENTLINE" primaryKey="M_MOVEMENTLINE_KEY">
+      <index name="EM_IDSD_MOVTLINE_CREATD_IDX" unique="false">
+        <index-column name="CREATED"/>
+      </index>
+    </table>
+  </database>

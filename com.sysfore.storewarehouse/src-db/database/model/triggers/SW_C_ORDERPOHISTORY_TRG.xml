@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_C_ORDERPOHISTORY_TRG">
+    <trigger name="SW_C_ORDERPOHISTORY_TRG" table="C_ORDER" fires="before" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[ v_count NUMBER:= 0;
+       
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+    
+  IF INSERTING OR UPDATING THEN  
+  
+   SELECT count(C_ORDERLINE.*) INTO v_count
+   FROM C_ORDER, C_ORDERLINE 
+   WHERE C_ORDERLINE.C_ORDER_ID = C_ORDER.C_ORDER_ID
+   AND C_ORDERLINE.C_ORDER_ID = :NEW.C_ORDER_ID
+   AND C_ORDER.ISSOTRX='N';
+   
+   IF ((v_count > 0) AND (:NEW.EM_SW_POSTATUS='CD')) THEN
+    PERFORM SW_POHISTORY(:NEW.C_ORDER_ID);
+   --ELSE
+     --NEW.EM_SW_POSTATUS := 'DR';
+   END IF;     
+  --RAISE NO_DATA_FOUND;
+  END IF;
+
+END SW_C_ORDERPOHISTORY_TRG
+]]></body>
+    </trigger>
+  </database>

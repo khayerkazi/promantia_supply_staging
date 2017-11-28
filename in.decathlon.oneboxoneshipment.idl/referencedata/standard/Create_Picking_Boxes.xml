@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IDL_Entities id="6D7DFF8F686A4A56B04AC26FB575BC72" identifier="Create Picking Boxes">
+    <id>6D7DFF8F686A4A56B04AC26FB575BC72</id>
+    <active>true</active>
+    <creationDate transient="true">2015-05-19T10:34:24.610Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2015-05-19T11:06:51.232Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Create Picking Boxes</name>
+    <description>This Class is going to be use full to Import the boxes under warehouse picking list</description>
+    <javaClassName>in.decathlon.oneboxoneshipment.idl.proc.CreateBoxesIdl</javaClassName>
+  </IDL_Entities>
+</ob:Openbravo>

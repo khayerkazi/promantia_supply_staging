@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2009 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+<SqlClass name="StoreApprovalData" package="com.sysfore.storewarehouse.ad_process">
+
+<!-- Select the valid products -->
+
+  <SqlMethod name="selectApproval" type="preparedStatement" return="multiple">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select distinct h.sw_srequisition_id,h.requisitionstatus,h.docstatus,h.processed,h.docaction,
+			h.updated,h.updatedby from sw_srequisition h,sw_sreqline l 
+			where h.sw_srequisition_id = l.sw_srequisition_id
+			and h.requisitionstatus = 'DR'
+			and h.processed = 'N'
+			and h.ad_org_id=? h.createdby='100'
+			]]>
+		</Sql>
+		 <Parameter name="ad_org_id"/>
+	</SqlMethod>  
+	
+	<SqlMethod name="updateForApproval" type="preparedStatement" connection="true" return="rowCount">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+				UPDATE sw_srequisition SET
+					requisitionstatus='AD',
+					docstatus='CO',
+					processed = 'Y',
+					docaction = 'CL',					
+					Updated=TO_DATE(now()),
+					UpdatedBY = ?					
+				WHERE sw_srequisition_id = ? 
+			]]>
+		</Sql>		
+		<Parameter name="updatedby"/>
+		<Parameter name="swSrequisitionId"/>		
+	</SqlMethod>
+	
+   <SqlMethod name="updateLines" type="preparedStatement" return="String">
+        <SqlMethodComment></SqlMethodComment>
+        <Sql>
+            <![CDATA[
+                SELECT sw_sreqline_update2(?,?,?,?,?) from Dual
+            ]]>
+        </Sql>
+        <Parameter name="qtyphysical"/>
+        <Parameter name="whname"/>
+        <Parameter name="reqdate"/>
+        <Parameter name="id"/>
+        <Parameter name="adUserId"/>
+  </SqlMethod>
+  
+  </SqlClass>

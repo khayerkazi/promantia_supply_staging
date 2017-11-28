@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=utf-8"></META>
+<TITLE>Identification</TITLE>
+<LINK rel="shortcut icon" href="../web/images/favicon.ico" type="image/x-icon"></LINK>
+<SCRIPT type="text/javascript">function onLoadDo() {
+  try {
+    if (parent.frameMenu) {
+      document.frmInforme.target = "_parent";
+    } else {
+      document.frmInforme.target = "_self";
+    }
+  } catch (e) {
+    document.frmInforme.target = "_self";
+  }
+
+  document.forms[0].submit();
+}</SCRIPT>
+</HEAD>
+<BODY onload="onLoadDo();" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<FORM name="frmInforme" action="../security/Login_FS.html" method="post" target="_self">
+  <H2>The login form is being loaded. If it doesn't succeed, press the button 
+    below.</H2>
+  <BR></BR>
+  <INPUT type="submit" value="Identificación" name="inpIdentificacion"></INPUT>
+</FORM>
+
+
+</BODY></HTML>

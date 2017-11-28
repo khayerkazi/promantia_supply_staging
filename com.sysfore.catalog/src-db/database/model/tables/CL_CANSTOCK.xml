@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+  <database name="TABLE CL_CANSTOCK">
+    <table name="CL_CANSTOCK" primaryKey="CL_CANSTOCK_KEY">
+      <column name="CL_CANSTOCK_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ITEM_CODE" primaryKey="false" required="false" type="VARCHAR" size="40" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CAC_QTY" primaryKey="false" required="false" type="VARCHAR" size="10" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CAR_QTY" primaryKey="false" required="false" type="VARCHAR" size="10" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CAC_NEXT_AVAILABLE_QTY" primaryKey="false" required="false" type="VARCHAR" size="10" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CAR_NEXT_AVAILABLE_QTY" primaryKey="false" required="false" type="VARCHAR" size="10" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CAC_PROMISED_DELIVERY_DATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CACNEXTPROMISEDDELIVERYDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CAR_PROMISED_DELIVERY_DATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="CARNEXTPROMISEDDELIVERYDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <index name="CL_CANSTOCK_ITEM" unique="false">
+        <index-column name="ITEM_CODE"/>
+      </index>
+    </table>
+  </database>

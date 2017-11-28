@@ -1,0 +1,30 @@
+.feedback-btn-icon-notSatisfied {
+  background-image: url('./../img/not_satisfied.png');
+}
+
+.feedback-btn-icon-satisfied {
+  background-image: url('./../img/satisfied.png');
+}
+
+.feedback-btn-icon-verysatisfied{
+  background-image: url('./../img/very_satisfied.png');
+}
+
+.feedback-btn-icon {
+  width: 100%;
+  height: 35px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: transparent;
+}
+
+div.feedback-dialog {
+  color: #333;
+  overflow: auto;
+  width: 560px;
+  background: #a3a3a3;
+  padding: 0px;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+}

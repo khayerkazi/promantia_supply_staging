@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IMSAP_VALIDATEDUPLICATEPO">
+    <function name="IMSAP_VALIDATEDUPLICATEPO" type="VARCHAR">
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[DECLARE
+  validateduplicatepo Record;
+  setcreatepo Record;
+  getcreatepo Record;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_flag boolean := FALSE;
+  v_validateflag NUMBER:=0;
+  v_createpo NUMBER:=0;
+  v_errormsg VARCHAR(2000) := '';
+  v_status_count NUMBER:=0;
+  v_count NUMBER:=0;
+  
+BEGIN
+update imsap_importduplicate_po gtd set errormsg = '';
+FOR validateduplicatepo IN 
+-- Selecting all rows from temp table
+(SELECT imsap_importduplicate_po_id, poreference, itemcode, 
+       orderedqty, confirmedqty, net_order_price, currency, suppliercode, 
+       cdd, edd, orderstatus, comments, validated, processing, processed, 
+       validateimport, errormsg, create_po,status_count FROM imsap_importduplicate_po WHERE validated='N' AND processed='N' 
+       AND createdby=user_id) LOOP
+-- checking required field for blank
+v_flag:=TRUE;
+IF (validateduplicatepo.poreference IS NULL OR TRIM(BOTH '' FROM validateduplicatepo.poreference) = '') THEN
+  v_missingErrorNotice := 'Purchasing Document is Blank, ';
+END IF;
+IF (validateduplicatepo.itemcode IS NULL OR TRIM(BOTH '' FROM validateduplicatepo.itemcode) = '') THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'Material is Blank, ';
+END IF;  
+IF (validateduplicatepo.itemcode IS NOT NULL) THEN
+   SELECT count(1) into v_count from m_product where name = validateduplicatepo.itemcode;
+   IF v_count = 0 THEN
+	v_missingErrorNotice := v_missingErrorNotice || 'Material does not exists, ';
+   END IF;	
+END IF;  
+IF ((validateduplicatepo.orderedqty IS NULL) OR (validateduplicatepo.orderedqty = 0)) THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'Purchase Quantity is Blank or Zero, ';
+END IF;
+IF (validateduplicatepo.confirmedqty IS NULL) THEN
+  v_missingErrorNotice :=  v_missingErrorNotice || 'Confirmed Quantity is Blank, ';
+END IF;
+IF ((validateduplicatepo.net_order_price IS NULL) OR (validateduplicatepo.net_order_price = 0)) THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'Net Order Price is Blank or zero, ';
+END IF;
+IF (validateduplicatepo.currency IS NULL OR TRIM(BOTH '' FROM validateduplicatepo.currency) = '') THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'Currency is Blank, ';
+END IF;
+IF (validateduplicatepo.suppliercode IS NULL OR TRIM(BOTH '' FROM validateduplicatepo.suppliercode) = '') THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'Supplier Code is Blank, ';
+END IF;
+IF (validateduplicatepo.suppliercode IS NOT NULL) THEN
+   SELECT count(1) into v_count from c_bpartner where em_cl_supplierno = validateduplicatepo.suppliercode;
+   IF v_count = 0 THEN
+	v_missingErrorNotice := v_missingErrorNotice || 'Supplier Code does not exists, ';
+   END IF;	
+END IF;
+IF (validateduplicatepo.cdd IS NULL) THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'CDD is Blank, ';
+END IF;
+IF (validateduplicatepo.edd IS NULL) THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'EDD is Blank, ';
+END IF;
+IF (validateduplicatepo.orderstatus IS NULL OR TRIM(BOTH ' ' FROM validateduplicatepo.orderstatus) = '') THEN
+  v_missingErrorNotice := v_missingErrorNotice || 'OB Status is Blank, ';
+END IF;
+--update errormsg field in temp table
+IF v_missingErrorNotice = '' THEN
+    UPDATE imsap_importduplicate_po SET errormsg = v_missingErrorNotice  
+    where imsap_importduplicate_po_id=validateduplicatepo.imsap_importduplicate_po_id;
+ELSE 
+    UPDATE imsap_importduplicate_po SET errormsg = errormsg || v_missingErrorNotice, validated= 'N' 
+    where imsap_importduplicate_po_id=validateduplicatepo.imsap_importduplicate_po_id;
+    v_validateflag:=1;   
+END IF; 
+ v_missingErrorNotice :='';
+ END LOOP; 
+--setting validation for success records
+ UPDATE imsap_importduplicate_po set validated = 'Y' where imsap_importduplicate_po_id in 
+ (select imsap_importduplicate_po_id from imsap_importduplicate_po where createdby=user_id and errormsg='' OR errormsg is null);
+
+IF ( v_validateflag=0 ) THEN   
+    v_flag :=TRUE; 
+		--find duplicates and set duplicate_po column
+		update imsap_importduplicate_po set duplicate_po='Y' where poreference IN (select a.poreference from (SELECT poreference,itemcode, count(1) 		   FROM imsap_importduplicate_po where createdby=user_id and validated='Y' AND processed='N' GROUP BY poreference,itemcode HAVING COUNT(*) > 1)a);
+			
+		--set create_po flag for those without duplicates
+		update imsap_importduplicate_po set create_po='Y' where imsap_importduplicate_po_id IN (SELECT imsap_importduplicate_po_id FROM     	       	imsap_importduplicate_po where createdby=user_id and validated='Y' AND duplicate_po='N' AND processed='N');
+
+		--set create_po flag for those with duplicates
+		FOR setcreatepo IN (select a.poreference , a.itemcode from (SELECT poreference,itemcode, count(1) FROM imsap_importduplicate_po 
+		where createdby=user_id and validated='Y' AND processed='N' GROUP BY poreference,itemcode HAVING COUNT(*) > 1 
+		order by poreference,itemcode)a) LOOP
+			FOR getcreatepo IN (select imsap_importduplicate_po_id, poreference, itemcode, orderstatus from imsap_importduplicate_po
+			where poreference=setcreatepo.poreference and itemcode=setcreatepo.itemcode and duplicate_po='Y' AND processed='N'
+			order by poreference,itemcode 
+			) LOOP
+				if (getcreatepo.orderstatus='N') then
+					v_status_count = 1;
+				 elsif (getcreatepo.orderstatus='U') then
+					v_status_count = 2;
+				elsif (getcreatepo.orderstatus='V') then
+					v_status_count = 3;
+				elsif (getcreatepo.orderstatus='S') then
+					v_status_count = 4;
+				elsif (getcreatepo.orderstatus='D') then
+					v_status_count = 5;
+				elsif (getcreatepo.orderstatus='C') then
+					v_status_count = 6;
+				end if;		
+				update imsap_importduplicate_po set status_count=v_status_count 
+				where imsap_importduplicate_po_id=getcreatepo.imsap_importduplicate_po_id and duplicate_po='Y';
+				v_status_count:=0;
+			END LOOP;
+			update imsap_importduplicate_po set create_po='Y' where status_count IN (select max(status_count) from imsap_importduplicate_po 
+			where poreference=setcreatepo.poreference and itemcode=setcreatepo.itemcode and duplicate_po='Y' AND processed='N' 
+			limit 1) 
+			AND poreference=setcreatepo.poreference and itemcode=setcreatepo.itemcode and duplicate_po='Y' AND processed='N';
+		END LOOP;
+ELSE
+    v_flag :=FALSE; 
+END IF; 
+--setting the flag processed for duplicates to remove from list when create_po='N'
+IF (v_flag = TRUE) THEN
+ UPDATE imsap_importduplicate_po set processed = 'Y' where create_po='N' AND validated='Y';
+END IF; 
+RETURN v_flag;
+END IMSAP_VALIDATEDUPLICATEPO
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2009 Openbravo SLU 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+
+
+
+<SqlClass name="ProductBrandData" package="org.openbravo.decathlon.upgrade.erpCommon.info">
+   <SqlClassComment></SqlClassComment>
+   <SqlMethod name="select" type="preparedStatement" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql> <![CDATA[
+      SELECT * FROM ( SELECT '0' AS RN1, A.* FROM (
+        SELECT p.M_Product_ID, p.Discontinued, p.Value, p.Name, REPLACE(p.Name, '''', CHR(92) || '''') AS NAME_HIDDEN, 
+        p.C_UOM_ID, br.name as BRAND, m.name as MODEL, c.name as COLOR,p.em_cl_size as SIZE,
+        p.M_Product_ID || '#' || p.Name as RowKey
+        FROM M_Product p, CL_Model m, CL_Brand br, cl_color c
+        WHERE p.EM_CL_Model_ID = m.CL_Model_ID
+        AND p.EM_CL_Color_ID = c.CL_Color_ID
+        AND m.CL_Brand_ID = br.CL_Brand_ID
+        AND p.AD_Client_ID IN ('1') 
+        AND p.AD_Org_ID IN ('1')
+		    ORDER BY BRAND 
+		) A ) B
+      WHERE 1=1
+      ]]></Sql>
+        <Field name="position" value="count"/>
+        <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+        <Parameter name="key" ignoreValue="%" optional="true" after="WHERE "><![CDATA[ UPPER(p.Value) LIKE UPPER(?) AND ]]></Parameter>
+        <Parameter name="name" ignoreValue="%" optional="true" after="WHERE "><![CDATA[ UPPER(p.Name) LIKE UPPER(?) AND ]]></Parameter>
+        <Parameter name="brand" optional="true" after="WHERE "><![CDATA[ m.CL_Brand_ID = ? AND ]]></Parameter>
+        <Parameter name="adUserClient" type="replace" optional="true" after="p.AD_Client_ID IN (" text="'1'"/>
+        <Parameter name="adUserOrg" type="replace" optional="true" after="p.AD_Org_ID IN (" text="'1'"/> 
+        <Parameter name="orderBy" type="replace" optional="true" after="ORDER BY " text="BRAND" />
+        <Parameter name="pgLimit" type="argument" optional="true" after="ORDER BY BRAND"><![CDATA[LIMIT ]]></Parameter>
+        <Parameter name="oraLimit1" type="argument" optional="true" after=") A "><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+        <Parameter name="oraLimit2" type="argument" optional="true" after="WHERE 1=1"><![CDATA[AND RN1 BETWEEN ]]></Parameter>
+   </SqlMethod>
+   <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+   </SqlMethod>
+
+   <SqlMethod name="countRows" type="preparedStatement" return="String">
+      <Sql> <![CDATA[
+        SELECT count(*) as value FROM ( SELECT '0' AS RN1, B.* FROM ( 
+        SELECT 1 FROM M_Product p, CL_Model m, CL_Brand br
+        WHERE p.EM_CL_Model_ID = m.CL_Model_ID
+        AND m.CL_Brand_ID = br.CL_Brand_ID
+        AND p.AD_Client_ID IN ('1')
+        AND p.AD_Org_ID IN ('1')
+        AND 1=1
+        ) B
+        ) A 
+      ]]></Sql>
+        <Field name="position" value="count"/>
+        <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+        <Parameter name="key" ignoreValue="%" optional="true" after="WHERE "><![CDATA[ UPPER(p.Value) LIKE UPPER(?) AND ]]></Parameter>
+        <Parameter name="name" ignoreValue="%" optional="true" after="WHERE "><![CDATA[ UPPER(p.Name) LIKE UPPER(?) AND ]]></Parameter>
+        <Parameter name="brand" optional="true" after="WHERE "><![CDATA[ m.CL_Brand_ID = ? AND ]]></Parameter>
+        <Parameter name="adUserClient" type="replace" optional="true" after="p.AD_Client_ID IN (" text="'1'"/>
+        <Parameter name="adUserOrg" type="replace" optional="true" after="p.AD_Org_ID IN (" text="'1'"/>
+        <Parameter name="pgLimit" type="argument" optional="true" after="AND 1=1"><![CDATA[LIMIT ]]></Parameter>
+        <Parameter name="oraLimit1" type="argument" optional="true" after=") B"><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+        <Parameter name="oraLimit2" type="argument" optional="true" after=") A "><![CDATA[WHERE RN1 BETWEEN ]]></Parameter>
+   </SqlMethod>
+
+ </SqlClass>

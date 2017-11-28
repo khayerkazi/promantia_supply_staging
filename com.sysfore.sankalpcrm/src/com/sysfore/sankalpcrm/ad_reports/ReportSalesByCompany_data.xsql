@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved. SELECT CO.DOCUMENTNO,CO.DATEORDERED,COL.QTYORDERED
+      FROM C_ORDERLINE COL LEFT OUTER JOIN C_ORDER CO
+      ON COL.C_ORDER_ID = CO.C_ORDER_ID
+      WHERE CO.ISSOTRX='Y'
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+TO_CHAR(o.dateordered,'HH:MM:SS')
+-->
+
+
+<SqlClass name="ReportSalesByCompanyData" package="com.sysfore.sankalpcrm.ad_reports">
+  <SqlClassComment></SqlClassComment>
+
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[ select rc_company.created as companycreated, 
+			 rc_company.CompanyName as organame,
+			RC_Natbusi.name as natofbusi, 
+			B.nomembers as noofmembers, rc_compcontact.email as email, 
+			RC_CompContact.Firstname as firstname, RC_CompContact.Lastname as lastname, 
+		       (coalesce(c_location.address1,'add1') ||'-'||coalesce(c_location.address2, 'add2') ||'-'||coalesce(c_location.em_rc_address3,'aadr3')
+                         ||'-'||coalesce(c_location.em_rc_address4,'aadr4')
+                        ||'-'||coalesce(c_location.city, 'bangalore')||'-'||coalesce(c_location.postal,'560067')) as Organizationaddress,
+                        coalesce(c_location.city, 'bangalore') as city,
+                        coalesce(c_region.name,'karnataka') as state,
+                        coalesce(c_location.postal,'560067') as postal,
+                         RC_CompContact.Mobile as phone,
+                        round(sum(c_order.grandtotal),2) as billamount,sum(A.bill_qty) as billqty,
+                        count(c_order.*)  as noofbills
+			from  c_bpartner inner join rc_company on C_Bpartner.em_rc_company_id= rc_company.rc_company_id
+			inner join C_Order on C_Order.C_Bpartner_Id= c_bpartner.c_bpartner_id
+			inner join RC_Natbusi on rc_company.RC_Natbusi_ID= RC_Natbusi.RC_Natbusi_ID
+			inner join c_location on rc_company.c_location_id = c_location.c_location_id 
+			inner join c_region on c_region.c_region_id=c_location.C_region_id
+			inner join RC_CompContact on RC_CompContact.rc_company_id=rc_company.rc_company_id
+			inner join (select c_orderline.c_order_id,sum(c_orderline.qtyordered) as bill_qty from c_orderline inner join c_order 
+			on c_orderline.c_order_id=c_order.c_order_id group by c_orderline.c_order_id) A on A.C_Order_Id = C_Order.C_Order_id
+			inner join (Select rc_company.rc_company_id,count(*) as nomembers from C_Bpartner inner join rc_company on C_Bpartner.em_rc_company_id= rc_company.rc_company_id 
+		   
+			inner join RC_Natbusi on rc_company.RC_Natbusi_ID= RC_Natbusi.RC_Natbusi_ID
+			inner join c_location on rc_company.c_location_id = c_location.c_location_id 
+			inner join c_region on c_region.c_region_id=c_location.C_region_id
+			inner join RC_CompContact on RC_CompContact.rc_company_id=rc_company.rc_company_id
+			Where C_Bpartner.EM_RC_Status = 'A' group by rc_company.rc_company_id
+			) B on B.rc_company_id = rc_company.rc_company_id
+			Where 1=1 
+                        and C_Bpartner.EM_RC_Status = 'A'
+			and C_Order.issotrx='Y'
+			group by rc_company.created, rc_company.CompanyName, RC_Natbusi.name, 
+			 c_location.address1, c_location.address2, 
+			c_location.em_rc_address3, c_location.em_rc_address4, c_location.city, 
+			c_location.postal, c_region.name, rc_compcontact.email,  
+			RC_CompContact.Firstname,RC_CompContact.Lastname, RC_CompContact.Mobile, rc_company.rc_company_id, B.nomembers order by billamount DESC LIMIT TO_NUMBER(coalesce(?,'0'))]]></Sql>
+
+ 
+  <Parameter name="dateFrom" optional="true" after="1=1"><![CDATA[AND c_order.dateordered >= to_date(?)]]></Parameter>
+  <Parameter name="dateTo" optional="true" after="1=1"><![CDATA[AND c_order.dateordered < to_date(?)]]></Parameter>
+  <Parameter name="org" optional="true" after="1=1"><![CDATA[AND c_order.ad_org_id = ?]]></Parameter>
+  <Parameter name="state" optional="true" after="1=1"><![CDATA[AND c_region.c_region_id = ?]]></Parameter>
+  <Parameter name="topXrecords"/>
+</SqlMethod>
+
+ <SqlMethod name="select1" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[select rc_company.created as companycreated, 
+			 rc_company.CompanyName as organame,
+			RC_Natbusi.name as natofbusi, 
+			B.nomembers as noofmembers, rc_compcontact.email as email, 
+			RC_CompContact.Firstname as firstname, RC_CompContact.Lastname as lastname, 
+		       (coalesce(c_location.address1,'add1') ||'-'||coalesce(c_location.address2, 'add2') ||'-'||coalesce(c_location.em_rc_address3,'aadr3')
+                         ||'-'||coalesce(c_location.em_rc_address4,'aadr4')
+                        ||'-'||coalesce(c_location.city, 'bangalore')||'-'||coalesce(c_location.postal,'560067')) as Organizationaddress,
+                        coalesce(c_location.city, 'bangalore') as city,
+                        coalesce(c_region.name,'karnataka') as state,
+                        coalesce(c_location.postal,'560067') as postal,
+                         RC_CompContact.Mobile as phone,
+                        round(sum(c_order.grandtotal),2) as billamount,sum(A.bill_qty) as billqty,
+                        count(c_order.*)  as noofbills
+			from  c_bpartner inner join rc_company on C_Bpartner.em_rc_company_id= rc_company.rc_company_id
+			inner join C_Order on C_Order.C_Bpartner_Id= c_bpartner.c_bpartner_id
+			inner join RC_Natbusi on rc_company.RC_Natbusi_ID= RC_Natbusi.RC_Natbusi_ID
+			inner join c_location on rc_company.c_location_id = c_location.c_location_id 
+			inner join c_region on c_region.c_region_id=c_location.C_region_id
+			inner join RC_CompContact on RC_CompContact.rc_company_id=rc_company.rc_company_id
+			inner join (select c_orderline.c_order_id,sum(c_orderline.qtyordered) as bill_qty from c_orderline inner join c_order 
+			on c_orderline.c_order_id=c_order.c_order_id group by c_orderline.c_order_id) A on A.C_Order_Id = C_Order.C_Order_id
+			inner join (Select rc_company.rc_company_id,count(*) as nomembers from C_Bpartner inner join rc_company on C_Bpartner.em_rc_company_id= rc_company.rc_company_id 
+		   
+			inner join RC_Natbusi on rc_company.RC_Natbusi_ID= RC_Natbusi.RC_Natbusi_ID
+			inner join c_location on rc_company.c_location_id = c_location.c_location_id 
+			inner join c_region on c_region.c_region_id=c_location.C_region_id
+			inner join RC_CompContact on RC_CompContact.rc_company_id=rc_company.rc_company_id
+			Where C_Bpartner.EM_RC_Status = 'A' group by rc_company.rc_company_id
+			) B on B.rc_company_id = rc_company.rc_company_id
+			Where 1=1 
+                        and C_Bpartner.EM_RC_Status = 'A'
+			and C_Order.issotrx='Y'
+			group by rc_company.created, rc_company.CompanyName, RC_Natbusi.name, 
+			 c_location.address1, c_location.address2, 
+			c_location.em_rc_address3, c_location.em_rc_address4, c_location.city, 
+			c_location.postal, c_region.name, rc_compcontact.email,  
+			RC_CompContact.Firstname,RC_CompContact.Lastname, RC_CompContact.Mobile, rc_company.rc_company_id, B.nomembers order by billamount DESC LIMIT TO_NUMBER(coalesce(?,'0'))]]></Sql>
+
+  <!--<Parameter name="dateFrom" optional="true" after="and 1=1"><![CDATA[AND c_order.dateordered >= to_date(?)]]></Parameter>
+  <Parameter name="dateTo" optional="true" after="and 1=1"><![CDATA[AND c_order.dateordered < to_date(?)]]></Parameter>
+  <Parameter name="org" optional="true" after="and 1=1"><![CDATA[AND ad_org.ad_org_id = ?]]></Parameter>
+  <Parameter name="state" optional="true" after="and 1=1"><![CDATA[AND c_region.c_region_id = ?]]></Parameter>-->
+ 
+  <Parameter name="dateFrom" optional="true" after="1=1"><![CDATA[AND c_order.dateordered >= to_date(?)]]></Parameter>
+  <Parameter name="dateTo" optional="true" after="1=1"><![CDATA[AND c_order.dateordered < to_date(?)]]></Parameter>
+  <Parameter name="state" optional="true" after="1=1"><![CDATA[AND c_region.c_region_id = ?]]></Parameter>
+  <Parameter name="topXrecords"/>
+</SqlMethod>
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+
+
+ </SqlClass>
+

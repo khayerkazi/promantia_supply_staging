@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER DS_C_ORDERLINE_LINEAMT_TRG">
+    <trigger name="DS_C_ORDERLINE_LINEAMT_TRG" table="C_ORDERLINE" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+
+v_lineamt NUMBER;
+v_priceactual NUMBER;
+v_unitqty NUMBER;
+v_lotprice NUMBER;
+v_lotqty NUMBER;
+v_boxprice NUMBER;
+v_boxqty NUMBER;
+v_octroi NUMBER:=0;
+v_margin NUMBER:=0;
+v_doctype_id varchar(32);
+v_isEcom NUMBER:=0;
+pos_doctype_id varchar(32);
+is_applylbt NUMBER:=0;
+v_isB2B NUMBER:=0;
+v_lbtrate NUMBER:=0;
+
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+    
+IF INSERTING OR UPDATING THEN
+
+select c_doctype_id into pos_doctype_id from c_doctype where name like 'POS Order';
+select c_doctype_id into v_doctype_id from c_order where c_order_id=:new.c_order_id;
+ 
+select count(documentno) into v_isEcom from c_order where c_order_id=:new.c_order_id and 
+(documentno ilike '*B2B*%' or documentno ilike '*ECOM*%');
+
+if (v_isEcom>0 and v_doctype_id<>pos_doctype_id) then
+v_lineamt=coalesce((:NEW.gross_unit_price*:NEW.em_sw_confirmedqty)+
+(:NEW.em_ds_lotprice*:NEW.em_ds_lotqty)+(:NEW.em_ds_boxprice*:NEW.em_ds_boxqty),0);
+else
+v_lineamt=:NEW.line_gross_amount;
+end if;
+
+
+
+select count(ad_org_id) into is_applylbt from ad_org where ad_org_id=:NEW.ad_org_id and em_dsidef_islbtapply='Y';
+IF (is_applylbt >0 ) THEN
+--	SELECT m.octroi into v_octroi 
+--	FROM m_productprice pp, cl_model m, m_product p where 
+--	m.cl_model_id=p.em_cl_model_id and pp.m_product_id=p.m_product_id and
+--      pp.m_product_id=:NEW.m_product_id;
+
+select pp.em_cl_lbtrate into v_lbtrate from m_productprice pp where pp.m_product_id=:NEW.m_product_id 
+and ad_org_id = :NEW.ad_org_id;
+
+--SELECT mrp AND OCTROI
+v_margin=round(v_lineamt-sum(coalesce(:NEW.em_ds_taxamount,0))-
+    (sum(coalesce(:NEW.em_ds_cessionprice*((coalesce((:NEW.em_ds_unitqty),0))+(coalesce((:NEW.em_ds_lotqty),0))+
+    (coalesce((:NEW.em_ds_boxqty),0))),0)))-
+--((coalesce(v_octroi,0)/100)*(sum(coalesce((:NEW.em_ds_unitqty),0))
+((coalesce(v_lbtrate,0)/100)*(sum(coalesce((:NEW.em_ds_unitqty),0))
++sum(coalesce((:NEW.em_ds_lotqty),0))+ sum(coalesce((:NEW.em_ds_boxqty),0)))
+*(to_number(coalesce(:NEW.em_ds_cessionprice,0)))
+),2);
+
+
+ELSE IF (v_isEcom>0 and v_doctype_id<>pos_doctype_id ) THEN
+
+v_margin=round(v_lineamt-sum(coalesce(:NEW.em_ds_taxamount,0))-
+    (sum(coalesce(:NEW.em_ds_cessionprice*(coalesce((:NEW.em_sw_confirmedqty),0)),0))),2);
+    --RAISE EXCEPTION 'Inside ECOM Margin--> %', v_margin;
+
+
+ELSE IF (v_isEcom<1) THEN
+
+v_margin=round(v_lineamt-sum(coalesce(:NEW.em_ds_taxamount,0))-
+    (sum(coalesce(:NEW.em_ds_cessionprice*((coalesce((:NEW.em_ds_unitqty),0))
+    +(coalesce((:NEW.em_ds_lotqty),0))+(coalesce((:NEW.em_ds_boxqty),0))),0))),2);
+--END;
+--RAISE EXCEPTION 'Inside stores Margin--> %', v_margin;
+END IF;
+END IF;
+END IF;
+
+--SportsXS changes : count b2b records having sports XS customers
+select count(documentno) into v_isB2B from c_order where c_order_id=:new.c_order_id and 
+(documentno ilike 'B2B%');
+IF (v_isB2B>0 ) THEN
+	--v_lineamt=NEW.em_ds_linenetamt;
+
+	:NEW.gross_unit_price=:NEW.priceactual+:NEW.taxbaseamt;
+	:NEW.em_ds_taxamount=:NEW.taxbaseamt*:NEW.em_sw_confirmedqty;
+
+	v_margin=0;
+	v_lineamt=:NEW.gross_unit_price*:NEW.em_sw_confirmedqty;
+
+END IF; 
+---------
+
+
+:NEW.em_ds_linenetamt=v_lineamt;
+
+:NEW.em_ds_marginamt=v_margin;
+
+RETURN NEW;
+END IF;
+END DS_C_ORDERLINE_LINEAMT_TRG
+]]></body>
+    </trigger>
+  </database>

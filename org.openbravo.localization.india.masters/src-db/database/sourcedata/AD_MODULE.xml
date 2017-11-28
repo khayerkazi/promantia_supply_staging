@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<data>
+<!--FF80818136C8C9060136C8D01B540007--><AD_MODULE>
+<!--FF80818136C8C9060136C8D01B540007-->  <AD_MODULE_ID><![CDATA[FF80818136C8C9060136C8D01B540007]]></AD_MODULE_ID>
+<!--FF80818136C8C9060136C8D01B540007-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--FF80818136C8C9060136C8D01B540007-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--FF80818136C8C9060136C8D01B540007-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--FF80818136C8C9060136C8D01B540007-->  <NAME><![CDATA[India Localization - Masters ]]></NAME>
+<!--FF80818136C8C9060136C8D01B540007-->  <VERSION><![CDATA[1.3.2]]></VERSION>
+<!--FF80818136C8C9060136C8D01B540007-->  <DESCRIPTION><![CDATA[India Master Data]]></DESCRIPTION>
+<!--FF80818136C8C9060136C8D01B540007-->  <HELP><![CDATA[The Masters module as the name suggests provides basic data and functionality that is required for various India Localization features.
+This module is a part of the "Professional" edition of India Localization Pack.
+This module allows to capture:
+1. Financial data for Indian Taxation purpose, as additional fields are added to the Organization, Business Partner and Products windows.
+2. the Excise Category : Based on the type of products, Indian Government has defined approximately 100 "Chapters" and their "Subheadings" related to Excise.
+As per Indian Government Taxation standards, if a client or an organization is into manufacturing, then based on the type of the parts, they can be classified under a particular Chapter and Subheading.
+User can use "Excise Category" to define the Chapters and Subheading.
+3. the ST Code List : Once the Service Tax reference data is applied, this window displays the list of Service Tax Codes used in Indian Tax Calculations.
+User can also add new Service Tax Code to the existing list.
+4. the Commissionerate: For each zone in a state, a Commissionerate is defined. The main purpose of Commissionerate is to ensure that all the grievances and queries regarding the tax payments are addressed.
+The tax payments have to be made under this Commissionerate. So based on the Organization's location, a Commissionerate will be defined. This window allows the user to set up a Commissionerate for the organization.]]></HELP>
+<!--FF80818136C8C9060136C8D01B540007-->  <URL><![CDATA[http://centralrepository.openbravo.com/heartbeat-server/org.openbravo.forge.ui/sso/ForgeProjectDetail?projectId=1636]]></URL>
+<!--FF80818136C8C9060136C8D01B540007-->  <TYPE><![CDATA[M]]></TYPE>
+<!--FF80818136C8C9060136C8D01B540007-->  <LICENSE><![CDATA[Licensed under the Openbravo Commercial License version 1.0
+You may obtain a copy of the License at http://www.openbravo.com/legal/obcl.html or in the legal folder of this module distribution.]]></LICENSE>
+<!--FF80818136C8C9060136C8D01B540007-->  <JAVAPACKAGE><![CDATA[org.openbravo.localization.india.masters]]></JAVAPACKAGE>
+<!--FF80818136C8C9060136C8D01B540007-->  <LICENSETYPE><![CDATA[OBCL]]></LICENSETYPE>
+<!--FF80818136C8C9060136C8D01B540007-->  <AUTHOR><![CDATA[Promantia Global Consulting LLP]]></AUTHOR>
+<!--FF80818136C8C9060136C8D01B540007-->  <ISTRANSLATIONREQUIRED><![CDATA[Y]]></ISTRANSLATIONREQUIRED>
+<!--FF80818136C8C9060136C8D01B540007-->  <AD_LANGUAGE><![CDATA[en_US]]></AD_LANGUAGE>
+<!--FF80818136C8C9060136C8D01B540007-->  <HASCHARTOFACCOUNTS><![CDATA[N]]></HASCHARTOFACCOUNTS>
+<!--FF80818136C8C9060136C8D01B540007-->  <ISTRANSLATIONMODULE><![CDATA[N]]></ISTRANSLATIONMODULE>
+<!--FF80818136C8C9060136C8D01B540007-->  <HASREFERENCEDATA><![CDATA[N]]></HASREFERENCEDATA>
+<!--FF80818136C8C9060136C8D01B540007-->  <ISCOMMERCIAL><![CDATA[Y]]></ISCOMMERCIAL>
+<!--FF80818136C8C9060136C8D01B540007-->  <COMMERCIAL_TIER><![CDATA[1]]></COMMERCIAL_TIER>
+<!--FF80818136C8C9060136C8D01B540007-->  <ISTRIALALLOWED><![CDATA[N]]></ISTRIALALLOWED>
+<!--FF80818136C8C9060136C8D01B540007--></AD_MODULE>
+
+</data>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_TRANSACTION">
+    <table name="M_TRANSACTION" primaryKey="M_TRANSACTION_KEY">
+      <column name="EM_SW_SREQLINE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_LOCATORTO_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_BEFOREQTY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_AFTERQTY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_MOVEMENTTYPE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_DOCUMENTNO" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <index name="EM_SW_TRANSACTION_ORG_IDX" unique="false">
+        <index-column name="AD_CLIENT_ID"/>
+        <index-column name="AD_ORG_ID"/>
+        <index-column name="M_LOCATOR_ID"/>
+      </index>
+      <index name="EM_SW_TRANSSACTION_LOC_IDX" unique="false">
+        <index-column name="M_PRODUCT_ID"/>
+        <index-column name="M_LOCATOR_ID"/>
+      </index>
+    </table>
+  </database>

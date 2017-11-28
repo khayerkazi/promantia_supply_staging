@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADSequence id="6A272401E35D46018418E90A2951B2A1" identifier="Company Accounting">
+    <id>6A272401E35D46018418E90A2951B2A1</id>
+    <active>true</active>
+    <creationDate transient="true">2014-01-07T18:45:45.578Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-01-22T10:35:03.398Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Company Accounting</name>
+    <description>Company Accounting</description>
+    <valueFormat xsi:nil="true"/>
+    <autoNumbering>true</autoNumbering>
+    <incrementBy>1</incrementBy>
+    <startingNo>1000000</startingNo>
+    <nextAssignedNumber>1000000</nextAssignedNumber>
+    <currentNextSystem>100</currentNextSystem>
+    <usedForRecordID>false</usedForRecordID>
+    <prefix xsi:nil="true"/>
+    <suffix xsi:nil="true"/>
+    <restartSequenceEveryYear>false</restartSequenceEveryYear>
+  </ADSequence>
+</ob:Openbravo>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IBDREP_GET_QTY_ON_ORDER">
+    <function name="IBDREP_GET_QTY_ON_ORDER" type="NUMERIC">
+      <parameter name="p_product_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_result NUMBER:=1;
+ 
+BEGIN --BODY
+ select sum(ac) into v_result from (select case when o.em_sw_po_reference is null then sum(ol.qtyordered-cast(coalesce(ol.em_sw_recqty,'0') as integer)) 
+ else sum(ol.em_sw_confirmedqty-cast(coalesce(ol.em_sw_recqty,'0') as integer)) end as ac 
+ from c_orderline ol
+ join c_order o on o.c_order_id = ol.c_order_id
+ join c_doctype cd on cd.c_doctype_id=o.c_doctype_id
+ where  o.issotrx = 'N' and o.docstatus not in ('DR','VO','CL') and o.em_sw_isauto_order='Y' and ol.ad_org_id = p_org_id and ol.m_product_id=p_product_id and cd.isreturn='N'
+ group by  o.em_sw_po_reference) a;
+
+
+ 
+ RETURN v_result;
+END IBDREP_GET_QTY_ON_ORDER
+]]></body>
+    </function>
+  </database>

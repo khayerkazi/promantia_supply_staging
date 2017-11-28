@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+  <database name="TABLE OBWSHIP_SHIPPING_DETAILS">
+    <table name="OBWSHIP_SHIPPING_DETAILS" primaryKey="OBWSHIP_SHIPPING_DETAILS_KEY">
+      <column name="OBWSHIP_SHIPPING_DETAILS_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="OBWSHIP_SHIPPING_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="M_INOUT_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="AD_CLIENT" name="OBWSHIP_SHIPPING_DET_CLIENT">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="M_INOUT" name="OBWSHIP_SHIPPING_DET_INOUT">
+        <reference local="M_INOUT_ID" foreign="M_INOUT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="OBWSHIP_SHIPPING_DET_ORG">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="OBWSHIP_SHIPPING" name="OBWSHIP_SHIPPING_DET_SHIP">
+        <reference local="OBWSHIP_SHIPPING_ID" foreign="OBWSHIP_SHIPPING_ID"/>
+      </foreign-key>
+      <index name="OBWSHIP_SHIPPING_DET_INOUT_IDX" unique="false">
+        <index-column name="M_INOUT_ID"/>
+      </index>
+      <check name="OBWSHIP_SHIPPING_DET_ISACTIVE"><![CDATA[ISACTIVE IN ('Y', 'N')]]></check>
+    </table>
+  </database>

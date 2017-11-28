@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE OBWPL_PICKINGLIST">
+    <table name="OBWPL_PICKINGLIST" primaryKey="OBWPL_PICKINGLIST_KEY">
+      <column name="EM_SW_STATUS" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

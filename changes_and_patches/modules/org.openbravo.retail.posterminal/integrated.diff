@@ -1,0 +1,737 @@
+--- a/dependantModules/org.openbravo.retail.posterminal/src-db/database/sourcedata/AD_PREFERENCE.xml	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src-db/database/sourcedata/AD_PREFERENCE.xml	Tue Mar 31 11:46:32 2015 +0530
+@@ -1,5 +1,16 @@
+ <?xml version='1.0' encoding='UTF-8'?>
+ <data>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2--><AD_PREFERENCE>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <AD_PREFERENCE_ID><![CDATA[013CC19F4F8240DBA6B9CC1EA52005D2]]></AD_PREFERENCE_ID>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <VALUE><![CDATA[N]]></VALUE>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <PROPERTY><![CDATA[OBPOS_HideProductImagesInSearchAndBrowse]]></PROPERTY>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <ISPROPERTYLIST><![CDATA[Y]]></ISPROPERTYLIST>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2-->  <AD_MODULE_ID><![CDATA[FF808181326CC34901326D53DBCF0018]]></AD_MODULE_ID>
++<!--013CC19F4F8240DBA6B9CC1EA52005D2--></AD_PREFERENCE>
++
+ <!--04209F1A94D044C1969BA3C22CC9C7CF--><AD_PREFERENCE>
+ <!--04209F1A94D044C1969BA3C22CC9C7CF-->  <AD_PREFERENCE_ID><![CDATA[04209F1A94D044C1969BA3C22CC9C7CF]]></AD_PREFERENCE_ID>
+ <!--04209F1A94D044C1969BA3C22CC9C7CF-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -176,6 +187,17 @@
+ <!--4E24580021EE4D7DAE9C94A17ED4A917-->  <AD_MODULE_ID><![CDATA[FF808181326CC34901326D53DBCF0018]]></AD_MODULE_ID>
+ <!--4E24580021EE4D7DAE9C94A17ED4A917--></AD_PREFERENCE>
+ 
++<!--534EE20B1ACE4E3999838F0C873CDE83--><AD_PREFERENCE>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <AD_PREFERENCE_ID><![CDATA[534EE20B1ACE4E3999838F0C873CDE83]]></AD_PREFERENCE_ID>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <VALUE><![CDATA[N]]></VALUE>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <PROPERTY><![CDATA[OBPOS_HideProductCharacteristics]]></PROPERTY>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <ISPROPERTYLIST><![CDATA[Y]]></ISPROPERTYLIST>
++<!--534EE20B1ACE4E3999838F0C873CDE83-->  <AD_MODULE_ID><![CDATA[FF808181326CC34901326D53DBCF0018]]></AD_MODULE_ID>
++<!--534EE20B1ACE4E3999838F0C873CDE83--></AD_PREFERENCE>
++
+ <!--551621C5C1774DBB96DF89E52C8D385A--><AD_PREFERENCE>
+ <!--551621C5C1774DBB96DF89E52C8D385A-->  <AD_PREFERENCE_ID><![CDATA[551621C5C1774DBB96DF89E52C8D385A]]></AD_PREFERENCE_ID>
+ <!--551621C5C1774DBB96DF89E52C8D385A-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src-db/database/sourcedata/AD_REF_LIST.xml
+--- a/dependantModules/org.openbravo.retail.posterminal/src-db/database/sourcedata/AD_REF_LIST.xml	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src-db/database/sourcedata/AD_REF_LIST.xml	Tue Mar 31 11:46:32 2015 +0530
+@@ -702,6 +702,18 @@
+ <!--C91C1DB973704216B4D6948FE124EC7C-->  <AD_MODULE_ID><![CDATA[FF808181326CC34901326D53DBCF0018]]></AD_MODULE_ID>
+ <!--C91C1DB973704216B4D6948FE124EC7C--></AD_REF_LIST>
+ 
++<!--C91D45BFBBEE486F996CC6FCAAA78D38--><AD_REF_LIST>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <AD_REF_LIST_ID><![CDATA[C91D45BFBBEE486F996CC6FCAAA78D38]]></AD_REF_LIST_ID>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <VALUE><![CDATA[OBPOS_HideProductCharacteristics]]></VALUE>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <NAME><![CDATA[Hide Product Characteristics from search tab]]></NAME>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <DESCRIPTION><![CDATA[If customer is not using product characteristics, this preference allow to hide filters based on characteristics, giving to the customer more space to show product details]]></DESCRIPTION>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38-->  <AD_MODULE_ID><![CDATA[FF808181326CC34901326D53DBCF0018]]></AD_MODULE_ID>
++<!--C91D45BFBBEE486F996CC6FCAAA78D38--></AD_REF_LIST>
++
+ <!--CE0B6F39F4C74D0E864D77D7D827D573--><AD_REF_LIST>
+ <!--CE0B6F39F4C74D0E864D77D7D827D573-->  <AD_REF_LIST_ID><![CDATA[CE0B6F39F4C74D0E864D77D7D827D573]]></AD_REF_LIST_ID>
+ <!--CE0B6F39F4C74D0E864D77D7D827D573-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -892,6 +904,18 @@
+ <!--E99D946D06DB4600BC2CAF9B9389BF9D-->  <AD_MODULE_ID><![CDATA[FF808181326CC34901326D53DBCF0018]]></AD_MODULE_ID>
+ <!--E99D946D06DB4600BC2CAF9B9389BF9D--></AD_REF_LIST>
+ 
++<!--ECB457E872EF4912AB31DEBE1EB29638--><AD_REF_LIST>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <AD_REF_LIST_ID><![CDATA[ECB457E872EF4912AB31DEBE1EB29638]]></AD_REF_LIST_ID>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <VALUE><![CDATA[OBPOS_HideProductImagesInSearchAndBrowse]]></VALUE>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <NAME><![CDATA[Hide Product Images in search and browse tabs]]></NAME>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <DESCRIPTION><![CDATA[If customer is not using product images, this preference will hide default image allowing to give more space to the product information]]></DESCRIPTION>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
++<!--ECB457E872EF4912AB31DEBE1EB29638-->  <AD_MODULE_ID><![CDATA[FF808181326CC34901326D53DBCF0018]]></AD_MODULE_ID>
++<!--ECB457E872EF4912AB31DEBE1EB29638--></AD_REF_LIST>
++
+ <!--F0583BBD061544CE864C58A2EEE3BA9D--><AD_REF_LIST>
+ <!--F0583BBD061544CE864C58A2EEE3BA9D-->  <AD_REF_LIST_ID><![CDATA[F0583BBD061544CE864C58A2EEE3BA9D]]></AD_REF_LIST_ID>
+ <!--F0583BBD061544CE864C58A2EEE3BA9D-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OBPOSComponentProvider.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OBPOSComponentProvider.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OBPOSComponentProvider.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -119,6 +119,7 @@
+         "main",
+         // Web POS window
+         "utils/cashUpReportUtils",
++        "utils/cashManagementUtils",
+         "components/keypadcoins",
+         "data/dataordersave",
+         "data/dataordertaxes",
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OrderLoader.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OrderLoader.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OrderLoader.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -836,7 +836,8 @@
+ 
+           OBCriteria<StockProposed> stockProposed = OBDal.getInstance().createCriteria(
+               StockProposed.class);
+-          stockProposed.add(Restrictions.eq(StockProposed.PROPERTY_PROCESSINSTANCE, pInstance));
++          stockProposed.add(Restrictions.eq(StockProposed.PROPERTY_PROCESSINSTANCE,
++              pInstance.getId()));
+           stockProposed.addOrderBy(StockProposed.PROPERTY_PRIORITY, true);
+ 
+           ScrollableResults bins = stockProposed.scroll(ScrollMode.FORWARD_ONLY);
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/PaidReceiptProperties.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/PaidReceiptProperties.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/PaidReceiptProperties.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -32,6 +32,9 @@
+       private static final long serialVersionUID = 1L;
+       {
+         add(new HQLProperty("ord.documentNo", "documentNo"));
++        add(new HQLProperty("ord.rCMobileNo", "rCMobileNo"));
++        add(new HQLProperty("ord.syncEmail", "syncEmail"));
++        add(new HQLProperty("ord.syncLandline", "syncLandline"));
+         add(new HQLProperty("ord.orderDate", "orderDate"));
+         add(new HQLProperty("ord.businessPartner.id", "bp"));
+         add(new HQLProperty("ord.partnerAddress.id", "bpLocId"));
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/PaidReceiptsHeader.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/PaidReceiptsHeader.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/PaidReceiptsHeader.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -31,23 +31,27 @@
+     if (json.getBoolean("isLayaway")) {
+       strIsLayaway = "true";
+     }
+-    String hqlPaidReceipts = "select ord.id as id, ord.documentNo as documentNo, ord.orderDate as orderDate, "
+-        + "ord.businessPartner.name as businessPartner, ord.grandTotalAmount as totalamount, ord.documentType.id as documentTypeId, '"
++    String hqlPaidReceipts = "select ord.id as id,ord.rCMobileNo as rCMobileNo,  ord.documentNo as documentNo, "
++        + "ord.orderDate as orderDate, ord.syncEmail as syncEmail, ord.syncLandline as syncLandline "
++        + ",ord.businessPartner.name as businessPartner, ord.grandTotalAmount as totalamount, ord.documentType.id as documentTypeId, '"
+         + strIsLayaway
+         + "' as isLayaway from Order as ord "
+-        + "where ord.client='"
++        + "where  ord.client='"
+         + json.getString("client")
+         + "' and ord.organization='"
+         + json.getString("organization")
+         + "' and ord.obposApplications is not null";
+-
++    // ord.syncEmail
+     if (!json.getString("filterText").isEmpty()) {
+-      hqlPaidReceipts += " and (ord.documentNo like '%" + json.getString("filterText")
++      hqlPaidReceipts += " and (ord.syncLandline like '%" + json.getString("filterText")
++          + "%' or ord.rCMobileNo like '%" + json.getString("filterText")
++          + "%' or ord.documentNo like '%" + json.getString("filterText")
+           + "%' or REPLACE(ord.documentNo, '/', '') like '%"
+           + json.getString("filterText").replace("-", "")
+           + "%' or upper(ord.businessPartner.name) like upper('%" + json.getString("filterText")
+-          + "%')) ";
++          + "%') or upper(ord.syncEmail) like upper('%" + json.getString("filterText") + "%') ) ";
+     }
++
+     if (!json.isNull("documentType")) {
+       JSONArray docTypes = json.getJSONArray("documentType");
+       hqlPaidReceipts += " and ( ";
+@@ -86,4 +90,4 @@
+   protected boolean bypassPreferenceCheck() {
+     return true;
+   }
+-}
+\ No newline at end of file
++}
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/master/ProductProperties.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/master/ProductProperties.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/master/ProductProperties.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -98,7 +98,7 @@
+         add(new HQLProperty("product.obposScale", "obposScale"));
+         add(new HQLProperty("product.uOM.id", "uOM"));
+         add(new HQLProperty("product.uOM.symbol", "uOMsymbol"));
+-        add(new HQLProperty("product.uPCEAN", "uPCEAN"));
++        add(new HQLProperty("upper(product.uPCEAN)", "uPCEAN"));
+         try {
+           if ("Y".equals(Preferences.getPreferenceValue("OBPOS_retail.productImages", true,
+               OBContext.getOBContext().getCurrentClient(), OBContext.getOBContext()
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/CashMgmtDepositEvents.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/CashMgmtDepositEvents.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/CashMgmtDepositEvents.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -20,7 +20,7 @@
+   @Override
+   protected List<String> getQuery(JSONObject jsonsent) throws JSONException {
+     return Arrays
+-        .asList(new String[] { "select c.id as id, c.name as name from OBRETCO_CashManagementEvents c "
++        .asList(new String[] { "select c.id as id, c.name as name, 'deposit' as type from OBRETCO_CashManagementEvents c "
+             + "where  c.$naturalOrgCriteria and c.eventtype like '%IN%' order by c.name  " });
+   }
+ 
+@@ -29,4 +29,3 @@
+     return true;
+   }
+ }
+-
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/CashMgmtDropEvents.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/CashMgmtDropEvents.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/CashMgmtDropEvents.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -20,7 +20,7 @@
+   @Override
+   protected List<String> getQuery(JSONObject jsonsent) throws JSONException {
+     return Arrays
+-        .asList(new String[] { "select c.id as id, c.name as name from OBRETCO_CashManagementEvents c "
++        .asList(new String[] { "select c.id as id, c.name as name, 'drop' as type from OBRETCO_CashManagementEvents c "
+             + "where  c.$naturalOrgCriteria and c.eventtype like '%OUT%' order by c.name " });
+   }
+ 
+@@ -29,4 +29,3 @@
+     return true;
+   }
+ }
+-
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/Terminal.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/Terminal.java	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/Terminal.java	Tue Mar 31 11:46:32 2015 +0530
+@@ -74,8 +74,16 @@
+ 
+     final OrganizationInformation myOrgInfo = pOSTerminal.getOrganization()
+         .getOrganizationInformationList().get(0);
++
++    String storeAddress = "";
+     String regionId = "";
+     String countryId = "";
++
++    if (myOrgInfo.getLocationAddress() != null
++        && myOrgInfo.getLocationAddress().getIdentifier().length() > 0) {
++      storeAddress = myOrgInfo.getLocationAddress().getIdentifier();
++    }
++
+     if (myOrgInfo.getLocationAddress().getRegion() != null) {
+       regionId = myOrgInfo.getLocationAddress().getRegion().getId();
+     }
+@@ -83,6 +91,7 @@
+     if (myOrgInfo.getLocationAddress().getCountry() != null) {
+       countryId = myOrgInfo.getLocationAddress().getCountry().getId();
+     }
++
+     String selectOrgImage = "";
+     String fromOrgImage = "";
+     String whereOrgImage = "";
+@@ -102,7 +111,8 @@
+         + "' as symbol, " + "'" + warehouseId + "' as warehouse, " + lastDocumentNumber
+         + " as lastDocumentNumber, " + lastQuotationDocumentNumber
+         + " as lastQuotationDocumentNumber, " + "'" + regionId + "'" + " as organizationRegionId, "
+-        + "'" + countryId + "'" + " as organizationCountryId, " + selectOrgImage
++        + "'" + countryId + "'" + " as organizationCountryId, '" + storeAddress
++        + "' as organizationAddressIdentifier," + selectOrgImage
+         + regularTerminalHQLProperties.getHqlSelect()
+         + " from OBPOS_Applications AS pos inner join pos.obposTerminaltype as postype "
+         + fromOrgImage + " where pos.$readableCriteria and pos.searchKey = '"
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalpaidreceipts.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalpaidreceipts.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalpaidreceipts.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -236,6 +236,13 @@
+     }
+     this.$.topLine.setContent(this.model.get('documentNo') + ' - ' + this.model.get('businessPartner') + returnLabel);
+     this.$.bottonLine.setContent(this.model.get('totalamount') + ' (' + this.model.get('orderDate').substring(0, 10) + ') ');
++
++    OB.MobileApp.model.hookManager.executeHooks('OBPOS_RenderPaidReceiptLine', {
++      paidReceiptLine: this
++    }, function (args) {
++      //All should be done in module side
++    });
++    //This customization should be removed. Hook OBPOS_RenderPaidReceiptLine used instead.
+     this.render();
+   }
+ });
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalreceipts.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalreceipts.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalreceipts.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -55,6 +55,9 @@
+       this.doChangeCurrentOrder({
+         newCurrentOrder: model
+       });
++      OB.DWCRM.CRMCustomer = new window.OB.Model.CRMCustomer({});
++      OB.DWCRM.CRMCustomer.load(model.get('rCMobileNo'), model.get('syncEmail'), model.get('syncLandline'));
++      DWCRM.crmCustomerMob.renderAdditionalData(model);
+     }, this);
+   }
+ });
+@@ -65,6 +68,7 @@
+   events: {
+     onHideThisPopup: ''
+   },
++
+   tap: function () {
+     this.inherited(arguments);
+     this.doHideThisPopup();
+@@ -77,25 +81,28 @@
+         style: 'float: left; width: 15%',
+         name: 'time'
+       }, {
+-        style: 'float: left; width: 25%',
++        style: 'float: left; width: 50%',
+         name: 'orderNo'
+       }, {
+-        style: 'float: left; width: 60%',
++        style: 'float: left; width: 34%',
+         name: 'bp'
+       }, {
+         style: 'clear: both;'
+       }]
+     }, {
+       components: [{
+-        style: 'float: left; width: 15%; font-weight: bold;'
+-      }, {
+         style: 'float: left; width: 25%; font-weight: bold;'
+       }, {
+-        style: 'float: right; text-align: right; width: 25%; font-weight: bold;',
++        style: 'float: left; width: 50%; text-align: left;font-weight: bold;',
++        name: 'identifier'
++      }, {
++        style: 'float: right;  text-align: left;font-weight: bold;',
+         name: 'total'
+       }, {
+         style: 'clear: both;'
+       }]
++
++
+     }]
+   }],
+   create: function () {
+@@ -108,6 +115,12 @@
+     this.$.orderNo.setContent(this.model.get('documentNo'));
+     this.$.bp.setContent(this.model.get('bp').get('_identifier'));
+     this.$.total.setContent(this.model.printTotal());
++
++    OB.MobileApp.model.hookManager.executeHooks('OBPOS_RenderListReceiptLine', {
++      listReceiptLine: this
++    }, function (args) {
++      //All should be done in module side
++    });
+   }
+ });
+ 
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/renderproduct.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/renderproduct.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/renderproduct.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -29,7 +29,8 @@
+       name: 'thumbnail'
+     }]
+   }, {
+-    style: 'float: left; width: 38%; ',
++    style: 'float: left;',
++    name: 'identifierContainer',
+     components: [{
+       name: 'identifier'
+     }, {
+@@ -43,10 +44,12 @@
+     style: 'clear:both;'
+   }, {
+     name: 'generic',
++    showing: false,
+     style: 'float: right; width: 20%; text-align: right; font-style: italic; color: grey; padding: 15px'
+   }],
+   initComponents: function () {
+     this.inherited(arguments);
++    this.$.identifierContainer.addStyles('width: 38%;');
+     this.$.identifier.setContent(this.setIdentifierContent());
+     if (this.model.get('showchdesc')) {
+       this.$.bottonLine.setContent(this.model.get('characteristicDescription'));
+@@ -61,8 +64,15 @@
+       this.$.icon.parent.hide();
+     }
+ 
++    if (OB.MobileApp.model.hasPermission('OBPOS_HideProductImagesInSearchAndBrowse', true)) {
++      this.$.thumbnail.hide();
++      this.$.icon.parent.hide();
++      this.$.identifierContainer.addStyles('width: 70%;');
++    }
++
+     if (this.model.get('isGeneric')) {
+       this.$.generic.setContent(OB.I18N.getLabel('OBMOBC_LblGeneric'));
++      this.$.generic.show();
+     }
+   },
+   setIdentifierContent: function () {
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/data/dataordersave.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/data/dataordersave.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/data/dataordersave.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -265,6 +265,7 @@
+               OB.trace('Execution Sync process.');
+ 
+               OB.MobileApp.model.runSyncProcess(successCallback);
++              model.get('orderList').deleteCurrent();
+               me.ordersToSend = OB.DEC.Zero;
+             }
+ 
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/model/order.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/model/order.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/model/order.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -2113,7 +2113,18 @@
+       order.set('print', true);
+       order.set('sendEmail', false);
+       order.set('openDrawer', false);
++
++      // var ord = orderlist.current;
++      OB.MobileApp.model.hookManager.executeHooks('OBPOS_NewReceipt', {
++        context: OB.OBPOSPointOfSale.currentWindow,
++        currentOrder: order
++      }, function (args) {
++        if (args && args.cancelOperation && args.cancelOperation === true) {
++          return;
++        }
++      });
+       return order;
++
+     },
+ 
+     newPaidReceipt: function (model, callback) {
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/model/pointofsale-model.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/model/pointofsale-model.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/model/pointofsale-model.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -582,7 +582,7 @@
+           if (receipt.get('layawayGross')) {
+             receipt.set('layawayGross', null);
+           }
+-          orderList.deleteCurrent();
++          //orderList.deleteCurrent();
+           receipt.trigger('change:gross', receipt);
+ 
+           OB.UTIL.showSuccess(OB.I18N.getLabel('OBPOS_MsgSuccessVoidLayaway'));
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/keyboardorder.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/keyboardorder.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/keyboardorder.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -464,28 +464,35 @@
+   // Overwrite this component to customize the BarcodeActionHandler
+   name: 'OB.UI.BarcodeActionHandler',
+   kind: 'OB.UI.AbstractBarcodeActionHandler',
+-  addWhereFilter: function (txt) {
+-    return "where product.upc = '" + txt + "'";
++  errorCallback: function (tx, error) {
++    OB.UTIL.showError("OBDAL error: " + error);
+   },
+-  findProductByBarcode: function (txt, callback) {
+-    var criteria;
++  findProductByBarcode: function (code, callback) {
++    OB.debug('BarcodeActionHandler - id: ' + code);
++    this.searchProduct(code, callback);
++  },
++  searchProduct: function (code, callback) {
++    var me = this;
++    OB.Dal.find(OB.Model.Product, {
++      uPCEAN: code
++    }, function (data) {
++      me.searchProductCallback(data, code, callback);
++    }, me.errorCallback, this);
++   },
+ 
+-    function errorCallback(tx, error) {
+-      OB.UTIL.showError("OBDAL error: " + error);
+-    }
++   searchProductCallback: function (data, code, callback) {
++     this.successCallbackProducts(data, code, callback);
++   },
+ 
+-    function successCallbackProducts(dataProducts) {
+-      if (dataProducts && dataProducts.length > 0) {
+-        OB.debug('productfound');
+-        callback(new Backbone.Model(dataProducts.at(0)));
+-      } else {
+-        // 'UPC/EAN code not found'
+-        OB.UTIL.showWarning(OB.I18N.getLabel('OBPOS_KbUPCEANCodeNotFound', [txt]));
+-      }
+-    }
+-    OB.debug('BarcodeActionHandler - id: ' + txt);
+-    OB.Dal.query(OB.Model.Product, 'select * from m_product as product ' + this.addWhereFilter(txt), null, successCallbackProducts, errorCallback, this);
+-  },
++   successCallbackProducts: function (dataProducts, code, callback) {
++     if (dataProducts && dataProducts.length > 0) {
++       OB.debug('productfound');
++       callback(new Backbone.Model(dataProducts.at(0)));
++     } else {
++       // 'UPC/EAN code not found'
++       OB.UTIL.showWarning(OB.I18N.getLabel('OBPOS_KbUPCEANCodeNotFound', [code]));
++     }
++   },
+ 
+   addProductToReceipt: function (keyboard, product) {
+     keyboard.doAddProduct({
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/pointofsale.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/pointofsale.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/pointofsale.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -10,6 +10,7 @@
+ /*global OB, Backbone, enyo, $, confirm, _, localStorage */
+ 
+ // Point of sale main window view
++OB.OBPOSPointOfSale.currentWindow = OB.OBPOSPointOfSale.currentWindow || {};
+ enyo.kind({
+   name: 'OB.OBPOSPointOfSale.UI.PointOfSale',
+   kind: 'OB.UI.WindowView',
+@@ -853,6 +854,7 @@
+   },
+   init: function () {
+     var receipt, receiptList, LeftColumnCurrentView;
++    OB.OBPOSPointOfSale.currentWindow = this;
+     this.inherited(arguments);
+     receipt = this.model.get('order');
+     receiptList = this.model.get('orderList');
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/toolbar-right.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/toolbar-right.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/pointofsale/view/toolbar-right.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -161,7 +161,9 @@
+     }, this);
+ 
+     this.receipt.on('scan', function (params) {
+-      this.manualTap('scan', params);
++      if (OB.MobileApp.model.get('lastPaneShown') !== 'scan') {
++        this.manualTap('scan', params);
++      }
+     }, this);
+ 
+     this.receipt.get('lines').on('click', function () {
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/utils/cashManagementUtils.js
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/utils/cashManagementUtils.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -0,0 +1,196 @@
++/*
++ ************************************************************************************
++ * Copyright (C) 2012 Openbravo S.L.U.
++ * Licensed under the Openbravo Commercial License version 1.0
++ * You may obtain a copy of the License at http://www.openbravo.com/legal/obcl.html
++ * or in the legal folder of this module distribution.
++ ************************************************************************************
++ */
++
++/*global B,_*/
++
++(function () {
++
++  OB = window.OB || {};
++  OB.UTILS = window.OB.UTILS || {};
++  OB.UTILS.CashManagementUtils = window.OB.UTILS.CashManagementUtils || {};
++
++  OB.UTILS.CashManagementUtils.addCashManagementTransaction = function (newCashManagementTransaction, successCallback, errorCallback, options) {
++    //Doc:
++    //newCashMangmentTransaction is a backbone model which includes the following fields
++    //amount -> the amount to be drop or deposited.
++    //cashManagementEvent -> An item from OB.MobileApp.model.get('cashMgmtDropEvents') or OB.MobileApp.model.get('cashMgmtDepEvents')
++    //                      including type = drop or deposit
++    //paymentMethod -> An item from OB.MobileApp.model.get('payments') which will be used to drop or deposit the amount.
++    var cashUp = null;
++    var paymentMethodCashUp = null;
++    var warns = [];
++    var errors = [];
++    var glItem;
++    var cashManagementTransactionToAdd = null;
++
++    var availableAmountToDrop, startingAmt, salesAmt, returnsAmt, totalDrops, totalDeposits;
++    //Manage default values
++    var optionsObj = options || {};
++    if (options && !OB.UTIL.isNullOrUndefined(options.printTicket)) {
++      optionsObj.printTicket = options.printTicket;
++    } else {
++      optionsObj.printTicket = true;
++    }
++    if (options && !OB.UTIL.isNullOrUndefined(options.ticketTemplate)) {
++      optionsObj.ticketTemplate = options.ticketTemplate;
++    } else {
++      optionsObj.ticketTemplate = new OB.OBPOSCashMgmt.Print.CashMgmt();
++    }
++    if (options && !OB.UTIL.isNullOrUndefined(options.executeSync)) {
++      optionsObj.executeSync = options.executeSync;
++    } else {
++      optionsObj.executeSync = true;
++    }
++
++    //execute cash management event
++    //1st load current cash up
++    OB.Dal.find(OB.Model.CashUp, {
++      'isbeingprocessed': 'N'
++    }, function (cashUpResults) {
++      if (cashUpResults.length !== 1) {
++        errorCallback("Zero or more than one cash ups found.");
++        return;
++      } else {
++        cashUp = cashUpResults.at(0);
++
++        //validate
++        if (newCashManagementTransaction.get('cashManagementEvent').type === 'drop' && !newCashManagementTransaction.get('paymentMethod').paymentMethod.allowdrops) {
++          errorCallback('Current payment method doesn\'t allow drops');
++        } else if (newCashManagementTransaction.get('cashManagementEvent').type === 'deposit' && !newCashManagementTransaction.get('paymentMethod').paymentMethod.allowdeposits) {
++          errorCallback('Current payment method doesn\'t allow deposits');
++          return;
++        } else if (newCashManagementTransaction.get('cashManagementEvent').type !== 'deposit' && newCashManagementTransaction.get('cashManagementEvent').type !== 'drop') {
++          errorCallback('Action cannot be done');
++          return;
++        }
++        //calculate available cash taking into account starting cash, sales, return, cashMgm Drops and CashMgm Deposits
++        OB.UTIL.calculateCurrentCash(null, function () {
++          if (newCashManagementTransaction.get('cashManagementEvent').type === 'drop') {
++            if (OB.DEC.sub(newCashManagementTransaction.get('paymentMethod').currentCash, newCashManagementTransaction.get('amount')) < 0) {
++              errorCallback('Amount to drop is greater than available amount (' + OB.I18N.formatCurrency(newCashManagementTransaction.get('paymentMethod').currentCash) + ')');
++              return;
++            }
++          }
++
++          if (newCashManagementTransaction.get('cashManagementEvent').type === 'drop') {
++            glItem = newCashManagementTransaction.get('paymentMethod').paymentMethod.gLItemForDrops;
++          } else if (newCashManagementTransaction.get('cashManagementEvent').type === 'deposit') {
++            glItem = newCashManagementTransaction.get('paymentMethod').paymentMethod.gLItemForDeposits;
++          } else {
++            errorCallback('Error while getting the G/L item');
++            return;
++          }
++
++          //execute cash management operation
++          cashManagementTransactionToAdd = new OB.Model.CashManagement({
++            id: OB.Dal.get_uuid(),
++            description: newCashManagementTransaction.get('paymentMethod').payment._identifier + ' - ' + newCashManagementTransaction.get('cashManagementEvent').name,
++            amount: newCashManagementTransaction.get('amount'),
++            origAmount: OB.DEC.mul(newCashManagementTransaction.get('amount'), newCashManagementTransaction.get('paymentMethod').rate),
++            type: newCashManagementTransaction.get('cashManagementEvent').type,
++            reasonId: newCashManagementTransaction.get('cashManagementEvent').id,
++            paymentMethodId: newCashManagementTransaction.get('paymentMethod').payment.id,
++            user: OB.MobileApp.model.get('context').user._identifier,
++            userId: OB.MobileApp.model.get('context').user.id,
++            time: new Date().toString().substring(16, 21),
++            isocode: newCashManagementTransaction.get('paymentMethod').isocode,
++            glItem: glItem,
++            cashup_id: cashUp.get('id'),
++            isbeingprocessed: 'N'
++          });
++
++          OB.MobileApp.model.hookManager.executeHooks('OBPOS_cashManagementTransactionHook', {
++            newCashManagementTransaction: newCashManagementTransaction,
++            cashManagementTransactionToAdd: cashManagementTransactionToAdd
++          }, function (args) {
++            if (args && args.cancelOperation) {
++              errorCallback(args.errorMessage);
++            }
++          });
++
++          OB.Dal.save(cashManagementTransactionToAdd, function () {
++            if (optionsObj.executeSync) {
++              OB.MobileApp.model.runSyncProcess(function () {
++                if (optionsObj.printTicket) {
++                  if (OB.MobileApp.model.hasPermission('OBPOS_print.cashmanagement')) {
++                    var toPrint = new Backbone.Collection();
++                    toPrint.add(cashManagementTransactionToAdd);
++                    printCashManagementModel = optionsObj.ticketTemplate;
++                    printCashManagementModel.print(toPrint.toJSON());
++                    successCallback();
++                  } else {
++                    warns.push({
++                      msg: 'Ticket has not been printed. Permission needed (OBPOS_print.cashmanagement)',
++                      errObj: {}
++                    });
++                    successCallback({
++                      warnings: warns
++                    });
++                  }
++                } else {
++                  successCallback();
++                }
++              }, function (error) {
++                warns.push({
++                  msg: 'Cash Management event has not been sync. It will be synched later',
++                  errObj: error
++                });
++                if (optionsObj.printTicket) {
++                  if (OB.MobileApp.model.hasPermission('OBPOS_print.cashmanagement')) {
++                    var toPrint = new Backbone.Collection();
++                    toPrint.add(cashManagementTransactionToAdd);
++                    printCashManagementModel = optionsObj.ticketTemplate;
++                    printCashManagementModel.print(toPrint.toJSON());
++                    successCallback();
++                  } else {
++                    warns.push({
++                      msg: 'Ticket has not been printed. Permission needed (OBPOS_print.cashmanagement)',
++                      errObj: {}
++                    });
++                    successCallback({
++                      warnings: warns
++                    });
++                  }
++                } else {
++                  successCallback();
++                }
++              });
++            } else {
++              if (optionsObj.printTicket) {
++                if (OB.MobileApp.model.hasPermission('OBPOS_print.cashmanagement')) {
++                  var toPrint = new Backbone.Collection();
++                  toPrint.add(cashManagementTransactionToAdd);
++                  printCashManagementModel = optionsObj.ticketTemplate;
++                  printCashManagementModel.print(toPrint.toJSON());
++                  successCallback();
++                } else {
++                  warns.push({
++                    msg: 'Ticket has not been printed. Permission needed (OBPOS_print.cashmanagement)',
++                    errObj: {}
++                  });
++                  successCallback({
++                    warnings: warns
++                  });
++                }
++              } else {
++                successCallback();
++              }
++            }
++          }, function (error) {
++            errorCallback('error while saving cash management transaction');
++          }, true);
++        });
++      }
++    }, function () {
++      errorCallback("Error while retrieving current cash up info");
++      return;
++    }, null);
++  };
++
++}());
+\ No newline at end of file
+diff -r cba4f1347956 dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/utils/cashUpReportUtils.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/utils/cashUpReportUtils.js	Tue Mar 31 11:43:16 2015 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/utils/cashUpReportUtils.js	Tue Mar 31 11:46:32 2015 +0530
+@@ -256,7 +256,7 @@
+     });
+   };
+ 
+-  OB.UTIL.calculateCurrentCash = function (callback) {
++  OB.UTIL.calculateCurrentCash = function (callback, callbackFinal) {
+     var me = this;
+     OB.Dal.find(OB.Model.CashUp, {
+       'isbeingprocessed': 'N'
+@@ -265,6 +265,7 @@
+         'cashup_id': cashUp.at(0).get('id')
+       }, function (payMthds) { //OB.Dal.find success
+         var payMthdsCash;
++        var tot = OB.POS.modelterminal.get('payments').length;
+         _.each(OB.POS.modelterminal.get('payments'), function (paymentType, index) {
+           var cash = 0,
+               auxPay = payMthds.filter(function (payMthd) {
+@@ -301,6 +302,9 @@
+             if (typeof callback === 'function') {
+               callback();
+             }
++            if (index === tot - 1 && typeof callbackFinal === 'function') {
++              callbackFinal();
++            }
+           }, null, {
+             me: me
+           });

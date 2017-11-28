@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION OBA_IMPORTCATALOG">
+    <function name="OBA_IMPORTCATALOG" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[modelUpdateCursor RECORD;
+
+  modelCreateCursor RECORD;
+
+  priceCursor RECORD;
+
+  itemUpdateCursor RECORD;
+
+  itemCreateCursor RECORD;
+
+  v_importStatus Varchar(50) :='';
+
+  v_updateModelCounter NUMBER:=0;
+
+  v_insertModelCounter NUMBER:=0; 
+
+  v_updateItemCounter NUMBER:=0;
+
+  v_insertItemCounter NUMBER:=0; 
+
+  v_count NUMBER:=0;
+
+BEGIN 
+
+		-- Insert New Model
+
+    FOR modelCreateCursor IN (SELECT distinct modelcode FROM oba_modelproduct i WHERE i.validated='Y') LOOP
+
+    select count(*) into v_count WHERE lower(modelCreateCursor.modelcode) IN (Select lower(cl_model.value) from cl_model) ; 
+
+    IF(v_count>0) THEN 
+
+   		select * from oba_insert_model(modelCreateCursor.modelcode,'update') into v_importStatus; 
+
+		v_updateModelCounter := v_updateModelCounter+1;
+
+	ELSE
+
+		select * from oba_insert_model(modelCreateCursor.modelcode,'add') into v_importStatus; 
+
+		v_insertModelCounter := v_insertModelCounter+1;
+
+	END IF;	
+
+    IF (v_importStatus='Success') THEN
+
+	UPDATE  oba_modelproduct  SET isimported = 'Y' 
+
+	WHERE modelcode=modelCreateCursor.modelcode AND validated='Y';
+
+    END IF;	
+
+   END LOOP;
+
+	-- Insert New Items  
+
+    FOR itemCreateCursor IN (SELECT * FROM oba_modelproduct i WHERE i.validated='Y')
+
+    LOOP
+
+    select count(*) into v_count where itemCreateCursor.itemcode IN (SELECT m_product.name FROM m_product );
+
+    IF (v_count>0) THEN
+
+   		PERFORM oba_insert_item(itemCreateCursor.oba_modelproduct_id,'update'); 
+
+		v_updateItemCounter := v_updateItemCounter+1;
+
+	ELSE
+
+		PERFORM oba_insert_item(itemCreateCursor.oba_modelproduct_id,'add'); 
+
+		v_insertItemCounter := v_insertItemCounter+1;
+
+	END IF;
+
+   END LOOP;
+
+    --Insert Pricelist 
+
+    FOR priceCursor IN (SELECT * FROM oba_modelproduct i WHERE i.validated='Y')
+
+    LOOP
+
+		PERFORM oba_insert_price(priceCursor.oba_modelproduct_id); 
+
+		v_updateItemCounter := v_updateItemCounter+1;
+
+   END LOOP;  
+
+   	-- Deleting the imported records
+
+    FOR modelCreateCursor IN (SELECT * FROM oba_modelproduct i WHERE i.isimported='Y')
+
+	LOOP
+
+		DELETE FROM oba_modelproduct WHERE oba_modelproduct_id=modelCreateCursor.oba_modelproduct_id;
+
+    END LOOP;
+
+   RETURN 'Success - Items:Inserted-'||v_insertItemCounter|| ', updated-' || v_updateItemCounter || ' , Models : Inserted -' || v_insertModelCounter || ', updated - '||v_updateModelCounter;
+END OBA_IMPORTCATALOG
+]]></body>
+    </function>
+  </database>

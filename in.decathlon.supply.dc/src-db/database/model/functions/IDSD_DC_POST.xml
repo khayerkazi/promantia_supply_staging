@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IDSD_DC_POST">
+    <function name="IDSD_DC_POST" type="NULL">
+      <parameter name="p_pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[-- variables that will contain the parameters deriving from the AD_PInstance table
+  v_Record_ID VARCHAR(32); -- ID of the record inside m_productprice that we are processing
+  v_DaysHistory NUMBER; -- number of days to consider within the calculation
+ 
+  -- operational variables
+  v_ResultStr VARCHAR(2000):=''; -- will contain text describing the stage the stored procedure is in
+  v_Message VARCHAR(2000):=''; -- will contain the final message to be logged
+  v_MProductId VARCHAR(32); -- ID of the product that we are processing
+  v_IsSOPriceList VARCHAR(1); -- flag indicating a sales or a purchase price
+  v_SumPrice NUMBER; -- sum of all line amounts that included the specific product
+  v_SumQty NUMBER; -- sum of all line quantities that included the specific product
+  Cur_Parameter RECORD; -- cursor variable to loop through all parameters
+    
+  BEGIN
+ 
+    --  Update AD_PInstance by setting IsProcessing='Y'
+    DBMS_OUTPUT.PUT_LINE('Updating PInstance - Processing ' || p_PInstance_ID) ;
+    AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'Y', NULL, NULL) ;
+ 
+    -- Get Parameters
+    v_ResultStr:='ReadingParameters';
+    FOR Cur_Parameter IN
+      (SELECT i.Record_ID,
+        p.ParameterName, p.P_String, p.P_Number, p.P_Date
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=p_PInstance_ID
+      ORDER BY p.SeqNo)
+    LOOP
+      v_Record_ID:=Cur_Parameter.Record_ID; -- save the m_productprice primary key
+      IF (Cur_Parameter.ParameterName='DaysHistory') THEN
+        v_DaysHistory:=Cur_Parameter.P_Number;
+      END IF;
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE( 'Record_ID = ' || v_Record_ID) ;
+    DBMS_OUTPUT.PUT_LINE( 'DaysHistory = '||v_DaysHistory);
+ 
+  BEGIN --BODY
+ 
+    -- Retrieve missing information regarding which product and what type of transaction (purchase/sales)
+update c_order set docstatus='IP' where c_order_id=v_Record_ID;
+
+       UPDATE C_ORDER
+        SET DocStatus='CO',
+            DocAction='--',
+            IsDelivered='N',
+            IsInvoiced='N',
+            Processed='Y',
+            Processing='N',
+            em_sw_is2post='N',
+            dateordered=now(),
+     datepromised=now(),
+     dateacct=now(),
+            Updated=now(),em_IDSD_bookdc='Y'
+            WHERE C_Order_ID=v_Record_ID;
+
+    DBMS_OUTPUT.PUT_LINE('Updating PInstance - Finished ' || v_Message) ;
+    AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', 1, v_Message) ;
+    RETURN;
+  END; -- BODY
+ 
+ EXCEPTION
+ WHEN OTHERS THEN
+   v_ResultStr:= '@ERROR=' || SQLERRM;
+   DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+   AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+   RETURN;
+END IDSD_DC_POST
+]]></body>
+    </function>
+  </database>

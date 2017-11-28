@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER CL_UPDATE_RANGE">
+    <trigger name="CL_UPDATE_RANGE" table="CL_IMPLANTATION" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+v_count NUMBER;
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+
+--Check if the price is uploaded for the product.
+SELECT count(*) into v_count From m_productprice where m_product_id=:NEW.m_product_id and ad_org_id=:NEW.ad_org_id;
+
+--If price not uploaded, show error.
+IF(v_count=0) THEN 
+
+--RAISE EXCEPTION 'Price is not uploaded for the product. You cannot implant the product.';
+END IF;
+
+
+--Check if organization is thane and ahmedabad
+IF (:NEW.store_implanted='763822B8D9594A7BA0E8AC93006179FB' OR :NEW.store_implanted='5634F9BED7E94DB4A742DEF487DFCF3C') THEN
+--Check if the tax is uploaded for the product.
+--SELECT count(*) into v_count From m_productprice where m_product_id=NEW.m_product_id and ad_org_id=NEW.store_implanted
+--and em_cl_taxcategory_id is null;
+
+SELECT count(*) into v_count From m_productprice mp,m_product m where
+mp.m_product_id=m.m_product_id
+and mp.m_product_id=:NEW.m_product_id
+and mp.ad_org_id=:NEW.store_implanted
+and m.c_taxcategory_id is null;
+
+
+--If tax not uploaded, show error.
+IF(v_count>0) THEN 
+
+RAISE EXCEPTION 'Tax is not uploaded for the product. You cannot make any modifications until tax is uploaded.';
+END IF;
+
+END IF;
+
+
+select count(1) into v_count from cl_minmax where ad_org_id=:NEW.store_implanted and m_product_id=:NEW.m_product_id and isinrange='N';
+
+IF(v_count>0) THEN
+
+	RAISE EXCEPTION 'Implantation can not be done for items which are not in Range of the store.';
+END IF;
+
+/*
+IF(v_count=0) THEN
+	
+	insert into cl_minmax(cl_minmax_id, ad_client_id, ad_org_id, isactive, 
+	created, createdby, updated, updatedby,m_product_id, minqty,maxqty,displaymin,isinrange,last_mm_update)
+	values
+	(get_uuid(),:NEW.ad_client_id, :NEW.store_implanted, 'Y',  :NEW.created, :NEW.createdby, 
+	:NEW.updated, :NEW.updatedby, :NEW.m_product_id, 0,1,0,'Y',now());
+
+ELSE
+
+update cl_minmax set isinrange='Y' where m_product_id=:NEW.m_product_id and ad_org_id=:NEW.store_implanted;
+END IF;
+
+*/
+END IF;
+END CL_UPDATE_RANGE
+]]></body>
+    </trigger>
+  </database>

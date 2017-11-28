@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER RC_ATTACHMENTDELETE_TRG">
+    <trigger name="RC_ATTACHMENTDELETE_TRG" table="C_FILE" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+ BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF DELETING  THEN
+ RAISE NO_DATA_FOUND ;
+END IF;
+
+
+IF DELETING THEN RETURN OLD; 
+ELSE RETURN NEW; END IF; 
+
+END RC_ATTACHMENTDELETE_TRG
+]]></body>
+    </trigger>
+  </database>

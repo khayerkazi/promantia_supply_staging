@@ -1,0 +1,554 @@
+package com.sysfore.decathlonecom.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import org.openbravo.erpCommon.utility.SequenceIdData;
+
+import com.sysfore.decathlonecom.model.EcomOrder;
+import com.sysfore.decathlonecom.model.Product;
+import com.sysfore.decathlonecom.model.Stock;
+
+public class EcomOrderServiceDAO {
+
+  Connection conn = null;
+  ResourceBundle properties = null;
+
+  public EcomOrderServiceDAO() throws Exception {
+    properties = ResourceBundle.getBundle("com.sysfore.decathlonecom.Openbravo");
+    Class.forName(properties.getString("bbdd.driver"));
+    conn = DriverManager.getConnection(properties.getString("bbdd.url") + "/"
+        + properties.getString("bbdd.sid"), properties.getString("bbdd.user"), properties
+        .getString("bbdd.password"));
+
+    conn.setAutoCommit(false);
+
+  }
+
+  public String[] selectNames(String bPartnerId) {
+    String sql = "Select name, name2 from c_bpartner where c_bpartner_id=?";
+    String name[] = new String[2];
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+    try {
+
+      pst = conn.prepareStatement(sql);
+      pst.setString(1, bPartnerId);
+      rs = pst.executeQuery();
+
+      while (rs.next()) {
+        name[0] = rs.getString("name");
+        name[1] = rs.getString("name2");
+      }
+      rs.close();
+      pst.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      pst = null;
+      rs = null;
+    }
+
+    return name;
+  }
+
+  public String selectOrgId(String value) {
+    String sql = "select ad_org_id from ad_org where lower(name) = lower(?)";
+    String ordId = "";
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+    try {
+
+      pst = conn.prepareStatement(sql);
+      pst.setString(1, value);
+      rs = pst.executeQuery();
+
+      if (rs.next()) {
+        ordId = rs.getString("ad_org_id");
+      }
+
+      pst.close();
+      rs.close();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      pst = null;
+      rs = null;
+    }
+
+    return ordId;
+  }
+
+  public String selectBPId(String value) {
+    String sql = "select c_bpartner_id from c_bpartner where em_rc_oxylane = ?";
+    String clientId = "";
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+    try {
+
+      pst = conn.prepareStatement(sql);
+      pst.setString(1, value);
+      rs = pst.executeQuery();
+
+      if (rs.next()) {
+        clientId = rs.getString("c_bpartner_id");
+      }
+
+      pst.close();
+      rs.close();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      pst = null;
+      rs = null;
+    }
+
+    return clientId;
+  }
+
+  public String selectWareHouse(String value) {
+
+    String sql = "select m_warehouse_id from m_warehouse where lower(name) = lower(?)";
+    String warehouse = "";
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+    try {
+
+      pst = conn.prepareStatement(sql);
+      pst.setString(1, value);
+      rs = pst.executeQuery();
+
+      if (rs.next()) {
+        warehouse = rs.getString("m_warehouse_id");
+      }
+
+      pst.close();
+      rs.close();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      pst = null;
+      rs = null;
+    }
+
+    return warehouse;
+  }
+
+  public String createEcomOrder(EcomOrder ecomOrder) {
+
+    System.out.println("Enter createEcom");
+    String sqlToIorder = "INSERT INTO i_order(i_order_id,ad_client_id,ad_org_id,m_warehouse_id,c_bpartner_id,"
+        + "name,em_im_lastname,description,documentno,m_product_id,priceactual,qtyordered,em_im_pcbprice,"
+        + "em_im_pcbqty,em_im_ueprice,em_im_ueqty,c_tax_id,em_im_receiptno,dateordered,ad_user_id,createdby,updatedby,doctypename,em_im_chargeamt"
+        + ") values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+    String sqlToPayment = "INSERT INTO ds_paymentinfo(ds_paymentinfo_id,ad_client_id,ad_org_id,createdby,updatedby,paymentmode"
+        + ",identifier,amount,receiptno) values (?,?,?,?,?,?,?,?,?)";
+
+    String sqlToAddress = "INSERT INTO ds_location(ds_location_id,ad_client_id,ad_org_id,createdby,updatedby,address1"
+        + ",address2,address3,address4,city,postal,state,country,receiptno) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+    String sqlTax = "Select c_tax_id from c_tax where c_taxcategory_id = ?";
+
+    // Checking no of line items
+
+    int totalCount = 0;
+    PreparedStatement createIOrder = null;
+    PreparedStatement createPaymentInfo = null;
+    PreparedStatement addressInfo = null;
+    PreparedStatement psTax = null;
+    ResultSet rsTax = null;
+
+    String uniqueId = SequenceIdData.getUUID();
+
+    if (ecomOrder.getItemOrdered() != null) {
+      totalCount = ecomOrder.getItemOrdered().size();
+    }
+
+    try {
+
+      /************************************************************************************/
+      double unitPrice = 0;
+      double unitQty = 0;
+      double uePrice = 0;
+      double ueQty = 0;
+      double pcbPrice = 0;
+      double pcbQty = 0;
+      double grantTotal = 0;
+      double chargeAmt = 0;
+      // Adding the lines to i_order
+      for (Product product : ecomOrder.getItemOrdered()) {
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAA");
+        createIOrder = conn.prepareStatement(sqlToIorder);
+        createIOrder.setString(1, SequenceIdData.getUUID());
+        createIOrder.setString(2, properties.getString("ws.client"));
+        createIOrder.setString(3, ecomOrder.getOrgName());
+        createIOrder.setString(4, ecomOrder.getWarehouseName());
+        createIOrder.setString(5, ecomOrder.getCustomerId());
+        createIOrder.setString(6, ecomOrder.getFirstName());
+        createIOrder.setString(7, ecomOrder.getLastName());
+        createIOrder.setString(8, ecomOrder.getDescription());
+
+        if (ecomOrder.getOrgName().equalsIgnoreCase("B2D0E3B212614BA6989ADCA3074FC423")) {
+          createIOrder.setString(9, "*ECOM*" + ecomOrder.getBillNo());
+        } else {
+          createIOrder.setString(9, "*B2B*" + ecomOrder.getBillNo());
+        }
+
+        createIOrder.setString(10, product.getProductId());
+        try {
+
+          unitPrice = Double.parseDouble(product.getUnitPrice());
+
+        } catch (NumberFormatException e) {
+
+        }
+
+        try {
+
+          unitQty = Double.parseDouble(product.getUnitQty());
+
+        } catch (NumberFormatException e) {
+
+        }
+
+        try {
+          pcbPrice = Double.parseDouble(product.getPcbPrice());
+
+        } catch (NumberFormatException e) {
+
+        }
+
+        try {
+
+          pcbQty = Double.parseDouble(product.getPcbQty());
+
+        } catch (NumberFormatException e) {
+
+        }
+
+        try {
+
+          uePrice = Double.parseDouble(product.getUePrice());
+
+        } catch (NumberFormatException e) {
+
+        }
+
+        try {
+
+          ueQty = Double.parseDouble(product.getUeQty());
+
+        } catch (NumberFormatException e) {
+
+        }
+        createIOrder.setDouble(11, unitPrice);
+        createIOrder.setDouble(12, unitQty);
+        createIOrder.setDouble(13, pcbPrice);
+        createIOrder.setDouble(14, pcbQty);
+        createIOrder.setDouble(15, uePrice);
+        createIOrder.setDouble(16, ueQty);
+
+        psTax = conn.prepareStatement(sqlTax);
+        psTax.setString(1, product.getTaxId());
+        rsTax = psTax.executeQuery();
+        String taxId = "";
+        if (rsTax.next()) {
+          taxId = rsTax.getString("c_tax_id");
+        }
+
+        createIOrder.setString(17, taxId);
+        createIOrder.setString(18, uniqueId);
+        try {
+          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+          java.util.Date d = sdf.parse(ecomOrder.getOrderDate(), new ParsePosition(0));
+          java.sql.Timestamp timeStampDate = new Timestamp(d.getTime());
+          createIOrder.setTimestamp(19, timeStampDate);
+        } catch (Exception e) {
+          java.sql.Timestamp timeStampDate = new Timestamp(new java.util.Date().getTime());
+          createIOrder.setTimestamp(19, timeStampDate);
+        }
+        createIOrder.setString(20, properties.getString("ws.user"));
+        createIOrder.setString(21, properties.getString("ws.user"));
+        createIOrder.setString(22, properties.getString("ws.user"));
+        if (ecomOrder.getOrgName().equalsIgnoreCase("B2D0E3B212614BA6989ADCA3074FC423")) {
+          createIOrder.setString(23, "Ecommerce Order");
+        } else {
+          createIOrder.setString(23, "B2B Order");
+        }
+
+        try {
+
+          chargeAmt = Double.parseDouble(ecomOrder.getChargeAmt());
+
+        } catch (NumberFormatException e) {
+
+        }
+        createIOrder.setDouble(24, chargeAmt);
+        createIOrder.executeUpdate();
+
+      }
+
+      // Completing the i_order Process
+      /************************************************************************************/
+
+      // Adding PaymentInfo
+      createPaymentInfo = conn.prepareStatement(sqlToPayment);
+      createPaymentInfo.setString(1, SequenceIdData.getUUID());
+      createPaymentInfo.setString(2, properties.getString("ws.client"));
+      // createPaymentInfo.setString(3, properties.getString("ws.organisation"));
+      createPaymentInfo.setString(3, ecomOrder.getOrgName());
+      createPaymentInfo.setString(4, properties.getString("ws.user"));
+      createPaymentInfo.setString(5, properties.getString("ws.user"));
+      createPaymentInfo.setString(6, ecomOrder.getPaymentMode());
+      createPaymentInfo.setString(7, ecomOrder.getPaymentIdentifier());
+      try {
+
+        grantTotal = Integer.parseInt(ecomOrder.getGrantTotal());
+
+      } catch (NumberFormatException e) {
+
+      }
+      createPaymentInfo.setDouble(8, grantTotal);
+      createPaymentInfo.setString(9, uniqueId);
+      createPaymentInfo.executeUpdate();
+
+      // Ending PaymentInfo
+
+      /***********************************************************************************/
+
+      // Adding Address
+      addressInfo = conn.prepareStatement(sqlToAddress);
+      addressInfo.setString(1, SequenceIdData.getUUID());
+      addressInfo.setString(2, properties.getString("ws.client"));
+      addressInfo.setString(3, ecomOrder.getOrgName());
+      addressInfo.setString(4, properties.getString("ws.user"));
+      addressInfo.setString(5, properties.getString("ws.user"));
+      addressInfo.setString(6, ecomOrder.getAddress1());
+      addressInfo.setString(7, ecomOrder.getAddress2());
+      addressInfo.setString(8, ecomOrder.getAddress3());
+      addressInfo.setString(9, ecomOrder.getAddress4());
+      addressInfo.setString(10, ecomOrder.getCity());
+      addressInfo.setString(11, ecomOrder.getPostal());
+      addressInfo.setString(12, ecomOrder.getState());
+      addressInfo.setString(13, ecomOrder.getCountry());
+      addressInfo.setString(14, uniqueId);
+      addressInfo.executeUpdate();
+      conn.commit();
+      // Ending Address
+
+      /**********************************************************************************/
+
+      System.out.println("Commit All");
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Exception ::" + e);
+      return "failure";
+
+    }
+    return "success";
+  }
+
+  public List<Stock> getStock(List<String> values, String warehouse) {
+
+	  System.out.println("Enter the new Function warehouse __> " + warehouse);   
+    System.out.println("Enter the new Function");
+    String content = "'";
+    String strwarehouse="Saleable Whitefield";
+    int count = values.size() - 1;
+    for (int i = 0; i < count; i++) {
+      if (i == (count - 1)) {
+        content += values.get(i) + "'";
+      } else {
+        content += values.get(i) + "','";
+      }
+    }
+
+
+    List<Stock> l = new LinkedList();
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+/*    String sqlTrue = "select m_storage_detail.qtyonhand, m_warehouse.name,m_product.m_product_id from m_storage_detail"
+        + " inner join m_locator on m_locator.m_locator_id = m_storage_detail.m_locator_id"
+        + " inner join m_product on m_product.m_product_id= m_storage_detail.m_product_id"
+        + " inner join m_warehouse on m_locator.m_warehouse_id = m_warehouse.m_warehouse_id where m_warehouse.m_warehouse_id= ?"
+        + " and m_storage_detail.m_product_id IN(" + content + ")";*/
+
+       String sqlTrue ="SELECT sum(sd.qtyonhand)-(SELECT coalesce(sum(qtyordered) ,0) From i_order where "
+	+ " (ad_org_id='B2D0E3B212614BA6989ADCA3074FC423' or ad_org_id='076DD16AEA914588A919422D1C5FF037') and "
+	+ " i_isimported='N' and m_product_id=sd.m_product_id) "
+	+ " as qtyonhand, m_product_id From m_storage_detail sd  where "
+	+ " sd.m_product_id in ("+ content +") "
+	+ " and sd.m_locator_id in (select m_locator_id from m_locator where "
+	+ " m_warehouse_id in (select m_warehouse_id from m_warehouse "
+	+ " where name ilike 'Saleable%' and ad_org_id='603C6A266B4C40BCAD87C5C43DDF53EE')) group by m_product_id";
+
+    
+   try {
+    System.out.println("Content  " + content);
+      ps = conn.prepareStatement(sqlTrue);
+      //ps.setString(1, warehouse);
+      rs = ps.executeQuery();
+
+      while (rs.next()) {
+	System.out.println("qty on hand " + rs.getString("qtyonhand"));
+        Stock s = new Stock();
+        s.setProduct(rs.getString("m_product_id"));
+        s.setQty(rs.getString("qtyonhand"));
+        s.setWarehouseName("Saleable Whitefield");
+        l.add(s);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return l;
+  }
+
+  public List<String> getStock(String[] values, boolean flag) {
+
+    System.out.println("Inside the getStock");
+
+    String sqlFalse = "select m_storage_detail.qtyonhand, m_warehouse.name from m_storage_detail"
+        + " inner join m_locator on m_locator.m_locator_id = m_storage_detail.m_locator_id and m_storage_detail.m_product_id = ? "
+        + "inner join m_warehouse on m_locator.m_warehouse_id = m_warehouse.m_warehouse_id and lower(m_warehouse.name) like lower('%saleable%')";
+
+    String sqlTrue = "select m_storage_detail.qtyonhand, m_warehouse.name from m_storage_detail"
+        + " inner join m_locator on m_locator.m_locator_id = m_storage_detail.m_locator_id and m_storage_detail.m_product_id = ? "
+        + "inner join m_warehouse on m_locator.m_warehouse_id = m_warehouse.m_warehouse_id where m_warehouse.m_warehouse_id= ?";
+
+    PreparedStatement stockInfo = null;
+    ResultSet stockData = null;
+    String qtyOnHand = "";
+    String warehouseName = "";
+
+    List<String> arrayList = new ArrayList<String>();
+
+    try {
+
+      if (flag == false) {
+
+        stockInfo = conn.prepareStatement(sqlFalse);
+        stockInfo.setString(1, values[0]);
+
+      } else {
+
+        stockInfo = conn.prepareStatement(sqlTrue);
+        stockInfo.setString(1, values[0]);
+        stockInfo.setString(2, values[1]);
+
+      }
+
+      stockData = stockInfo.executeQuery();
+
+      if (stockData != null) {
+
+        while (stockData.next()) {
+
+          qtyOnHand = "" + stockData.getInt("qtyonhand");
+          warehouseName = "" + stockData.getString("name");
+          arrayList.add(qtyOnHand + "," + warehouseName);
+
+        }
+      }
+
+      conn.commit();
+    } catch (Exception e) {
+
+      e.printStackTrace();
+
+    }
+
+    return arrayList;
+  }
+
+  public String validateMandatoryData(String ad_org, String warehouse, String product,
+      String bPartner, String taxid) {
+
+    String message = "";
+    String sqlOrg = "Select ad_org_id from ad_org where name = ?";
+    String sqlWarehouse = "Select m_warehouse_id from m_warehouse where name = ?";
+    String sqlProduct = "Select m_product_id from m_product where m_product_id = ?";
+    String sqlPartner = "Select c_bpartner_id from c_bpartner where c_bpartner_id = ?";
+    String sqlTax = "Select c_tax_id from c_tax where c_taxcategory_id = ?";
+
+    PreparedStatement psOrg = null, psWarehouse = null, psProduct = null, psPartner = null, psTax = null;
+    ResultSet rsOrg = null, rsWarehouse = null, rsProduct = null, rsPartner = null, rsTax = null;
+    try {
+
+      psOrg = conn.prepareStatement(sqlOrg);
+      psOrg.setString(1, ad_org);
+      rsOrg = psOrg.executeQuery();
+
+      if (!rsOrg.next()) {
+        message += " Organisation, ";
+      }
+
+      psWarehouse = conn.prepareStatement(sqlWarehouse);
+      psWarehouse.setString(1, warehouse);
+      rsWarehouse = psWarehouse.executeQuery();
+
+      if (!rsWarehouse.next()) {
+        message += " Warehouse, ";
+      }
+
+      psProduct = conn.prepareStatement(sqlProduct);
+      psProduct.setString(1, product);
+      rsProduct = psProduct.executeQuery();
+
+      if (!rsProduct.next()) {
+        message += " Product, ";
+      }
+
+      psPartner = conn.prepareStatement(sqlPartner);
+      psPartner.setString(1, bPartner);
+      rsPartner = psPartner.executeQuery();
+
+      if (!rsPartner.next()) {
+        message += " Customer, ";
+      }
+
+      psTax = conn.prepareStatement(sqlTax);
+      psTax.setString(1, taxid);
+      rsTax = psTax.executeQuery();
+
+      if (!rsTax.next()) {
+        message += " Tax, ";
+      }
+
+      if (!message.equals("")) {
+        // message.replace(",", "");
+        message += "not exists in ERP definition";
+      }
+
+      conn.commit();
+
+    } catch (Exception e) {
+
+      System.out.println("In Exception of Validate Mandatory");
+      e.printStackTrace();
+
+    }
+
+    return message;
+  }
+
+  public void closeConnection() throws SQLException {
+    conn.close();
+    conn = null;
+  }
+}

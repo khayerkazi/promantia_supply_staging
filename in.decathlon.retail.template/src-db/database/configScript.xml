@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+  <vector>
+    <versionInfo version="3.0.21573"/>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="195EE4B8E00B449A8936FD77F941E15C">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="26BF778C210C44D7B577EE91D43B8395">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="383A3256E1CD4839A8AE36B3077FF071">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="402B4659617144288883470CFF788C89">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="4875112790A5448BAAC846FE6015E7ED">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="4C136CBD84D74C9EAE6CD0A320E9FF7F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="52B06BBA6A2A486084026120C9E5D4D2">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="57F87D21055B430996E124079635D495">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="6A96EB6E4D24451D8A0F370937E288A1">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="A3C20A7D545D4D1D8E7F6FAC8AA32D2A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="B5F32C61CA62477F9B2B2857617807F4">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="BC399BACA2F34B968C54555D79ED66A7">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="C173CEE2A805412C9956D3189D38DD16">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="C372A8FA69D146D593D8B53CC6A7A9D6">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="C984C749D6434B609E76109DD38F03BB">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="CC6418E9CCB047D9BDDFA951461B1FB3">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="D8CD4F4B22BB42D9A66A24C59ADB095A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="DBABB05BFF4C4EEE9A3D37A8AAA4A649">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="E3538E37721347BEA27AA57DB9A89418">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="F550F6DA808E40368794AE9D54782879">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="114F740013DA4CD2BB8445BD2C8C0612">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="OBUISEL_SELECTOR" columnname="SUGGESTIONTEXTMATCHSTYLE" pkRow="4C8BC3E8E56441F4B8C98C684A0C9212">
+      <oldValue><![CDATA[substring]]></oldValue>
+      <newValue><![CDATA[startsWith]]></newValue>
+    </columnDataChange>
+  </vector>

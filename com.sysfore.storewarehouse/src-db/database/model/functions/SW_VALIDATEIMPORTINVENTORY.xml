@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_VALIDATEIMPORTINVENTORY">
+    <function name="SW_VALIDATEIMPORTINVENTORY" type="VARCHAR">
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateInventory Record;
+  v_count NUMBER:=0;
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_inventoryErrorNotice VARCHAR(2000) := '';
+  v_formatErrorNotice  VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  
+  
+BEGIN
+
+  FOR validateInventory IN (SELECT distinct i.i_inventory_id,i.ad_client_id, i.ad_org_id,
+  i.createdby, i.updatedby,
+  i.m_warehouse_id as warehouse,i.m_product_id as itemcode,i.qtycount as quantity
+  FROM i_inventory i)
+  LOOP
+  IF (validateInventory.warehouse IS NULL OR TRIM(BOTH ' ' FROM validateInventory.warehouse) = '') THEN
+  	v_missingErrorNotice := 'Warehouse, ';
+  END IF;
+  
+  IF (validateInventory.itemcode IS NULL OR TRIM(BOTH ' ' FROM validateInventory.itemcode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Item Code, ';
+  END IF;
+   
+  ----check warehouse is existed
+  
+    
+  IF (validateInventory.warehouse IS NOT NULL) THEN 
+       select COUNT(*) AS total INTO v_count from m_warehouse where lower(m_warehouse.name) = lower(validateInventory.warehouse);
+       IF (v_count = 0 ) THEN
+  			v_inventoryErrorNotice := v_inventoryErrorNotice || 'Warehouse, ';
+  	   END IF;
+  END IF;
+    
+  -------Item /Product
+  
+  IF (validateInventory.itemcode IS NOT NULL) THEN 
+       select COUNT(*) AS total INTO v_count from m_product where lower(m_product.name) = lower(validateInventory.itemcode);
+       IF (v_count = 0 ) THEN
+  			v_inventoryErrorNotice := v_inventoryErrorNotice || 'Item Code, ';
+  	   END IF;
+  END IF;
+                         
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE i_inventory SET i_errormsg = v_messageImport, em_sw_validated = 'Y' where i_inventory.i_inventory_id=validateInventory.i_inventory_id;
+  	
+  ELSE 
+    UPDATE i_inventory SET m_errormsg = v_messageImport, em_sw_validated = 'N' where i_inventory.i_inventory_id=validateInventory.i_inventory_id;
+   
+   v_flag :=FALSE;
+  
+  END IF;
+  v_missingErrorNotice := '';
+  v_inventoryErrorNotice := '';
+  v_formatErrorNotice  := '';
+  v_messageImport := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END SW_VALIDATEIMPORTINVENTORY
+]]></body>
+    </function>
+  </database>

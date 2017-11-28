@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="fiscal_stock_valuation" pageWidth="2000" pageHeight="595" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="1900" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<parameter name="Month" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Year" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select * from sw_fiscal_stock
+ where extract(month from report_date)::character varying(4) = $P{Month}
+ and extract(year from report_date)::character varying(4) = $P{Year}]]>
+	</queryString>
+	<field name="item_code" class="java.lang.String"/>
+	<field name="model_code" class="java.lang.String"/>
+	<field name="model_name" class="java.lang.String"/>
+	<field name="report_date" class="java.sql.Timestamp"/>
+	<field name="bgt_qty" class="java.math.BigDecimal"/>
+	<field name="bgt_value" class="java.math.BigDecimal"/>
+	<field name="dmi_qty" class="java.math.BigDecimal"/>
+	<field name="dmi_value" class="java.math.BigDecimal"/>
+	<field name="dsi_qty" class="java.math.BigDecimal"/>
+	<field name="dsi_value" class="java.math.BigDecimal"/>
+	<field name="in1003_qty" class="java.math.BigDecimal"/>
+	<field name="in1003_value" class="java.math.BigDecimal"/>
+	<field name="in1004_qty" class="java.math.BigDecimal"/>
+	<field name="in1004_value" class="java.math.BigDecimal"/>
+	<field name="in1005_qty" class="java.math.BigDecimal"/>
+	<field name="in1005_value" class="java.math.BigDecimal"/>
+	<field name="sarjapur_store_qty" class="java.math.BigDecimal"/>
+	<field name="sarjapur_store_value" class="java.math.BigDecimal"/>
+	<variable name="variable1" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="51" splitType="Stretch">
+			<staticText>
+				<reportElement x="586" y="11" width="232" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fiscal Stock Report]]></text>
+			</staticText>
+			<textField pattern="MMMMM  yyyy">
+				<reportElement x="586" y="31" width="232" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("MMMM").format(new Date(0,Integer.parseInt($P{Month}),0))+" "+$P{Year}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="21" splitType="Stretch">
+			<staticText>
+				<reportElement x="90" y="1" width="113" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="1" width="90" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="203" y="1" width="151" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="354" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[BGT Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="470" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[BGT Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="586" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DMI Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="702" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DMI Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="818" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DSI Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="934" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DSI Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1050" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IN1003 Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1166" y="1" width="115" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IN1003 Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1281" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IN1004 Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1397" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IN1004 Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1513" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IN1005 Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1629" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IN1005 Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1745" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sarjapur Store Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1861" y="1" width="139" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sarjapur Store Value]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="21">
+			<textField>
+				<reportElement x="0" y="1" width="90" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{item_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="203" y="1" width="151" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{model_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="90" y="1" width="113" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{model_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="354" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{bgt_qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="470" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{bgt_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="586" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{dmi_qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="702" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{dmi_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="818" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{dsi_qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="934" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{dsi_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1050" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{in1003_qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1166" y="1" width="115" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{in1003_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1397" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{in1004_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1281" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{in1004_qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1513" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{in1005_qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1629" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{in1005_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1862" y="1" width="138" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sarjapur_store_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1745" y="1" width="117" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sarjapur_store_qty}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

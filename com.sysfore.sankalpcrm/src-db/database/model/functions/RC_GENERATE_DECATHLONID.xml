@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION RC_GENERATE_DECATHLONID">
+    <function name="RC_GENERATE_DECATHLONID" type="VARCHAR">
+      <body><![CDATA[l_Sum NUMBER:=0;
+l_Multiple NUMBER:=1;
+i NUMBER:=0;
+ean CHARACTER VARYING :='';
+last_character NUMBER:=0;
+ean_result CHARACTER VARYING ;
+BEGIN
+   SELECT rc_decathlonid_sequence.nextval into ean;
+    
+    FOR i IN 1..12 LOOP
+       If mod(i,2) = 0 Then
+	l_Multiple := 3;
+	Else
+	l_Multiple := 1;
+	End If;
+	
+    l_Sum := l_Sum + to_number(substring(ean, i, 1)) * l_Multiple;
+    
+    
+
+	--RAISE NOTICE 'chars %', to_number(substring(ean, i,1));
+    
+	End Loop;
+	IF Mod(l_Sum, 10) > 0 THEN
+	last_character= 10 - Mod(l_Sum, 10);
+	ELSE
+	last_character = 0;
+	END IF;
+	--RAISE NOTICE 'lsum %',l_Sum;
+	--RAISE NOTICE 'MOD %',Mod(l_Sum, 10);
+	ean_result=ean||last_character;
+    
+	--RAISE NOTICE 'result %',ean_result;
+
+	
+	Return ean_result;
+END RC_GENERATE_DECATHLONID
+]]></body>
+    </function>
+  </database>

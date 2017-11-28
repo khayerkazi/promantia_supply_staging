@@ -1,0 +1,200 @@
+/*
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2008 Openbravo SLU 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+ */
+package com.sysfore.storewarehouse.ad_process;
+
+/**
+ * Process for Approve the store requisition automatically.
+ * 
+ * @author Johnson Joseph
+ */
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+
+import javax.servlet.ServletException;
+
+import org.apache.log4j.Logger;
+import org.hibernate.criterion.Expression;
+import org.openbravo.base.secureApp.VariablesSecureApp;
+import org.openbravo.dal.service.OBCriteria;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.database.ConnectionProvider;
+import org.openbravo.erpCommon.businessUtility.BpartnerMiscData;
+import org.openbravo.erpCommon.businessUtility.Tax;
+import org.openbravo.erpCommon.reference.PInstanceProcessData;
+import org.openbravo.erpCommon.utility.DateTimeData;
+import org.openbravo.erpCommon.utility.OBError;
+import org.openbravo.erpCommon.utility.SequenceIdData;
+import org.openbravo.erpCommon.utility.Utility;
+import org.openbravo.exception.NoConnectionAvailableException;
+import org.openbravo.model.ad.system.Client;
+import org.openbravo.scheduling.ProcessBundle;
+import org.openbravo.scheduling.ProcessContext;
+import org.openbravo.scheduling.ProcessLogger;
+import org.openbravo.scheduling.ProcessBundle.Channel;
+import org.openbravo.service.db.DalBaseProcess;
+
+public class StoreApproval extends DalBaseProcess {
+  static Logger log4j = Logger.getLogger(StoreApproval.class);
+  private final static String SYSTEM_CLIENT_ID = "0";
+  private ProcessLogger logger;
+  private ConnectionProvider connection;
+
+  @Override
+  protected void doExecute(ProcessBundle bundle) throws Exception {
+    // TODO Auto-generated method stub
+    logger = bundle.getLogger();
+    connection = bundle.getConnection();
+
+    VariablesSecureApp vars = bundle.getContext().toVars();
+    if (vars.getClient().equals(SYSTEM_CLIENT_ID)) {
+      OBCriteria<Client> obc = OBDal.getInstance().createCriteria(Client.class);
+      obc.add(Expression.not(Expression.eq(Client.PROPERTY_ID, SYSTEM_CLIENT_ID)));
+
+      for (Client c : obc.list()) {
+        final VariablesSecureApp vars1 = new VariablesSecureApp(bundle.getContext().getUser(),
+            c.getId(), bundle.getContext().getOrganization());
+        processOrder(vars1, bundle);
+      }
+    } else {
+      processOrder(vars, bundle);
+    }
+  }
+
+  /**
+   * 
+   * @param vars
+   * @param bundle
+   * @return
+   * @throws ServletException
+   */
+  @SuppressWarnings("static-access")
+  private OBError processOrder(VariablesSecureApp vars, ProcessBundle bundle)
+      throws ServletException {
+    OBError myError = new OBError();
+    String clientId = bundle.getContext().getClient();
+    String orgId = bundle.getContext().getOrganization();
+    String userId = bundle.getContext().getUser();
+    ConnectionProvider conn = null;
+    Connection con = null;
+    log4j.debug("clientId= " + clientId);
+    log4j.debug("orgId = " + orgId);
+    log4j.debug("userId = " + userId);
+
+    try {
+      int no = 0;
+      int total = 0;
+      int reqqty=0;
+      String Swreq = ""; // , strlocatore="";
+      conn = bundle.getConnection();
+      con = conn.getTransactionConnection();
+      String warehouseId = "";
+      String test = "";
+      int tempqty = 0;
+      StoreApproval1Data[] data1 = StoreApproval1Data.selectDraftLine(conn, orgId);
+      log4j.debug("data1.length = " + data1.length);
+      System.out.println("data1 " + data1.length);
+      for (int s = 0; s < data1.length; s++) {
+      
+      StoreApproval3Data[] data3 = StoreApproval3Data.insertpicklist(conn, "603C6A266B4C40BCAD87C5C43DDF53EE", data1[s].mProductId,data1[s].documentno,"SRQ",data1[s].qtyreq,data1[s].swSreqlineId);
+      log4j.debug("data1.length = " + data1.length);
+      System.out.println("data1 " + data1.length);
+
+StoreApprovalData.updateLines(conn,data1[s].qtyreq,NULL,data1[s].updated, data1[s].swSreqlineId, data1[s].updatedby);
+
+        //System.out.println("Sending Product ID " + data1[s].mProductId);
+     /*   reqqty=Integer.parseInt(data1[s].qtyreq);
+        StoreApproval2Data[] strlocatore = StoreApproval2Data.selectlocatore(conn,
+            data1[s].mProductId);
+        System.out.println("strlocatore " + strlocatore.length);
+        System.out.println(s + "s Started ");
+      
+        if (strlocatore.length > 1)
+          System.out.println("=======Got Two Locators========" + strlocatore.length);
+
+        for (int p = 0; p < strlocatore.length; p++) {
+          System.out.println(p + "p Started ");
+          System.out.println ("ITEM CODE IS --- " + data1[s].itemcode + " Locator ... "+strlocatore[p].mlid + " Stock in Locator ... "+strlocatore[p].qty +" Req Qty.... "+data1[s].qtyreq );
+          //while(tempqty!=Integer.parseInt(data1[s].qtyreq)) {
+          if (Integer.parseInt(strlocatore[p].qty) >= reqqty) {
+           // reqqty=reqqty;
+           //tempqty = Integer.parseInt(data1[s].qtyreq);
+            System.out.println("ITEM CODE IS --- " + data1[s].itemcode + " reqqty in if "+reqqty);
+            
+            StoreApprovalData.updateLines(conn, Integer.toString(reqqty), strlocatore[p].mlid,
+                data1[s].updated, data1[s].swSreqlineId, data1[s].updatedby);
+            StoreReqReplenishmentLineData.insertPicklist(con, conn, clientId, orgId, userId, userId,
+                data1[s].itemcode, Integer.toString(reqqty), strlocatore[p].mlid, data1[s].mProductId,
+                data1[s].documentno);
+            
+            break;
+          } else {
+            // 
+            reqqty = reqqty- Integer.parseInt(strlocatore[p].qty);
+            
+            System.out.println("ITEM CODE IS --- " + data1[s].itemcode + " ---reqqty qty in else "+reqqty);
+            StoreApprovalData.updateLines(conn, strlocatore[p].qty, strlocatore[p].mlid,
+                data1[s].updated, data1[s].swSreqlineId, data1[s].updatedby);
+            StoreReqReplenishmentLineData.insertPicklist(con, conn, clientId, orgId, userId, userId,
+                data1[s].itemcode, strlocatore[p].qty, strlocatore[p].mlid, data1[s].mProductId,
+                data1[s].documentno);
+          }
+          
+          
+          
+          
+         // data1[s].qtyreq=Integer.toString(tempqty);
+          //}//end while
+
+        }*/// inner for
+      }// outer for
+
+      StoreApprovalData[] data = StoreApprovalData.selectApproval(conn, orgId);
+      log4j.debug("data.length = " + data.length);
+      for (int i = 0; i < data.length; i++) {
+        // con = conn.getTransactionConnection();
+        // deduct wh stock
+        no = StoreApprovalData.updateForApproval(con, conn, userId, data[i].swSrequisitionId);
+        total = total + no;
+      }
+      System.out.println("update all " + total);
+      conn.releaseCommitConnection(con);
+      log4j.debug("total update: " + total);
+    } catch (NoConnectionAvailableException ex) {
+      throw new ServletException("@CODE=NoConnectionAvailable");
+    } catch (SQLException ex2) {
+      try {
+        conn.releaseRollbackConnection(con);
+      } catch (Exception ignored) {
+      }
+      throw new ServletException("@CODE=" + Integer.toString(ex2.getErrorCode()) + "@"
+          + ex2.getMessage());
+    } catch (Exception ex3) {
+      try {
+        conn.releaseRollbackConnection(con);
+      } catch (Exception ignored) {
+      }
+      throw new ServletException("@CODE=@" + ex3.getMessage());
+    }
+    return myError;
+  }
+
+}

@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IDSD_RESERVE_BOX">
+    <function name="IDSD_RESERVE_BOX" type="NUMERIC">
+      <parameter name="p_reservation_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_locator_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_attributesetinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_product_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_orderline_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_bpartner_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_uom_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_ordered_qty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[-- Logistice
+  v_ResultStr VARCHAR2(2000):='';
+  v_client_id varchar(32):='187D8FC945A5481CB41B3EE767F80DBB'; 
+  v_attributesetinstance_id VARCHAR(32);
+  v_locator_id VARCHAR(32);
+  v_qtyonhand NUMBER:=0;
+  v_qty NUMBER:=0;
+   v_boxavail NUMBER:=0;
+   v_lot VARCHAR(60):=0;
+   v_pcb NUMBER:=0;
+  v_reservation_id varchar(32);
+  TYPE RECORD IS REF CURSOR;
+    Cur_storage RECORD;
+    v_foundbox NUMBER:=0;	
+    v_reservedqty NUMBER:=0;
+    v_rescheck	NUMBER:=0;
+  BEGIN
+ v_reservation_id:=p_reservation_id;
+v_qty:=p_ordered_qty;
+
+select count(*) into v_rescheck from m_Reservation where c_orderline_id=p_orderline_id;
+if v_rescheck > 0 then
+update m_reservation set reservedqty=reservedqty+v_qty where c_orderline_id=p_orderline_id;
+INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),v_client_id ,p_org_id,'Y',now(), 
+		    '100', now(),'100', v_reservation_id,
+		     v_qty, 'N', p_locator_id,p_attributesetinstance_id, 
+		    0,p_orderline_id);
+else
+INSERT INTO m_reservation(
+		    m_reservation_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_product_id, quantity, c_uom_id, 
+		    c_orderline_id, ad_user_id, c_bpartner_id, m_attributesetinstance_id, 
+		    reservedqty, releasedqty, res_status, res_process, 
+		    managereservation_pe,em_idsd_ispcbpick)
+	    VALUES (v_reservation_id,v_client_id ,p_org_id,'Y',now(), 
+		    '100', now(),'100',p_product_id,v_qty,p_uom_id, 
+		    p_orderline_id,null,p_bpartner_id, p_attributesetinstance_id, 
+		    v_qty, 0, 'CO', 'HO','','Y');
+
+	    INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),v_client_id ,p_org_id,'Y',now(), 
+		    '100', now(),'100', v_reservation_id,
+		     v_qty, 'N', p_locator_id,p_attributesetinstance_id, 
+		    0,p_orderline_id);
+end if;
+return v_qty;
+END IDSD_RESERVE_BOX
+]]></body>
+    </function>
+  </database>

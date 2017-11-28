@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2006 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************
+-->
+
+
+    <SqlClass name="MemberStatusStatisticsReportData" package="com.sysfore.sankalpcrm.ad_reports" accessModifier="public">
+    <SqlClassComment></SqlClassComment>
+    <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+     select  count(distinct c_bpartner_id) as customers,
+     (select count(*) from c_bpartner where c_bpartner.em_rc_status='A'and c_bpartner.iscustomer='Y'
+    
+     ) as activecustomers,
+     (select count(*) from c_bpartner where c_bpartner.em_rc_status='D'and c_bpartner.iscustomer='Y'
+     
+     ) as disabledcustomers,
+     (select count(*)from c_bpartner  where c_bpartner.em_rc_status='P'and c_bpartner.iscustomer='Y'
+     
+     ) as pendingcustomers
+     from c_order 
+     where 1=1
+     ]]></Sql>
+
+     <!--<Parameter name="adOrgId" optional="true" after="AND 2=2"><![CDATA[AND c_bpartner.AD_ORG_ID = ?]]></Parameter>
+     <Parameter name="dateFrom" optional="true" after="AND 2=2"><![CDATA[AND c_bpartner.updated >= to_date(?)]]></Parameter>
+     <Parameter name="dateTo" optional="true" after="AND 2=2"><![CDATA[AND c_bpartner.updated < to_date(?)]]></Parameter>
+
+
+     <Parameter name="adOrgId" optional="true" after="AND 3=3"><![CDATA[AND c_bpartner.AD_ORG_ID = ?]]></Parameter>
+     <Parameter name="dateFrom" optional="true" after="AND 3=3"><![CDATA[AND c_bpartner.updated >= to_date(?)]]></Parameter>
+     <Parameter name="dateTo" optional="true" after="AND 3=3"><![CDATA[AND c_bpartner.updated < to_date(?)]]></Parameter>
+
+
+
+     <Parameter name="adOrgId" optional="true" after="AND 4=4"><![CDATA[AND c_bpartner.AD_ORG_ID = ?]]></Parameter>
+     <Parameter name="dateFrom" optional="true" after="AND 4=4"><![CDATA[AND c_bpartner.updated >= to_date(?)]]></Parameter>
+     <Parameter name="dateTo" optional="true" after="AND 4=4"><![CDATA[AND c_bpartner.updated < to_date(?)]]></Parameter>
+
+
+   <Parameter name="adOrgId" optional="true" after="AND 1=1"><![CDATA[AND c_order.AD_ORG_ID = ?]]></Parameter>
+    <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[AND c_order.dateordered >= to_date(?)]]></Parameter>
+    <Parameter name="dateTo" optional="true" after="AND 1=1"><![CDATA[AND c_order.dateordered < to_date(?)]]></Parameter>
+    <Parameter name="client" optional="true" after="AND 1=1"><![CDATA[AND c_order.ad_client_id = ?]]></Parameter>
+    <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[AND c_bpartner_id NOT IN (select c_bpartner_id from c_order where dateordered < to_date(?))]]></Parameter>
+-->
+    <Parameter name="client" optional="true" after="where 1=1"><![CDATA[AND c_order.ad_client_id = ?]]></Parameter>
+   </SqlMethod>
+
+    <SqlMethod name="set" type="constant" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql></Sql>
+    </SqlMethod>
+    </SqlClass>
+

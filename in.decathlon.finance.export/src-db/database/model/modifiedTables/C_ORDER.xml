@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ORDER">
+    <table name="C_ORDER" primaryKey="C_ORDER_KEY">
+      <index name="EM_DFEX_INVOICE_ORDER_IDX2" unique="false">
+        <index-column name="C_DOCTYPE_ID"/>
+        <index-column name="ISINVOICED"/>
+        <index-column name="ISSOTRX"/>
+        <index-column name="DATEORDERED"/>
+      </index>
+    </table>
+  </database>

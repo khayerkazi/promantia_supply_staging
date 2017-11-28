@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oxit:SyncPartyMaster xmlns:oxit="http://www.oxylane.com/oxit/oagis" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <oxit:ApplicationArea>
+    <oxit:Sender>
+      <oxit:LogicalID></oxit:LogicalID>
+    </oxit:Sender>
+    <oxit:Receiver>
+      <oxit:LogicalID></oxit:LogicalID>
+    </oxit:Receiver>
+    <oxit:CreationDateTime></oxit:CreationDateTime>
+  </oxit:ApplicationArea>
+  <oxit:DataArea>
+    <oxit:PartyMaster>
+      <oxit:PartyIDs>        
+           
+        <oxit:ID schemeName="AddressBookNumber" schemeAgencyName="EONE"></oxit:ID>       
+        <oxit:ID schemeName="PartyType">GEX</oxit:ID>
+        <oxit:ID schemeName="ThirdCompany">108</oxit:ID>        
+      </oxit:PartyIDs>
+      <oxit:Name languageID="en-gb"></oxit:Name>     
+      <oxit:Location>
+        <oxit:Address>
+          <oxit:LineOne></oxit:LineOne>
+          <oxit:LineTwo></oxit:LineTwo>
+          <oxit:LineThree></oxit:LineThree>
+			<oxit:LineFour></oxit:LineFour>
+          <oxit:CityName></oxit:CityName>  
+          <oxit:CountrySubDivisionCode name="State"/>        
+          <oxit:CountryCode></oxit:CountryCode>
+          <oxit:PostalCode></oxit:PostalCode>
+        </oxit:Address>
+      </oxit:Location>
+      <oxit:Contact>
+        <oxit:Communication>
+          <oxit:ChannelCode>Phone</oxit:ChannelCode>
+          <oxit:DialNumber></oxit:DialNumber>
+        </oxit:Communication>       
+        <oxit:Communication>
+          <oxit:ChannelCode>Accounting Email</oxit:ChannelCode>
+          <oxit:Text></oxit:Text>
+        </oxit:Communication>
+      </oxit:Contact>
+      <oxit:ExecutionPlatform>
+<oxit:Environment>
+<oxit:ID schemeName="JdeID">IN1</oxit:ID>
+</oxit:Environment>
+</oxit:ExecutionPlatform>      
+    </oxit:PartyMaster>
+  </oxit:DataArea>
+</oxit:SyncPartyMaster>

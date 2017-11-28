@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER RC_C_BPARTNER5_TRG">
+    <trigger name="RC_C_BPARTNER5_TRG" table="C_BPARTNER" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF DELETING THEN
+ RAISE EXCEPTION 'You cannot delete the member';
+
+END IF;
+
+             
+END RC_C_BPARTNER5_TRG
+]]></body>
+    </trigger>
+  </database>

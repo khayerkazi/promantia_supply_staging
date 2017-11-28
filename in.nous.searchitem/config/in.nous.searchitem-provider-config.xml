@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <provider>
+  <bean>
+       <name>countwebservice</name>
+       <class>in.nous.searchitem.ad_webservice.GetCountOfProductsWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>stockwebservice</name>
+       <class>in.nous.searchitem.ad_webservice.GetStockWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>updatestockwebservice</name>
+       <class>in.nous.searchitem.ad_webservice.PostStoreStockWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>getdetailswebservice</name>
+       <class>in.nous.searchitem.ad_webservice.GetWidgetDetailsWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>setpriceswebservice</name>
+       <class>in.nous.searchitem.ad_webservice.UpdatePricesWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>updatedisplaymax</name>
+       <class>in.nous.searchitem.ad_webservice.UpdateDisplayMaxWebservice</class>
+       <singleton>true</singleton>
+   </bean>   
+<bean>
+       <name>manualorder</name>
+       <class>in.nous.searchitem.ad_webservice.PurchaseOrderService</class>
+       <singleton>true</singleton>
+   </bean> 
+<bean>
+   	<name>customsearch</name>
+   	<class>in.nous.searchitem.ad_webservice.CustomProductWebService</class>
+   	<singleton>true</singleton>
+   </bean>
+<bean>
+   	<name>custompricehistory</name>
+   	<class>in.nous.searchitem.ad_webservice.CustomPriceHistoryWebService</class>
+   	<singleton>true</singleton>
+   </bean>
+<bean>
+   	<name>customtransaction</name>
+   	<class>in.nous.searchitem.ad_webservice.CustomTransactionWebService</class>
+   	<singleton>true</singleton>
+   </bean>
+<bean>
+ 	<name>regionstock</name>
+ 	<class>in.nous.searchitem.ad_webservice.RegionStockWebService</class>
+ 	<singleton>true</singleton>
+ </bean> 
+ <bean>
+ 	<name>whstockitem</name>
+ 	<class>in.nous.searchitem.ad_webservice.WHStockItem</class>
+ 	<singleton>true</singleton>
+ </bean>
+  <bean>
+    <name>updateiteminrange</name>
+    <class>in.nous.searchitem.ad_webservice.UpdateItemInrangeWebservice</class>
+    <singleton>true</singleton>
+ </bean>
+   <bean>
+    <name>getuserstorelist</name>
+    <class>in.nous.searchitem.ad_webservice.GetUserStorelist</class>
+    <singleton>true</singleton>
+ </bean>
+<bean>
+       <name>signagepricedetails</name>
+       <class>in.nous.searchitem.ad_webservice.SignagePriceDetails</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_TAXCATEGORY">
+    <table name="C_TAXCATEGORY" primaryKey="C_TAXCATEGORY_KEY">
+      <column name="EM_INGST_GSTPRODUCTCODE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="INGST_GSTPRODUCTCODE" name="EM_INGST_PRODUCTID">
+        <reference local="EM_INGST_GSTPRODUCTCODE_ID" foreign="INGST_GSTPRODUCTCODE_ID"/>
+      </foreign-key>
+    </table>
+  </database>

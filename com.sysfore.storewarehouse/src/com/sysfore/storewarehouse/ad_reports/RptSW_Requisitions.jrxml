@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="RptSW_Requisitions"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="SW_Srequisition_Id" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["/home/aravind/Desktop"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SR_LINES" isForPrompting="false" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="SR_LINES1" isForPrompting="false" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="BASE_WEB" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["/var/lib/tomcat6/webapps/obsankalp/web"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[Select SW_Srequisition_Id, movementtype from 
+  SW_Srequisition Where SW_Srequisition_Id = $P{SW_Srequisition_Id}]]></queryString>
+
+	<field name="sw_srequisition_id" class="java.lang.String"/>
+	<field name="movementtype" class="java.lang.String"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="43"  isSplitAllowed="true" >
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="-25"
+						y="0"
+						width="332"
+						height="20"
+						key="subreport-1">
+							<printWhenExpression><![CDATA[$F{movementtype}.equals(new java.lang.String("SRN"))?Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+						</reportElement>
+					<subreportParameter  name="SW_Srequisition_Id">
+						<subreportParameterExpression><![CDATA[$P{SW_Srequisition_Id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES}]]></subreportExpression>
+				</subreport>
+				<subreport  isUsingCache="true">
+					<reportElement
+						x="-25"
+						y="20"
+						width="332"
+						height="20"
+						key="subreport-2">
+							<printWhenExpression><![CDATA[!$F{movementtype}.equals(new java.lang.String("SRN"))?Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+						</reportElement>
+					<subreportParameter  name="SW_Srequisition_Id">
+						<subreportParameterExpression><![CDATA[$P{SW_Srequisition_Id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression  class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES1}]]></subreportExpression>
+				</subreport>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

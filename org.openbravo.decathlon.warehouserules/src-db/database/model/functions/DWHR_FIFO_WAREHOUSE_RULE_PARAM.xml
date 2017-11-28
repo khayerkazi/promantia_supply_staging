@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DWHR_FIFO_WAREHOUSE_RULE_PARAM">
+    <function name="DWHR_FIFO_WAREHOUSE_RULE_PARAM" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_orgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_productid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_uomid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_productuomid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_warehouse_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_locatorid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_attributesetinstanceid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_quantity" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_priority_warehouse_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_m_warehouse_rule_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_tableid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_auxid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_lineno" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_m_reservation_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_result" type="NUMERIC" mode="out">
+        <default/>
+      </parameter>
+      <parameter name="p_message" type="VARCHAR" mode="out">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* It removes all the proposed stock that does not belong to the same
+* Warehouse as the indicated by the Sales Order header
+************************************************************************/
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+
+  TYPE RECORD IS REF CURSOR;
+  Cur_Parameter RECORD;
+
+  v_quantity NUMBER;
+  v_ProductID   VARCHAR2(32);
+  v_ProductName M_Product.NAME%TYPE;
+  v_Reservation_ID VARCHAR2(32);
+  v_Warehouse_ID VARCHAR2(32);
+  
+BEGIN
+
+  v_ResultStr:='ReadingParameters';
+  v_Quantity:=p_quantity;
+  v_ProductID:=p_productid;
+  v_Reservation_ID:=p_m_reservation_id;
+  v_Warehouse_ID:=p_warehouse_id;
+  
+  IF (v_Warehouse_ID IS NULL) THEN
+    IF (v_Reservation_ID IS NULL) THEN
+      SELECT record_id
+      INTO v_Reservation_ID
+      FROM ad_pinstance
+      WHERE ad_pinstance_id = pinstance_id;
+    END IF;
+  
+    SELECT o.m_warehouse_id
+    INTO v_Warehouse_ID
+    FROM m_reservation r
+    JOIN c_orderline ol ON (ol.c_orderline_id = r.c_orderline_id)
+    JOIN c_order o ON (ol.c_order_id = o.c_order_id)
+    WHERE m_reservation_id = v_Reservation_ID;
+    
+    IF v_Warehouse_ID IS NULL THEN
+      RAISE_APPLICATION_ERROR(-20000, '@DWHR_Parameters_Error@') ;
+    END IF;
+  END IF;
+
+  DELETE FROM m_stock_proposed ms
+  WHERE  ms.m_stock_proposed_id in (
+   select ms.m_stock_proposed_id FROM 
+   m_stock_proposed ms join m_storage_detail sd on ms.m_storage_detail_id=sd.M_storage_detail_id
+   JOIN m_locator l ON (sd.m_locator_id = l.m_locator_id)
+   WHERE ms.ad_pinstance_id = pinstance_id
+   and (l.m_warehouse_id <> v_Warehouse_ID
+      or ( l.em_obwhs_type = 'OUT')
+      or ( l.isactive = 'N'))
+  );
+
+  P_message:=v_ResultStr;
+  p_Result:=1;
+  RETURN;
+
+EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  P_message:=v_ResultStr;
+  p_Result:=0;
+  RETURN;
+END DWHR_FIFO_WAREHOUSE_RULE_PARAM
+]]></body>
+    </function>
+  </database>

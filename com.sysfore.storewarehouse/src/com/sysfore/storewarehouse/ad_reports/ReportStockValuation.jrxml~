@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="ReportStockValuation"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="680"
+		 pageHeight="842"
+		 columnWidth="620"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="movementdate" isForPrompting="false" class="java.util.Date"/>
+	<queryString><![CDATA[
+select distinct p.NAME as Product,A.QTY as Quantity,b.name as Brand,
+            (pp.em_cl_ccunitprice * A.QTY) as CCUnitPrice,
+            (pp.em_cl_cessionprice * A.QTY) as CessionPrice
+            FROM (SELECT M_PRODUCT_ID, SUM(MOVEMENTQTY) AS QTY FROM M_TRANSACTION, M_LOCATOR
+                  WHERE M_TRANSACTION.M_LOCATOR_ID = M_LOCATOR.M_LOCATOR_ID
+                  GROUP BY M_PRODUCT_ID) A,
+                  m_product p
+            left join m_productprice pp on (p.m_product_id=pp.m_product_id)            
+            inner join cl_model m on (m.cl_model_id=p.em_cl_model_id)
+            inner join cl_brand b on (b.cl_brand_id=m.cl_brand_id)
+            inner join m_pricelist_version plv on (plv.m_pricelist_version_id=pp.m_pricelist_version_id)            
+            where A.M_PRODUCT_ID = p.M_PRODUCT_ID
+             AND p.isActive='Y' and plv.name like '%Catalog%'
+            AND 1=1
+            group by p.name, A.QTY, p.name,b.name
+            order by p.name
+]]></queryString>
+
+	<field name="product" class="java.lang.String"/>
+	<field name="quantity" class="java.math.BigDecimal"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="em_cl_ccunitprice" class="java.math.BigDecimal"/>
+	<field name="ccunitprice" class="java.math.BigDecimal"/>
+	<field name="em_cl_cessionprice" class="java.math.BigDecimal"/>
+	<field name="cessionprice" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="14"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="1"
+						y="0"
+						width="619"
+						height="14"
+						key="staticText-1"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Stock Valuation Report]]></text>
+				</staticText>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="24"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="1"
+						y="0"
+						width="92"
+						height="24"
+						key="staticText-2"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Item Code]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="93"
+						y="0"
+						width="106"
+						height="24"
+						key="staticText-3"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Brand Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="199"
+						y="0"
+						width="125"
+						height="24"
+						key="staticText-4"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Warehouse Quantity]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="324"
+						y="0"
+						width="156"
+						height="24"
+						key="staticText-5"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Catalog Price Valuation (Unit Price)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="480"
+						y="0"
+						width="140"
+						height="24"
+						key="staticText-6"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Cession Price Valuation]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="18"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="324"
+						y="0"
+						width="156"
+						height="18"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{ccunitprice}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="480"
+						y="0"
+						width="140"
+						height="18"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{cessionprice}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1"
+						y="0"
+						width="92"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{product}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="93"
+						y="0"
+						width="106"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="199"
+						y="0"
+						width="125"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{quantity}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

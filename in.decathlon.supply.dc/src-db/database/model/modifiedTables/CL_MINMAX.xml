@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE CL_MINMAX">
+    <table name="CL_MINMAX" primaryKey="CL_MINMAX_KEY">
+      <column name="EM_IDSD_PCB_THRESHOLD_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="IDSD_PCB_THRESHOLD" name="EM_IDSD_PCB_THRESHOLD">
+        <reference local="EM_IDSD_PCB_THRESHOLD_ID" foreign="IDSD_PCB_THRESHOLD_ID"/>
+      </foreign-key>
+    </table>
+  </database>

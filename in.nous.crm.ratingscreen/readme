@@ -1,0 +1,5 @@
+This is a new module created for the Rating Screen application.
+It contains a Web Service called RatingScreenWebService.java which calls the 
+stored procedure ncrs_rating_screen to fetch the ratings of the store.
+This module does not have dependencies on any other modules of ERP. 
+This module is essential for the Rating Screen Play application to work.

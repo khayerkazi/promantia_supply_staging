@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+<SqlClass name="ReportExportCatalogData" package="com.sysfore.storewarehouse.ad_reports">
+	<SqlClassComment></SqlClassComment>
+	<SqlMethod name="select" type="preparedStatement" return="multiple">
+		<SqlClassComment></SqlClassComment>
+		<Sql>
+			<![CDATA[select u.name as universe,d.name as DMIdepartment,sd.name as store_dept,b.name as brand,
+clb.name as Department,cls.name as SubDepartment,
+n.name as natureofProduct,ml.merchandise_category as Family,s.name as sports,ml.name as modelname,ml.imancode as imancode,ml.value as modelcode,p.name as itemcode,p.upc as eancode,
+CASE WHEN ml.typology='1' then 'Permanent' else 'Collection' END as typology,
+CASE WHEN p.em_cl_gender='1' THEN 'Boy' WHEN p.em_cl_gender='2' THEN 'Girl' WHEN  p.em_cl_gender='3' THEN 'Men' WHEN  p.em_cl_gender='4' THEN 'Women' ELSE 'Unisex' END as Gender,
+CASE WHEN p.em_cl_age='1' THEN 'Junior' WHEN p.em_cl_age='2' THEN 'Adult' ELSE 'All' END as age,
+p.em_cl_size as size,cl.name as color,p.em_cl_lifestage as LifeStage,
+CASE 
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='N' AND p.em_cl_typec='N'  THEN 'A' 
+WHEN p.em_cl_typea='N' AND p.em_cl_typeb='Y' AND p.em_cl_typec='N' THEN 'B' 
+WHEN p.em_cl_typea='N' AND p.em_cl_typeb='N' AND p.em_cl_typec='Y' THEN 'C'
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='Y' AND p.em_cl_typec='N' THEN 'AB'
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='N' AND p.em_cl_typec='Y' THEN 'AC'
+WHEN p.em_cl_typea='N' AND p.em_cl_typeb='Y' AND p.em_cl_typec='Y' THEN 'BC'
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='Y' AND p.em_cl_typec='Y' THEN 'ABC'
+ELSE 'NA' END as ABCClassification,
+p.em_cl_ue_qty as UeQty,p.em_cl_pcb_qty as PcbQty,pp.em_cl_cessionprice as cession,pp.em_cl_ccunitprice as cashandcarry,
+(select name from c_taxcategory where c_taxcategory_id=p.c_taxcategory_id) as taxCategory,pp.em_cl_mrpprice as MRP
+ from m_product p inner join cl_model ml on p.em_cl_model_id=ml.cl_model_id 
+ inner join cl_brand b on ml.cl_brand_id=b.cl_brand_id
+ left join cl_storedept sd on ml.cl_storedept_id=sd.cl_storedept_id 
+ left join cl_universe u on ml.cl_universe_id=u.cl_universe_id 
+ left join cl_department d on ml.cl_department_id=d.cl_department_id
+ left join cl_sport s on ml.cl_sport_id=s.cl_sport_id
+ left join cl_natureofproduct n on ml.cl_natureofproduct_id=n.cl_natureofproduct_id
+ left join cl_component_brand c on ml.cl_component_brand_id=c.cl_component_brand_id
+ left join cl_color cl on p.em_cl_color_id=cl.cl_color_id 
+ left join m_productprice pp on p.m_product_id=pp.m_product_id
+ left join cl_branddepartment clb on ml.cl_branddepartment_id=clb.cl_branddepartment_id
+ left join cl_subdepartment cls on ml.cl_subdepartment_id=cls.cl_subdepartment_id
+ left join c_taxcategory tc on tc.c_taxcategory_id=p.c_taxcategory_id
+ where 1=1 and ? is not null
+ AND pp.m_pricelist_version_id='0F39C05C15EE4E5BB50BD5FEC1645DA1' 
+ order by d.name
+     ]]></Sql>
+		<Parameter name="ModelName" optional="true" after="where 1=1"><![CDATA[AND lower(p.EM_cl_MODELNAME) LIKE lower(?)]]></Parameter>
+		<Parameter name="ModelCode" optional="true" after="where 1=1"><![CDATA[AND p.EM_cl_MODELCODE LIKE ?]]></Parameter>
+		<Parameter name="Brand" optional="true" after="where 1=1"><![CDATA[AND b.cl_brand_id = ?]]></Parameter>
+		<Parameter name="Lifestage" optional="true" after="where 1=1"><![CDATA[AND p.em_cl_lifestage = ?]]></Parameter>
+		<Parameter name="clientCheckNotNull"/>
+		
+	</SqlMethod>
+	<SqlMethod name="selectOrg" type="preparedStatement" return="multiple">
+		<SqlClassComment></SqlClassComment>
+		<Sql>
+			<![CDATA[select u.name as universe,d.name as DMIdepartment,sd.name as store_dept,b.name as brand,
+clb.name as Department,cls.name as SubDepartment,
+n.name as natureofProduct,ml.merchandise_category as Family,s.name as sports,ml.name as modelname,ml.imancode as imancode,ml.value as modelcode,p.name as itemcode,p.upc as eancode,
+CASE WHEN ml.typology='1' then 'Permanent' else 'Collection' END as typology,
+CASE WHEN p.em_cl_gender='1' THEN 'Boy' WHEN p.em_cl_gender='2' THEN 'Girl' WHEN  p.em_cl_gender='3' THEN 'Men' WHEN  p.em_cl_gender='4' THEN 'Women' ELSE 'Unisex' END as Gender,
+CASE WHEN p.em_cl_age='1' THEN 'Junior' WHEN p.em_cl_age='2' THEN 'Adult' ELSE 'All' END as age,
+p.em_cl_size as size,cl.name as color,p.em_cl_lifestage as LifeStage,
+CASE 
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='N' AND p.em_cl_typec='N'  THEN 'A' 
+WHEN p.em_cl_typea='N' AND p.em_cl_typeb='Y' AND p.em_cl_typec='N' THEN 'B' 
+WHEN p.em_cl_typea='N' AND p.em_cl_typeb='N' AND p.em_cl_typec='Y' THEN 'C'
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='Y' AND p.em_cl_typec='N' THEN 'AB'
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='N' AND p.em_cl_typec='Y' THEN 'AC'
+WHEN p.em_cl_typea='N' AND p.em_cl_typeb='Y' AND p.em_cl_typec='Y' THEN 'BC'
+WHEN p.em_cl_typea='Y' AND p.em_cl_typeb='Y' AND p.em_cl_typec='Y' THEN 'ABC'
+ELSE 'NA' END as ABCClassification,
+p.em_cl_ue_qty as UeQty,p.em_cl_pcb_qty as PcbQty,pp.em_cl_cessionprice as cession,pp.em_cl_ccunitprice as cashandcarry,
+(select name from c_taxcategory where c_taxcategory_id=p.c_taxcategory_id) as taxCategory,pp.em_cl_mrpprice as MRP
+ from m_product p inner join cl_model ml on p.em_cl_model_id=ml.cl_model_id 
+ inner join cl_brand b on ml.cl_brand_id=b.cl_brand_id
+ left join cl_storedept sd on ml.cl_storedept_id=sd.cl_storedept_id 
+ left join cl_universe u on ml.cl_universe_id=u.cl_universe_id 
+ left join cl_department d on ml.cl_department_id=d.cl_department_id
+ left join cl_sport s on ml.cl_sport_id=s.cl_sport_id
+ left join cl_natureofproduct n on ml.cl_natureofproduct_id=n.cl_natureofproduct_id
+ left join cl_component_brand c on ml.cl_component_brand_id=c.cl_component_brand_id
+ left join cl_color cl on p.em_cl_color_id=cl.cl_color_id 
+ left join m_productprice pp on p.m_product_id=pp.m_product_id
+ left join cl_branddepartment clb on ml.cl_branddepartment_id=clb.cl_branddepartment_id
+ left join cl_subdepartment cls on ml.cl_subdepartment_id=cls.cl_subdepartment_id
+ left join c_taxcategory tc on tc.c_taxcategory_id=p.c_taxcategory_id
+ where 1=1 and ? is not null
+ order by d.name
+     ]]></Sql>
+		<Parameter name="ModelName" optional="true" after="where 1=1"><![CDATA[AND lower(p.EM_cl_MODELNAME) LIKE lower(?)]]></Parameter>
+		<Parameter name="ModelCode" optional="true" after="where 1=1"><![CDATA[AND p.EM_cl_MODELCODE LIKE ?]]></Parameter>
+		<Parameter name="Brand" optional="true" after="where 1=1"><![CDATA[AND b.cl_brand_id = ?]]></Parameter>
+		<Parameter name="Lifestage" optional="true" after="where 1=1"><![CDATA[AND p.em_cl_lifestage = ?]]></Parameter>
+		<Parameter name="Org" optional="true" after="where 1=1"><![CDATA[AND pp.ad_org_id = ?]]></Parameter>
+		<Parameter name="clientCheckNotNull"/>
+	</SqlMethod>
+	<SqlMethod name="set" type="constant" return="multiple">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql></Sql>
+	</SqlMethod>
+</SqlClass>

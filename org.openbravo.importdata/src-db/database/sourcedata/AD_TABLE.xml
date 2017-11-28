@@ -1,0 +1,276 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<data>
+<!--381--><AD_TABLE>
+<!--381-->  <AD_TABLE_ID><![CDATA[381]]></AD_TABLE_ID>
+<!--381-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--381-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--381-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--381-->  <NAME><![CDATA[DataImportFormat]]></NAME>
+<!--381-->  <DESCRIPTION><![CDATA[Import Format]]></DESCRIPTION>
+<!--381-->  <HELP><![CDATA[The Import Format tab contains each record parameter configuration for each data import type.]]></HELP>
+<!--381-->  <TABLENAME><![CDATA[AD_ImpFormat]]></TABLENAME>
+<!--381-->  <CLASSNAME><![CDATA[ImportFormat]]></CLASSNAME>
+<!--381-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--381-->  <ACCESSLEVEL><![CDATA[6]]></ACCESSLEVEL>
+<!--381-->  <AD_WINDOW_ID><![CDATA[189]]></AD_WINDOW_ID>
+<!--381-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--381-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--381-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--381-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--381-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--381-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--381-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--381-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--381--></AD_TABLE>
+
+<!--382--><AD_TABLE>
+<!--382-->  <AD_TABLE_ID><![CDATA[382]]></AD_TABLE_ID>
+<!--382-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--382-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--382-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--382-->  <NAME><![CDATA[DataImportFormatRow]]></NAME>
+<!--382-->  <DESCRIPTION><![CDATA[Maintain Format Fields]]></DESCRIPTION>
+<!--382-->  <HELP><![CDATA[Define the individual field based on the table definition.  Please note that you have to make sure that a Constant has the correct  SQL data type (i.e. if it is a 'string', you need to enclose it like 'this')]]></HELP>
+<!--382-->  <TABLENAME><![CDATA[AD_ImpFormat_Row]]></TABLENAME>
+<!--382-->  <CLASSNAME><![CDATA[ImportFormatRow]]></CLASSNAME>
+<!--382-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--382-->  <ACCESSLEVEL><![CDATA[6]]></ACCESSLEVEL>
+<!--382-->  <AD_WINDOW_ID><![CDATA[189]]></AD_WINDOW_ID>
+<!--382-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--382-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--382-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--382-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--382-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--382-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--382-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--382-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--382--></AD_TABLE>
+
+<!--532--><AD_TABLE>
+<!--532-->  <AD_TABLE_ID><![CDATA[532]]></AD_TABLE_ID>
+<!--532-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--532-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--532-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--532-->  <NAME><![CDATA[DataImportProduct]]></NAME>
+<!--532-->  <DESCRIPTION><![CDATA[Import Products]]></DESCRIPTION>
+<!--532-->  <HELP><![CDATA[Before importing, Openbravo checks the Unit of Measure (default if not set), the Product Category (default if not set), the Business Partner, the Currency (defaults to accounting currency if not set), the Product Type (only Items and Services), the uniquen]]></HELP>
+<!--532-->  <TABLENAME><![CDATA[I_Product]]></TABLENAME>
+<!--532-->  <CLASSNAME><![CDATA[Product]]></CLASSNAME>
+<!--532-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--532-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--532-->  <AD_WINDOW_ID><![CDATA[247]]></AD_WINDOW_ID>
+<!--532-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--532-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--532-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--532-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--532-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--532-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--532-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--532-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--532--></AD_TABLE>
+
+<!--533--><AD_TABLE>
+<!--533-->  <AD_TABLE_ID><![CDATA[533]]></AD_TABLE_ID>
+<!--533-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--533-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--533-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--533-->  <NAME><![CDATA[DataImportBusinessPartner]]></NAME>
+<!--533-->  <HELP><![CDATA[The import business partner is an interim table which is used when importing external data into the system]]></HELP>
+<!--533-->  <TABLENAME><![CDATA[I_BPartner]]></TABLENAME>
+<!--533-->  <CLASSNAME><![CDATA[BusinessPartner]]></CLASSNAME>
+<!--533-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--533-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--533-->  <AD_WINDOW_ID><![CDATA[172]]></AD_WINDOW_ID>
+<!--533-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--533-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--533-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--533-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--533-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--533-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--533-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--533-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--533--></AD_TABLE>
+
+<!--534--><AD_TABLE>
+<!--534-->  <AD_TABLE_ID><![CDATA[534]]></AD_TABLE_ID>
+<!--534-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--534-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--534-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--534-->  <NAME><![CDATA[DataImportElementValue]]></NAME>
+<!--534-->  <DESCRIPTION><![CDATA[Accounting account importation]]></DESCRIPTION>
+<!--534-->  <HELP><![CDATA[This process imports the accounting accounts tree into the organization]]></HELP>
+<!--534-->  <TABLENAME><![CDATA[I_ElementValue]]></TABLENAME>
+<!--534-->  <CLASSNAME><![CDATA[ElementValue]]></CLASSNAME>
+<!--534-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--534-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--534-->  <AD_WINDOW_ID><![CDATA[248]]></AD_WINDOW_ID>
+<!--534-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--534-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--534-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--534-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--534-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--534-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--534-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--534-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--534--></AD_TABLE>
+
+<!--572--><AD_TABLE>
+<!--572-->  <AD_TABLE_ID><![CDATA[572]]></AD_TABLE_ID>
+<!--572-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--572-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--572-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--572-->  <NAME><![CDATA[DataImportInventory]]></NAME>
+<!--572-->  <DESCRIPTION><![CDATA[Import Inventory]]></DESCRIPTION>
+<!--572-->  <HELP><![CDATA[Validate and Import Inventory Transactions. The Locator is primarily determined by the Locator Key, then the Warehouse and X,Y,Z fields.<p>A Physical Inventory is created per Warehouse and Movement Date.]]></HELP>
+<!--572-->  <TABLENAME><![CDATA[I_Inventory]]></TABLENAME>
+<!--572-->  <CLASSNAME><![CDATA[Inventory]]></CLASSNAME>
+<!--572-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--572-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--572-->  <AD_WINDOW_ID><![CDATA[267]]></AD_WINDOW_ID>
+<!--572-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--572-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--572-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--572-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--572-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--572-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--572-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--572-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--572--></AD_TABLE>
+
+<!--591--><AD_TABLE>
+<!--591-->  <AD_TABLE_ID><![CDATA[591]]></AD_TABLE_ID>
+<!--591-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--591-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--591-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--591-->  <NAME><![CDATA[DataImportOrder]]></NAME>
+<!--591-->  <DESCRIPTION><![CDATA[Import Orders]]></DESCRIPTION>
+<!--591-->  <HELP><![CDATA[You should supply the Document Type Name (or ID). The Document Type is on purpose not fully derived as it has too many consequences if it's wrong.  The best way is to set the Document Type Name as a Constant in your Import File Format or as an imported fi]]></HELP>
+<!--591-->  <TABLENAME><![CDATA[I_Order]]></TABLENAME>
+<!--591-->  <CLASSNAME><![CDATA[Order]]></CLASSNAME>
+<!--591-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--591-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--591-->  <AD_WINDOW_ID><![CDATA[281]]></AD_WINDOW_ID>
+<!--591-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--591-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--591-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--591-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--591-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--591-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--591-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--591-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--591--></AD_TABLE>
+
+<!--598--><AD_TABLE>
+<!--598-->  <AD_TABLE_ID><![CDATA[598]]></AD_TABLE_ID>
+<!--598-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--598-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--598-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--598-->  <NAME><![CDATA[DataImportInvoice]]></NAME>
+<!--598-->  <DESCRIPTION><![CDATA[Import Invoices]]></DESCRIPTION>
+<!--598-->  <HELP><![CDATA[You should supply the Document Type Name (or ID). The Document Type is on purpose not fully derived as it has too many consequences if it's wrong.  The best way is to set the Document Type Name as a Constant in your Import File Format or as an imported fi]]></HELP>
+<!--598-->  <TABLENAME><![CDATA[I_Invoice]]></TABLENAME>
+<!--598-->  <CLASSNAME><![CDATA[Invoice]]></CLASSNAME>
+<!--598-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--598-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--598-->  <AD_WINDOW_ID><![CDATA[279]]></AD_WINDOW_ID>
+<!--598-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--598-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--598-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--598-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--598-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--598-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--598-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--598-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--598--></AD_TABLE>
+
+<!--599--><AD_TABLE>
+<!--599-->  <AD_TABLE_ID><![CDATA[599]]></AD_TABLE_ID>
+<!--599-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--599-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--599-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--599-->  <NAME><![CDATA[DataImportGLJournal]]></NAME>
+<!--599-->  <DESCRIPTION><![CDATA[Import General Ledger]]></DESCRIPTION>
+<!--599-->  <HELP><![CDATA[A new Journal Batch is created, if the Batch Document No is different. A new Journal is created, if the Document No, Accounting Schema, Currency, Document Type, GL Category, Posting Type or Accounting type is different.<p>Please note that there are three]]></HELP>
+<!--599-->  <TABLENAME><![CDATA[I_GLJournal]]></TABLENAME>
+<!--599-->  <CLASSNAME><![CDATA[GLJournal]]></CLASSNAME>
+<!--599-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--599-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--599-->  <AD_WINDOW_ID><![CDATA[278]]></AD_WINDOW_ID>
+<!--599-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--599-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--599-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--599-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--599-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--599-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--599-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--599-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--599--></AD_TABLE>
+
+<!--600--><AD_TABLE>
+<!--600-->  <AD_TABLE_ID><![CDATA[600]]></AD_TABLE_ID>
+<!--600-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--600-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--600-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--600-->  <NAME><![CDATA[DataImportBankStatement]]></NAME>
+<!--600-->  <HELP><![CDATA[Allows the bank statement import configuration and its execution]]></HELP>
+<!--600-->  <TABLENAME><![CDATA[I_BankStatement]]></TABLENAME>
+<!--600-->  <CLASSNAME><![CDATA[BankStatement]]></CLASSNAME>
+<!--600-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--600-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--600-->  <AD_WINDOW_ID><![CDATA[277]]></AD_WINDOW_ID>
+<!--600-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--600-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--600-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--600-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--600-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--600-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--600-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--600-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--600--></AD_TABLE>
+
+<!--800175--><AD_TABLE>
+<!--800175-->  <AD_TABLE_ID><![CDATA[800175]]></AD_TABLE_ID>
+<!--800175-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--800175-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--800175-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--800175-->  <NAME><![CDATA[DataImportBudgetLine]]></NAME>
+<!--800175-->  <HELP><![CDATA[Is an interim table which is used when external data into the system]]></HELP>
+<!--800175-->  <TABLENAME><![CDATA[I_Budgetline]]></TABLENAME>
+<!--800175-->  <CLASSNAME><![CDATA[BudgetLine]]></CLASSNAME>
+<!--800175-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--800175-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--800175-->  <AD_WINDOW_ID><![CDATA[800079]]></AD_WINDOW_ID>
+<!--800175-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--800175-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--800175-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--800175-->  <IMPORTTABLE><![CDATA[N]]></IMPORTTABLE>
+<!--800175-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--800175-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--800175-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--800175-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--800175-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--800175--></AD_TABLE>
+
+<!--800222--><AD_TABLE>
+<!--800222-->  <AD_TABLE_ID><![CDATA[800222]]></AD_TABLE_ID>
+<!--800222-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--800222-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--800222-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--800222-->  <NAME><![CDATA[DataImportTax]]></NAME>
+<!--800222-->  <TABLENAME><![CDATA[I_Tax]]></TABLENAME>
+<!--800222-->  <CLASSNAME><![CDATA[Tax]]></CLASSNAME>
+<!--800222-->  <ISVIEW><![CDATA[N]]></ISVIEW>
+<!--800222-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--800222-->  <AD_WINDOW_ID><![CDATA[800098]]></AD_WINDOW_ID>
+<!--800222-->  <ISSECURITYENABLED><![CDATA[N]]></ISSECURITYENABLED>
+<!--800222-->  <ISDELETEABLE><![CDATA[Y]]></ISDELETEABLE>
+<!--800222-->  <ISHIGHVOLUME><![CDATA[N]]></ISHIGHVOLUME>
+<!--800222-->  <IMPORTTABLE><![CDATA[N]]></IMPORTTABLE>
+<!--800222-->  <ISCHANGELOG><![CDATA[N]]></ISCHANGELOG>
+<!--800222-->  <ISDEFAULTACCT><![CDATA[N]]></ISDEFAULTACCT>
+<!--800222-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+<!--800222-->  <AD_PACKAGE_ID><![CDATA[5A3ED54AB1DD4B84E040007F01006125]]></AD_PACKAGE_ID>
+<!--800222-->  <DATAORIGINTYPE><![CDATA[Table]]></DATAORIGINTYPE>
+<!--800222--></AD_TABLE>
+
+</data>

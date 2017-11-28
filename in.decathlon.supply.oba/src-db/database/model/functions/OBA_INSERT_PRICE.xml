@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION OBA_INSERT_PRICE">
+    <function name="OBA_INSERT_PRICE" type="VARCHAR">
+      <parameter name="in_modelproduct_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[priceCursor RECORD;
+
+  v_errorNotice VARCHAR(2000) := '';
+
+  v_validated NUMBER:=0;
+
+  v_updatedCounter NUMBER:=0;
+
+  v_insertedCounter NUMBER:=0; 
+
+  v_count NUMBER:=0;
+
+  v_itemcode_id VARCHAR(32):='';
+
+  v_pricelistversion_id VARCHAR(32):='';
+
+  v_productprice_id VARCHAR(32):=''; 
+
+  v_mrpPrice NUMBER:=0;
+
+  v_cessionPrice NUMBER:=0;
+
+  v_unitPrice NUMBER:=0;
+
+  v_uePrice NUMBER:=0;
+
+  v_pcbPrice NUMBER:=0;  
+
+BEGIN 
+
+	select * into priceCursor from oba_modelproduct where oba_modelproduct_id =in_modelproduct_id; 
+
+	select m_product_id INTO v_itemcode_id from m_product where name = priceCursor.itemcode;
+
+	select m_pricelist_version_id INTO v_pricelistversion_id from m_pricelist_version where lower(name) = lower(priceCursor.pricelistversion);
+
+	SELECT COUNT(*) AS total INTO v_count FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+
+  IF (v_count = 0 ) THEN
+
+	INSERT INTO m_productprice(
+
+		m_productprice_id, m_pricelist_version_id, m_product_id, ad_client_id, 
+
+		ad_org_id, isactive, created, createdby, updated, updatedby, 
+
+		em_cl_mrpprice, em_cl_cessionprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice 
+
+		)
+
+	VALUES (get_uuid(), v_pricelistversion_id, v_itemcode_id, priceCursor.ad_client_id, 
+
+		'0', priceCursor.isactive, priceCursor.created, priceCursor.createdby, priceCursor.updated, priceCursor.updatedby, 
+
+		coalesce(priceCursor.mrpprice,0),coalesce(priceCursor.cessionprice,0), coalesce(priceCursor.unitprice,0), coalesce(priceCursor.ueprice,0), coalesce(priceCursor.pcbprice,0));
+
+	ELSE
+
+	SELECT m_productprice_id, em_cl_mrpprice, 
+
+		em_cl_cessionprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice INTO  
+
+		v_productprice_id,v_mrpPrice,v_cessionPrice,v_unitPrice,v_uePrice,v_pcbPrice       
+
+	FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+
+	IF(priceCursor.mrpprice != 0 ) THEN
+
+		v_mrpPrice :=priceCursor.mrpprice;
+
+	END IF; 
+
+	IF(priceCursor.cessionprice != 0 ) THEN
+
+		v_cessionPrice :=priceCursor.cessionprice;
+
+	END IF;
+
+	IF(priceCursor.unitprice != 0 ) THEN
+
+		v_unitPrice :=priceCursor.unitprice;
+
+	END IF;
+
+	IF(priceCursor.ueprice != 0 ) THEN
+
+		v_uePrice :=priceCursor.ueprice;
+
+	END IF;
+
+	IF(priceCursor.pcbprice != 0 ) THEN
+
+		v_pcbPrice :=priceCursor.pcbprice;
+
+	END IF;
+
+	--UPDATE m_productprice
+
+		--SET updated=priceCursor.updated, updatedby=priceCursor.updatedby, 
+
+			--em_cl_mrpprice=v_mrpPrice, em_cl_cessionprice=v_cessionPrice, em_cl_ccunitprice=v_unitPrice, 
+
+			--em_cl_ccueprice=v_uePrice, em_cl_ccpcbprice=v_pcbPrice
+
+	--WHERE m_productprice_id=v_productprice_id;
+
+END IF ;
+
+   RETURN 'Success' ;
+END OBA_INSERT_PRICE
+]]></body>
+    </function>
+  </database>

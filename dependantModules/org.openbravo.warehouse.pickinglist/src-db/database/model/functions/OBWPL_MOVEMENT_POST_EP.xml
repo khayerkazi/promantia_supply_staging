@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION OBWPL_MOVEMENT_POST_EP">
+    <function name="OBWPL_MOVEMENT_POST_EP" type="NULL">
+      <parameter name="p_ep_instance" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/************************************************************************************
+ * Copyright (C) 2013-2015 Openbravo S.L.U.
+ * Licensed under the Openbravo Commercial License version 1.0
+ * You may obtain a copy of the License at http://www.openbravo.com/legal/obcl.html
+ * or in the legal folder of this module distribution.
+ ************************************************************************************/
+
+p_message VARCHAR(2000);
+p_record_id VARCHAR(60);
+p_user VARCHAR(60);
+p_result NUMBER;
+
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+v_pl_status obwpl_pickinglist.pickliststatus%TYPE;
+v_completed NUMBER;
+v_incidence NUMBER;
+v_totalitems NUMBER;
+v_pickinglist_id VARCHAR2(32);
+
+TYPE RECORD IS REF CURSOR;
+Cur_Params    RECORD;
+cur_lines     RECORD;
+
+BEGIN
+
+  FOR Cur_Params IN (
+    SELECT *
+    FROM ad_ep_instance_para
+    WHERE ad_ep_instance_id = p_ep_instance
+    ) LOOP
+    IF (cur_params.parametername LIKE 'Record_ID') THEN
+      p_record_id := cur_params.p_string;
+    ELSIF (cur_params.parametername LIKE 'User') THEN
+      p_user := cur_params.p_string;
+    ELSIF (cur_params.parametername LIKE 'Message') THEN
+      p_message := cur_params.p_text;
+    ELSIF (cur_params.parametername LIKE 'Result') THEN
+      p_result := cur_params.p_number;
+    END IF;
+  END LOOP;
+  
+  -- Reading the invoice
+  v_ResultStr:='ReadingMovement';
+  v_Message:=NULL;
+  FOR cur_lines IN
+    (
+      SELECT line FROM m_movementline
+      WHERE m_movement_id = p_record_id
+      AND em_obwpl_itemstatus='IN'
+    )
+  LOOP
+    IF v_Message IS NULL THEN
+      v_Message:=cur_lines.line;
+    ELSE
+      v_Message:=v_Message||', '||cur_lines.line;
+    END IF;
+  END LOOP;
+  IF(v_Message IS NOT NULL) THEN
+    v_Message:=v_Message||'.';
+    RAISE_APPLICATION_ERROR(20000,'@OBWPL_IncidenceLine@'||v_Message);
+  END IF;
+
+  FOR cur_lines IN (SELECT * FROM m_movementline WHERE m_movement_id = p_record_id) LOOP
+    IF (cur_lines.em_obwpl_group_pickinglist_id IS NULL AND cur_lines.EM_OBWPL_Pickinglist_ID IS NULL) THEN
+      CONTINUE;
+    END IF;
+    -- Movement line belong to a picking list, update status.
+    IF (cur_lines.em_obwpl_itemstatus = 'IC') THEN
+      UPDATE m_movementline
+      SET em_obwpl_itemstatus = 'CWI'
+      WHERE m_movementline_id = cur_lines.m_movementline_id;
+    ELSE
+      UPDATE m_movementline
+      SET em_obwpl_itemstatus = 'CO'
+      WHERE m_movementline_id = cur_lines.m_movementline_id;
+    END IF;
+
+    v_pickinglist_id := COALESCE(cur_lines.em_obwpl_group_pickinglist_id, cur_lines.em_obwpl_pickinglist_id);
+    IF (cur_lines.em_obwpl_group_pickinglist_id IS NOT NULL) THEN
+      SELECT pl.pickliststatus, COUNT(1), SUM(CASE WHEN ml.em_obwpl_itemstatus IN ('CO', 'CF', 'CWI') THEN 1 ELSE 0 END),
+          SUM(CASE WHEN ml.em_obwpl_itemstatus = 'IN' THEN 1 ELSE 0 END)
+        INTO v_pl_status, v_totalitems, v_completed, v_incidence
+      FROM obwpl_pickinglist pl
+        JOIN m_movementline ml ON ml.em_obwpl_group_pickinglist_id = pl.obwpl_pickinglist_id
+      WHERE pl.obwpl_pickinglist_id = v_pickinglist_id
+      GROUP BY pl.pickliststatus;
+    ELSE
+      SELECT pl.pickliststatus, COUNT(1), SUM(CASE WHEN ml.em_obwpl_itemstatus IN ('CO', 'CF', 'CWI') THEN 1 ELSE 0 END),
+          SUM(CASE WHEN ml.em_obwpl_itemstatus = 'IN' THEN 1 ELSE 0 END)
+        INTO v_pl_status, v_totalitems, v_completed, v_incidence
+      FROM obwpl_pickinglist pl
+        JOIN m_movementline ml ON ml.em_obwpl_pickinglist_id = pl.obwpl_pickinglist_id
+      WHERE pl.obwpl_pickinglist_id = v_pickinglist_id
+      GROUP BY pl.pickliststatus;
+    END IF;
+
+    IF (v_pl_status != 'CO' AND v_completed = v_totalitems) THEN
+      UPDATE obwpl_pickinglist
+      SET pickliststatus = 'CO'
+      WHERE obwpl_pickinglist_id = v_pickinglist_id;
+    ELSIF (v_pl_status != 'IN' AND v_incidence > 0) THEN
+      UPDATE obwpl_pickinglist
+      SET pickliststatus = 'IN'
+      WHERE obwpl_pickinglist_id = v_pickinglist_id;
+    ELSIF (v_pl_status != 'IP' AND v_pl_status != 'CO' AND v_completed > 0) THEN
+      UPDATE obwpl_pickinglist
+      SET pickliststatus = 'IP'
+      WHERE obwpl_pickinglist_id = v_pickinglist_id;
+    END IF;
+  END LOOP;
+
+
+EXCEPTION
+WHEN OTHERS THEN
+  DBMS_OUTPUT.PUT_LINE('OBWPL_MOVEMENT_POST_EP exception: '|| v_ResultStr);
+  RAISE;
+END OBWPL_MOVEMENT_POST_EP
+]]></body>
+    </function>
+  </database>

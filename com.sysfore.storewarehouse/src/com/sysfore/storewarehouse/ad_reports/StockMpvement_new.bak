@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="StockMpvement_new"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="1417"
+		 pageHeight="842"
+		 columnWidth="1417"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="DateFrom" isForPrompting="false" class="java.util.Date"/>
+	<parameter name="aux_DateFrom" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("")) ? "" : "AND st.movementdate >='" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTo" isForPrompting="false" class="java.util.Date"/>
+	<parameter name="aux_DateTo" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{DateTo} == null || $P{DateTo}.equals("")) ? "" : "AND st.movementdate <='" + new java.sql.Date($P{DateTo}.getTime()) + "'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="product" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_product" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[(($P{product} == null || $P{product}.equals("")) ? "" : "AND st.itemcode_id IN('" +$P{product}+ "')")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="movementtype" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_movementtype" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[(($P{movementtype} == null || $P{movementtype}.equals("")) ? "" : "AND st.movementtype IN('" +$P{movementtype}+ "')")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="brand" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_brand" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[(($P{brand} == null || $P{brand}.equals("")) ? "" : "AND mo.cl_brand_id IN('" +$P{brand}+ "')")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="warehouse" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_warehouse" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[(($P{warehouse} == null || $P{warehouse}.equals("")) ? "" : "AND st.m_warehouse_id IN('" +$P{warehouse}+ "')")]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select st.documentno, st.movementdate,u.name as username,
+       p.name as pdtname,mo.name as modelname,
+       b.name as brandname,p.em_cl_size as size,
+       c.name as color, sw_ref_name(st.movementtype) as movementtype,st.beforeqty as beforeqty,st.afterqty as afterqty,
+       (select name from m_warehouse where m_warehouse_id=st.source_id) as source,
+       (select name from m_warehouse where m_warehouse_id=st.destination_id) as destn,
+       st.m_warehouse_id as warehouse,sw_ref_name(st.movementtype) as movetype,
+       st.movementqty as movementqty
+            from sw_stocktransaction st
+            left join ad_user u on (u.ad_user_id = st.createdby) 
+            left join m_product p on (p.m_product_id=st.itemcode_id)
+            left join cl_model mo on (mo.cl_model_id=p.em_cl_model_id)
+            left join cl_brand b on (b.cl_brand_id=mo.cl_brand_id)
+            left join cl_color c on (c.cl_color_id=p.em_cl_color_id)
+            AND 1=1
+            $P!{aux_DateFrom}
+           $P!{aux_DateTo}
+           $P!{aux_product}
+          $P!{aux_movementtype}
+          $P!{aux_brand}
+          $P!{aux_warehouse}
+
+            group by st.documentno,st.movementdate, p.name,mo.name,b.name,p.em_cl_size,
+            c.name, st.movementtype,(select name from m_warehouse where m_warehouse_id=st.source_id),
+            (select name from m_warehouse where m_warehouse_id=st.destination_id),st.m_warehouse_id,
+            st.beforeqty,st.afterqty,st.movementqty,st.movementtype,u.name
+
+            order by st.movementtype]]></queryString>
+
+	<field name="documentno" class="java.lang.String"/>
+	<field name="movementdate" class="java.lang.String"/>
+	<field name="username" class="java.lang.String"/>
+	<field name="pdtname" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="brandname" class="java.lang.String"/>
+	<field name="size" class="java.lang.String"/>
+	<field name="color" class="java.lang.String"/>
+	<field name="movementtype" class="java.lang.String"/>
+	<field name="beforeqty" class="java.math.BigDecimal"/>
+	<field name="afterqty" class="java.math.BigDecimal"/>
+	<field name="source" class="java.lang.String"/>
+	<field name="destn" class="java.lang.String"/>
+	<field name="warehouse" class="java.lang.String"/>
+	<field name="movetype" class="java.lang.String"/>
+	<field name="movementqty" class="java.math.BigDecimal"/>
+
+
+		<group  name="Amar" >
+			<groupExpression><![CDATA[]]></groupExpression>
+			<groupHeader>
+			<band height="23"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="100"
+						height="23"
+						key="staticText-1"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1">					<pen lineWidth="0.0" lineStyle="Solid"/>
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Document No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="100"
+						y="0"
+						width="143"
+						height="23"
+						key="staticText-2"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Date & Time]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="243"
+						y="0"
+						width="95"
+						height="23"
+						key="staticText-3"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Item Code]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="338"
+						y="0"
+						width="102"
+						height="23"
+						key="staticText-4"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Model Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="440"
+						y="0"
+						width="83"
+						height="23"
+						key="staticText-5"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Brand]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="523"
+						y="0"
+						width="41"
+						height="23"
+						key="staticText-6"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Size]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="564"
+						y="0"
+						width="71"
+						height="23"
+						key="staticText-7"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Color]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="635"
+						y="0"
+						width="202"
+						height="23"
+						key="staticText-8"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Movement Type]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="837"
+						y="0"
+						width="82"
+						height="23"
+						key="staticText-9"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Source]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="919"
+						y="0"
+						width="75"
+						height="23"
+						key="staticText-10"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Destination]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="994"
+						y="0"
+						width="73"
+						height="23"
+						key="staticText-11"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Qty Before]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1067"
+						y="0"
+						width="100"
+						height="23"
+						key="staticText-12"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Qty After]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1167"
+						y="0"
+						width="82"
+						height="23"
+						key="staticText-13"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Qty Moved]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1249"
+						y="0"
+						width="164"
+						height="23"
+						key="staticText-14"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[User]]></text>
+				</staticText>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="23"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="100"
+						height="23"
+						key="textField-1"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1">					<pen lineWidth="0.0" lineStyle="Solid"/>
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="243"
+						y="0"
+						width="95"
+						height="23"
+						key="textField-2"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{pdtname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="338"
+						y="0"
+						width="102"
+						height="23"
+						key="textField-3"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="440"
+						y="0"
+						width="83"
+						height="23"
+						key="textField-4"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{brandname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="523"
+						y="0"
+						width="41"
+						height="23"
+						key="textField-5"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{size}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="564"
+						y="0"
+						width="71"
+						height="23"
+						key="textField-6"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{color}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="100"
+						y="0"
+						width="143"
+						height="23"
+						key="textField-7"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{movementdate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="635"
+						y="0"
+						width="202"
+						height="23"
+						key="textField-8"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{movementtype}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="837"
+						y="0"
+						width="82"
+						height="23"
+						key="textField-9"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{source}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="919"
+						y="0"
+						width="75"
+						height="23"
+						key="textField-10"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{destn}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="994"
+						y="0"
+						width="73"
+						height="23"
+						key="textField-11"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{beforeqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1067"
+						y="0"
+						width="100"
+						height="23"
+						key="textField-12"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{afterqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1167"
+						y="0"
+						width="82"
+						height="23"
+						key="textField-13"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{movementqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1249"
+						y="0"
+						width="164"
+						height="23"
+						key="textField-14"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="1" rightPadding="1" topPadding="1" bottomPadding="1"></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{username}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

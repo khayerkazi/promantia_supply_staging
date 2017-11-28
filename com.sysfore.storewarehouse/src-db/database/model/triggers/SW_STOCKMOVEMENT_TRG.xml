@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_STOCKMOVEMENT_TRG">
+    <trigger name="SW_STOCKMOVEMENT_TRG" table="M_TRANSACTION" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[ 
+  v_AQ NUMBER;
+  v_BQ NUMBER;
+  v_documentno character varying;
+  v_locatorto_id character varying;
+  v_movementtype character varying;
+  v_modelname character varying;
+  v_size character varying;
+  v_color character varying;
+  v_boxno character varying;
+  v_ToboxId character varying;
+  v_Toboxno character varying := '';
+  v_attributesetinstance_id character varying; 
+  v_count NUMBER;
+  v_LCount NUMBER:=0;
+  v_IWMcount NUMBER:=0;
+  v_warehouse character varying;
+  v_emiswarehouse character varying;
+ 
+BEGIN
+ 
+IF AD_isTriggerEnabled()='N' THEN IF DELETING THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END IF;
+ 
+IF INSERTING OR UPDATING THEN
+	
+	v_BQ = 0;
+	--beforeqty
+	SELECT COALESCE(SUM(movementqty),'0') INTO v_BQ FROM m_transaction WHERE m_product_id=:NEW.m_product_id AND m_locator_id=:NEW.m_locator_id AND created<:NEW.created
+	AND m_attributesetinstance_id= :NEW.m_attributesetinstance_id;
+	--afterqty           
+	v_AQ:=(v_BQ+:NEW.movementqty);
+	
+	--Openbravo: is this documentno useful?
+	-- SELECT for documentno
+	SELECT
+	CASE WHEN :NEW.m_inoutline_id IS NOT NULL THEN
+			(SELECT CASE
+					WHEN mi.c_order_id IS NOT NULL and mi.em_sw_movement not in ('SRQ','IMPL') THEN (SELECT co.documentno FROM c_order co WHERE co.c_order_id=mi.c_order_id)
+					ELSE mi.documentno 
+				END 
+			FROM m_inoutline mil, m_inout mi
+			WHERE mil.m_inoutline_id=:NEW.m_inoutline_id AND mil.m_inout_id=mi.m_inout_id)
+		WHEN :NEW.m_movementline_id IS NOT NULL THEN (SELECT mi.documentno FROM m_movement mi, m_movementline mil WHERE :NEW.m_movementline_id=mil.m_movementline_id AND mil.m_movement_id=mi.m_movement_id)
+		WHEN :NEW.m_inventoryline_id IS NOT NULL THEN (SELECT mi.name FROM m_inventory mi, m_inventoryline mil WHERE :NEW.m_inventoryline_id=mil.m_inventoryline_id AND mil.m_inventory_id=mi.m_inventory_id)
+		WHEN :NEW.em_sw_sreqline_id IS NOT NULL THEN (SELECT srq.documentno FROM sw_srequisition srq, sw_sreqline srl WHERE :NEW.em_sw_sreqline_id=srl.sw_sreqline_id AND srq.sw_srequisition_id=srl.sw_srequisition_id)
+		WHEN :NEW.em_sw_documentno IS NOT NULL THEN :NEW.em_sw_documentno
+		ELSE ''
+		END 
+	INTO v_documentno
+	FROM dual;
+
+	-- SELECT for movementtype
+	SELECT
+	CASE WHEN :NEW.em_sw_movementtype IS NOT NULL OR :NEW.em_sw_movementtype <> '' THEN
+	:NEW.em_sw_movementtype
+	WHEN :NEW.m_inoutline_id IS NOT NULL AND (select em_sw_movement from m_inout where m_inout_id = (select m_inout_id from m_inoutline where m_inoutline_id=:NEW.m_inoutline_id)) = 'SRQ'
+	THEN 'SRQ'
+WHEN :NEW.m_inoutline_id IS NOT NULL AND (select em_sw_movement from m_inout where m_inout_id = (select m_inout_id from m_inoutline where m_inoutline_id=:NEW.m_inoutline_id)) = 'SRN'
+	THEN 'SRN'
+WHEN :NEW.m_inoutline_id IS NOT NULL AND (select em_sw_movement from m_inout where m_inout_id = (select m_inout_id from m_inoutline where m_inoutline_id=:NEW.m_inoutline_id)) = 'IRC'
+	THEN 'IRC'
+WHEN :NEW.m_inoutline_id IS NOT NULL AND (select em_sw_movement from m_inout where m_inout_id = (select m_inout_id from m_inoutline where m_inoutline_id=:NEW.m_inoutline_id)) = 'IMPL'
+	THEN 'IMPL'
+	WHEN :NEW.m_inoutline_id IS NOT NULL AND :NEW.movementtype='V+'
+	THEN 'DPP'
+	WHEN :NEW.m_inoutline_id IS NOT NULL AND :NEW.movementtype<>'V+' AND :NEW.ad_org_id=(select ad_org_id from ad_org where name='Ecommerce')
+	THEN 'ECOM'
+	WHEN :NEW.m_inoutline_id IS NOT NULL AND :NEW.movementtype<>'V+' AND :NEW.ad_org_id=(select ad_org_id from ad_org where name='B2B')
+	THEN 'B2B'
+	WHEN :NEW.m_inoutline_id IS NOT NULL AND :NEW.movementtype<>'V+' AND (SELECT em_sw_isstore FROM ad_org WHERE ad_org_id=:NEW.ad_org_id)='Y'
+	THEN 'POS'
+	WHEN :NEW.m_movementline_id IS NOT NULL
+	THEN (SELECT mi.em_sw_movementtypegm FROM m_movement mi, m_movementline mil WHERE :NEW.m_movementline_id=mil.m_movementline_id AND mil.m_movement_id=mi.m_movement_id limit 1)
+	WHEN :NEW.m_inventoryline_id IS NOT NULL
+	THEN COALESCE ((SELECT mi.em_sw_movementtype FROM m_inventory mi, m_inventoryline mil, ad_ref_list ar WHERE :NEW.m_inventoryline_id=mil.m_inventoryline_id AND mil.m_inventory_id=mi.m_inventory_id limit 1),'PI')
+	WHEN :NEW.em_sw_sreqline_id IS NOT NULL
+	THEN (SELECT srq.movementtype FROM sw_srequisition srq, sw_sreqline srl WHERE :NEW.em_sw_sreqline_id=srl.sw_sreqline_id AND srq.sw_srequisition_id=srl.sw_srequisition_id limit 1)
+	ELSE
+	''
+	END INTO v_movementtype
+	FROM dual;
+	
+        --For IWM To Movement 
+
+	IF((:NEW.m_movementline_id IS NOT NULL) AND (:NEW.movementtype='M+')) THEN
+	
+	SELECT em_sw_boxto, count(1) into v_Toboxno, v_IWMcount FROM m_movementline where m_reservation_id is null and em_obwpl_pickinglist_id is null and m_movementline_id=:NEW.m_movementline_id  group by em_sw_boxto;
+
+	IF(v_IWMcount > 0) THEN
+
+	IF(v_Toboxno is not NULL) THEN
+
+	SELECT M_AttributeSetInstance_ID into v_ToboxId FROM M_AttributeSetInstance WHERE lot = v_Toboxno;
+	:NEW.M_AttributeSetInstance_ID = v_ToboxId;
+
+	ELSE
+
+	:NEW.M_AttributeSetInstance_ID = '0';
+
+	END IF;
+
+	END IF;
+
+	END IF;
+
+
+	--for color, modelname, size,
+	SELECT clm.name, p.em_cl_size, clc.name INTO v_modelname,v_size,v_color
+        FROM cl_model clm, m_product p, cl_color clc WHERE                             
+        p.em_cl_model_id=clm.cl_model_id AND p.em_cl_color_id=clc.cl_color_id AND p.m_product_id=:NEW.m_product_id;                             
+
+	:NEW.em_sw_afterqty:=v_AQ;
+	:NEW.em_sw_beforeqty:=v_BQ;
+	:NEW.em_sw_documentno:=v_documentno;
+	:NEW.em_cl_modelname:=v_modelname;
+	:NEW.em_cl_size:=v_size;
+	:NEW.em_cl_color:=v_color;
+	:NEW.em_sw_movementtype:=v_movementtype;
+
+  RETURN NEW;
+  END IF;
+    END SW_STOCKMOVEMENT_TRG
+]]></body>
+    </trigger>
+  </database>

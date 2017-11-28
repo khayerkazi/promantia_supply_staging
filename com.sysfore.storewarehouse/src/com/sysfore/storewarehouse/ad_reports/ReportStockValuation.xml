@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2006 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************
+-->
+<REPORT>
+  <template file="ReportStockValuation.html"/>
+  <PARAMETER id="paramToolBar" name="toolbar" default=""/>
+  <PARAMETER id="fieldCalendar" name="calendar" attribute="src" replace="es" default="en"/>
+  <PARAMETER id="paramDirectory" name="directory" default=""/>
+  <PARAMETER id="paramLanguage" name="paramLanguage" default=""/>
+  <PARAMETER id="paramDate" name="dateFromdisplayFormat" attribute="displayformat" replace="xx"/>
+  <PARAMETER id="paramDate" name="dateFromsaveFormat" attribute="saveformat" replace="yy"/>
+  <PARAMETER id="paramDate" name="date" attribute="value"/>
+  <PARAMETER id="paramBrand" name="Brand" attribute=""/>
+  <PARAMETER id="paramWarehouse" name="Warehouse" attribute=""/>
+  <PARAMETER id="paramLocatortype" name="Locatortype" attribute=""/>	
+  <PARAMETER id="paramCSS" name="theme" attribute="href" replace="Default"/>
+  <PARAMETER id="tdleftTabs" name="leftTabs" default=""/>
+  <PARAMETER id="paramParentTabContainer" name="parentTabContainer" default=" "/>
+  <PARAMETER id="paramMainTabContainer" name="mainTabContainer" default=" "/>
+  <PARAMETER id="paramChildTabContainer" name="childTabContainer" default=" "/>
+  <PARAMETER id="tdtopButtons" name="navigationBar" default=""/>
+  <PARAMETER id="messageBoxID" name="messageType" attribute="class" replace="yy" default="HIDDEN"/>
+  <PARAMETER id="messageBoxIDTitle" name="messageTitle" default=""/>
+  <PARAMETER id="messageBoxIDMessage" name="messageMessage" default=""/>
+  <PARAMETER id="param2" name="param2" default="2"/>
+  <structure name="structure1">
+  <FIELD id="fieldRownum1">rownum</FIELD>
+  <FUNCTION id="funcEvenOddRow1xx" name="MODULE" arg1="fieldRownum1" arg2="param2" format="integerEdition" attribute="class" replace="yy"/>
+  <FIELD id="fieldProduct">Product</FIELD>
+  <FIELD id="fieldBrand">Brand</FIELD>
+  <FIELD id="fieldQty">Quantity</FIELD>
+  <FIELD id="fieldCcUnitPrice">CCUnitPrice</FIELD>
+  <FIELD id="fieldCessionPrice">CessionPrice</FIELD>
+  <PARAMETER id="paramProductId" name="paramProductId" attribute="value"/>
+  <PARAMETER id="paramModelId" name="paramModelId" attribute="value"/>
+  
+  <SUBREPORT id="reportcl_Brand_Id" name="reportcl_Brand_Id" report="org/openbravo/erpCommon/reference/List">
+  <ARGUMENT name="parameterListSelected" withId="paramBrand"/>
+  </SUBREPORT>
+
+  <SUBREPORT id="reportm_Warehouse_Id" name="reportm_Warehouse_Id" report="org/openbravo/erpCommon/reference/List">
+  <ARGUMENT name="parameterListSelected" withId="paramWarehouse"/>
+  </SUBREPORT>
+    
+  <SUBREPORT id="reportm_locatortype" name="reportm_locatortype" report="org/openbravo/erpCommon/reference/List">
+  <ARGUMENT name="parameterListSelected" withId="paramLocatortype"/>
+  </SUBREPORT>
+  
+  <SECTION id="sectionProduct" field="Brand"/>
+  <SECTION id="sectionDetail"/>
+  </structure>
+</REPORT>

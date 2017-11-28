@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_INVENTORY">
+    <table name="M_INVENTORY" primaryKey="M_INVENTORY_KEY">
+      <index name="EM_DS_MINVNAME" unique="false">
+        <index-column name="NAME"/>
+        <index-column name="M_INVENTORY_ID"/>
+      </index>
+    </table>
+  </database>

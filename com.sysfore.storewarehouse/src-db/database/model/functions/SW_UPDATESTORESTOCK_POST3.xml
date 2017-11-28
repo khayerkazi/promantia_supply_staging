@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_UPDATESTORESTOCK_POST3">
+    <function name="SW_UPDATESTORESTOCK_POST3" type="NULL">
+      <parameter name="p_pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SL
+* All portions are Copyright (C) 2001-2006 Openbravo SL
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  -- Logistice
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Result NUMBER:=1; -- 0=failure
+  v_Record_ID VARCHAR2(32);
+  v_User_ID VARCHAR2(32):='0';
+  v_DocAction VARCHAR2(60);
+  v_DocStatus VARCHAR2(60);
+  v_ReqStatus VARCHAR(60);
+   v_Org VARCHAR(32);
+ -- v_MovementType VARCHAR(60);
+  v_Aux NUMBER;
+  v_Client_ID VARCHAR(32);
+  v_Org_ID VARCHAR(32);
+  v_count NUMBER;
+  V_TRANSACTION VARCHAR(32);
+ -- v_org_id VARCHAR(32);
+
+  v_product_id VARCHAR(32);
+  v_locator_id VARCHAR(32);
+  v_qtyonhand NUMBER:= 0;
+  v_MoveDate DATE WITHOUT TIME ZONE;
+  NextNo VARCHAR(32);
+  v_stock NUMBER;
+  --  Parameter
+  TYPE RECORD IS REF CURSOR;
+    Cur_Parameter RECORD;
+    Cur_StoreStock RECORD;
+    Cur_StoreStockUp Record;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Updating PInstance - Processing ' || p_PInstance_ID) ;
+  v_ResultStr:='PInstanceNotFound';
+  AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'Y', NULL, NULL) ;
+
+  BEGIN --BODY
+    -- Get Parameters
+    v_ResultStr:='ReadingParameters';
+    FOR Cur_Parameter IN
+      (SELECT i.Record_ID, i.AD_User_ID, i.AD_Client_ID, i.AD_Org_ID,
+        p.ParameterName, p.P_String, p.P_Number, p.P_Date
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=p_PInstance_ID
+      ORDER BY p.SeqNo) LOOP
+      v_Record_ID:=Cur_Parameter.Record_ID;
+      v_User_ID:=Cur_Parameter.AD_User_ID;
+    END LOOP; -- Get Parameter
+  
+     SELECT ad_org_id,created,m_product_id INTO v_Org_ID,v_MoveDate,v_product_id 
+    FROM cl_storestock
+    WHERE cl_storestock_ID = v_Record_ID;
+
+    --RAISE EXCEPTION 'Org: %',v_Org_ID;
+   /* SELECT Default_Ad_Org_Id INTO v_Org 
+    FROM AD_USER
+    WHERE AD_USER_ID = v_User_ID;*/
+ SELECT  M_Locator_Id INTO v_locator_id 
+ 
+    FROM AD_USER, M_Locator
+    WHERE M_Locator.M_Warehouse_Id=AD_USER.Default_M_Warehouse_Id
+    And AD_USER_ID = v_User_ID;
+
+    if(v_locator_id is NULL) THEN
+    RAISE EXCEPTION 'This user has no default locator.';
+    END IF;
+   -- RAISE EXCEPTION 'v_Org: %',v_Org;
+
+--select M_Locator_ID into v_locator_id from M_Locator where ad_org_id = v_Org;--IN (select ad_org_id from )
+--RAISE EXCEPTION 'v_locator_id: %',v_locator_id;
+
+    SELECT count(*)
+   INTO v_count
+    FROM M_Storage_Detail MSD,M_Locator ML
+    WHERE MSD.M_Locator_ID = ML.M_Locator_ID 
+     AND MSD.M_Product_ID = v_product_id
+     and ML.M_Locator_ID = v_locator_id;
+      --RAISE EXCEPTION 'Org: %',v_count;
+     if (v_count=0) then 
+     FOR Cur_StoreStock IN
+          (SELECT AD_Client_ID,AD_Org_ID,CreatedBy,UpdatedBy, M_Product_ID, StoreStock 
+          FROM cl_storestock  WHERE cl_storestock_id=v_Record_ID)
+        LOOP 
+          
+        AD_Sequence_Next('M_Transaction', v_Client_ID, NextNo) ;
+        
+     INSERT INTO M_Transaction
+          (
+            M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+            Created, CreatedBy, Updated, UpdatedBy,
+            MovementType, M_Locator_ID, M_Product_ID, 
+            MovementDate, MovementQty,C_UOM_ID
+          )
+          VALUES
+          (
+            NextNo, Cur_StoreStock.AD_Client_ID, Cur_StoreStock.AD_Org_ID, 'Y',
+            now(), Cur_StoreStock.CreatedBy, now(), Cur_StoreStock.UpdatedBy,
+            'PI+', v_locator_id, Cur_StoreStock.M_Product_ID, 
+            v_MoveDate, Cur_StoreStock.StoreStock + v_count,'100'
+          );
+         end loop;
+	else 
+	
+	 SELECT MSD.QTYONHAND
+   INTO v_qtyonhand
+    FROM M_Storage_Detail MSD,M_Locator ML
+    WHERE MSD.M_Locator_ID = ML.M_Locator_ID 
+     AND MSD.M_Product_ID = v_product_id
+     and ML.M_Locator_ID = v_locator_id;
+	
+          FOR Cur_StoreStockUp IN
+          (SELECT AD_Client_ID,AD_Org_ID,CreatedBy,UpdatedBy, M_Product_ID, StoreStock 
+          FROM cl_storestock  WHERE cl_storestock_id=v_Record_ID)
+        LOOP 
+           --RAISE EXCEPTION 'Org: %',Cur_StoreStock.AD_Org_ID;
+        AD_Sequence_Next('M_Transaction', v_Client_ID, NextNo) ;
+
+        SELECT M_Transaction_ID INTO V_TRANSACTION  FROM M_Transaction WHERE M_Locator_ID=v_locator_id and M_Product_ID= v_product_id;
+       --RAISE EXCEPTION 'Org: %',V_TRANSACTION;
+       UPDATE M_Transaction set MovementQty=Cur_StoreStockUp.StoreStock 
+       where M_Transaction_ID= V_TRANSACTION;
+      /* UPDATE M_Transaction SET AD_Client_ID=Cur_StoreStockUp.AD_Client_ID,
+       AD_Org_ID = Cur_StoreStockUp.AD_Org_ID, IsActive = 'Y',
+            Created= now(), CreatedBy=Cur_StoreStockUp.CreatedBy, Updated=now(), 
+            UpdatedBy=Cur_StoreStockUp.UpdatedBy,
+            MovementType= 'PI+', M_Locator_ID=v_locator_id, M_Product_ID= Cur_StoreStockUp.M_Product_ID, 
+            MovementDate=v_MoveDate, MovementQty=Cur_StoreStockUp.StoreStock - v_qtyonhand,C_UOM_ID='100';  
+          WHERE M_Transaction = */
+          end loop;
+          end if;
+          
+--RAISE EXCEPTION 'v_Org: %',v_count;
+  /*  SELECT coalesce(MSD.QTYONHAND, 0)
+   INTO v_qtyonhand
+    FROM M_Storage_Detail MSD,M_Locator ML
+    WHERE MSD.M_Locator_ID = ML.M_Locator_ID 
+     AND MSD.M_Product_ID = v_product_id
+     and ML.M_Locator_ID = v_locator_id;*/
+   
+--RAISE EXCEPTION 'Org: %',v_qtyonhand;
+      --raise exception 'v_locator_id: %', v_locator_id ;
+    /*  IF v_locator_id IS NULL THEN
+	 SELECT MSD.M_LOCATOR_ID
+	INTO v_locator_id
+	FROM M_Storage_Detail MSD,M_Locator ML, ad_user u
+	WHERE MSD.M_Locator_ID = ML.M_Locator_ID
+	and u.ad_org_id=ml.ad_org_id
+	AND lower(ML.VALUE) LIKE '%saleable%' LIMIT 1;
+	v_qtyonhand = 0;	
+      END IF; */
+      --RAISE EXCEPTION 'Org: %',v_Org_ID;
+       /* FOR Cur_StoreStock IN
+          (SELECT AD_Client_ID,AD_Org_ID,CreatedBy,UpdatedBy, M_Product_ID, StoreStock 
+          FROM cl_storestock  WHERE cl_storestock_id=v_Record_ID)
+        LOOP 
+           --RAISE EXCEPTION 'Org: %',Cur_StoreStock.AD_Org_ID;
+        AD_Sequence_Next('M_Transaction', v_Client_ID, NextNo) ;
+        INSERT
+        INTO M_Transaction
+          (
+            M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+            Created, CreatedBy, Updated, UpdatedBy,
+            MovementType, M_Locator_ID, M_Product_ID, 
+            MovementDate, MovementQty,C_UOM_ID
+          )
+          VALUES
+          (
+            NextNo, Cur_StoreStock.AD_Client_ID, Cur_StoreStock.AD_Org_ID, 'Y',
+            now(), Cur_StoreStock.CreatedBy, now(), Cur_StoreStock.UpdatedBy,
+            'PI+', v_locator_id, Cur_StoreStock.M_Product_ID, 
+            v_MoveDate, Cur_StoreStock.StoreStock - v_qtyonhand,'100'
+          );
+        END LOOP;*/
+       --END IF; v_locator_id
+  
+    --END IF;   
+  END; --BODY
+  AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', v_Result, v_Message) ;
+EXCEPTION
+WHEN OTHERS THEN
+  DBMS_OUTPUT.PUT_LINE('lp_irrequsition_Post error: ' || v_ResultStr);
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  ROLLBACK;
+  AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', 0, v_ResultStr);
+END SW_UPDATESTORESTOCK_POST3
+]]></body>
+    </function>
+  </database>

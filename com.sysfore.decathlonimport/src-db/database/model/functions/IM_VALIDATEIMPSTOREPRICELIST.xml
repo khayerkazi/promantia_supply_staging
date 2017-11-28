@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPSTOREPRICELIST">
+    <function name="IM_VALIDATEIMPSTOREPRICELIST" type="VARCHAR">
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateStorePricelist Record;
+  v_count NUMBER:=0;
+  v_countfollow NUMBER:=0;
+  v_countItem NUMBER:=0;
+  v_pricelistversionid CHARACTER(40) :=null;
+  v_itemcodeVal_id CHARACTER(40) :=null;
+  
+  
+v_countDupItem NUMBER:=0;
+  v_itemcode_id VARCHAR(32):='';
+  v_pricelistversion_id VARCHAR(32):='';
+  v_productprice_id VARCHAR(32):=''; 
+  
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_storepriceErrorNotice VARCHAR(2000) := '';
+  --v_orgErrorNotice VARCHAR(2000) := '';
+  v_negativeValErrorNotice VARCHAR(2000) := '';
+  v_itemCodeErrorNotice VARCHAR(2000) := '';
+  v_priceListErrorNotice VARCHAR(2000) := '';
+  v_dupItemCodeErrorNotice VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_ad_org_id CHARACTER(40) :=null;
+  v_userid VARCHAR(32):='';
+
+BEGIN
+v_userid=user_id;
+  FOR validateStorePricelist IN (SELECT distinct im_storeprice_id, ad_client_id, ad_org_id, pricelistversion, itemcode, unitprice, ueprice, pcbprice, unitqty, boxqty, updated
+  FROM im_storeprice where createdby=v_userid)
+  LOOP
+  
+  IF (validateStorePricelist.pricelistversion IS NULL OR TRIM(BOTH ' ' FROM validateStorePricelist.pricelistversion) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Pricelist Version Name, ';
+  END IF;
+  
+  IF (validateStorePricelist.itemcode IS NULL OR TRIM(BOTH ' ' FROM validateStorePricelist.itemcode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Item Code, ';
+  END IF;
+  
+    -- Empty checks
+  IF (validateStorePricelist.unitprice IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Unit Price, ';
+  END IF;
+  
+  IF (validateStorePricelist.ueprice IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'UE Price, ';
+  END IF;
+  
+  IF (validateStorePricelist.pcbprice IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'PCB Price, ';
+  END IF;
+  
+  IF (validateStorePricelist.boxqty IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Store Box Qty, ';
+  END IF;
+  
+  IF (validateStorePricelist.unitqty IS NULL) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Store Unit Qty, ';
+  END IF;
+  
+  -- Negative and Zero checks
+  
+  IF (validateStorePricelist.unitprice < 1) THEN
+  	v_negativeValErrorNotice := v_negativeValErrorNotice || 'Unit Price, ';
+  END IF;
+  
+  IF (validateStorePricelist.ueprice < 1) THEN
+  	v_negativeValErrorNotice := v_negativeValErrorNotice || 'UE Price, ';
+  END IF;
+  
+  IF (validateStorePricelist.pcbprice < 1) THEN
+  	v_negativeValErrorNotice := v_negativeValErrorNotice ||  'PCB Price, ';
+  END IF;
+  
+  IF (validateStorePricelist.boxqty < 1) THEN
+  	v_negativeValErrorNotice := v_negativeValErrorNotice ||  'Store Box Qty, ';
+  END IF;
+  
+  IF (validateStorePricelist.unitqty < 1) THEN
+  	v_negativeValErrorNotice := v_negativeValErrorNotice ||  'Store Unit Qty, ';
+  END IF;
+  
+  SELECT COUNT(*) AS total INTO v_count FROM m_pricelist_version WHERE lower(m_pricelist_version.name)=lower(validateStorePricelist.pricelistversion);
+  
+  IF (v_count = 0 ) THEN
+  	v_priceListErrorNotice := v_priceListErrorNotice || 'Pricelist ';
+  END IF; 
+  SELECT m_pricelist_version_id,ad_org_id INTO v_pricelistversionid,v_ad_org_id FROM m_pricelist_version WHERE lower(m_pricelist_version.name)=lower(validateStorePricelist.pricelistversion);
+  select m_product_id INTO v_itemcodeVal_id FROM m_product where name = validateStorePricelist.itemcode;
+
+  --SELECT COUNT(*) AS total INTO v_countfollow FROM m_productprice where m_productprice.m_pricelist_version_id = v_pricelistversionid and m_productprice.m_product_id = v_itemcodeVal_id and lower(m_productprice.em_cl_followcatalog)=lower('Y');
+  
+  --IF (v_countfollow = 1 ) THEN
+  	--v_storepriceErrorNotice := v_storepriceErrorNotice ||'Follow Catalog Price checked, ';
+  --END IF;
+
+  SELECT COUNT(*) AS total INTO v_countItem FROM m_product WHERE lower(m_product.name)=lower(validateStorePricelist.itemcode);
+  IF (v_countItem = 0 ) THEN
+  	v_itemCodeErrorNotice := v_itemCodeErrorNotice ||'Incorrect Item Code';
+  END IF;
+
+  IF v_ad_org_id != validateStorePricelist.ad_org_id THEN
+  	v_storepriceErrorNotice := v_storepriceErrorNotice ||'The current role is not allowed to do this import, ';
+  END IF;
+ -- select m_product_id INTO v_itemcode_id from m_product where name = validateStorePricelist.itemcode;
+
+	--select m_pricelist_version_id INTO v_pricelistversion_id from m_pricelist_version where name = validateStorePricelist.pricelistversion;
+
+	SELECT COUNT(*) AS total INTO v_countDupItem FROM im_storeprice WHERE im_storeprice.itemcode = validateStorePricelist.itemcode and ad_org_id=v_ad_org_id;
+
+  IF (v_countDupItem > 1 ) THEN
+      v_dupItemCodeErrorNotice := v_dupItemCodeErrorNotice ||'Duplicate ItemCode';
+  END IF;
+  --IF (v_orgErrorNotice != '') THEN
+  --	  v_messageImport := v_orgErrorNotice || ' ';
+ -- END IF;
+  IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice || 'is Mandatory' || ', ' || v_messageImport;
+  END IF;
+  
+  IF (v_storepriceErrorNotice != '') THEN
+  	  v_messageImport := v_storepriceErrorNotice || 'Pricelist Version not Defined' || ', '  || v_messageImport;
+  END IF;
+  
+  IF (v_negativeValErrorNotice != '') THEN
+  	  v_messageImport := v_negativeValErrorNotice || 'must be greater than 0' || ', '  || v_messageImport;
+  END IF;
+  
+  IF (v_itemCodeErrorNotice != '') THEN
+  	  v_messageImport := v_itemCodeErrorNotice || ','  || v_messageImport;
+  END IF;
+  
+  IF (v_priceListErrorNotice != '') THEN
+  	  v_messageImport := v_priceListErrorNotice || 'is Not Defined' || ', '  || v_messageImport;
+  END IF;
+  
+  IF (v_dupItemCodeErrorNotice != '') THEN
+  	  v_messageImport := v_dupItemCodeErrorNotice || ', '  || v_messageImport;
+  END IF;
+  
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE im_storeprice SET im_errormsg = v_messageImport, validated = 'Y'
+    where im_storeprice.im_storeprice_id=validateStorePricelist.im_storeprice_id
+    and createdby=v_userid and ad_org_id=v_ad_org_id;
+    
+  ELSE 
+    UPDATE im_storeprice SET im_errormsg = v_messageImport, validated = 'N' 
+    where im_storeprice.im_storeprice_id=validateStorePricelist.im_storeprice_id
+    and createdby=v_userid; 
+    v_flag :=FALSE;
+  END IF;
+  
+  v_missingErrorNotice := '';
+  v_storepriceErrorNotice := '';
+ -- v_formatErrorNotice  := '';
+  v_messageImport := '';
+  v_negativeValErrorNotice := '';
+  v_itemCodeErrorNotice := '';
+  v_priceListErrorNotice := '';
+  v_dupItemCodeErrorNotice := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPSTOREPRICELIST
+]]></body>
+    </function>
+  </database>

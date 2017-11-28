@@ -1,0 +1,870 @@
+<?xml version="1.0"?>
+  <vector>
+    <versionInfo version="3.0.24034"/>
+    <columnRequiredChange tableName="C_BPARTNER" columnName="VALUE">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnRequiredChange tableName="C_BPARTNER" columnName="NAME">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnRequiredChange tableName="M_INOUT" columnName="C_DOCTYPE_ID">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnRequiredChange tableName="M_INOUT" columnName="MOVEMENTTYPE">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnRequiredChange tableName="M_INVENTORYLINE" columnName="QTYBOOK">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnRequiredChange tableName="M_PRODUCT" columnName="VALUE">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="179">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="180">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="181">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="182">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="183">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="184">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="185">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="188">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="189">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="345">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="347">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="4061BB5E23894F0BAF1C1F1DE5852F12">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="5A13BEB846D54D37B73DEF378F26ADEC">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="6FA412A8BF6D4E6DB1047F7FA9415280">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="740719685C9A4E0D9B422A4B371695BB">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="7688BC5A0DD44AF1924B14D6078F2EC8">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="8821C3E6B7C14CFE808219BAA52A85FE">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="A4E7D8540CD04F89BC05F55FEDEDF887">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="B00B7515749242BFB245FDF15D17A60E">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="C5B742BD43F04CEB9A32D5AB67D672FA">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="DDDD91CEB330446CA87C43FC9324281C">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MODEL_OBJECT" columnname="CLASSNAME" pkRow="800001">
+      <oldValue><![CDATA[org.openbravo.erpCommon.info.BusinessPartner]]></oldValue>
+      <newValue><![CDATA[org.openbravo.decathlon.upgrade.erpCommon.info.BusinessPartner]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MODEL_OBJECT" columnname="CLASSNAME" pkRow="CAC726C033A54969803E139883670921">
+      <oldValue><![CDATA[com.sysfore.catalog.ad_callouts.CL_Inventory_Locator]]></oldValue>
+      <newValue><![CDATA[org.openbravo.erpCommon.ad_callouts.SL_Inventory_Product]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MODEL_OBJECT_MAPPING" columnname="MAPPINGNAME" pkRow="9DFAC88EC37F4166981351CFA256799E">
+      <oldValue><![CDATA[/com.sysfore.catalog.ad_callouts/CL_Inventory_Locator.html]]></oldValue>
+      <newValue><![CDATA[/org.openbravo.erpCommon.ad_callouts/SL_Inventory_Product.html]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2163">
+      <oldValue><![CDATA[D328D86B2E744A53A071047EA0FF5E4E]]></oldValue>
+      <newValue><![CDATA[FFB052364B5847759325FC476634C024]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="2172">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="2173">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="2173">
+      <oldValue/>
+      <newValue><![CDATA[@ibud_doctype@]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="2202">
+      <oldValue/>
+      <newValue><![CDATA[A3DCDE5EDD4A4403AC205B131F10F84D]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="2202">
+      <oldValue/>
+      <newValue><![CDATA[@SQL=SELECT M_WAREHOUSE_ID AS DefaultValue FROM M_WAREHOUSE WHERE AD_ORG_ID= @AD_ORG_ID@ AND NAME LIKE 'Saleable%']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2207">
+      <oldValue/>
+      <newValue><![CDATA[1ED1E36521CE4AF888DF846A32F71E36]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="2221">
+      <oldValue><![CDATA[800060]]></oldValue>
+      <newValue><![CDATA[800011]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2762">
+      <oldValue><![CDATA[107]]></oldValue>
+      <newValue><![CDATA[284384936E9948679E7B8FE0B8C77FE7]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISMANDATORY" pkRow="2897">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_PROCESS_ID" pkRow="9005">
+      <oldValue><![CDATA[206]]></oldValue>
+      <newValue><![CDATA[B4A3367360B14B95AE911AB3842DBEE2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_PROCESS_ID" pkRow="191328025FA64A5E81837A1501678ADF">
+      <oldValue><![CDATA[49DEE812BF0545269781FCEBF2235924]]></oldValue>
+      <newValue><![CDATA[A0AA4CB8C64341288203FB1B783F0BA4]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISMANDATORY" pkRow="578DE84986E5415FA68B1B5D9037C08A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="EM_OBUIAPP_PROCESS_ID" pkRow="AF2B81F2F6CBCDB5E040007F01006F02">
+      <oldValue><![CDATA[30A4E65B69B14134A78C7B270D3502F7]]></oldValue>
+      <newValue><![CDATA[0C91CC1EEFC0471FB2BE11F5FA5C4085]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MODULE" columnname="VERSION" pkRow="E3691C8A5B114769BB2C5254AFFF3E26">
+      <oldValue><![CDATA[1.4.9043]]></oldValue>
+      <newValue><![CDATA[1.4.92]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="OBUISEL_SELECTOR_FIELD" columnname="DEFAULT_EXPRESSION" pkRow="D9CDC979521D4334A3D2D9A5D038257B">
+      <oldValue><![CDATA[if (OB.getWindowId() && OB.getSession().getAttribute(OB.getWindowId() +"|M_WAREHOUSE_ID") && OB.isSalesTransaction() == true) {  OB.getSession().getAttribute(OB.getWindowId() +"|M_WAREHOUSE_ID");}]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="OBUISEL_SELECTOR_FIELD" columnname="DEFAULT_EXPRESSION" pkRow="FF8080812E77708D012E7796A94B0017">
+      <oldValue><![CDATA[if (OB.getWindowId() == '800051' ||  OB.getWindowId() == '800052' || OB.getWindowId() == '800096' || OB.getWindowId() == '800027') {false} else {if (OB.isSalesTransaction() == true) { true } else {false}}]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HELP" pkRow="177">
+      <oldValue><![CDATA[Create warehouses for your organizations.]]></oldValue>
+      <newValue><![CDATA[Create warehouses for your organizations.
+( (e.organization.id in ( select org.id from Organization org where org.facstIsExternal = true  and org.id = @#AD_Org_ID@)   and e.id in (select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@))) or (e.organization.id in ( select org.id from Organization org where org.facstIsExternal = false and org.id = @#AD_Org_ID@))
+]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="177">
+      <oldValue/>
+      <newValue><![CDATA[exists   ( select org.id from Organization org where org.facstIsExternal = false and org.id = @#AD_Org_ID@) or e.organization.id in ( select org.id from Organization org where org.facstIsExternal = true  and org.id = @#AD_Org_ID@  and e.id in (select defaultWarehouse.id from 
+ADUser u where u.id is @#AD_User_ID@))]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HELP" pkRow="294">
+      <oldValue><![CDATA[Purchase orders can be created and booked in the header section of the purchase order window.]]></oldValue>
+      <newValue><![CDATA[Purchase orders can be created and booked in the header section of the purchase order window.
+AND e.businessPartner.id not in (select businessPartner.id from OrganizationInformation oi where oi.organization.sWIsstore=false) ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="294">
+      <oldValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false]]></oldValue>
+      <newValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false  and e.businessPartner.id!='35586321F375451389832DD198CA1DC7']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="295">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLORDERBYCLAUSE" pkRow="384">
+      <oldValue/>
+      <newValue><![CDATA[-movementDate]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="1011100001">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="012642701A2446C98590A924AAB8FE1B">
+      <oldValue><![CDATA[e.salesOrderLine.id = @MaterialMgmtShipmentInOutLine.salesOrderLine@
+AND COALESCE(e.obwplPickinglist.id, @MaterialMgmtShipmentInOutLine.obwplPickinglist@) = @MaterialMgmtShipmentInOutLine.obwplPickinglist@]]></oldValue>
+      <newValue><![CDATA[e.salesOrderLine.id = @MaterialMgmtShipmentInOutLine.salesOrderLine@
+AND COALESCE(e.obwplPickinglist.id, @MaterialMgmtShipmentInOutLine.obwplPickinglist@) = @MaterialMgmtShipmentInOutLine.obwplPickinglist@ AND (e.storageBin.searchKey LIKE 'BR%' OR e.storageBin.searchKey LIKE 'Saleable W%' )]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="64B971D786A646DC9656534AABB13FA9">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="6707D7449A8D45DB851F608BA88329C8">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="ADBD1719BFA14C97A32C7B6E8452D14F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+   
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="FA57D75B1BBB4583B4A777008A29BF54">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="1085">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="2692">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="2692">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="2731">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="2731">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3383">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3387">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="3387">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3395">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3396">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3396">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3397">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3397">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3398">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3404">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3405">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3409">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3416">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="3424">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3424">
+      <oldValue><![CDATA[20]]></oldValue>
+      <newValue><![CDATA[10]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3425">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3426">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="3428">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="AD_FIELDGROUP_ID" pkRow="3429">
+      <oldValue><![CDATA[402880E72F1C15A5012F1C7AA98B00E8]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3429">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3436">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3436">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3436">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3436">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3441">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3450">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3451">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3453">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3453">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="AD_FIELDGROUP_ID" pkRow="3455">
+      <oldValue><![CDATA[402880E72F1C15A5012F1C7AA98B00E8]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3455">
+      <oldValue><![CDATA[356]]></oldValue>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3455">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3455">
+      <oldValue/>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3459">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3672">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="4242">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="4248">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="4249">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SORTNO" pkRow="4908">
+      <oldValue><![CDATA[3]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SORTNO" pkRow="4915">
+      <oldValue><![CDATA[2]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SORTNO" pkRow="4917">
+      <oldValue><![CDATA[1]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5143">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5146">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="6506">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="6535">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7791">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7816">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7823">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7824">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="7867">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="AD_FIELDGROUP_ID" pkRow="800149">
+      <oldValue><![CDATA[402880E72F1C15A5012F1C7AA98B00E8]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="800149">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="800159">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SORTNO" pkRow="800164">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SORTNO" pkRow="800165">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SORTNO" pkRow="800166">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="800749">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="800955">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="800955">
+      <oldValue/>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="804197">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="0511D54C4B4A4AC79F0C85FF237851C9">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="08B93CE952F0413BA28CA7F280CD8E96">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="15D81EDAE9F548CC803E41E21DDC759C">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="1604E566FDC843F295A403C5E873D3DD">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="1C70789D0D4F4C36AEB334055B995C6F">
+      <oldValue><![CDATA[@IsBpNewAccount@='Y' | @IsPrNewAccount@='Y']]></oldValue>
+      <newValue><![CDATA[@IsBpNewAccount@='Y' | @IsPrNewAccount@='Y' |  @EM_Dje_Iscmnewaccount@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="261A7EAD754E4802819F8174FE68F605">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="2C11D0EE6EAC49E3861879BA718C121D">
+      <oldValue><![CDATA[@DocStatus@!'VO'&@DocStatus@!'CL']]></oldValue>
+      <newValue><![CDATA[@DocStatus@!'VO'&@DocStatus@!'CL'&@DocStatus@!'CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="2D2F0B20A1054E449D14AD8C4F7D89E0">
+      <oldValue><![CDATA[@DocStatus@!'CL'&@DocStatus@!'VO']]></oldValue>
+      <newValue><![CDATA[@DocStatus@!'CL'&@DocStatus@!'VO'&@DocStatus@!'CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="36DBCA9D32AD48F595DEAB91BA61A9ED">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="3DE09F050A624C9D9E5477D0A94491A1">
+      <oldValue><![CDATA[@DocStatus@!'CL'&@DocStatus@!'VO']]></oldValue>
+      <newValue><![CDATA[@DocStatus@!'CL'&@DocStatus@!'VO'&@DocStatus@!'CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="44023AE71D154D9DBE06532EDA193069">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="447077B0E2C24FF89B65FAB45940BE9F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="5CC529AEFC9243E4A83C46926A3E721A">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5F6468AA4FA8435B8CAAE2664AB7B3CA">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="5F6468AA4FA8435B8CAAE2664AB7B3CA">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="6CB07FBC8A50435ABCE5E5D5A612B56F">
+      <oldValue><![CDATA[@IsBpNewAccount@='Y' | @IsPrNewAccount@='Y']]></oldValue>
+      <newValue><![CDATA[@IsBpNewAccount@='Y' | @IsPrNewAccount@='Y' |  @EM_Dje_Iscmnewaccount@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="741CFA7E9BB4420DA10099FFC6BC759F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="741CFA7E9BB4420DA10099FFC6BC759F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="78144CA733844FC3952B6FD41E36F132">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7E37B8136CC575EFE040007F0100360F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="838797E4AFB8493A997A30A6DB962966">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="884400D513D34D7DBBD04915658E3CB3">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="8BBF40E9716143C1AC4B1D5A0FC8B0A2">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="8BBF40E9716143C1AC4B1D5A0FC8B0A2">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="9A942A3B09504E31B99B6C63EFA5C79F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="9B812DD1B4F64AB2B08F1A1B3B2DB058">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISSHOWNINSTATUSBAR" pkRow="9B812DD1B4F64AB2B08F1A1B3B2DB058">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="AF4090093D061431E040007F010048A5">
+      <oldValue><![CDATA[@DocStatus@!'VO'&@DocStatus@!'CL']]></oldValue>
+      <newValue><![CDATA[@DocStatus@!'VO'&@DocStatus@!'CL'&@DocStatus@!'CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="AF4090093D081431E040007F010048A5">
+      <oldValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type.]]></oldValue>
+      <newValue><![CDATA[Specifies document subtype (eg. POS Order, Return Material, etc.) that each document (such as Sales Invoice, Purchase Order, etc.). Various document subtypes usually differ on the consequences they have. You can convert document types (e.g. from Offer to Order).  The conversion is then reflected in the current type. ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="B04327AC6B644FCBA9AA805EB59D572F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="B3F4F8BB5D964059BC0708F37D378A1D">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="BC4C7B4C15B2EC44E040007F01007DA7">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="BC4C7B4C15B2EC44E040007F01007DA7">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="C4EEBC80311BE6EEE040007F0100171C">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="C67666B9AFE54AA48A8C6FEF5009C631">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="CE883E35999D707CE040007F01002B1E">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="CE883E35999D707CE040007F01002B1E">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="CF13D66E0F6D42D297BF68A140620558">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="CF13D66E0F6D42D297BF68A140620558">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D28C4F787B89460499CBD9FACA78B952">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D523D045C0050880E040007F0100468E">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="D523D045C0050880E040007F0100468E">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="DD2A5839D78146559012A9D2AC8FA1F7">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="DD2A5839D78146559012A9D2AC8FA1F7">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="DF6AF0A12AD547A18FFB2D63B272AB15">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E07502C4A5285ECCE040007F0100280F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E08156CC24584AE2ACB92844E1C67267">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E7AC7A4F6AD7E9FDE040007F01006D04">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E8EEC34B794D399CE040007F01000FD9">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="F3A109DCEC5140799C2D856293836826">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="F3A109DCEC5140799C2D856293836826">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="F479EC14852E449DB27CB79507FADF07">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="0185FF6087B842BB978DA99EEA40C806">
+      <oldValue><![CDATA[170]]></oldValue>
+      <newValue><![CDATA[200]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="0B69FD386A1D4769AF93F4C1F7179B38">
+      <oldValue><![CDATA[160]]></oldValue>
+      <newValue><![CDATA[190]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="4157FA7CA5864620BD3E242640A7D585">
+      <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[140]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="PARENT_ID" pkRow="4E4A276E658A4E1BA1E78EBB5B5D180A">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue><![CDATA[800249]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="4E4A276E658A4E1BA1E78EBB5B5D180A">
+      <oldValue><![CDATA[999]]></oldValue>
+      <newValue><![CDATA[190]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2294D84E040007F01005FEC">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A22A4D84E040007F01005FEC">
+      <oldValue><![CDATA[10]]></oldValue>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A22B4D84E040007F01005FEC">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[40]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A22C4D84E040007F01005FEC">
+      <oldValue><![CDATA[20]]></oldValue>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2334D84E040007F01005FEC">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[140]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2344D84E040007F01005FEC">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[110]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A23D4D84E040007F01005FEC">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A23F4D84E040007F01005FEC">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2474D84E040007F01005FEC">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[130]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2504D84E040007F01005FEC">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[40]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2644D84E040007F01005FEC">
+      <oldValue><![CDATA[120]]></oldValue>
+      <newValue><![CDATA[160]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2714D84E040007F01005FEC">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[100]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A27F4D84E040007F01005FEC">
+      <oldValue><![CDATA[130]]></oldValue>
+      <newValue><![CDATA[170]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2874D84E040007F01005FEC">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[100]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2884D84E040007F01005FEC">
+      <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[150]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2B64D84E040007F01005FEC">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2D64D84E040007F01005FEC">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[50]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2D74D84E040007F01005FEC">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2EB4D84E040007F01005FEC">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[110]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2F34D84E040007F01005FEC">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[70]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2F64D84E040007F01005FEC">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A5D24D84E040007F01005FEC">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="77EE28A699D040B5BE6CC5B02E3CEA7A">
+      <oldValue><![CDATA[140]]></oldValue>
+      <newValue><![CDATA[170]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="80C68CDB5E77494C95DDBBDC8805713F">
+      <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[130]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="831DD90FBAF44F79B1124959BCAC5A46">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="9583938CBE7F46C68041921379EFBBE2">
+      <oldValue><![CDATA[150]]></oldValue>
+      <newValue><![CDATA[180]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="9D31BD184E574DDCADDF7B9D7793937A">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="ACB30FD4F8454E2E80FE239623BF7D75">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="AF4248C29A225927E040007F01004FF2">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="C6662C35A3604596AC8950C94AD88A50">
+      <oldValue><![CDATA[180]]></oldValue>
+      <newValue><![CDATA[210]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="CAAE0973314D6706E040007F01003FCE">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[100]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="EFF2CD042FB54A47B09367A55E411CFA">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[110]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="OBKMO_WIDGET_CLASS" columnname="ISACTIVE" pkRow="CD1B06C4ED974B5F905A5A01B097DF4E">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_VAL_RULE" columnname="DESCRIPTION" pkRow="172">
+      <oldValue><![CDATA[Document Tpe for SO/PO]]></oldValue>
+      <newValue><![CDATA[Document Type for SO/PO]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_WINDOW" columnname="ISACTIVE" pkRow="11A2976F05D841EFAE654A8B83EB4204">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+  </vector>

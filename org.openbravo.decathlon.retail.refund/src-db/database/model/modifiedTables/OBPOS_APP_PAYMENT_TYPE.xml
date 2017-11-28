@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE OBPOS_APP_PAYMENT_TYPE">
+    <table name="OBPOS_APP_PAYMENT_TYPE" primaryKey="OBPOS_APPPAYTYPE_PK">
+      <column name="EM_DSIREF_ISUSEDFORREFUND" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_DSIREF_OBRETCO_CMEVENTS_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="OBRETCO_CMEVENTS" name="EM_DSIREF_APPTYPE_CASHMGMEVENT">
+        <reference local="EM_DSIREF_OBRETCO_CMEVENTS_ID" foreign="OBRETCO_CMEVENTS_ID"/>
+      </foreign-key>
+    </table>
+  </database>

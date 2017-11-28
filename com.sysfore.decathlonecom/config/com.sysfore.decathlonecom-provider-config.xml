@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <provider>
+   <bean>
+       <name>ecomCustomer</name>
+       <class>com.sysfore.decathlonecom.EcomWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>ecomOrder</name>
+       <class>com.sysfore.decathlonecom.EcomOrderService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>ecomOrder1</name>
+       <class>com.sysfore.decathlonecom.EcomOrderServiceNew</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>ecomOrder2</name>
+       <class>com.sysfore.decathlonecom.EcomOrderServiceNewPhase</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>ecomStock</name>
+       <class>com.sysfore.decathlonecom.EcomStockService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>ecomcustomerregister</name>
+       <class>com.sysfore.decathlonecom.ad_webservices.EcomCustomerRegister</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>

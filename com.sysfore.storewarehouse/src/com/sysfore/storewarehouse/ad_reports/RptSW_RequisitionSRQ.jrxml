@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="RptSW_RequisitionSRQ" pageWidth="1028" pageHeight="842" columnWidth="968" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SW_Srequisition_Id" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select r.documentno,r.reqdate,b.name as Brand,sd.name as StoreDepartment,p.name as itemcode,rl.modelname||' - '||rl.size||' - '||rl.color as description,
+--p.em_cl_pcb_qty as pcbqty,p.em_cl_ue_qty as ueqty,rl.qtyship as bmqty,b.name as brand,
+rl.qtyreq as QtyOrder,rl.qtyship as Qtyexpedition,rl.Qtyrec as Qtyreceived,r.movementtype,
+a.em_ds_tinno as tin, a.em_ds_telno as phone, l.address1 as add1,l.address2 as add2,l.em_rc_address3 as add3,
+l.em_rc_address4 as add4, l.city as city, l.postal as pin,
+
+CASE
+     WHEN lower(plv.name) not like lower('%DMI CATALOGUE%') THEN  0
+     else pp.em_cl_cessionprice
+    END as landedpriceperitem,
+CASE
+     WHEN lower(plv.name) not like lower('%DMI CATALOGUE%') THEN  0
+     else (pp.em_cl_cessionprice*rl.qtyship)
+    END as total
+from sw_srequisition r,sw_sreqline rl,m_product p,cl_brand b,m_productprice pp,m_pricelist_version plv,ad_org a,ad_orginfo f,c_location l,cl_storedept sd,cl_model m
+where rl.sw_srequisition_id=r.sw_srequisition_id
+and p.m_product_id = rl.m_product_id
+and b.cl_brand_id=rl.cl_brand_id
+and pp.m_product_id=p.m_product_id
+and plv.m_pricelist_version_id=pp.m_pricelist_version_id
+and r.ad_org_id=a.ad_org_id
+and a.ad_org_id=f.ad_org_id
+and f.c_location_id=l.c_location_id
+and sd.cl_storedept_id=r.cl_storedept_id
+and m.cl_model_id=p.em_cl_model_id
+and r.sw_srequisition_id =$P{SW_Srequisition_Id}
+and (lower(plv.name) like lower('%DMI CATALOGUE%') OR plv.name IS NULL)
+group by r.documentno,r.reqdate,b.name,sd.name,p.name,rl.modelname,rl.size,rl.color,
+rl.qtyreq,rl.qtyship,rl.Qtyrec ,r.movementtype,a.em_ds_tinno, a.em_ds_telno, l.address1 ,l.address2 ,l.em_rc_address3,l.em_rc_address4 , l.city,l.postal,plv.name,pp.em_cl_cessionprice,rl.qtyship,b.name
+order by landedpriceperitem]]>
+	</queryString>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="reqdate" class="java.sql.Timestamp"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="storedepartment" class="java.lang.String"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="qtyorder" class="java.math.BigDecimal"/>
+	<field name="qtyexpedition" class="java.math.BigDecimal"/>
+	<field name="qtyreceived" class="java.math.BigDecimal"/>
+	<field name="movementtype" class="java.lang.String"/>
+	<field name="tin" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String"/>
+	<field name="add1" class="java.lang.String"/>
+	<field name="add2" class="java.lang.String"/>
+	<field name="add3" class="java.lang.String"/>
+	<field name="add4" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="pin" class="java.lang.String"/>
+	<field name="landedpriceperitem" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<group name="Detail1">
+		<groupExpression><![CDATA[$F{documentno}]]></groupExpression>
+		<groupFooter>
+			<band height="20" splitType="Stretch">
+				<staticText>
+					<reportElement x="-30" y="0" width="388" height="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CHECKED AND CONFIRMED BY LOGISTICS-]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="358" y="0" width="252" height="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CHECKED AND CONFIRMED BY BM-]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="730" y="0" width="138" height="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Invoice Total :]]></text>
+				</staticText>
+				<textField pattern="###0.00">
+					<reportElement x="868" y="0" width="100" height="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="-30" y="0" width="998" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[STORE REQUISITION TO THE WAREHOUSE]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="140" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="99" width="91" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[City]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="91" y="60" width="267" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add2}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="91" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tin No :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="867" y="1" width="101" height="21"/>
+				<textElement>
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-26" x="730" y="1" width="137" height="21"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Document No:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="91" y="40" width="267" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="91" y="20" width="267" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{phone}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="91" y="119" width="132" height="21"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{pin}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="119" width="91" height="21"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Pin Code :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="91" y="0" width="267" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{tin}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="40" width="91" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Address :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="91" y="99" width="132" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{city}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="20" width="91" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Phone Number:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="91" y="80" width="267" height="19"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add3}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-7" x="730" y="22" width="137" height="20"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Invoice date]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="867" y="22" width="101" height="20"/>
+				<textElement>
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{reqdate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="868" y="82" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{storedepartment}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="730" y="82" width="138" height="20"/>
+				<textElement>
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-9" x="730" y="42" width="137" height="20"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[C&C]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-8" x="730" y="62" width="137" height="20"/>
+				<textElement>
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Sender]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="358" y="0" width="126" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty. Order by BM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="484" y="0" width="126" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty. Shipped by WH]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="610" y="0" width="120" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty Received By BM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="730" y="0" width="138" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Catalog Unit Price
+(Per Item)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="868" y="0" width="100" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="91" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="91" y="0" width="132" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="223" y="0" width="135" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<textField>
+				<reportElement x="730" y="0" width="138" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{landedpriceperitem}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="868" y="0" width="100" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="610" y="0" width="120" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyreceived}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="358" y="0" width="126" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyorder}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="484" y="0" width="126" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyexpedition}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="91" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="91" y="0" width="132" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="223" y="0" width="135" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="-31" y="0" width="999" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[In respect of the goods covered by this Invoice,no credits of the additional duty of customs levied under section 3(5) of the Customs Tariff Act shall be admissible.]]></text>
+			</staticText>
+		</band>
+	</columnFooter>
+</jasperReport>

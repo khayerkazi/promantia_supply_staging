@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+<SqlClass name="ReportStockMovementData" package="com.sysfore.storewarehouse.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+select st.documentno as documentno, st.movementdate, TO_CHAR(st.created,'DD-MM-YYYY') as date,TO_CHAR(st.created,'hh24:mi:ss') as time,u.name as username,p.m_product_id,
+       p.name as pdtname,mo.name as modelname,
+       b.name as brandname,p.em_cl_size as size,
+       c.name as color, sw_ref_name(st.movementtype) as movementtype,st.beforeqty as beforeqty,st.afterqty as afterqty,
+       (select name from m_warehouse where m_warehouse_id=st.source_id) as source,
+       (select name from m_warehouse where m_warehouse_id=st.destination_id) as destn,
+       st.m_warehouse_id as warehouse,sw_ref_name(st.movementtype) as movetype,
+       st.movementqty as movementqty,st.created as user
+            from sw_stocktransaction st
+            left join ad_user u on (u.ad_user_id = st.createdby) 
+            left join m_product p on (p.m_product_id=st.itemcode_id)
+            left join cl_model mo on (mo.cl_model_id=p.em_cl_model_id)
+            left join cl_brand b on (b.cl_brand_id=mo.cl_brand_id)
+            left join cl_color c on (c.cl_color_id=p.em_cl_color_id)
+            left join m_warehouse w on (w.m_warehouse_id = st.source_id)
+            WHERE st.AD_Client_ID IN ('1')
+            AND st.AD_Org_ID IN ('1')
+            AND 1=1
+             group by st.documentno,st.movementdate, p.name,mo.name,b.name,p.em_cl_size,
+            c.name, st.movementtype,(select name from m_warehouse where m_warehouse_id=st.source_id),
+            (select name from m_warehouse where m_warehouse_id=st.destination_id),st.m_warehouse_id,
+            st.beforeqty,st.afterqty,st.movementqty,st.movementtype,u.name,p.m_product_id,st.created
+            order by st.created desc     
+     ]]></Sql>
+      <Parameter name="adUserClient" type="replace" optional="true" after="st.AD_Client_ID IN (" text="'1'"/>
+      <Parameter name="adUserOrg" type="replace" optional="true" after="st.AD_Org_ID IN (" text="'1'"/>
+  <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[AND st.movementdate >= to_date(?)]]></Parameter>
+  <Parameter name="dateTo" optional="true" after="AND 1=1"><![CDATA[AND st.movementdate < to_date(?)]]></Parameter>      
+<Parameter name="mProduct" optional="true" type="argument" after="AND 1=1"><![CDATA[ AND st.itemcode_id IN]]></Parameter>
+<Parameter name="Warehouse" optional="true" after="AND 1=1"><![CDATA[ AND w.m_warehouse_id = ? ]]></Parameter>
+<Parameter name="Movementtype" optional="true" after="AND 1=1"><![CDATA[ AND st.movementtype = ? ]]></Parameter>
+<Parameter name="Brand" optional="true" after="AND 1=1"><![CDATA[ AND b.cl_brand_id = ? ]]></Parameter>
+
+  </SqlMethod>
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+
+  <SqlMethod name="selectMproduct" type="preparedStatement" return="String" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+      SELECT M_PRODUCT.NAME
+      FROM M_PRODUCT
+      WHERE M_PRODUCT.M_PRODUCT_ID = ?
+     ]]></Sql>
+    <Parameter name="mProductId"/>
+  </SqlMethod>
+</SqlClass>
+

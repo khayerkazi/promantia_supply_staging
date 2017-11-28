@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_YEAR">
+    <table name="C_YEAR" primaryKey="C_YEAR_KEY">
+      <column name="EM_OBINUTL_GENERATE_INDPERIOD" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

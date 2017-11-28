@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="SEQUENCE SW_MSD_SEQUENCE">
+    <sequence name="SW_MSD_SEQUENCE" start="1" increment="1"/>
+  </database>

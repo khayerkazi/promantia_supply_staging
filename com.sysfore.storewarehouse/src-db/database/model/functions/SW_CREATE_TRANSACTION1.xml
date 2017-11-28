@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_CREATE_TRANSACTION1">
+    <function name="SW_CREATE_TRANSACTION1" type="VARCHAR">
+      <parameter name="p_qty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_from" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_to" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_dateshipped" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_srcqty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_desqty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+  * The contents of this file are subject to the Compiere Public
+  * License 1.1 ("License"); You may not use this file except in
+  * compliance with the License. You may obtain a copy of the License in
+  * the legal folder of your Openbravo installation.
+  * Software distributed under the License is distributed on an
+  * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+  * implied. See the License for the specific language governing rights
+  * and limitations under the License.
+  * The Original Code is  Compiere  ERP &  Business Solution
+  * The Initial Developer of the Original Code is Jorg Janke and ComPiere, Inc.
+  * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke,
+  * parts created by ComPiere are Copyright (C) ComPiere, Inc.;
+  * All Rights Reserved.
+  * Contributor(s): Openbravo SLU
+  * Contributions are Copyright (C) 2001-2010 Openbravo, S.L.U.
+  *
+  * Specifically, this derivative work is based upon the following Compiere
+  * file and version.
+  *************************************************************************
+  * $Id: M_Inventory_Post.sql,v 1.4 2003/09/05 04:58:06 jjanke Exp $
+  ***
+  * Title: Physical Inventory Post
+  * Description:
+  * - Update Storage with correct QtyOnHand
+  * - Generate Transcation
+  ************************************************************************/
+  -- Logistice
+    --v_Record_ID character varying(32);
+    v_Client_ID character varying(32);
+    v_Org_ID character varying(32);
+    v_User_ID character varying(32); 
+
+    v_product_ID character varying(32);
+    v_Brand_ID character varying(32);
+    v_modelname character varying(60);
+    v_size character varying(60);
+    v_color character varying(60);
+    v_srcqty NUMBER;
+    v_desqty NUMBER;
+    v_documentno character varying(60):='';
+    v_after NUMBER;
+    v_before NUMBER;
+    v_moved NUMBER;
+
+    v_after1 NUMBER;
+    v_before1 NUMBER;
+    v_moved1 NUMBER;
+
+  BEGIN
+          --v_Record_ID := p_id;
+     IF p_id IS NOT NULL THEN
+     
+      SELECT createdby,
+      AD_Client_ID,
+      AD_Org_ID,
+      M_PRODUCT_ID,
+      CL_BRAND_ID
+    INTO v_User_ID,
+      v_Client_ID,
+      v_Org_ID,
+      v_product_ID,
+      v_Brand_ID
+      
+    FROM SW_SREQLINE WHERE SW_SREQLINE_ID = p_id;
+
+select sw_srequisition.documentno into v_documentno
+from sw_srequisition,sw_sreqline
+where sw_sreqline.sw_srequisition_id = sw_srequisition.sw_srequisition_id
+and sw_sreqline.sw_sreqline_id = p_id;
+
+    SELECT CL_COLOR.NAME,M_PRODUCT.EM_CL_MODELNAME,M_PRODUCT.EM_CL_SIZE
+    INTO v_color,v_modelname,v_size
+    FROM M_PRODUCT,CL_COLOR
+    WHERE M_PRODUCT.EM_CL_COLOR_ID = CL_COLOR.CL_COLOR_ID
+    AND M_PRODUCT.M_PRODUCT_ID = v_product_ID;
+     
+    v_after = ((TO_NUMBER(p_qty)-COALESCE(p_srcqty,0))*-1);
+    v_before = COALESCE(p_srcqty,0);
+    v_moved = v_after - v_before;
+
+    v_after1 = (TO_NUMBER(p_qty)+COALESCE(p_desqty,0));
+    v_before1 = COALESCE(p_desqty,0);
+    v_moved1 = v_after1 - v_before1;
+
+     IF ((p_to IS NOT NULL)  AND (p_from IS NOT NULL)) THEN
+
+    -- DELETE FROM SW_StockTransaction WHERE SW_StockTransaction.itemcode_id = v_product_ID;
+
+          INSERT
+          INTO SW_StockTransaction
+            (SW_StockTransaction_ID,AD_Client_ID,AD_Org_ID,IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType,MovementDate, MovementQty,BeforeQty,AfterQty,
+              itemcode_id,cl_brand_id,model,color,size,
+              m_warehouse_id,source_id,destination_id,documentno
+            )
+            VALUES
+            (get_UUID(), v_Client_ID, v_Org_ID, 'Y',
+             now(),v_User_ID,now(),v_User_ID,
+             'SRN',TO_DATE(p_dateshipped),v_moved,v_before,v_after,
+              v_product_ID,v_Brand_ID,v_modelname,v_size,v_color,
+              p_from,p_from,p_to,COALESCE(v_documentno,'')            
+            );
+
+          INSERT
+          INTO SW_StockTransaction
+            (SW_StockTransaction_ID,AD_Client_ID,AD_Org_ID,IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType,MovementDate, MovementQty,BeforeQty,AfterQty,
+              itemcode_id,cl_brand_id,model,color,size,
+              m_warehouse_id,source_id,destination_id,documentno
+            )
+            VALUES
+            (get_UUID(), v_Client_ID, v_Org_ID, 'Y',
+             now(),v_User_ID,now(),v_User_ID,
+             'SRN',TO_DATE(p_dateshipped),v_moved1,v_before1,v_after1,
+              v_product_ID,v_Brand_ID,v_modelname,v_size,v_color,
+              p_to,p_to, p_from,COALESCE(v_documentno,'')            
+            );
+       ELSE
+         RAISE NO_DATA_FOUND;
+     END IF;
+    
+ 
+   RETURN 'SUCCESS';
+   ELSE
+     RAISE NO_DATA_FOUND;
+   END IF;
+END SW_CREATE_TRANSACTION1
+]]></body>
+    </function>
+  </database>

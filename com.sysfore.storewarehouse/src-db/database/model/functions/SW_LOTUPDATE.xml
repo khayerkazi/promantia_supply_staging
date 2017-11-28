@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_LOTUPDATE">
+    <function name="SW_LOTUPDATE" type="VARCHAR">
+      <body><![CDATA[selectlot Record;
+  validatedocinpo Record; 
+  v_count NUMBER:=0;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_lotname  VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_duplicateboxnumber VARCHAR(255) :='';
+
+BEGIN
+v_count:=200001;
+FOR selectlot IN (select m_attributesetinstance_id from m_attributesetinstance where  lot is null and m_attributesetinstance_id!='0' ) LOOP
+--v_lotname:=''||v_count;
+UPDATE m_attributesetinstance set lot='N'||v_count, description='LN'||v_count where m_attributesetinstance_id=selectlot.m_attributesetinstance_id;
+v_count=v_count+1;
+END LOOP;
+RETURN 'Done';
+END SW_LOTUPDATE
+]]></body>
+    </function>
+  </database>

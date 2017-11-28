@@ -1,0 +1,24 @@
+--- /home//huehner/ob/clients/decathlon/tmp/opt/atlas/src-db/database/build.xml	2012-02-20 09:02:32.000000000 +0100
++++ src-db/database/build.xml	2014-02-01 18:31:16.200268535 +0100
+@@ -156,6 +156,21 @@
+       <antcall target="update.dbupdate.timestamp" />
+   </target>
+ 
++  <target name="export.dataset.as.sample.data">
++    <taskdef name="exportsampledata" classname="org.openbravo.ddlutils.task.ExportSampledata">
++      <classpath refid="runtime-classpath" />
++    </taskdef>
++    <exportsampledata driver="${bbdd.driver}" url="${bbdd.owner.url}" user="${bbdd.user}" password="${bbdd.password}" verbosity="${bbdd.verbosity}" basedir="${basedir}/../../" client="${client}" module="${module}" isSampleData="false" dataSet="${dataset}"/>
++  </target>
++
++  <target name="import.sample.data">
++    <taskdef name="importsampledata" classname="org.openbravo.ddlutils.task.ImportSampledata">
++      <classpath refid="runtime-classpath" />
++    </taskdef>
++    <importsampledata driver="${bbdd.driver}" url="${bbdd.owner.url}" user="${bbdd.user}" password="${bbdd.password}" verbosity="${bbdd.verbosity}" basedir="${basedir}/../../" />
++    <antcall target="database.postupdate.${bbdd.rdbms}" />
++  </target>
++
+   <target name="database.postupdate.ORACLE">
+     <sql driver="${bbdd.driver}" url="${bbdd.owner.url}" userid="${bbdd.user}" password="${bbdd.password}" onerror="abort" autocommit="true">
+       <classpath>

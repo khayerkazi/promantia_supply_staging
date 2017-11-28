@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2008 Openbravo SLU 
+ * All Rights Reserved.  (SW_SRECEIPT.DOCUMENTNO  ||' & ' ||CL_BRAND.NAME) AS DOCUMENTNO,
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<SqlClass name="CreditNote6Data" package="com.sysfore.sankalpcrm.ad_forms">
+	<SqlMethod name="selectlocatores" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+	   select locatorefrom, locatoreto from sw_movementlocatore where ad_org_id=? and  movementype=? 
+       ]]>
+    </Sql>
+	<Parameter name="adOrgId"/>
+	<Parameter name="movementype"/>
+	</SqlMethod>
+	<SqlMethod name="selectacctype" type="preparedStatement" return="String">
+   <SqlMethodComment></SqlMethodComment>
+       <Sql>
+       <![CDATA[
+    select acctype as acctype from rc_creditnote where rc_creditnote_id=?
+       ]]>
+   </Sql>
+       <Parameter name="rcCreditnoteId"/>
+       </SqlMethod>
+    <SqlMethod name="deleteAllCRNbyUser" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       delete from rc_creditnote where createdby=? and processed='N' and processing='Y'
+       ]]>
+    </Sql>
+    <Parameter name="adUserID"/>
+    </SqlMethod>
+    <SqlMethod name="deleteAllCRNlinesbyUser" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       delete from  rc_creditnoteline where rc_creditnote_id in (select rc_creditnote_id from rc_creditnote where processed='N' and processing='Y' and createdby=?)
+       ]]>
+    </Sql>
+    <Parameter name="adUserID"/>
+    </SqlMethod>
+	
+</SqlClass>

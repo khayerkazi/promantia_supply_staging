@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION NCI_CYCLIC_INVENTORY_LINE">
+    <function name="NCI_CYCLIC_INVENTORY_LINE" type="VARCHAR">
+      <parameter name="p_instance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_itemcode" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_boxno" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_locationname" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_invqty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_lineid" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_userid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_inv_id VARCHAR(32);
+v_inv_line_id VARCHAR(32);
+v_pInstanceInv_ID VARCHAR(32);
+v_warehouse_id VARCHAR(32);
+v_ad_org VARCHAR(32);
+v_client_id VARCHAR(32);
+v_user_id VARCHAR(32);
+v_locator VARCHAR(32);
+v_product_id VARCHAR(32);
+v_box_id VARCHAR(32);
+v_qtybook NUMBER;
+
+BEGIN
+v_inv_line_id:=get_uuid();
+v_user_id:=p_userid;
+select record_id into v_inv_id from ad_pinstance where ad_pinstance_id = p_instance_id;
+select m_warehouse_id into v_warehouse_id from m_warehouse where name like 'Saleable Omega';
+select ad_org_id into v_ad_org from ad_org where name = 'DSI Warehouse';
+select ad_client_id into v_client_id from ad_client where name = 'DSI';
+--select ad_user_id into v_user_id from ad_user where name = 'Openbravo'; 
+select m_locator_id into  v_locator from m_locator where value = p_locationname;
+select m_product_id into v_product_id from m_product where name = p_itemcode;
+select m_attributesetinstance_id into v_box_id from m_attributesetinstance where lot=p_boxno;
+
+select COALESCE(qtyonhand,0) into v_qtybook from m_storage_detail where m_product_id=v_product_id 
+  and m_attributesetinstance_id=v_box_id
+  and m_locator_id = v_locator;
+
+INSERT INTO m_inventoryline(m_inventoryline_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+    updated, updatedby,m_inventory_id,m_locator_id,m_product_id,line,
+    qtycount,qtybook,description,c_uom_id,m_attributesetinstance_id)
+
+  VALUES 
+    (v_inv_line_id, v_client_id,v_ad_org,
+    'Y', now(),
+    v_user_id, now(),
+    v_user_id, v_inv_id, v_locator,
+    v_product_id,p_lineid,
+    p_invqty,v_qtybook,'CYCLIC INVENTORY LINE',
+    '100',v_box_id);
+
+RETURN v_inv_line_id;
+END NCI_CYCLIC_INVENTORY_LINE
+]]></body>
+    </function>
+  </database>

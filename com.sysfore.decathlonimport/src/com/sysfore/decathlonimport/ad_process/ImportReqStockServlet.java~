@@ -1,0 +1,323 @@
+/*
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2009 Openbravo S.L.U.
+ ******************************************************************************
+ */
+package com.sysfore.decathlonimport.ad_process;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.hibernate.sql.Update;
+import org.openbravo.base.secureApp.HttpSecureAppServlet;
+import org.openbravo.base.secureApp.VariablesSecureApp;
+import org.openbravo.erpCommon.ad_actionButton.ActionButtonDefaultData;
+import org.openbravo.erpCommon.utility.OBError;
+import org.openbravo.erpCommon.utility.Utility;
+import org.openbravo.xmlEngine.XmlDocument;
+import org.openbravo.database.ConnectionProvider;
+import org.openbravo.erpCommon.utility.SequenceIdData;
+
+public class ImportReqStockServlet extends HttpSecureAppServlet {
+  private static final long serialVersionUID = 1L;
+  private ConnectionProvider connection;
+  public void init(ServletConfig config) {
+    super.init(config);
+    boolHist = false;
+  }
+
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException,
+  ServletException {
+    VariablesSecureApp vars = new VariablesSecureApp(request);
+
+    String process = "ImportReqStock";
+    // ImportData.processId(this, "ImportProduct");
+
+    if (vars.commandIn("DEFAULT")) {
+      //System.out.println("Inside the Default function");
+      String strTabId = vars.getGlobalVariable("inpTabId", "ImportReqStockServlet|tabId");
+      String strWindowId = vars.getGlobalVariable("inpwindowId", "ImportReqStockServlet|windowId");
+      String strDeleteOld = vars.getStringParameter("inpDeleteOld", "Y");
+      printPage(response, vars, process, strWindowId, strTabId, strDeleteOld);
+    }
+
+    else if (vars.commandIn("SAVE")) {
+      //System.out.println("Inside the Inventory Save");
+      String strDeleteOld = vars.getStringParameter("inpDeleteOld", "N");
+      String strTabId = vars.getRequestGlobalVariable("inpTabId", "ImportReqStockServlet|tabId");
+      String strWindowPath = Utility.getTabURL(this, strTabId, "R");
+      if (strWindowPath.equals(""))
+        strWindowPath = strDefaultServlet;
+
+      OBError myError = new OBError();
+
+      // vars.setMessage(strTabId, myError);
+      //ConnectionProvider conn=vars.getConnection();
+
+      String result = "";
+      String client = vars.getClient();
+      String organistation = vars.getOrg();
+      String user = vars.getUser();
+      String storetype="",documentno="", itemcode="", mproductid="", swsreqid="", Strqtyintemp="", docaction="",
+          processing="", processed="",docstatus="", requisitionstatus="", strlocatorefrom="", strlocatoreto="",
+          strwhorgid="", strshipqty="", strmLocatorID="", strBoxN0="", attributese="", strShuttelheaderID="",
+          strBrandID="", strSize="", strColor="", strModelname="", storeImplanted="";
+      int updraft=0, qtyrec=0, qtyship=0, upline=0, mt1=0, mt2=0, mt3=0, mt4=0, movqty=0, V_headerflag=0, 
+          headerid=0,shuline=0, lineno=10;
+
+      //result = ImportInventoryData.importinventory(this, client, organistation, user);
+
+      myError.setType("Success");
+      myError.setTitle(Utility.messageBD(this, "Success", vars.getLanguage()));
+      myError.setMessage(Utility.messageBD(this, result, vars.getLanguage()));
+      vars.setMessage(strTabId, myError);
+
+      //System.out.println("Instet my code here");
+      storetype=ImportReqStockData.isstore(this,organistation);
+      //System.out.println("storetype " + storetype);
+
+      //SELECT distinct documentno from im_stockreplenishment where validatestock='Y' and createdby = 'user'
+      ImportReqStockData datadocument[] = ImportReqStockData.selectDcno(this,user);
+      if (datadocument.length > 0) {
+        for (int i = 0; i < datadocument.length; i++) {
+          //Get the first document Number
+          documentno=datadocument[i].documentno;
+
+          //set the ad_org_id as Organisation where storetype = 'y'
+          if(storetype.equals("Y")) {
+            strwhorgid=organistation;    	    	  
+          }
+          else {
+            //select ad_org_id from sw_srequisition where documentno='documentno'
+            strwhorgid=ImportReqStockData.selectorg(this, documentno);
+          } 
+          //System.out.print(strwhorgid);
+
+          //SELECT locatorefrom, locatoreto from sw_movementlocatore where movementype='ITC' and ad_org_id='strwhorgid'
+          ImportReqStock2Data locatordata[] = ImportReqStock2Data.selectlocatores(this,strwhorgid);
+          if(locatordata.length>0) {
+            for(int l=0; l<locatordata.length;l++) {
+              //System.out.println("In side for loop");
+              strlocatorefrom=locatordata[l].locatorefrom;
+              //System.out.println("strlocatorefrom  " + strlocatorefrom);
+              strlocatoreto=locatordata[l].locatoreto;
+              //System.out.println("strlocatoreto " + strlocatoreto);
+            }
+          } //END if(locatordata.length>0) 
+
+          strShuttelheaderID=SequenceIdData.getUUID();
+
+          //select itemcode, qty from im_stockreplenishment where documentno='documentno'
+          ImportReqStock1Data data[] = ImportReqStock1Data.selectdocumentanditem(this, documentno);
+          if (data.length > 0) {
+            for (int d = 0; d < data.length; d++) {
+              //System.out.println("documentno " + documentno);
+              itemcode=data[d].itemcode;
+              Strqtyintemp=data[d].qty;
+              //System.out.println("itemcode " + itemcode);
+              mproductid=ImportReqStockData.selectmproductId(this,itemcode);
+              //System.out.println("mproductid " + mproductid);
+		//Commented on 28 NOV              
+		//updraft=ImportReqStockData.updatesrequisitiontodraft(this,documentno);
+              swsreqid=ImportReqStockData.swsrequisitionid(this,documentno);
+              strshipqty=ImportReqStockData.getshipqty(this,mproductid,swsreqid);
+              //System.out.println("strshipqty "+ strshipqty +"  Strqtyintemp " + Strqtyintemp);
+              movqty=Integer.parseInt(Strqtyintemp)-Integer.parseInt(strshipqty);
+              // System.out.println("Ship qty "+strshipqty);
+              if(storetype.equals("Y"))
+              {
+                docaction="CL"; processing="N";
+                processed="Y"; docstatus="CL";
+                requisitionstatus="CD";
+                strmLocatorID="F0F02D9BAFD540B0896371A95F0B5A13";
+                strBoxN0=""; 
+                storeImplanted = organistation;
+                qtyship=Integer.parseInt(Strqtyintemp);
+                qtyrec=Integer.parseInt(Strqtyintemp);
+
+                //strBrandID, strSize, strColor, strModelname
+                ImportReqStock4Data Reqlinedata[] = ImportReqStock4Data.selectreqline(this,mproductid, documentno);
+                if (Reqlinedata.length > 0) {
+                  strBrandID=Reqlinedata[0].clBrandId; 
+                  strSize=Reqlinedata[0].size; 
+                  strColor=Reqlinedata[0].color; 
+                  strModelname=Reqlinedata[0].modelname;
+                }
+                System.out.println("movqty qty "+movqty +" for item code " + mproductid);
+                System.out.println("V_headerflag --->> " + V_headerflag);				
+
+                // insert into header and then line 	    			  
+                if (V_headerflag==0)
+                {
+                  //create header and line
+                  //headerid=ImportReqStockData.insertshuttelheader(this, strShuttelheaderID, client,organistation, user, user,documentno);
+
+                  //Dyuti Changes
+                  headerid=ImportReqStockData.insertshuttelheader(this, strShuttelheaderID, client,"603C6A266B4C40BCAD87C5C43DDF53EE", storeImplanted, user, user,documentno);
+                  //END
+
+                  System.out.println(" In header  : " + strShuttelheaderID +" document number is  :  " + documentno);
+                  if(headerid>0)
+                  {
+
+                    //shuline=ImportReqStockData.insertshuttelline(this, client,organistation, user, user,strShuttelheaderID, mproductid, strBrandID, strModelname, strSize, strColor, (Integer.toString(movqty)), Integer.toString(lineno));
+                    //Dyuti Changes
+                    shuline=ImportReqStockData.insertshuttelline(this, client,"603C6A266B4C40BCAD87C5C43DDF53EE", user, user,strShuttelheaderID, mproductid, strBrandID, strModelname, strSize, strColor, (Integer.toString(movqty)), Integer.toString(lineno));
+                    //END
+                    V_headerflag=1;				
+                  }
+                }	
+                else {
+                  //create line only 
+                  //shuline=ImportReqStockData.insertshuttelline(this, client,organistation, user, user,strShuttelheaderID, mproductid, strBrandID, strModelname, strSize, strColor, (Integer.toString(movqty)), Integer.toString(lineno));
+
+                  //Dyuti Changes
+                  shuline=ImportReqStockData.insertshuttelline(this, client,"603C6A266B4C40BCAD87C5C43DDF53EE", user, user,strShuttelheaderID, mproductid, strBrandID, strModelname, strSize, strColor, (Integer.toString(movqty)), Integer.toString(lineno));
+                  //END
+                }				
+
+                mt1=ImportReqStockData.insertMtransection(this, client,organistation, user, user, "M-", strlocatorefrom, mproductid, Integer.toString(movqty), strmLocatorID, "ITC",documentno,"0" );
+                System.out.println("BEFORE IN STORE (mt1) Warehouse insert: mt1:======================= "+mt1);
+                if(mt1>0)
+                {
+                  System.out.println("Insside IFF=================");
+                  ImportReqStock3Data locatorbox[]=ImportReqStock3Data.selectdocumentanditem(this, mproductid, documentno);
+                  if(locatorbox.length>0) {
+                    for(int B=0;B<locatorbox.length;B++) {
+                      strmLocatorID=locatorbox[B].mLocatorId;
+                      strBoxN0=locatorbox[B].boxno;       
+                      System.out.println("If locator in Store section--->warehouse "+strmLocatorID);
+                    }
+                    attributese=ImportReqStock3Data.selectattributeid(this, strBoxN0);
+                    if((attributese == null)||(attributese.equals(""))) {
+                      attributese="0";    
+                    }
+                  }
+                  /*storeImplanted means its warehouse id*/
+                  mt1=ImportReqStockData.insertMtransection(this, client, "603C6A266B4C40BCAD87C5C43DDF53EE", user, user, "M+", "7962790FDD8843EF9B2E4CFB8364C12A", mproductid, Integer.toString(movqty*-1), strlocatorefrom, "SIN", documentno, attributese ); //mitesh local 
+                  //mt1=ImportReqStockData.insertMtransection(this, client,organistation, user, user, "M+", "251BD18E8E594B6D9A0E225649EAA97B", mproductid, Integer.toString(movqty*-1), strlocatorefrom, "SC",documentno,"0" ); // staging p
+                  //mt1=ImportReqStockData.insertMtransection(this, client,organistation, user, user, "M-", strlocatorefrom, mproductid, Integer.toString(movqty), strmLocatorID, "ITC",documentno,"0" );
+                }
+              }
+              else {
+                docaction="CL";
+                processing="N";
+                processed="Y";
+                docstatus="CO";
+                requisitionstatus="SH";
+                ImportReqStock3Data locatorbox[]=ImportReqStock3Data.selectdocumentanditem(this, mproductid, documentno);
+                if(locatorbox.length>0) {
+                  for(int B=0;B<locatorbox.length;B++) {
+                    strmLocatorID=locatorbox[B].mLocatorId;
+                    strBoxN0=locatorbox[B].boxno;	
+                    System.out.println("If locator "+strmLocatorID);
+                  }
+                  attributese=ImportReqStock3Data.selectattributeid(this, strBoxN0);
+                  if((attributese == null)||(attributese.equals(""))) {
+                    attributese="0";	
+                  }
+                }
+                else {
+                  System.out.println("Else locator "+strmLocatorID);
+                  strmLocatorID="F0F02D9BAFD540B0896371A95F0B5A13";
+                  strBoxN0="";	
+                  attributese="0";
+                }
+
+                //System.out.println("before mtra qty "+movqty);	
+                mt1=ImportReqStockData.insertMtransection(this, client, organistation, user, user, "M-", strmLocatorID, mproductid, Integer.toString(movqty*-1), strlocatorefrom , "ITC", documentno, attributese );
+
+                /*
+			 if(mt1>0) {
+			  mt2=ImportReqStockData.insertMtransection(this, client,organistation, user, user, "M+", "F0F02D9BAFD540B0896371A95F0B5A13", mproductid, Integer.toString(movqty*-1), strlocatorefrom , documentno );	 
+			 } 
+                 */   
+
+                //Dyuti Code                
+                if(mt1>0) {
+                  mt2=ImportReqStockData.insertMtransection(this, client, organistation, user, user, "M+", "7962790FDD8843EF9B2E4CFB8364C12A", mproductid, (Integer.toString(movqty)), strlocatorefrom , "SIN", documentno, attributese);        
+                } 
+                //End Dyuti Code
+
+                qtyship=Integer.parseInt(Strqtyintemp);
+                qtyrec=0;
+              }
+              upline=ImportReqStockData.updateline(this,Integer.toString(qtyship), 
+                  Integer.toString(qtyrec), mproductid, swsreqid);
+              
+	     if(upline>0)
+              {
+                updraft=ImportReqStockData.updatesrequisitiontostatus(this,docaction, processing, processed, docstatus, requisitionstatus, documentno);  
+              }
+
+            } 
+            lineno=lineno+10;
+            V_headerflag=0;
+          }//End if(data.length > 0)
+        }
+      }
+      ImportReqStockData.deletefromtemp(this,user); // delete record from temp table
+      printPageClosePopUp(response, vars, strWindowPath);
+    } //END Of Else OF If(SAVE)
+
+    else
+      pageErrorPopUp(response);
+  }
+
+  private void printPage(HttpServletResponse response, VariablesSecureApp vars,
+      String strProcessId, String strWindowId, String strTabId, String strDeleteOld)
+          throws IOException, ServletException {
+    if (log4j.isDebugEnabled())
+      log4j.debug("Output: process ImportInventoryServlet");
+    ActionButtonDefaultData[] data = null;
+    String strHelp = "", strDescription = "";
+    /*
+     * if (vars.getLanguage().equals("en_US")) { // data = ActionButtonDefaultData.select(this,
+     * strProcessId); System.out.println("Inside English " + data.length); } else data =
+     * ActionButtonDefaultData.selectLanguage(this, vars.getLanguage(), strProcessId); /* if (data
+     * != null && data.length != 0) { strDescription = data[0].description; strHelp = data[0].help;
+     * System.out.println(" StrDescription " + strDescription); System.out.println(" Strhelp " +
+     * strHelp); }
+     */
+    String[] discard = { "" };
+    if (strHelp.equals(""))
+      discard[0] = new String("helpDiscard");
+    XmlDocument xmlDocument = xmlEngine.readXmlTemplate(
+        "com/sysfore/decathlonimport/ad_process/ImportReqStock").createXmlDocument();
+    xmlDocument.setParameter("language", "defaultLang=\"" + vars.getLanguage() + "\";");
+    xmlDocument.setParameter("directory", "var baseDirectory = \"" + strReplaceWith + "/\";\n");
+    xmlDocument.setParameter("theme", vars.getTheme());
+    xmlDocument.setParameter("question", Utility.messageBD(this, "StartProcess?", vars
+        .getLanguage()));
+    xmlDocument.setParameter("description", strDescription);
+    xmlDocument.setParameter("help", strHelp);
+    xmlDocument.setParameter("windowId", strWindowId);
+    xmlDocument.setParameter("tabId", strTabId);
+    xmlDocument.setParameter("deleteOld", strDeleteOld);
+
+    response.setContentType("text/html; charset=UTF-8");
+    PrintWriter out = response.getWriter();
+    out.println(xmlDocument.print());
+    out.close();
+  }
+
+  public String getServletInfo() {
+    return "Servlet ImportReqStockServlet";
+  } // end of getServletInfo() method
+}

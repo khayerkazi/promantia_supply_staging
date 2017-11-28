@@ -1,0 +1,142 @@
+package in.decathlon.ibud.masters.client;
+
+import in.decathlon.ibud.masters.IbudConfig;
+import in.decathlon.ibud.masters.IbudJsonToData;
+import in.decathlon.ibud.masters.data.IbudServerTime;
+
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.criterion.Restrictions;
+import org.openbravo.base.provider.OBProvider;
+import org.openbravo.base.structure.BaseOBObject;
+import org.openbravo.base.util.Check;
+import org.openbravo.dal.core.OBContext;
+import org.openbravo.dal.service.OBCriteria;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.model.common.plm.Product;
+import org.openbravo.scheduling.ProcessBundle;
+import org.openbravo.service.db.DalBaseProcess;
+import org.openbravo.service.json.JsonConstants;
+
+public class ProductClientProcess extends DalBaseProcess {
+
+  public static final Logger log = Logger.getLogger(ProductClientProcess.class);
+  public static final IbudConfig config = new IbudConfig();
+  final IbudJsonToData fromJsonConverter = OBProvider.getInstance().get(IbudJsonToData.class);
+
+  String userName = config.getUsername();
+  String password = config.getPassword();
+  String url = config.getServer();
+
+  int port = Integer.parseInt(config.getPort());
+  private String host = config.getHost();
+
+  @Override
+  protected void doExecute(ProcessBundle bundle) throws Exception {
+    // TODO Auto-generated method stub
+
+    OBContext.setAdminMode(true);
+
+    OBCriteria<IbudServerTime> ibudServerTimeQuery = OBDal.getInstance().createCriteria(
+        IbudServerTime.class);
+    ibudServerTimeQuery.setMaxResults(1);
+    List<IbudServerTime> ibudServerTimeList = ibudServerTimeQuery.list();
+
+    Date lastUpdatedTime = null;
+
+    if (ibudServerTimeList != null && ibudServerTimeList.size() > 0) {
+
+      lastUpdatedTime = ibudServerTimeList.get(0).getLastupdated();
+    }
+
+    url = url.concat("?updated=").concat(lastUpdatedTime.toString().replaceAll(" ", "_"));
+
+    JSONObject jsonObj = send();
+    String json = jsonObj.toString();
+
+    String result = processServerData(jsonObj);
+
+  }
+
+  public String processServerData(JSONObject json) {
+
+    try {
+      String serverJsonData = "";
+      // final JSONObject jsonContent = (JSONObject) getContentAsJSON(json.toString());
+      final JSONArray jsonContent = (JSONArray) getContentAsJSON(json.toString());
+
+      for (int i = 0; i < jsonContent.length(); i++) {
+        JSONObject productJson = jsonContent.getJSONObject(i);
+        String id = productJson.getString(JsonConstants.ID);
+
+        OBCriteria<Product> productCriteria = OBDal.getInstance().createCriteria(Product.class);
+        productCriteria.add(Restrictions.eq(Product.PROPERTY_ID, id));
+
+        List<Product> productList = productCriteria.list();
+        if (productList != null && productList.size() > 0) {
+          System.out.println("product exists");
+
+        } else {
+          BaseOBObject bob = fromJsonConverter.toBaseOBObject(productJson);
+          System.out.println(bob.getId());
+          OBDal.getInstance().save(bob);
+        }
+      }
+    } catch (Exception e) {
+      log.error(e);
+      e.printStackTrace();
+    }
+    return "";
+
+  }
+
+  private Object getContentAsJSON(String content) throws JSONException {
+    Check.isNotNull(content, "Content must be set");
+    final Object jsonRepresentation;
+    if (content.trim().startsWith("[")) {
+      jsonRepresentation = new JSONArray(content);
+    } else {
+      final JSONObject jsonObject = new JSONObject(content);
+      jsonRepresentation = jsonObject.get(JsonConstants.DATA);
+    }
+    return jsonRepresentation;
+  }
+
+  private JSONObject send() throws Exception {
+    Authenticator.setDefault(new Authenticator() {
+      @Override
+      protected PasswordAuthentication getPasswordAuthentication() {
+        return new PasswordAuthentication(userName, password.toCharArray());
+      }
+    });
+
+    DefaultHttpClient httpclient = new DefaultHttpClient();
+
+    httpclient.getCredentialsProvider().setCredentials(new AuthScope(host, port),
+        new UsernamePasswordCredentials(userName, password));
+
+    HttpGet httpGet = new HttpGet(url);
+
+    HttpResponse response = httpclient.execute(httpGet);
+
+    String output = EntityUtils.toString(response.getEntity());
+
+    JSONObject obj = new JSONObject(output);
+
+    return obj;
+
+  }
+}

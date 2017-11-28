@@ -1,0 +1,354 @@
+Search Key,Name,Description,Account Type,Account Sign,Document Controlled,Summary Level,Default Account,Parent_Value,Element Level,Operands,Show Value Condition,Title Node
+EL,EQUITY AND LIABILITIES,EQUITY AND LIABILITIES,Owners Equity,Credit,NO,YES,,,E,,Algebraic,No
+O,EQUITY,EQUITY,Owners Equity,Credit,NO,YES,,EL,E,,Algebraic,No
+O01,Share Holders Funds,Share Holders Funds,Owners Equity,Credit,NO,YES,,O,D,,Algebraic,No
+O0101,Share Capital,Share Capital,Owners Equity,Credit,NO,YES,,O01,C,,Algebraic,No
+O0102,Reserve and Surplus,Reserve and Surplus,Owners Equity,Credit,NO,YES,,O01,C,,Algebraic,No
+O010201,Capital Reserves,Capital Reserves,Owners Equity,Credit,YES,NO,,O0102,S,,Algebraic,No
+O010202,Capital Redemption Reserve,Capital Redemption Reserve,Owners Equity,Credit,YES,NO,,O0102,S,,Algebraic,No
+O010203,Securities Premium Reserve,Securities Premium Reserve,Owners Equity,Credit,YES,NO,,O0102,S,,Algebraic,No
+O010204,Debenture Redemption Reserve,Debenture Redemption Reserve,Owners Equity,Credit,YES,NO,,O0102,S,,Algebraic,No
+O010205,Revaluation Reserve,Revaluation Reserve,Owners Equity,Credit,YES,NO,RETAINEDEARNING_ACCT,O0102,S,,Algebraic,No
+O010206,Share Options Outstanding Account,Share Options Outstanding Account,Owners Equity,Credit,YES,NO,,O0102,S,,Algebraic,No
+O010207,Other Reserves,Other Reserves,Owners Equity,Credit,YES,NO,,O0102,S,,Algebraic,No
+O010208,Surplus Balance in Statement of PL Account,Surplus Balance in Statement of PL Account,Owners Equity,Credit,YES,NO,INCOMESUMMARY_ACCT,O0102,S,,Algebraic,No
+O0103,Money received against share warrants,Money received against share warrants,Owners Equity,Credit,NO,YES,,O01,C,,Algebraic,No
+O02,Share application money pending allotment,Share application money pending allotment,Owners Equity,Credit,NO,YES,,O,D,,Algebraic,No
+L,Liabilities,Liabilities,Liability,Credit,NO,YES,,EL,E,,Algebraic,No
+L01,Noncurrent liabilities,Noncurrent liabilities,Liability,Credit,NO,YES,,L,D,,Algebraic,No
+L0101,Long Term Borrowings,Long Term Borrowings,Liability,Credit,NO,YES,,L01,D,,Algebraic,No
+L010101,Bonds and debentures,Bonds and debentures,Liability,Credit,NO,YES,,L0101,C,,Algebraic,No
+L010102,Term loans,Term loans,Liability,Credit,NO,YES,,L0101,C,,Algebraic,No
+L01010201,Term loans From Bank,Term loans From Bank,Liability,Credit,YES,NO,,L010102,S,,Algebraic,No
+L01010202,Term Loans From Other Parties,Term Loans From Other Parties,Liability,Credit,YES,NO,,L010102,S,,Algebraic,No
+L010103,Deferred payment liabilities,Deferred payment liabilities,Liability,Credit,NO,YES,,L0101,C,,Algebraic,No
+L010104,Deposits,Deposits,Liability,Credit,NO,YES,,L0101,C,,Algebraic,No
+L010105,Loans and advances from related parties,Loans and advances from related parties,Liability,Credit,NO,YES,,L0101,C,,Algebraic,No
+L010106,Long term maturities of finance lease obligations,Long term maturities of finance lease obligations,Liability,Credit,NO,YES,,L0101,C,,Algebraic,No
+L010107,Other loans and advances,Other loans and advances,Liability,Credit,NO,YES,,L0101,C,,Algebraic,No
+L0102,Deferred tax liabilities  Net,Deferred tax liabilities  Net,Liability,Credit,NO,YES,,L01,D,,Algebraic,No
+L0103,Other Long term liabilities,Other Long term liabilities,Liability,Credit,NO,YES,,L01,D,,Algebraic,No
+L010301,Trade Payables,Trade Payables,Liability,Credit,NO,YES,,L0103,C,,Algebraic,No
+L010302,Other Long term liabilities  Others,Other Long term liabilities  Others,Liability,Credit,NO,YES,,L0103,D,,Algebraic,No
+L01030201,Accumulated Depreciation,Accumulated Depreciation,Liability,Credit,NO,YES,,L010302,C,,Algebraic,No
+L0103020101,Accum Depreciation Default AC,Accum Depreciation Default AC,Liability,Credit,YES,NO,A_ACCUMDEPRECIATION_ACCT,L01030201,S,,Algebraic,No
+L0103020102,Accum Depreciation Building,Accum Depreciation Building,Liability,Credit,YES,NO,,L01030201,S,,Algebraic,No
+L0103020103,Accum Depreciation Plant  Machinery,Accum Depreciation Plant  Machinery,Liability,Credit,YES,NO,,L01030201,S,,Algebraic,No
+L0103020104,Accum Depreciation Furniture  Fittings,Accum Depreciation Furniture  Fittings,Liability,Credit,YES,NO,,L01030201,S,,Algebraic,No
+L0103020105,Accum Depreciation Office Vehicles,Accum Depreciation Office Vehicles,Liability,Credit,YES,NO,,L01030201,S,,Algebraic,No
+L0103020106,Accum Depreciation Office Equipments,Accum Depreciation Office Equipments,Liability,Credit,YES,NO,,L01030201,S,,Algebraic,No
+L0103020107,Accum Depreciation Computer and Accessories,Accum Depreciation Computer and Accessories,Liability,Credit,YES,NO,,L01030201,S,,Algebraic,No
+L0104,Long term provisions,Long term provisions,Liability,Credit,NO,YES,,L01,C,,Algebraic,No
+L010401,Provision for employee benefits,Provision for employee benefits,Liability,Credit,YES,NO,,L0104,S,,Algebraic,No
+L010402,Long term provisions Others,Long term provisions Others,Liability,Credit,YES,NO,,L0104,S,,Algebraic,No
+L02,Current Liabilities,Current Liabilities,Liability,Credit,NO,YES,,L,E,,Algebraic,No
+L0201,Shortterm borrowings,Shortterm borrowings,Liability,Credit,NO,YES,,L02,D,,Algebraic,No
+L020101,Loans repayable on demand,Loans repayable on demand,Liability,Credit,NO,YES,,L0201,C,,Algebraic,No
+L02010101,Loans repayable on demand From Banks,Loans repayable on demand From Banks,Liability,Credit,YES,NO,,L020101,S,,Algebraic,No
+L02010102,Loans repayable on demand Other Parties,Loans repayable on demand Other Parties,Liability,Credit,YES,NO,,L020101,S,,Algebraic,No
+L020102,Loans and advances from related parties,Loans and advances from related parties,Liability,Credit,NO,YES,,L0201,C,,Algebraic,No
+L020103,Deposits,Deposits,Liability,Credit,NO,YES,,L0201,C,,Algebraic,No
+L020104,Other loans and advances,Other loans and advances,Liability,Credit,NO,YES,,L0201,C,,Algebraic,No
+L02010401,Advance from Customers,Advance from Customers,Liability,Credit,YES,NO,C_PREPAYMENT_ACCT,L020104,S,,Algebraic,No
+L0202,Sundry Creditors,Sundry Creditors,Liability,Credit,NO,YES,,L02,C,,Algebraic,No
+L020201,Sundry Creditors  Default,Sundry Creditors  Default,Liability,Credit,YES,NO,V_LIABILITY_ACCT,L0202,S,,Algebraic,No
+L0203,Other current liabilities,Other current liabilities,Liability,Credit,NO,YES,,L02,D,,Algebraic,No
+L020301,Current maturities of longterm debt,Current maturities of longterm debt,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020302,Current maturities of finance lease obligations,Current maturities of finance lease obligations,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020303,Interest accrued but not due on borrowings,Interest accrued but not due on borrowings,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020304,Interest accrued and due on borrowings,Interest accrued and due on borrowings,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020305,Income received in advance,Income received in advance,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020306,Unpaid dividends,Unpaid dividends,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020307,Unpaid matured deposits and int accrued thereon,Unpaid matured deposits and int accrued thereon,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020308,Unpaid matured debentures and int accrued thereon,Unpaid matured debentures and int accrued thereon,Liability,Credit,NO,YES,,L0203,C,,Algebraic,No
+L020309,Duties and Taxes  Payable,Duties and Taxes  Payable,Liability,Credit,NO,YES,,L0203,D,,Algebraic,No
+L02030901,GST Payable,GST Payable,Liability,Credit,NO,YES,,L020309,D,,Algebraic,No
+L0203090101,Liability  SGST,Liability  SGST,Liability,Credit,NO,YES,,L02030901,D,,Algebraic,No
+L020309010101,Liability  SGST  Outward Supplies,Liability  SGST  Outward Supplies,Liability,Credit,NO,YES,,L0203090101,C,,Algebraic,No
+L02030901010101,Liability  SGST  Outward Supplies  Goods,Liability  SGST  Outward Supplies  Goods,Liability,Credit,YES,NO,,L020309010101,S,,Algebraic,No
+L02030901010102,Liability  SGST  Outward Supplies  Service,Liability  SGST  Outward Supplies  Service,Liability,Credit,YES,NO,,L020309010101,S,,Algebraic,No
+L020309010102,Liability  SGST  Outward Supplies  Consumer,Liability  SGST  Outward Supplies  Consumer,Liability,Credit,NO,YES,,L0203090101,C,,Algebraic,No
+L02030901010201,Liability  SGST  Outward Supplies  Consumer  Goods,Liability  SGST  Outward Supplies  Consumer  Goods,Liability,Credit,YES,NO,,L020309010102,S,,Algebraic,No
+L02030901010202,Liability  SGST  Outward Supplies  Consumer  Service,Liability  SGST  Outward Supplies  Consumer  Service,Liability,Credit,YES,NO,,L020309010102,S,,Algebraic,No
+L020309010103,Liability  SGST  Outward Supplies  Amendments,Liability  SGST  Outward Supplies  Amendments,Liability,Credit,NO,YES,,L0203090101,C,,Algebraic,No
+L02030901010301,Liability  SGST  Outward Supplies Amendments  Goods,Liability  SGST  Outward Supplies Amendments  Goods,Liability,Credit,YES,NO,,L020309010103,S,,Algebraic,No
+L02030901010302,Liability  SGST  Outward Supplies  Amendments  Services,Liability  SGST  Outward Supplies  Amendments  Services,Liability,Credit,YES,NO,,L020309010103,S,,Algebraic,No
+L020309010104,Liability  SGST  Outward Supplies  Amendments  Consumers,Liability  SGST  Outward Supplies  Amendments  Consumers,Liability,Credit,NO,YES,,L0203090101,C,,Algebraic,No
+L02030901010401,Liability  SGST  Outward Suppl  Amendment  Consumers  Good,Liability  SGST  Outward Suppl  Amendment  Consumers  Good,Liability,Credit,YES,NO,,L020309010104,S,,Algebraic,No
+L02030901010402,Liability  SGST  Outward Suppl  Amendments  Consumer  Serv,Liability  SGST  Outward Suppl  Amendments  Consumer  Serv,Liability,Credit,YES,NO,,L020309010104,S,,Algebraic,No
+L0203090102,Liability  CGST,Liability  CGST,Liability,Credit,NO,YES,,L0203090101,D,,Algebraic,No
+L020309010201,Liability  CGST  Outward Supplies,Liability  CGST  Outward Supplies,Liability,Credit,NO,YES,,L0203090102,C,,Algebraic,No
+L02030901020101,Liability  CGST  Outward Supplies  Goods,Liability  CGST  Outward Supplies  Goods,Liability,Credit,YES,NO,,L020309010201,S,,Algebraic,No
+L02030901020102,Liability  CGST  Outward Supplies  Service,Liability  CGST  Outward Supplies  Service,Liability,Credit,YES,NO,,L020309010201,S,,Algebraic,No
+L020309010202,Liability  CGST  Outward Supplies  Consumer,Liability  CGST  Outward Supplies  Consumer,Liability,Credit,NO,YES,,L0203090102,C,,Algebraic,No
+L02030901020201,Liability  CGST  Outward Supplies  Consumer  Goods,Liability  CGST  Outward Supplies  Consumer  Goods,Liability,Credit,YES,NO,,L020309010202,S,,Algebraic,No
+L02030901020202,Liability  CGST  Outward Supplies  Consumer  Service,Liability  CGST  Outward Supplies  Consumer  Service,Liability,Credit,YES,NO,,L020309010202,S,,Algebraic,No
+L020309010203,Liability  CGST  Outward Supplies  Amendments,Liability  CGST  Outward Supplies  Amendments,Liability,Credit,NO,YES,,L0203090102,C,,Algebraic,No
+L02030901020301,Liability  CGST  Outward Supplies Amendments  Goods,Liability  CGST  Outward Supplies Amendments  Goods,Liability,Credit,YES,NO,,L020309010203,S,,Algebraic,No
+L02030901020302,Liability  CGST  Outward Supplies  Amendments  Services,Liability  CGST  Outward Supplies  Amendments  Services,Liability,Credit,YES,NO,,L020309010203,S,,Algebraic,No
+L020309010204,Liability  CGST  Outward Supplies  Amendments  Consumers,Liability  CGST  Outward Supplies  Amendments  Consumers,Liability,Credit,NO,YES,,L0203090102,C,,Algebraic,No
+L02030901020401,Liability  CGST  Outward Suppl  Amendment  Consumer  Good,Liability  CGST  Outward Suppl  Amendment  Consumer  Good,Liability,Credit,YES,NO,,L020309010204,S,,Algebraic,No
+L02030901020402,Liability  CGST  Outward Supp  Amendment  Consumers  Serv,Liability  CGST  Outward Supp  Amendment  Consumers  Serv,Liability,Credit,YES,NO,,L020309010204,S,,Algebraic,No
+L0203090103,Liability  IGST,Liability  IGST,Liability,Credit,NO,YES,,L02030901,D,,Algebraic,No
+L020309010301,Liability  IGST  Outward Supplies,Liability  IGST  Outward Supplies,Liability,Credit,NO,YES,,L0203090103,C,,Algebraic,No
+L02030901030101,Liability  IGST  Outward Supplies  Goods,Liability  IGST  Outward Supplies  Goods,Liability,Credit,YES,NO,,L020309010301,S,,Algebraic,No
+L02030901030102,Liability  IGST  Outward Supplies  Service,Liability  IGST  Outward Supplies  Service,Liability,Credit,YES,NO,,L020309010301,S,,Algebraic,No
+L020309010302,Liability  IGST  Outward Supplies  Consumer,Liability  IGST  Outward Supplies  Consumer,Liability,Credit,NO,YES,,L0203090103,C,,Algebraic,No
+L02030901030201,Liability  IGST  Outward Supplies  Consumer  Goods,Liability  IGST  Outward Supplies  Consumer  Goods,Liability,Credit,YES,NO,,L020309010302,S,,Algebraic,No
+L02030901030202,Liability  IGST  Outward Supplies  Consumer  Service,Liability  IGST  Outward Supplies  Consumer  Service,Liability,Credit,YES,NO,,L020309010302,S,,Algebraic,No
+L020309010303,Liability  IGST  Outward Supplies  Amendments,Liability  IGST  Outward Supplies  Amendments,Liability,Credit,NO,YES,,L0203090103,C,,Algebraic,No
+L02030901030301,Liability  IGST  Outward Supplies Amendments  Goods,Liability  IGST  Outward Supplies Amendments  Goods,Liability,Credit,YES,NO,,L020309010303,S,,Algebraic,No
+L02030901030302,Liability  IGST  Outward Supplies  Amendments  Services,Liability  IGST  Outward Supplies  Amendments  Services,Liability,Credit,YES,NO,,L020309010303,S,,Algebraic,No
+L020309010304,Liability  IGST  Outward Supplies  Amendments  Consumers,Liability  IGST  Outward Supplies  Amendments  Consumers,Liability,Credit,NO,YES,,L0203090103,C,,Algebraic,No
+L02030901030401,Liability  IGST  Outward Suppl Amendment  Consumers  Good,Liability  IGST  Outward Suppl Amendment  Consumers  Good,Liability,Credit,YES,NO,,L020309010304,S,,Algebraic,No
+L02030901030402,Liability  IGST  Outward Supp  Amendment  Consumers  Serv,Liability  IGST  Outward Supp  Amendment  Consumers  Serv,Liability,Credit,YES,NO,,L020309010304,S,,Algebraic,No
+L02030902,TDS Liability,TDS Liability,Liability,Credit,NO,YES,,L020309,C,,Algebraic,No
+L0203090201,TDS Liability  Salaries and Wages 192 B,TDS Liability  Salaries and Wages 192 B,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090202,TDS Liability Works Contract Individuals HUF 194 C,TDS Liability Works Contract Individuals HUF 194 C,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090203,TDS Liability Professional  technical services 194 J,TDS Liability Professional  technical services 194 J,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090204,TDS Liability Rent of Land 194 I,TDS Liability Rent of Land 194 I,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090205,TDS Liability Works Contract Others 194 C,TDS Liability Works Contract Others 194 C,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090206,TDS Liability Rent of Plant  Machinery 194 I,TDS Liability Rent of Plant  Machinery 194 I,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090207,TDS Liability Sub Contract Advt HUF Individuals 194 C,TDS Liability Sub Contract Advt HUF Individuals 194 C,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090208,TDS Liability Sub Contractors Advt Others 194 C,TDS Liability Sub Contractors Advt Others 194 C,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L0203090209,TDS Liability Without PAN Works Contract HUF Individual,TDS Liability Without PAN Works Contract HUF Individual,Liability,Credit,YES,NO,,L02030902,S,,Algebraic,No
+L02030903,Other Payable  On GST,Other Payable  On GST,Liability,Credit,NO,YES,,L020309,D,,Algebraic,No
+L0203090301,Late Fee Payable  GST,Late Fee Payable  GST,Liability,Credit,NO,YES,,L02030903,C,,Algebraic,No
+L020309030101,Late Fee Payable  CGST,Late Fee Payable  CGST,Liability,Credit,YES,NO,,L0203090301,S,,Algebraic,No
+L020309030102,Late Fee Payable  IGST,Late Fee Payable  IGST,Liability,Credit,YES,NO,,L0203090301,S,,Algebraic,No
+L020309030103,Late Fee Payable  SGST,Late Fee Payable  SGST,Liability,Credit,YES,NO,,L0203090301,S,,Algebraic,No
+L0203090302,Interest Payable  GST,Interest Payable  GST,Liability,Credit,NO,YES,,L02030903,C,,Algebraic,No
+L020309030201,Interest Payable  CGST,Interest Payable  CGST,Liability,Credit,YES,NO,,L0203090302,S,,Algebraic,No
+L020309030202,Interest Payable  IGST,Interest Payable  IGST,Liability,Credit,YES,NO,,L0203090302,S,,Algebraic,No
+L020309030203,Interest Payable  SGST,Interest Payable  SGST,Liability,Credit,YES,NO,,L0203090302,S,,Algebraic,No
+L0203090303,Penalty Payable  GST,Penalty Payable  GST,Liability,Credit,NO,YES,,L02030903,C,,Algebraic,No
+L020309030301,Penalty Payable  CGST,Penalty Payable  CGST,Liability,Credit,YES,NO,,L0203090303,S,,Algebraic,No
+L020309030302,Penalty Payable  IGST,Penalty Payable  IGST,Liability,Credit,YES,NO,,L0203090303,S,,Algebraic,No
+L020309030303,Penalty Payable  SGST,Penalty Payable  SGST,Liability,Credit,YES,NO,,L0203090303,S,,Algebraic,No
+L02030904,Professional Tax Payable,Professional Tax Payable,Liability,Credit,NO,YES,,L020309,C,,Algebraic,No
+L02030905,Other Taxes Payable,Other Taxes Payable,Liability,Credit,YES,NO,T_DUE_ACCT,L020309,S,,Algebraic,No
+L0204,Shortterm provisions,Shortterm provisions,Liability,Credit,NO,YES,,L02,D,,Algebraic,No
+L020401,Provision for employee benefits,Provision for employee benefits,Liability,Credit,NO,YES,,L0204,C,,Algebraic,No
+L020402,Others  Specify nature,Others  Specify nature,Liability,Credit,NO,YES,,L0204,C,,Algebraic,No
+LT,Equities and Liabilities Total,Equities and Liabilities Total,Liability,Credit,NO,YES,,EL,E,O01+O02+L01+L02,Algebraic,No
+A,Assets,Assets,Asset,Debit,NO,YES,,,E,,Algebraic,No
+A01,Non Current Assets,Non Current Assets,Asset,Debit,NO,YES,,A,D,,Algebraic,No
+A0101,Fixed Assets,Fixed Assets,Asset,Debit,NO,YES,,A01,D,,Algebraic,No
+A010101,Tangible assets,Tangible assets,Asset,Debit,NO,YES,,A0101,C,,Algebraic,No
+A01010101,Land,Land,Asset,Debit,YES,NO,,A010101,S,,Algebraic,No
+A01010102,Buildings,Buildings,Asset,Debit,YES,NO,P_ASSET_ACCT,A010101,S,,Algebraic,No
+A01010103,Plant and Equipment,Plant and Equipment,Asset,Debit,YES,NO,,A010101,S,,Algebraic,No
+A01010104,Furniture and Fixtures,Furniture and Fixtures,Asset,Debit,YES,NO,,A010101,S,,Algebraic,No
+A01010105,Vehicles,Vehicles,Asset,Debit,YES,NO,,A010101,S,,Algebraic,No
+A01010106,Office equipment,Office equipment,Asset,Debit,YES,NO,,A010101,S,,Algebraic,No
+A01010107,Other Tangible Fixed Assets,Other Tangible Fixed Assets,Asset,Debit,YES,NO,,A010101,S,,Algebraic,No
+A010102,Intangible assets,Intangible assets,Asset,Debit,NO,YES,,A0101,C,,Algebraic,No
+A01010201,Goodwill,Goodwill,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010202,Brands trademarks,Brands trademarks,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010203,Computer software,Computer software,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010204,Mastheads and publishing titles,Mastheads and publishing titles,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010205,Mining rights,Mining rights,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010206,Copyrights patents intellectual property rights,Copyrights patents intellectual property rights,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010207,Recipes formulae models designs and prototypes,Recipes formulae models designs and prototypes,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010208,Licenses and franchise,Licenses and franchise,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A01010209,Other Intangible Fixed Assets,Other Intangible Fixed Assets,Asset,Debit,YES,NO,,A010102,S,,Algebraic,No
+A0102,Noncurrent investments,Noncurrent investments,Asset,Debit,NO,YES,,A01,D,,Algebraic,No
+A010201,Trade Investments,Trade Investments,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010202,Investment property,Investment property,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010203,Investments in Equity Instruments,Investments in Equity Instruments,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010204,Investments in preference shares,Investments in preference shares,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010205,Investments in Government or trust securities,Investments in Government or trust securities,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010206,Investments in debentures or bonds,Investments in debentures or bonds,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010207,Investments in Mutual Funds,Investments in Mutual Funds,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010208,Investments in partnership firms,Investments in partnership firms,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A010209,Other noncurrent investments,Other noncurrent investments,Asset,Debit,YES,NO,,A0102,S,,Algebraic,No
+A0103,Deferred tax assets  net,Deferred tax assets  net,Asset,Debit,NO,YES,,A01,C,,Algebraic,No
+A010301,Net Deferred Tax Assets,Net Deferred Tax Assets,Asset,Debit,YES,NO,,A0103,S,,Algebraic,No
+A0104,Longterm loans and advances,Longterm loans and advances,Asset,Debit,NO,YES,,A01,C,,Algebraic,No
+A010401,Capital Advances,Capital Advances,Asset,Debit,YES,NO,,A0104,S,,Algebraic,No
+A010402,Security Deposits,Security Deposits,Asset,Debit,YES,NO,,A0104,S,,Algebraic,No
+A010403,Loans and advances to related parties,Loans and advances to related parties,Asset,Debit,YES,NO,NOTINVOICEDRECEIPTS_ACCT,A0104,S,,Algebraic,No
+A010404,Other loans and advances,Other loans and advances,Asset,Debit,YES,NO,,A0104,S,,Algebraic,No
+A0105,Other noncurrent assets,Other noncurrent assets,Asset,Debit,NO,YES,,A01,C,,Algebraic,No
+A010501,Long Term Trade Receivables,Long Term Trade Receivables,Asset,Debit,YES,NO,,A0105,S,,Algebraic,No
+A010502,Other noncurrent assetsOthers,Other noncurrent assetsOthers,Asset,Debit,YES,NO,,A0105,S,,Algebraic,No
+A02,Current Assets,Current Assets,Asset,Debit,NO,YES,,A,E,,Algebraic,No
+A0201,Current Investments,Current Investments,Asset,Debit,NO,YES,,A02,D,,Algebraic,No
+A020101,Investments in Equity Instruments,Investments in Equity Instruments,Asset,Debit,NO,YES,,A0201,C,,Algebraic,No
+A020102,Investment in Preference Shares,Investment in Preference Shares,Asset,Debit,NO,YES,,A0201,C,,Algebraic,No
+A020103,Investments in government or trust securities,Investments in government or trust securities,Asset,Debit,NO,YES,,A0201,C,,Algebraic,No
+A020104,Investments in debentures or bonds,Investments in debentures or bonds,Asset,Debit,NO,YES,,A0201,C,,Algebraic,No
+A020105,Investments in Mutual Funds,Investments in Mutual Funds,Asset,Debit,NO,YES,,A0201,C,,Algebraic,No
+A020106,Investments in partnership firms,Investments in partnership firms,Asset,Debit,NO,YES,,A0201,C,,Algebraic,No
+A020107,Other investments,Other investments,Asset,Debit,NO,YES,,A0201,C,,Algebraic,No
+A0202,Inventories,Inventories,Asset,Debit,NO,YES,,A02,D,,Algebraic,No
+A020201,Raw materials,Raw materials,Asset,Debit,NO,YES,,A0202,C,,Algebraic,No
+A020202,Workinprogress,Workinprogress,Asset,Debit,NO,YES,,A0202,C,,Algebraic,No
+A020203,Finished goods,Finished goods,Asset,Debit,NO,YES,,A0202,C,,Algebraic,No
+A020204,Stockintrade,Stockintrade,Asset,Debit,NO,YES,,A0202,C,,Algebraic,No
+A020205,Stores and spares,Stores and spares,Asset,Debit,NO,YES,,A0202,C,,Algebraic,No
+A020206,Loose Tools,Loose Tools,Asset,Debit,NO,YES,,A0202,C,,Algebraic,No
+A020207,Other Stock,Other Stock,Asset,Debit,NO,YES,,A0202,C,,Algebraic,No
+A02020701,Stock Default,Stock Default,Asset,Debit,YES,NO,W_INVENTORY_ACCT,A020207,S,,Algebraic,No
+A0203,Trade Receivables,Trade Receivables,Asset,Debit,NO,YES,,A02,C,,Algebraic,No
+A020301,Sundry Debtors Default,Sundry Debtors Default,Asset,Debit,YES,NO,C_RECEIVABLE_ACCT,A0203,S,,Algebraic,No
+A020302,Due by Directors Employees,Due by Directors Employees,Asset,Debit,YES,NO,,A0203,S,,Algebraic,No
+A0204,Cash and Cash Equivalents,Cash and Cash Equivalents,Asset,Debit,NO,YES,,A02,D,,Algebraic,No
+A020401,Bank Accounts,Bank Accounts,Asset,Debit,NO,YES,,A0204,C,,Algebraic,No
+A02040101,Bank in Transit,Bank in Transit,Asset,Debit,YES,NO,B_INTRANSIT_ACCT,A020401,S,,Algebraic,No
+A02040102,Deposits with Bank,Deposits with Bank,Asset,Debit,YES,NO,,A020401,S,,Algebraic,No
+A02040103,Default Bank Accounts,Default Bank Accounts,Asset,Debit,YES,NO,B_ASSET_ACCT,A020401,S,,Algebraic,No
+A020402,Cash Accounts,Cash Accounts,Asset,Debit,NO,YES,,A0204,C,,Algebraic,No
+A02040201,Petty Cash,Petty Cash,Asset,Debit,YES,NO,CB_ASSET_ACCT,A020402,S,,Algebraic,No
+A02040202,Petty Cash Differences,Petty Cash Differences,Asset,Debit,YES,NO,CB_DIFFERENCES_ACCT,A020402,S,,Algebraic,No
+A02040203,Cash in Transfer,Cash in Transfer,Asset,Debit,YES,NO,CB_CASHTRANSFER_ACCT,A020402,S,,Algebraic,No
+A020403,GST Cash Ledger,GST Cash Ledger,Asset,Debit,NO,YES,,A0204,C,,Algebraic,No
+A02040301,GST Cash Ledger  CGST,GST Cash Ledger  CGST,Asset,Debit,YES,NO,,A020403,S,,Algebraic,No
+A02040302,GST Cash Ledger  IGST,GST Cash Ledger  IGST,Asset,Debit,YES,NO,,A020403,S,,Algebraic,No
+A02040303,GST Cash Ledger  SGST,GST Cash Ledger  SGST,Asset,Debit,YES,NO,,A020403,S,,Algebraic,No
+A0205,Short Term Loans and Advances,Short Term Loans and Advances,Asset,Debit,NO,YES,,A02,D,,Algebraic,No
+A020501,Loans and advances to related parties,Loans and advances to related parties,Asset,Debit,NO,YES,,A0205,C,,Algebraic,No
+A020502,Other loans and advances,Other loans and advances,Asset,Debit,NO,YES,,A0205,C,,Algebraic,No
+A02050201,Advance paid to vendors,Advance paid to vendors,Asset,Debit,YES,NO,V_PREPAYMENT_ACCT,A020502,S,,Algebraic,No
+A0206,Other Current Assets,Other Current Assets,Asset,Debit,NO,YES,,A02,D,,Algebraic,No
+A020601,Duties and Taxes  Assets,Duties and Taxes  Assets,Asset,Debit,NO,YES,,A0206,D,,Algebraic,No
+A02060101,Input Credit  GST,Input Credit  GST,Asset,Debit,NO,YES,,A020601,D,,Algebraic,No
+A0206010101,Input Credit  SGST,Input Credit  SGST,Asset,Debit,NO,YES,,A02060101,C,,Algebraic,No
+A020601010101,Input Credit  SGST  Inward Supplies,Input Credit  SGST  Inward Supplies,Asset,Debit,NO,YES,,A0206010101,C,,Algebraic,No
+A02060101010101,Input Credit  SGST  Goods  Inward Supplies,Input Credit  SGST  Goods  Inward Supplies,Asset,Debit,YES,NO,,A020601010101,S,,Algebraic,No
+A02060101010102,Input Credit  SGST  Service  Inward Supplies,Input Credit  SGST  Service  Inward Supplies,Asset,Debit,YES,NO,,A020601010101,S,,Algebraic,No
+A02060101010103,Input Credit  SGST  Capital Goods  Inward Supplies,Input Credit  SGST  Capital Goods  Inward Supplies,Asset,Debit,YES,NO,,A020601010101,S,,Algebraic,No
+A020601010102,Input Credit  SGST Mismatched Inv,Input Credit  SGST Mismatched Inv,Asset,Debit,NO,YES,,A0206010101,C,,Algebraic,No
+A020601010103,Input Credit  SGST  Amendments,Input Credit  SGST  Amendments,Asset,Debit,NO,YES,,A0206010101,C,,Algebraic,No
+A02060101010301,Input Credit  SGST  Goods  Amendments,Input Credit  SGST  Goods  Amendments,Asset,Debit,YES,NO,,A020601010103,S,,Algebraic,No
+A02060101010302,Input Credit  SGST  Service  Amendments,Input Credit  SGST  Service  Amendments,Asset,Debit,YES,NO,,A020601010103,S,,Algebraic,No
+A02060101010303,Input Credit  SGST  Capital Goods  Amendments,Input Credit  SGST  Capital Goods  Amendments,Asset,Debit,YES,NO,,A020601010103,S,,Algebraic,No
+A020601010104,Input Credit  SGST  Reverse Charge,Input Credit  SGST  Reverse Charge,Asset,Debit,NO,YES,,A0206010101,C,,Algebraic,No
+A02060101010401,Input Credit  SGST  Goods  Reverse Charge,Input Credit  SGST  Goods  Reverse Charge,Asset,Debit,YES,NO,,A020601010104,S,,Algebraic,No
+A02060101010402,Input Credit  SGST  Service  Reverse Charge,Input Credit  SGST  Service  Reverse Charge,Asset,Debit,YES,NO,,A020601010104,S,,Algebraic,No
+A0206010102,Input Credit  CGST,Input Credit  CGST,Asset,Debit,NO,YES,,A02060101,D,,Algebraic,No
+A020601010201,Input Credit  CGST Inward Supplies,Input Credit  CGST Inward Supplies,Asset,Debit,NO,YES,,A0206010102,C,,Algebraic,No
+A02060101020101,Input Credit  CGST  Goods  Inward Supplies,Input Credit  CGST  Goods  Inward Supplies,Asset,Debit,YES,NO,,A020601010201,S,,Algebraic,No
+A02060101020102,Input Credit  CGST  Service  Inward Supplies,Input Credit  CGST  Service  Inward Supplies,Asset,Debit,YES,NO,,A020601010201,S,,Algebraic,No
+A02060101020103,Input Credit  CGST  Capital Goods  Inward Supplies,Input Credit  CGST  Capital Goods  Inward Supplies,Asset,Debit,YES,NO,,A020601010201,S,,Algebraic,No
+A020601010202,Input Credit  CGST Mismatched Inv,Input Credit  CGST Mismatched Inv,Asset,Debit,YES,NO,,A0206010102,S,,Algebraic,No
+A020601010203,Input Credit  CGST  Amendments,Input Credit  CGST  Amendments,Asset,Debit,NO,YES,,A0206010102,C,,Algebraic,No
+A02060101020301,Input Credit  CGST  Goods  Amendments,Input Credit  CGST  Goods  Amendments,Asset,Debit,YES,NO,,A020601010203,S,,Algebraic,No
+A02060101020302,Input Credit  CGST  Service Amendments,Input Credit  CGST  Service Amendments,Asset,Debit,YES,NO,,A020601010203,S,,Algebraic,No
+A02060101020303,Input Credit  CGST  Capital Goods  Amendments,Input Credit  CGST  Capital Goods  Amendments,Asset,Debit,YES,NO,,A020601010203,S,,Algebraic,No
+A020601010204,Input Credit  CGST  Reverse Charge,Input Credit  CGST  Reverse Charge,Asset,Debit,NO,YES,,A0206010102,C,,Algebraic,No
+A02060101020401,Input Credit  CGST  Goods  Reverse Charge,Input Credit  CGST  Goods  Reverse Charge,Asset,Debit,YES,NO,,A020601010204,S,,Algebraic,No
+A02060101020402,Input Credit  CGST  Service  Reverse Charge,Input Credit  CGST  Service  Reverse Charge,Asset,Debit,YES,NO,,A020601010204,S,,Algebraic,No
+A0206010103,Input Credit  IGST,Input Credit  IGST,Asset,Debit,NO,YES,,A02060101,D,,Algebraic,No
+A020601010301,Input Credit  IGST  Inward Supplies,Input Credit  IGST  Inward Supplies,Asset,Debit,NO,YES,,A0206010103,C,,Algebraic,No
+A02060101030101,Input Credit  IGST  Goods  Inward Supplies,Input Credit  IGST  Goods  Inward Supplies,Asset,Debit,YES,NO,,A020601010301,S,,Algebraic,No
+A02060101030102,Input Credit  IGST  Service  Inward Supplies,Input Credit  IGST  Service  Inward Supplies,Asset,Debit,YES,NO,,A020601010301,S,,Algebraic,No
+A02060101030103,Input Credit  IGST  Capital Goods  Inward Supplies,Input Credit  IGST  Capital Goods  Inward Supplies,Asset,Debit,YES,NO,,A020601010301,S,,Algebraic,No
+A020601010302,Input Credit  IGST Mismatched Inv,Input Credit  IGST Mismatched Inv,Asset,Debit,YES,NO,,A0206010103,S,,Algebraic,No
+A020601010303,Input Credit  IGST  Amendments,Input Credit  IGST  Amendments,Asset,Debit,NO,YES,,A0206010103,C,,Algebraic,No
+A02060101030301,Input Credit  IGST  Goods  Amendments,Input Credit  IGST  Goods  Amendments,Asset,Debit,YES,NO,,A020601010303,S,,Algebraic,No
+A02060101030302,Input Credit  IGST  Service  Amendments,Input Credit  IGST  Service  Amendments,Asset,Debit,YES,NO,,A020601010303,S,,Algebraic,No
+A02060101030303,Input Credit  IGST  Capital Goods  Amendments,Input Credit  IGST  Capital Goods  Amendments,Asset,Debit,YES,NO,,A020601010303,S,,Algebraic,No
+A020601010304,Input Credit  IGST  Reverse Charge,Input Credit  IGST  Reverse Charge,Asset,Debit,NO,YES,,A0206010103,C,,Algebraic,No
+A02060101030401,Input Credit  IGST  Goods  Reverse Charge,Input Credit  IGST  Goods  Reverse Charge,Asset,Debit,YES,NO,,A020601010304,S,,Algebraic,No
+A02060101030402,Input Credit  IGST  Service  Reverse Charge,Input Credit  IGST  Service  Reverse Charge,Asset,Debit,YES,NO,,A020601010304,S,,Algebraic,No
+A020601010305,Input Credit  Import,Input Credit  Import,Asset,Debit,NO,YES,,A0206010103,C,,Algebraic,No
+A02060101030501,Input Credit  Import  IGST  Capital Goods,Input Credit  Import  IGST  Capital Goods,Asset,Debit,YES,NO,,A020601010305,S,,Algebraic,No
+A02060101030502,Input Credit  Import  IGST  Goods,Input Credit  Import  IGST  Goods,Asset,Debit,YES,NO,,A020601010305,S,,Algebraic,No
+A02060101030503,Input Credit  Import  IGST  Service,Input Credit  Import  IGST  Service,Asset,Debit,YES,NO,,A020601010305,S,,Algebraic,No
+A02060102,Other Tax Credit  ,Other Tax Credit  ,Asset,Debit,YES,NO,T_CREDIT_ACCT,A020601,S,,Algebraic,No
+A020602,Work in Progress Unbilled Revenue,Work in Progress Unbilled Revenue,Asset,Debit,NO,YES,,A0206,C,,Algebraic,No
+TA,Total Assets,Total Assets,Asset,Debit,NO,YES,,A,E,A01+A02,Algebraic,No
+PL,STATEMENT OF PROFIT AND LOSS,STATEMENT OF PROFIT AND LOSS,Revenue,Credit,NO,YES,,,E,,Algebraic,No
+I,Income,Income,Revenue,Credit,NO,YES,,PL,E,,Algebraic,No
+I01,Revenue from operationsNon Finance Companies,Revenue from operationsNon Finance Companies,Revenue,Credit,NO,YES,,I,D,,Algebraic,No
+I0101,Sale of products,Sale of products,Revenue,Credit,NO,YES,,I01,C,,Algebraic,No
+I010101,Default Sales AC,Default Sales AC,Revenue,Credit,YES,NO,P_REVENUE_ACCT,I0101,S,,Algebraic,No
+I0102,Sale of services,Sale of services,Revenue,Credit,NO,YES,,I01,C,,Algebraic,No
+I0103,Other operating revenues,Other operating revenues,Revenue,Credit,NO,YES,,I01,C,,Algebraic,No
+I02,Revenue from operations Finance Companies,Revenue from operations Finance Companies,Revenue,Credit,NO,YES,,I,D,,Algebraic,No
+I0201,Interest,Interest,Revenue,Credit,NO,YES,,I02,C,,Algebraic,No
+I0202,Other financial services,Other financial services,Revenue,Credit,NO,YES,,I02,C,,Algebraic,No
+I03,Other Income,Other Income,Revenue,Credit,NO,YES,,I,D,,Algebraic,No
+I0301,Interest Income For a non Finance Company,Interest Income For a non Finance Company,Revenue,Credit,NO,YES,,I03,C,,Algebraic,No
+I0302,Dividend Income,Dividend Income,Revenue,Credit,NO,YES,,I03,C,,Algebraic,No
+I0303,Net gainloss on sale of investments,Net gainloss on sale of investments,Revenue,Credit,NO,YES,,I03,C,,Algebraic,No
+I0304,Other nonoperating income,Other nonoperating income,Revenue,Credit,YES,NO,CB_RECEIPT_ACCT,I03,S,,Algebraic,No
+I030401,Foreign Exchange Currency Gain,Foreign Exchange Currency Gain,Revenue,Credit,YES,NO,B_REVALUATIONGAIN_ACCT,I0304,S,,Algebraic,No
+I030402,Misc Income,Misc Income,Revenue,Credit,YES,NO,P_REVENUE_RETURN_ACCT,I0304,S,,Algebraic,No
+TR,Total Revenue,Total Revenue,Revenue,Credit,NO,YES,,I,E,I01+I02+I03,Algebraic,No
+E,All Expenses,All Expenses,Expense,Debit,NO,YES,,PL,E,,Algebraic,No
+E01,Direct Expenses,Direct Expenses,Expense,Debit,NO,YES,,E,D,,Algebraic,No
+E0101,Cost of materials consumed,Cost of materials consumed,Expense,Debit,YES,NO,P_COGS_ACCT,E01,S,,Algebraic,No
+E0102,Purchases of StockinTrade,Purchases of StockinTrade,Expense,Debit,YES,NO,P_EXPENSE_ACCT,E01,S,,Algebraic,No
+E0103,Changes in Stock of FG WIP and Stock In Trade,Changes in Stock of FG WIP and Stock In Trade,Expense,Debit,YES,NO,P_COGS_RETURN_ACCT,E01,S,,Algebraic,No
+E02,Indirect Expenses,Indirect Expenses,Expense,Debit,NO,YES,,E,D,,Algebraic,No
+E0201,Employee Benefit Expense,Employee Benefit Expense,Expense,Debit,NO,YES,,E02,C,,Algebraic,No
+E020101,Salaries and incentives,Salaries and incentives,Expense,Debit,YES,NO,,E0201,S,,Algebraic,No
+E020102,Contributions to Provident Fund,Contributions to Provident Fund,Expense,Debit,YES,NO,,E0201,S,,Algebraic,No
+E020103,Contributions to Superannuation scheme,Contributions to Superannuation scheme,Expense,Debit,YES,NO,,E0201,S,,Algebraic,No
+E020104,Gratuity fund contributions,Gratuity fund contributions,Expense,Debit,YES,NO,,E0201,S,,Algebraic,No
+E020105,Social security and other benefit for overseas employees,Social security and other benefit for overseas employees,Expense,Debit,YES,NO,,E0201,S,,Algebraic,No
+E020106,Expense on ESOP and ESPP,Expense on ESOP and ESPP,Expense,Debit,YES,NO,,E0201,S,,Algebraic,No
+E020107,Staff welfare expenses,Staff welfare expenses,Expense,Debit,YES,NO,,E0201,S,,Algebraic,No
+E0202,Finance costs,Finance costs,Expense,Debit,NO,YES,,E02,D,,Algebraic,No
+E020201,Late Fee Expense GST,Late Fee Expense GST,Expense,Debit,NO,YES,,E0202,C,,Algebraic,No
+E02020101,Late Fee Expense CGST,Late Fee Expense CGST,Expense,Debit,YES,NO,,E020201,S,,Algebraic,No
+E02020102,Late Fee Expense  IGST,Late Fee Expense  IGST,Expense,Debit,YES,NO,,E020201,S,,Algebraic,No
+E02020103,Late Fee Expense  SGST,Late Fee Expense  SGST,Expense,Debit,YES,NO,,E020201,S,,Algebraic,No
+E020202,Interest Expense  GST,Interest Expense  GST,Expense,Debit,NO,YES,,E0202,C,,Algebraic,No
+E02020201,Interest Expense CGST,Interest Expense CGST,Expense,Debit,YES,NO,,E020202,S,,Algebraic,No
+E02020202,Interest Expense  IGST,Interest Expense  IGST,Expense,Debit,YES,NO,,E020202,S,,Algebraic,No
+E02020203,Interest Expense  SGST,Interest Expense  SGST,Expense,Debit,YES,NO,,E020202,S,,Algebraic,No
+E020203,Penalty Expense  GST,Penalty Expense  GST,Expense,Debit,NO,YES,,E0202,C,,Algebraic,No
+E02020301,Penalty Expense CGST,Penalty Expense CGST,Expense,Debit,YES,NO,,E020203,S,,Algebraic,No
+E02020302,Penalty Expense IGST,Penalty Expense IGST,Expense,Debit,YES,NO,,E020203,S,,Algebraic,No
+E02020303,Penalty Expense  SGST,Penalty Expense  SGST,Expense,Debit,YES,NO,,E020203,S,,Algebraic,No
+E020204,Other borrowing costs,Other borrowing costs,Expense,Debit,YES,NO,,E0202,S,,Algebraic,No
+E020205,Other Interest Expenses,Other Interest Expenses,Expense,Debit,NO,YES,,E0202,C,,Algebraic,No
+E020206,Applicable net gainloss on foreign currency transaction,Applicable net gainloss on foreign currency transaction,Expense,Debit,YES,NO,,E0202,S,,Algebraic,No
+E0203,Depreciation and Amortization expense,Depreciation and Amortization expense,Expense,Debit,NO,YES,,E02,C,,Algebraic,No
+E020301,Depreciation Expense Default AC,Depreciation Expense Default AC,Expense,Debit,YES,NO,A_DEPRECIATION_ACCT,E0203,S,,Algebraic,No
+E020302,Depreciation Building,Depreciation Building,Expense,Debit,YES,NO,,E0203,S,,Algebraic,No
+E020303,Depreciation Plant  Machinery,Depreciation Plant  Machinery,Expense,Debit,YES,NO,,E0203,S,,Algebraic,No
+E020304,Depreciation Furniture  Fittings,Depreciation Furniture  Fittings,Expense,Debit,YES,NO,,E0203,S,,Algebraic,No
+E020305,Depreciation Office Vehicles,Depreciation Office Vehicles,Expense,Debit,YES,NO,,E0203,S,,Algebraic,No
+E020306,Depreciation Office Equipments,Depreciation Office Equipments,Expense,Debit,YES,NO,,E0203,S,,Algebraic,No
+E020307,DepreciationComputer and Accessories,DepreciationComputer and Accessories,Expense,Debit,YES,NO,,E0203,S,,Algebraic,No
+E0204,Other expenses,Other expenses,Expense,Debit,NO,YES,,E02,D,,Algebraic,No
+E020401,Legal and Professional Fee,Legal and Professional Fee,Expense,Debit,NO,YES,,E0204,C,,Algebraic,No
+E02040101,Audit Fees,Audit Fees,Expense,Debit,YES,NO,,E020401,S,,Algebraic,No
+E02040102,Professional Fee,Professional Fee,Expense,Debit,YES,NO,,E020401,S,,Algebraic,No
+E02040103,HR and Payroll Expenses,HR and Payroll Expenses,Expense,Debit,YES,NO,,E020401,S,,Algebraic,No
+E020402,Office and Administrative Expenses,Office and Administrative Expenses,Expense,Debit,NO,YES,,E0204,C,,Algebraic,No
+E02040201,Telephone  Internet,Telephone  Internet,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040202,Office Repairs  Maintenance,Office Repairs  Maintenance,Expense,Debit,YES,NO,DEFAULT_ACCT,E020402,S,,Algebraic,No
+E02040203,Insurance,Insurance,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040204,Office Rent,Office Rent,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040205,Postage  Courier,Postage  Courier,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040206,Security Charges,Security Charges,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040207,Currency Balancing,Currency Balancing,Expense,Debit,YES,NO,CURRENCYBALANCING_ACCT,E020402,S,,Algebraic,No
+E02040208,Inventory Loss,Inventory Loss,Expense,Debit,YES,NO,W_DIFFERENCES_ACCT,E020402,S,,Algebraic,No
+E02040209,Foreign Exchange Currency Loss,Foreign Exchange Currency Loss,Expense,Debit,YES,NO,B_REVALUATIONLOSS_ACCT,E020402,S,,Algebraic,No
+E02040210,Sales Promotion Expenses,Sales Promotion Expenses,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040211,Sales Commission,Sales Commission,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040212,Advertisement Expenses,Advertisement Expenses,Expense,Debit,YES,NO,,E020402,S,,Algebraic,No
+E02040213,Bank Charge,Bank Charge,Expense,Debit,YES,NO,B_EXPENSE_ACCT,E020402,S,,Algebraic,No
+E02040214,Expenses  Bad Debts  Write Off,Expenses  Bad Debts  Write Off,Expense,Debit,YES,NO,WRITEOFF_ACCT,E020402,S,,Algebraic,No
+E02040215,Preliminary Expenses,Preliminary Expenses,Expense,Debit,YES,NO,CH_EXPENSE_ACCT,E020402,S,,Algebraic,No
+E02040216,Cash Book Expenses,Cash Book Expenses,Expense,Debit,YES,NO,CB_EXPENSE_ACCT,E020402,S,,Algebraic,No
+E020403,Travel and Logistic Expenses,Travel and Logistic Expenses,Expense,Debit,NO,YES,,E0204,C,,Algebraic,No
+E02040301,Freight Inward,Freight Inward,Expense,Debit,YES,NO,,E020403,S,,Algebraic,No
+E02040302,Freight Outward,Freight Outward,Expense,Debit,YES,NO,,E020403,S,,Algebraic,No
+E02040303,Air Fare,Air Fare,Expense,Debit,YES,NO,,E020403,S,,Algebraic,No
+E02040304,Local Conveyance,Local Conveyance,Expense,Debit,YES,NO,,E020403,S,,Algebraic,No
+E020404,Duties and Taxes Expenses,Duties and Taxes Expenses,Expense,Debit,NO,YES,,E0204,C,,Algebraic,No
+E02040401,Expenses  Income Tax,Expenses  Income Tax,Expense,Debit,YES,NO,,E020404,S,,Algebraic,No
+E02040402,Expenses  Professional Tax,Expenses  Professional Tax,Expense,Debit,YES,NO,,E020404,S,,Algebraic,No
+E02040403,Expenses  Professional Tax Interest,Expenses  Professional Tax Interest,Expense,Debit,YES,NO,,E020404,S,,Algebraic,No
+E02040404,Expenses ITTDS Interest,Expenses ITTDS Interest,Expense,Debit,YES,NO,,E020404,S,,Algebraic,No
+E02040405,CST Paid on inter State Purchase,CST Paid on inter State Purchase,Expense,Debit,YES,NO,P_INVOICEPRICEVARIANCE_ACCT,E020404,S,,Algebraic,No
+TE,Total Expenses,Total Expenses,Expense,Debit,NO,YES,,E,E,E01+E02,Algebraic,No
+999,Memo Accounts,Memo Accounts,Memo,Debit,NO,YES,,,E,,Algebraic,No
+99901,Suspense Account,Suspense Account,Memo,Debit,YES,NO,SUSPENSEERROR_ACCT,999,S,,Algebraic,No
+99902,Suspense Balancing,Suspense Balancing,Memo,Debit,YES,NO,SUSPENSEBALANCING_ACCT,999,S,,Algebraic,No

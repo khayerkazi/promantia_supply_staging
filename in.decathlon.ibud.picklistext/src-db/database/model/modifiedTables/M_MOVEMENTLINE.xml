@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_MOVEMENTLINE">
+    <table name="M_MOVEMENTLINE" primaryKey="M_MOVEMENTLINE_KEY">
+      <index name="EM_IBUDPK_PICKINGLIST_ID" unique="false">
+        <index-column name="EM_OBWPL_GROUP_PICKINGLIST_ID"/>
+      </index>
+      <index name="EM_IBUDPK_PICKLIST_IDX" unique="false">
+        <index-column name="EM_OBWPL_PICKINGLIST_ID"/>
+      </index>
+    </table>
+  </database>

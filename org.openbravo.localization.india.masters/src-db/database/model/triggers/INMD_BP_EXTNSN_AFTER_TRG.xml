@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER INMD_BP_EXTNSN_AFTER_TRG">
+    <trigger name="INMD_BP_EXTNSN_AFTER_TRG" table="C_BPARTNER" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_n NUMBER;
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+    IF((INSERTING) OR (UPDATING)) THEN
+	SELECT COUNT(*)
+		INTO v_n
+		FROM inmd_bpartner_extnsn where inmd_bpartner_extnsn.c_bpartner_id = :new.c_bpartner_id ;
+
+	IF (v_n=0) THEN
+		INSERT INTO inmd_bpartner_extnsn(
+            inmd_bpartner_extnsn_id, ad_client_id, ad_org_id, isactive, created, 
+            createdby, updated, updatedby, c_bpartner_id, legalentity_pan_no)
+    VALUES (get_uuid(),  :new.ad_client_id, :new.ad_org_id, 'Y', now(),
+            :new.createdby, now(), :new.updatedby, :new.c_bpartner_id, '');
+	END IF;
+   END IF;
+
+END INMD_BP_EXTNSN_AFTER_TRG
+]]></body>
+    </trigger>
+  </database>

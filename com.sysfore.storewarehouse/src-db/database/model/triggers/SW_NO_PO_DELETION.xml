@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_NO_PO_DELETION">
+    <trigger name="SW_NO_PO_DELETION" table="C_ORDER" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+IF TG_OP='DELETE' THEN
+
+IF(:OLD.c_doctypetarget_id='C7CD4AC8AC414678A525AB7AE20D718C') THEN
+RAISE EXCEPTION 'You cannot delete the PO';
+END IF;
+
+END IF;
+END SW_NO_PO_DELETION
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="WarehousePicklist" pageWidth="1700" pageHeight="792" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="1700" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="DateFrom" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTo" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_DateFrom" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("")) ? "" : " AND mmovementl.created >= TO_DATE('" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_DateTo" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateTo} == null || $P{DateTo}.equals("")) ? "" : "AND mmovementl.created <= TO_DATE('" + new java.sql.Date($P{DateTo}.getTime()+ 24*60*60*1000).toString() + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_DateRange" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("") || $P{DateTo} == null || $P{DateTo}.equals("")) ? "" : "TO_NUMBER(TO_DATE('" + new java.sql.Date($P{DateTo}.getTime()).toString() + "', 'YYYY-MM-DD')-TO_DATE('" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "', 'YYYY-MM-DD'))"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="M_Warehouse_ID" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select coalesce(round(mp.em_cl_ue_qty),0) ||'/'|| coalesce(round(mp.em_cl_pcb_qty),0) as uepcbqty, SO.documentno as DocumentNumber, mp.name as  ItemCode, clm.name as ModelName, mp.upc as EAN, b.name as Brand, SO.documentno, ml.value as Location, COALESCE(mattr.lot,'NA') as BoxNumber,  mmovementl.movementqty as QuantityRequested, COALESCE(storeOrg.name,'NA') as Store, au.name as CreatedBy, COALESCE((Select ar.name from  ad_ref_list ar where ar.value=obwpl.Pickliststatus  and ad_reference_id =(select ad_reference_id from ad_reference where name = 'OBWPL_PickingList')),'NA') as status,  obwpl.documentno as PicklistNumber, substr(sd.name, 1, 3) as SubstrinOfSD, COALESCE(assign.name,'NA') as assigned_to, obwpl.created as created, obwpl.updated as updated
+from m_movementline  mmovementl
+right outer join obwpl_pickinglist as obwpl on mmovementl.em_obwpl_pickinglist_id= obwpl.obwpl_pickinglist_id
+left join m_reservation as mRes on mRes.m_reservation_id = mmovementl.m_reservation_id
+left join c_orderline as SOLine on SOLine.c_orderline_id = mRes.c_orderline_id
+left join c_order as SO on SO.c_order_id = SOLine.c_order_id
+left outer join m_attributesetinstance  mattr on mmovementl.m_attributesetinstance_id = mattr.m_attributesetinstance_id
+left outer join m_locator ml on mmovementl.m_locator_id = ml.m_locator_id
+join m_movement mmovement on mmovementl.m_movement_id = mmovement.m_movement_id
+join ad_user  au on au.ad_user_id=obwpl.createdby
+left outer join ad_user assign on assign.ad_user_id=obwpl.ad_user_id
+left join ad_orginfo as storeOrgInfo on SO.c_bpartner_id = storeOrgInfo.c_bpartner_id
+left join ad_org as storeOrg on storeOrg.ad_org_id = storeOrgInfo.ad_org_id
+join m_product mp on mmovementl.m_product_id = mp.m_product_id
+join cl_model clm on mp.em_cl_model_id=clm.cl_model_id
+join cl_storedept sd on sd.cl_storedept_id= clm.cl_storedept_id
+join cl_brand b on b.cl_brand_id = clm.cl_brand_id
+where 1=1
+and (case when $P!{aux_DateRange} <= 7 then 1=1 else 1=2 end)
+and (case when $P!{aux_DateRange} >= 0 then 1=1 else 1=2 end)
+$P!{aux_DateFrom}
+$P!{aux_DateTo}
+and mmovementl.M_Locator_ID in (select m_locator_id from m_locator where m_warehouse_id = $P{M_Warehouse_ID})
+order by obwpl.documentno,SO.documentno,mp.name,ml.value]]>
+	</queryString>
+	<field name="uepcbqty" class="java.lang.String"/>
+	<field name="documentnumber" class="java.lang.String"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="ean" class="java.lang.String"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="location" class="java.lang.String"/>
+	<field name="boxnumber" class="java.lang.String"/>
+	<field name="quantityrequested" class="java.math.BigDecimal"/>
+	<field name="store" class="java.lang.String"/>
+	<field name="createdby" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="picklistnumber" class="java.lang.String"/>
+	<field name="substrinofsd" class="java.lang.String"/>
+	<field name="assigned_to" class="java.lang.String"/>
+	<field name="created" class="java.sql.Timestamp"/>
+	<field name="updated" class="java.sql.Timestamp"/>
+	<variable name="quantityrequested" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{quantityrequested}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="21" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-1" x="0" y="0" width="1700" height="21" backcolor="#EDD3D3"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Warehouse Pick List Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="40">
+			<staticText>
+				<reportElement x="0" y="0" width="130" height="20" forecolor="#120808"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Warehouse]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="130" height="20" forecolor="#120808"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bangalore]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-3" x="130" y="0" width="171" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DocumentNumber]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="410" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Model Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-6" x="510" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[UE/PCB]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-7" x="730" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Location]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-8" x="610" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-10" x="850" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[BoxNumber]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-11" x="1091" y="0" width="86" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Store]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-12" stretchType="RelativeToBandHeight" x="1279" y="0" width="95" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Assigned to]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-14" x="1177" y="0" width="102" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Created By]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" x="1374" y="0" width="72" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="301" y="0" width="109" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[ItemCode]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-11" x="970" y="0" width="121" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[QuantityRequested]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-2" x="0" y="0" width="130" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[PickListNumber]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" x="1446" y="0" width="127" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Created]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" x="1573" y="0" width="127" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Updated]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="0" y="0" width="130" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{picklistnumber}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="130" y="0" width="171" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentnumber}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="410" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="510" y="0" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{uepcbqty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="610" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="850" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{boxnumber}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="970" y="0" width="121" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{quantityrequested}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField-1" stretchType="RelativeToBandHeight" x="1091" y="0" width="86" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{store}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="1279" y="0" width="95" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{assigned_to}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField-1" stretchType="RelativeToBandHeight" x="1177" y="0" width="102" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{createdby}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="301" y="0" width="109" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement key="textField-2" stretchType="RelativeToBandHeight" x="730" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{location}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="1374" y="0" width="72" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{status}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="1446" y="0" width="127" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format($F{created})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToBandHeight" x="1573" y="0" width="127" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format($F{updated})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="130" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Picked By:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="301" y="0" width="109" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Remarked:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="850" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="970" y="0" width="121" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{quantityrequested}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="1700" height="25">
+					<printWhenExpression><![CDATA[$V{COLUMN_COUNT}==0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No data found for given inputs or give date filter within 7 days]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

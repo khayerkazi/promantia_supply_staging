@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPORTMEMBERS">
+    <function name="IM_IMPORTMEMBERS" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[cur_parameter RECORD;
+
+  v_errorNotice VARCHAR(2000) := '';
+  v_validated NUMBER:=0;
+  v_updatedCounter NUMBER:=0;
+  v_insertedCounter NUMBER:=0; 
+  v_count NUMBER:=0;
+  v_greetingId character varying(32);
+  v_bpgroupid character varying(32):='-';
+  v_statusref character varying(32);
+  v_statusvalue character varying(30);
+  v_countryid character varying(32);
+  v_locationid character varying(32);
+  v_bpartnerid character varying(32);
+  v_companyid character varying(32);
+  v_countbpcategory NUMBER;
+  v_companyaddress character varying(120);
+  v_value NUMBER;
+  v_licenseno character varying(60);
+  v_licenseid character varying(32);
+  v_companyid1 character varying(32);
+  v_regionid character varying(32);
+  v_user_id character varying(32);
+  
+BEGIN
+v_user_id=user_id;
+ Select count(*) INTO v_validated from im_importmembers where validated='N' and createdby=v_user_id;
+ 
+ IF v_validated != 0 THEN
+  
+ 	RAISE EXCEPTION 'Validation is not Completed';
+    
+ END IF;
+  
+  FOR cur_parameter IN (SELECT * FROM im_importmembers where createdby=v_user_id)
+  LOOP 
+  
+        
+        Select c_greeting_id into v_greetingId from c_greeting Where lower(name)=lower(cur_parameter.im_salutation) and ad_client_id=cur_parameter.ad_client_id;
+        --Select C_BP_Group_id into v_bpgroupid from C_BP_Group where lower(name)=lower(cur_parameter.bpcategory) and ad_client_id=cur_parameter.ad_client_id;
+        --RAISE v_greetingId; 
+        Select Ad_Reference_Id INTO v_statusref from Ad_Reference where name='RC_Status';
+  
+        Select value INTO v_statusvalue from AD_Ref_List Where Ad_Reference_Id=v_statusref
+        And lower(name)= lower(cur_parameter.im_status);
+
+        Select RC_Company_id INTO v_companyid 
+        from RC_Company where lower(documentno)=lower(cur_parameter.company) and ad_client_id=cur_parameter.ad_client_id ;
+
+        Select count(*) INTO v_countbpcategory from C_BP_Group where lower(name)= lower(cur_parameter.bpcategory);
+        IF(v_countbpcategory!=0) THEN
+        Select C_BP_Group_id into v_bpgroupid from C_BP_Group where lower(name)=lower(cur_parameter.bpcategory) and ad_client_id=cur_parameter.ad_client_id;
+        ELSE
+        Select C_BP_Group_id into v_bpgroupid from C_BP_Group where lower(name)='standard' and ad_client_id=cur_parameter.ad_client_id;
+        END IF;
+
+        Select count(*) INTO v_value from C_Bpartner Where ad_client_Id=cur_parameter.ad_client_id;
+        --RAISE v_value; 
+        --v_value:= v_value+1;
+        --RAISE v_value; 
+        v_bpartnerid =get_uuid();
+
+        
+    
+
+      /*SELECT DISTINCT (l.address1 ||'-'||l.address2 ||'-'||coalesce(l.em_rc_address3,'aadr3')
+                  ||'-'||coalesce(l.em_rc_address4,'aadr4')
+                  ||'-'||l.city||'-'||l.postal) as companyaddress into v_companyaddress
+          FROM c_location l
+          inner join  rc_company c on c.c_location_id = l.c_location_id 
+          left join c_bpartner b on b.Referenceno = c.Documentno
+          and b.Referenceno = cur_parameter.company;*/
+
+           SELECT DISTINCT (coalesce(l.address1, 'add1') ||'-'||coalesce(l.address2, 'add2') ||'-'||coalesce(l.em_rc_address3,'aadr3')
+           ||'-'||coalesce(l.em_rc_address4,'aadr4')
+           ||'-'||coalesce(l.city, '-')||'-'||coalesce(l.postal, '-')) as companyaddress into v_companyaddress
+          FROM c_location l
+          inner join  rc_company c on c.c_location_id = l.c_location_id 
+          and c.documentno = cur_parameter.company;
+
+          
+            /*Select DISTINCT LicenseNo, RC_License_ID into v_licenseno,
+          v_licenseid
+          from RC_Company c
+          left join c_bpartner b on b.em_rc_company_id = c.rc_company_id
+          and b.Referenceno= cur_parameter.company;*/
+        -- RAISE v_companyid; 
+
+        Select DISTINCT LicenseNo, RC_License_ID into v_licenseno,
+          v_licenseid
+          from RC_Company c
+          --left join c_bpartner b on b.em_rc_company_id = c.rc_company_id
+          Where c.documentno= cur_parameter.company;
+
+        --RAISE NO_DATA_FOUND;
+
+	INSERT INTO C_Bpartner(
+		C_Bpartner_id, ad_client_id, 
+		ad_org_id, isactive, created, createdby, updated, updatedby, value, c_greeting_id,
+		name, name2, C_BP_Group_ID,  EM_RC_Optin, EM_RC_Email, EM_RC_Mobile, EM_RC_Location, em_rc_status, 
+		EM_RC_Company_ID, iscustomer, EM_RC_Licenseno, EM_RC_License_ID, ReferenceNo, EM_RC_Conditions,EM_RC_MemberType,EM_RC_Source,Em_RC_Comments)
+
+	VALUES (v_bpartnerid,  cur_parameter.ad_client_id, 
+		cur_parameter.ad_org_id, cur_parameter.isactive, now(), 
+		cur_parameter.createdby, now(), cur_parameter.updatedby, 
+		v_bpartnerid, v_greetingId,
+		cur_parameter.im_name, cur_parameter.im_name2,
+		v_bpgroupid, cur_parameter.im_option, cur_parameter.im_email, cur_parameter.im_mob,
+                v_companyaddress, v_statusvalue, v_companyid, 'Y', v_licenseno, v_licenseid, cur_parameter.company, 'Member has accepted Decathlon Terms and Conditions','Y',cur_parameter.em_rc_source,cur_parameter.em_rc_comments);
+   -- RAISE NO_DATA_FOUND;
+        
+        Select c_country_id INTO v_countryid from c_country where lower(name)=lower('india') ;  
+        Select c_region_id INTO v_regionid from c_region where lower(name)=lower(cur_parameter.im_state);    
+        v_locationid=get_uuid(); 
+
+       -- RAISE v_locationid;     
+	Insert INTO C_location(C_Location_Id, ad_client_id, ad_org_id, isactive, created, createdby,
+	updated, updatedby, Address1, Address2,  EM_RC_Address3, EM_RC_Address4, city, postal, C_Country_id, c_region_Id)
+
+	VALUES(v_locationid, cur_parameter.ad_client_id, cur_parameter.ad_org_id, cur_parameter.isactive, now(),
+	cur_parameter.createdby, now(), cur_parameter.updatedby, cur_parameter.im_add1,
+	cur_parameter.im_add2, cur_parameter.im_add3, cur_parameter.im_add4, cur_parameter.im_city, cur_parameter.im_postal,
+	v_countryid, v_regionid);
+
+       --RAISE NO_DATA_FOUND;
+	Insert INTO C_BPartner_Location(C_BPartner_Location_id, c_bpartner_id, C_location_Id, name, ad_client_id,
+	ad_org_id, isactive, created, createdby, updated, updatedby)
+	VALUES(get_uuid(), v_bpartnerid, v_locationid, '.', cur_parameter.ad_client_id, cur_parameter.ad_org_id, cur_parameter.isactive, now(),
+	cur_parameter.createdby, now(), cur_parameter.updatedby);
+       -- Select count(*) INTO v_insertedCounter from im_importmembers where validated='Y'; 
+        --RAISE v_insertedCounter; 
+	--delete from im_importmembers where im_importmembers_id = cur_parameter.im_importmembers_id;                               
+		
+     -- Select count(*) INTO v_insertedCounter from im_importmembers where validated='Y'; 	
+	
+   END LOOP;
+	--v_updatedCounter := v_updatedCounter - v_insertedCounter;
+	Select count(*) INTO v_insertedCounter from im_importmembers where validated='Y' and createdby=v_user_id; 
+	--RAISE v_insertedCounter; 
+	delete from im_importmembers  where validated='Y' and createdby=v_user_id;
+RETURN 'Successfully Inserted '||v_insertedCounter||' items.' ;
+END IM_IMPORTMEMBERS
+]]></body>
+    </function>
+  </database>

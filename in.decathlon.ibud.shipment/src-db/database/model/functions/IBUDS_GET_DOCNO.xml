@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IBUDS_GET_DOCNO">
+    <function name="IBUDS_GET_DOCNO" type="VARCHAR">
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_date" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[-- Logistice
+  v_documentno VARCHAR2(2000):='';
+  --  Parameter
+  TYPE RECORD IS REF CURSOR;
+    Cur_Parameter RECORD;
+ 
+  BEGIN --BODY
+
+for Cur_Parameter in (select ship.documentno from obwship_shipping ship
+ left join c_bpartner bp on bp.c_bpartner_id=ship.c_bpartner_id
+ left join ad_orginfo ainfo on ainfo.c_bpartner_id=bp.c_bpartner_id
+  left join ad_org aorg on aorg.ad_org_id = ainfo.ad_org_id
+where aorg.ad_org_id=p_org_id and ship.shipment_date=p_date)
+loop
+v_documentno:=v_documentno||Cur_Parameter.documentno||',';
+end loop;
+v_documentno:=substring( v_documentno from 0 for length(v_documentno));
+  RETURN v_documentno;
+END IBUDS_GET_DOCNO
+]]></body>
+    </function>
+  </database>

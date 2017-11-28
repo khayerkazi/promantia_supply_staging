@@ -1,0 +1,123 @@
+/*
+ ************************************************************************************
+ * Copyright (C) 2013 Openbravo S.L.U.
+ * Licensed under the Openbravo Commercial License version 1.0
+ * You may obtain a copy of the License at http://www.openbravo.com/legal/obcl.html
+ * or in the legal folder of this module distribution.
+ ************************************************************************************
+*/
+.pageSelector {
+    margin: 0 !important;
+    width: 25% !important;
+    line-height: 40px !important;
+    height: 40px !important;
+    font-size: 25px !important;
+    padding: 0 !important;
+    position: relative;
+}
+ 
+.pickingItems_activeScrollableTable li.plLineSelected > button,
+.pickingItems_activeScrollableTable li.plLineSelected > button:hover {
+    border-left: 5px solid orange;
+    color: black;
+}
+
+.btnselect .incidenceTypeIdentifier {
+    font-size: 0.9em;
+    color: gray;
+}
+
+.actionPopup_body textarea {
+    width: 80%;
+    height: 100px;
+}
+
+.alternateStockLineContainer{
+    border-bottom: 1px solid black;
+}
+
+.genMovementLineContainer{
+    border-bottom: 1px solid black;
+}
+
+.alternateLocatorStockResult{
+    background-color: #ffffff;
+    color: black;
+    width: 80%;
+    margin: 0 auto;
+    font-size: 12px;
+    line-height: normal;
+}
+
+.genMovementsResult{
+    background-color: #ffffff;
+    color: black;
+    width: 80%;
+    margin: 0 auto;
+    font-size: 12px;
+    line-height: normal;
+}
+
+.alternateStockLine.left{
+    float: left;
+    width: 74%;
+}
+.alternateStockLine.right{
+    float: right;
+    width: 25%;
+}
+
+.genMovementLine .title{
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.alternateStockLine  .title{
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.alternateStockLine .mainValue{
+    font-size: 2.5em;
+    font-weight: bold;
+    background-color: #f8941d;
+    color: black;
+    text-align: center;
+}
+
+.alternateLocator_progress{
+    background-color: white;
+    color: black;
+    font-size: 0.8em;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.alternateLocator_progress.error{
+    color: red;
+    font-weight: bold;
+}
+
+/*packing*/
+.BoxSelector_ButtonsContainer>Button{
+    float: right
+}
+
+.addBoxLine {
+    border: 1px solid gray;
+    padding: 2px 0px;
+}
+.addBoxLine .addBoxLabel {
+    background-color: gray;
+    font-weight: bold;
+}
+
+.addBoxLine input {
+    width: 90%;
+    vertical-align: middle;
+}
+
+.hidden {
+    visibility: hidden;
+}
+

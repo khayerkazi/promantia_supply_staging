@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SBC_BARCODE_SEQUENCE">
+    <function name="SBC_BARCODE_SEQUENCE" type="NULL">
+      <parameter name="p_sbc_barcode_seq_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_documentno" type="VARCHAR" mode="out">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_NextNo VARCHAR2(32);
+    v_count NUMBER;
+  v_Prefix VARCHAR2(30) ;
+  v_Suffix VARCHAR2(30) ;
+BEGIN
+  -- Is a document Sequence defined and valid
+BEGIN
+  SELECT count(*) INTO v_count
+  FROM sbc_barcode_seq
+  WHERE sbc_barcode_seq_id=p_sbc_barcode_seq_id -- parameter
+       AND IsActive='Y';
+EXCEPTION
+WHEN OTHERS THEN
+  NULL;
+END;
+IF(v_count = 0) THEN -- No Sequence Number
+  p_DocumentNo:= NULL; -- Return NULL
+  RETURN;
+END IF;
+-- Get the numbers
+SELECT s.CurrentNext, s.Prefix, s.Suffix
+INTO v_NextNo, v_Prefix, v_Suffix
+FROM sbc_barcode_seq s
+WHERE sbc_barcode_seq_id=p_sbc_barcode_seq_id -- parameter
+       AND s.IsActive='Y'   FOR UPDATE OF CurrentNext;
+
+    UPDATE sbc_barcode_seq
+      SET CurrentNext=CurrentNext + IncrementNo
+    WHERE sbc_barcode_seq_id=p_sbc_barcode_seq_id;
+
+  p_DocumentNo:=COALESCE(v_Prefix, '') || v_NextNo || COALESCE(v_Suffix, '') ;
+
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+  RAISE NO_DATA_FOUND ;
+END SBC_BARCODE_SEQUENCE
+]]></body>
+    </function>
+  </database>

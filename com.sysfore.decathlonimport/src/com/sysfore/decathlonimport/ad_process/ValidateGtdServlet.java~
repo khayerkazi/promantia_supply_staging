@@ -1,0 +1,375 @@
+/*
+******************************************************************************
+* The contents of this file are subject to the   Compiere License  Version 1.1
+* ("License"); You may not use this file except in compliance with the License
+* You may obtain a copy of the License at http://www.compiere.org/license.html
+* Software distributed under the License is distributed on an  "AS IS"  basis,
+* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+* the specific language governing rights and limitations under the License.
+* The Original Code is                  Compiere  ERP & CRM  Business Solution
+* The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+* Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+* created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+* Contributor(s): Openbravo SLU
+* Contributions are Copyright (C) 2001-2009 Openbravo S.L.U.
+******************************************************************************
+*/
+package com.sysfore.decathlonimport.ad_process;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.openbravo.base.secureApp.HttpSecureAppServlet;
+import org.openbravo.base.secureApp.VariablesSecureApp;
+import org.openbravo.erpCommon.ad_actionButton.ActionButtonDefaultData;
+import org.openbravo.erpCommon.utility.OBError;
+import org.openbravo.erpCommon.utility.Utility;
+import org.openbravo.xmlEngine.XmlDocument;
+import org.openbravo.database.ConnectionProvider;
+
+public class ValidateGtdServlet extends HttpSecureAppServlet {
+private static final long serialVersionUID = 1L;
+private ConnectionProvider connection;	
+int errmsg=0;
+public void init(ServletConfig config) {
+super.init(config);
+boolHist = false;
+}
+
+public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException,
+ServletException {
+VariablesSecureApp vars = new VariablesSecureApp(request);
+String process = "ValidateGtd";// ImportData.processId(this, "ImportProduct");
+//  System.out.println(process);
+//String message = "";
+if (vars.commandIn("DEFAULT")) {
+// System.out.println("Inside the Default Product");
+String strTabId = vars.getGlobalVariable("inpTabId", "ValidateGtdServlet|tabId");
+String strWindowId = vars.getGlobalVariable("inpwindowId",
+"ValidateGtdServlet|windowId");
+String strDeleteOld = vars.getStringParameter("inpDeleteOld", "Y");
+printPage(response, vars, process, strWindowId, strTabId, strDeleteOld);
+} else if (vars.commandIn("SAVE")) {
+// System.out.println("Inside the Purchase Order Save");
+String strDeleteOld = vars.getStringParameter("inpDeleteOld", "N");
+String strTabId = vars.getRequestGlobalVariable("inpTabId",
+"ValidateGtdServlet|tabId");
+//  System.out.println(" I am in save " );		
+String strWindowPath = Utility.getTabURL(this, strTabId, "R");
+
+if (strWindowPath.equals(""))
+
+strWindowPath = strDefaultServlet;
+
+OBError myError = new OBError();
+String result = "", message="", docno="", itemcode="", box="",warehouse="", locator="";
+String client = vars.getClient();
+String organistation = vars.getOrg();
+String user = vars.getUser();
+int recheck = 0, dccount=0, errin=0, itcount=0, mcount=0, linecount=0, whcount=0, locount=0, locationcheck=0;
+
+ValidateGtdData[] documentnodata=ValidateGtdData.selectdocumentno(this, user);	
+if(documentnodata.length>0)
+{
+//recheck=0;
+message=message +"";
+
+for(int i=0; i<documentnodata.length;i++){
+docno=documentnodata[i].documentno;
+System.out.println(docno);
+
+
+
+
+dccount=Integer.parseInt(ValidateGtdData.documentnocheck(this, docno));
+
+
+if(dccount>0)
+{
+//recheck=0;
+message=message+"";
+ValidateGtd2Data[] warehousedata=ValidateGtd2Data.selectwarehouse(this, docno);
+if(warehousedata.length>0)
+{
+for(int w=0;w<warehousedata.length;w++)	{ // temp WH 
+warehouse=warehousedata[w].warehouse;
+if((warehouse==null)||warehouse.equals(""))
+{
+if(recheck==0)recheck=1;
+message=message+" Warehouse can't be null ";
+errin=ValidateGtdData.updatemessage3(this,message, warehouse);	
+}
+		
+whcount=Integer.parseInt(ValidateGtdData.warehousecheck(this, warehouse));
+if(whcount<=0){
+if(recheck==0)recheck=1;
+message=" Invalid Warehouse, ";
+System.out.println("Invalid Warehouse " + " -- " + warehouse);	
+errin=ValidateGtdData.updatemessage3(this,message, warehouse);	
+
+}
+else{
+//recheck=0;
+message=message+"";	  
+System.out.println(" warehouse is correct and warehouse is --> " +warehouse);	
+ValidateGtd3Data[] locatordata=ValidateGtd3Data.selectlocator(this, docno, warehouse);
+System.out.println(" locatordata.length is  --> " + locatordata.length);					
+if(locatordata.length>0){							
+//System.out.println(" locatordata.length in if " );					
+for(int l=0;l<locatordata.length;l++)	{ // temp locator
+//System.out.println(" locatordata.length in for " );					
+locator=locatordata[l].locator;					
+System.out.println(" locator is  --> " + locator);					
+locount=Integer.parseInt(ValidateGtdData.locatorcheck(this, locator, warehouse));
+System.out.println(" locount is  --> " + locount);					
+if(locount<=0)
+{
+if(recheck==0)recheck=1;
+message=" Invalid locator, ";
+errin=ValidateGtdData.updatemessage4(this,message, locator);	
+System.out.println("Invalid locator ");
+}
+else{
+//recheck=0;
+message=" ";
+ValidateGtd1Data[] itemcodedata=ValidateGtd1Data.selectitemcode(this, docno, warehouse);// item code
+if(itemcodedata.length>0)
+{
+//recheck=0;
+message=message+"";
+
+for(int s=0;s<itemcodedata.length;s++)
+{
+itemcode=itemcodedata[s].itemcode;
+box=itemcodedata[s].boxno;
+
+// Validation for same boxno with different location
+message = "";
+
+locationcheck = Integer.parseInt(ValidateGtdData.selectlocation(this, warehouse, box));
+System.out.println("locationcheck :"+locationcheck+" for :"+box);
+if(locationcheck>0){
+System.out.println("box :"+box);
+if(recheck==0)recheck=1;
+message=message + " Box number already exists, ";				
+}
+
+
+itcount=Integer.parseInt(ValidateGtdData.selectcountitemcode(this, warehouse, locator, box));
+System.out.println("itcount " + itcount);
+if(itcount>1)
+{
+if(recheck==0)recheck=1;
+message=message + " Duplicate Item codes for same locations and box number ,";				
+System.out.println("itcount + message " + message);
+errin=ValidateGtdData.updatemessage6(this,message, warehouse, locator, box);
+}
+else{
+System.out.println("i am in else of item code ");
+//recheck=0;	
+System.out.println(itemcode +" itemcode");
+
+mcount=Integer.parseInt(ValidateGtdData.selectcountname(this, itemcode));
+System.out.println(itemcode +" itemcode for " + mcount);						 									message=message+ "";
+if(mcount>0){
+recheck=0;
+message=message+ "";
+linecount=Integer.parseInt(ValidateGtdData.selectItemcode(this, docno,itemcode));
+//System.out.println(itemcode +" itemcode " + linecount + " docno "+ docno);	
+if(linecount==0)
+{
+if(recheck==0)recheck=1;
+message=message+ " Item Code does not exits  in PO ,"; 
+}
+else if (linecount>1)
+{
+if(recheck==0)recheck=1;
+//	System.out.println("code here in error");
+message=message+ " Item Code exits more than one time in PO , ";
+}								
+else{
+//	System.out.println(" every thing is ok");
+
+//recheck=0;
+message = message + "";
+}
+}
+else{
+if(recheck==0)recheck=1;
+message=message+ " Invalid Item codes ,";					
+
+}
+//   System.out.println(" message " + message);
+errin=ValidateGtdData.updatemessage2(this,message, docno,itemcode);
+message="";						
+}		
+
+
+}
+}// item code if 
+else{
+if(recheck==0)recheck=1;
+message=message+ " No item codes for Document numnber ,";		
+}// item code end
+
+}
+}
+}else {
+if(recheck==0)recheck=1;
+message=message+"No locator present in excel , ";
+System.out.println("Invalid locator ");
+}
+}			
+}
+
+}
+else{	
+if(recheck==0)recheck=1;
+message=message+" No Warehouse for document number";
+
+}			
+//System.out.println("Valid document number");
+/* 	ValidateGtd1Data[] itemcodedata=ValidateGtd1Data.selectitemcode(this, docno);	
+if(itemcodedata.length>0)
+{
+recheck=0;
+message=message+"";
+for(int s=0;s<itemcodedata.length;s++)
+{
+itemcode=itemcodedata[s].itemcode;*/
+// count im_gtd 1>	
+//////***mitesh need to add peramter here to check if same item code at same location in same box number**////
+/*	  itcount=Integer.parseInt(ValidateGtdData.selectcountitemcode(this, itemcode));
+recheck=0;	
+message=message+""; 								 
+if(itcount>1)
+{
+recheck=1;									
+message=message + " Duplicate Item codes for same locations ,";				
+}
+
+else{
+mcount=Integer.parseInt(ValidateGtdData.selectcountname(this, itemcode));
+recheck=0;						 										message=message+ "";
+if(mcount>0){
+recheck=0;
+message=message+ "";
+linecount=Integer.parseInt(ValidateGtdData.selectItemcode(this, docno,itemcode));
+
+if(linecount==0)
+{
+recheck=1;	
+message=message+ " Item Code does not exits  in PO ,"; 
+}
+else if (linecount>1)
+{
+recheck=1;
+message=message+ " Item Code exits more than one time in PO , ";
+}								
+else{
+recheck=0;
+message = message + "";
+}
+}
+else{
+recheck=1;	
+message=message+ " Invalid Item codes ,";					
+}
+
+}																				
+}		
+}
+else 
+{
+recheck=1;
+message=message+ " No item codes for Document numnber ,";		
+}
+errin=ValidateGtdData.updatemessage2(this,message, docno,itemcode);						
+message="";*/
+}
+else	{
+if(recheck==0)recheck=1;
+message=message+ " Invalid Document number ,";	
+errin=ValidateGtdData.updatemessage(this,message, docno );						
+}						
+
+}	
+}
+else	{
+if(recheck==0)recheck=1;
+message=message+ " No Document to process for login user"	;
+errin=ValidateGtdData.updatemessage1(this,message);
+}
+
+
+if (recheck == 0) {
+int va=ValidateGtdData.ValidateUpdate(this,user);
+myError.setType("Success");
+myError.setTitle(Utility.messageBD(this, "Success", vars.getLanguage()));
+myError.setMessage(Utility.messageBD(this, "Validation Successful", vars.getLanguage()));
+} else {
+myError.setType("Error");
+myError.setTitle(Utility.messageBD(this, "Error", vars.getLanguage()));
+myError.setMessage(Utility.messageBD(this, "Validation Failure ! ", vars
+.getLanguage()));
+
+}
+
+vars.setSessionValue(strTabId + "|ImportGtd3273451C213B4D1BB7266346CCD6E4D7.view",
+"");
+vars.setMessage(strTabId, myError);
+// System.out.println("Result is " + result);
+printPageClosePopUp(response, vars, strWindowPath);
+
+} else
+pageErrorPopUp(response);
+
+}
+
+private void printPage(HttpServletResponse response, VariablesSecureApp vars,
+String strProcessId, String strWindowId, String strTabId, String strDeleteOld)
+throws IOException, ServletException {
+if (log4j.isDebugEnabled())
+log4j.debug("Output: process ValidateGtdServlet");
+ActionButtonDefaultData[] data = null;
+String strHelp = "", strDescription = "";
+/*
+* if (vars.getLanguage().equals("en_US")) { // data = ActionButtonDefaultData.select(this,
+* strProcessId); System.out.println("Inside English " + data.length); } else data =
+* ActionButtonDefaultData.selectLanguage(this, vars.getLanguage(), strProcessId); /* if (data
+* != null && data.length != 0) { strDescription = data[0].description; strHelp = data[0].help;
+* System.out.println(" StrDescription " + strDescription); System.out.println(" Strhelp " +
+* strHelp); }
+*/
+String[] discard = { "" };
+if (strHelp.equals(""))
+discard[0] = new String("helpDiscard");
+XmlDocument xmlDocument = xmlEngine.readXmlTemplate(
+"com/sysfore/decathlonimport/ad_process/ValidateGtdServlet").createXmlDocument();
+xmlDocument.setParameter("language", "defaultLang=\"" + vars.getLanguage() + "\";");
+xmlDocument.setParameter("directory", "var baseDirectory = \"" + strReplaceWith + "/\";\n");
+xmlDocument.setParameter("theme", vars.getTheme());
+xmlDocument.setParameter("question", Utility.messageBD(this, "StartProcess?", vars
+.getLanguage()));
+xmlDocument.setParameter("description", strDescription);
+xmlDocument.setParameter("help", strHelp);
+xmlDocument.setParameter("windowId", strWindowId);
+xmlDocument.setParameter("tabId", strTabId);
+xmlDocument.setParameter("deleteOld", strDeleteOld);
+
+response.setContentType("text/html; charset=UTF-8");
+PrintWriter out = response.getWriter();
+out.println(xmlDocument.print());
+out.close();
+}
+
+public String getServletInfo() {
+return "Servlet ValidateGtdServlet";
+} // end of getServletInfo() method
+}

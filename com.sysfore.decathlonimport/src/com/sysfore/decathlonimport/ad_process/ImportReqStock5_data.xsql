@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+<SqlClass name="ImportReqStock5Data" package="com.sysfore.decathlonimport.ad_process">
+   
+    <SqlMethod name="selectcorderandline" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+            select co.c_order_id, co.ad_client_id, co.ad_org_id, co.isactive, co.created, co.createdby, 
+       co.updated, co.updatedby, co.issotrx, co.documentno, co.docstatus, co.docaction, 
+       co.processing, co.processed, co.c_doctype_id, co.c_doctypetarget_id, co.description, 
+       co.isdelivered, co.isinvoiced, co.isprinted, co.isselected, co.salesrep_id, 
+       co.dateordered, co.datepromised, co.dateprinted, co.dateacct, co.c_bpartner_id, 
+       co.billto_id, co.c_bpartner_location_id, co.poreference, co.isdiscountprinted, 
+       co.c_currency_id, co.paymentrule, co.c_paymentterm_id, co.invoicerule, co.deliveryrule, 
+       co.freightcostrule, co.freightamt, co.deliveryviarule, co.m_shipper_id, co.c_charge_id, 
+       co.chargeamt, co.priorityrule, co.totallines, co.grandtotal, co.m_warehouse_id, 
+       co.m_pricelist_id, co.istaxincluded, co.c_campaign_id, co.c_project_id, co.c_activity_id, 
+       co.posted, co.ad_user_id, co.copyfrom, co.dropship_bpartner_id, co.dropship_location_id, 
+       co.dropship_user_id, co.isselfservice, co.ad_orgtrx_id, co.user1_id, co.user2_id, 
+       co.deliverynotes, co.c_incoterms_id, co.incotermsdescription, co.generatetemplate, 
+       co.delivery_location_id, co.copyfrompo, co.fin_paymentmethod_id, co.fin_payment_priority_id, 
+       co.rm_pickfromshipment, co.rm_receivematerials, co.rm_createinvoice, co.c_return_reason_id, 
+       co.rm_addorphanline, co.a_asset_id, co.calculate_promotions, co.c_costcenter_id, 
+       co.convertquotation, co.c_reject_reason_id, co.validuntil, co.quotation_id, 
+       co.so_res_status, co.em_ds_totalitemqty, co.em_ds_totalpriceadj, co.em_ds_posno, 
+       co.em_ds_time, co.em_ds_receiptno, co.em_ds_ratesatisfaction, co.em_ds_grandtotalamt, 
+       co.em_ds_chargeamt, co.em_rc_mobileno, co.em_rc_oxylaneno, co.em_sw_hscode, 
+       co.em_sw_modelcode, co.em_sw_modelname, co.em_sw_dept_id, co.em_sw_brand_id, 
+       co.em_sw_expdeldate, co.em_sw_estshipdate, co.em_sw_actshipdate, co.em_sw_pricelistver, 
+       co.em_sw_currency, co.em_sw_postatus, co.em_obwpl_generatepicking, 
+       co.em_obwpl_isinpickinglist,
+
+ cl.c_orderline_id, cl.line, cl.m_product_id, cl.directship, cl.c_uom_id, cl.qtyordered, 
+       cl.qtyreserved, cl.qtydelivered, cl.qtyinvoiced,  
+       cl.pricelist, cl.priceactual, cl.pricelimit, cl.linenetamt, cl.discount,
+       cl.c_tax_id, cl.s_resourceassignment_id, cl.ref_orderline_id, 
+       cl.m_attributesetinstance_id, cl.isdescription, cl.quantityorder, cl.m_product_uom_id, 
+       cl.m_offer_id, cl.pricestd, cl.cancelpricead, cl.c_order_discount_id, cl.iseditlinenetamt, 
+       cl.taxbaseamt, cl.m_inoutline_id, cl.gross_unit_price, 
+       cl.line_gross_amount, cl.grosspricelist, cl.grosspricestd, 
+       cl.m_warehouse_rule_id, cl.quotationline_id, 
+       cl.create_reservation,cl.manage_reservation, 
+       cl.manage_prereservation, cl.explode, cl.bom_parent_id, cl.em_ds_salesexcl, 
+       cl.em_ds_taxamount, cl.em_ds_lotqty, cl.em_ds_lotprice, cl.em_ds_boxqty, 
+       cl.em_ds_boxprice, cl.em_ds_unitqty, cl.em_ds_cessionprice, cl.em_ds_ccunitprice, 
+       cl.em_ds_mrpprice, cl.em_ds_linenetamt, cl.em_sw_orderqty, cl.em_sw_suppliercode, 
+       cl.em_sw_volpcb, cl.em_sw_ntwtpcb, cl.em_sw_grwtpcb, cl.em_sw_noofparcel, 
+       cl.em_sw_itemcode, cl.em_cl_color_id, cl.em_cl_size, cl.em_sw_recqty, 
+       cl.em_sw_confirmedqty from c_order co join c_orderline cl on co.c_order_id = cl.c_order_id
+         where co.c_order_id = (select c_order_id from m_inout where documentno  = ?
+          and c_doctype_id = (select c_doctype_id from c_doctype where name = 'MM Receipt')) and cl.m_product_id =(
+        select m_product_id from m_product where name = ?) 
+        and co.c_doctype_id = (select c_doctype_id from c_doctype where name = 'Standard Order') and cl.c_order_id = co.c_order_id
+      ]]>
+    </Sql>
+    <Parameter name="documentno"/>
+    <Parameter name="itemcode"/>
+    </SqlMethod>
+    
+    
+   <SqlMethod name="insertcorderheader" type="preparedStatement" return="rowCount">
+  <SqlMethodComment></SqlMethodComment>
+    <Sql>
+     <![CDATA[ 
+		INSERT INTO c_order(
+            c_order_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby, issotrx, documentno, docstatus, docaction, 
+            processing, processed, c_doctype_id, c_doctypetarget_id, description, 
+            isdelivered, isinvoiced, isprinted, isselected, salesrep_id, 
+            dateordered, datepromised, dateprinted, dateacct, c_bpartner_id, 
+            billto_id, c_bpartner_location_id, poreference, isdiscountprinted, 
+            c_currency_id, paymentrule, c_paymentterm_id, invoicerule, deliveryrule, 
+            freightcostrule, freightamt, deliveryviarule, m_shipper_id, c_charge_id, 
+            chargeamt, priorityrule, totallines, grandtotal, m_warehouse_id, 
+            m_pricelist_id, istaxincluded, c_campaign_id, c_project_id, c_activity_id, 
+            posted, ad_user_id, copyfrom, dropship_bpartner_id, dropship_location_id, 
+            dropship_user_id, isselfservice, ad_orgtrx_id, user1_id, user2_id, 
+            deliverynotes, c_incoterms_id, incotermsdescription, generatetemplate, 
+            delivery_location_id, copyfrompo, fin_paymentmethod_id, fin_payment_priority_id, 
+            rm_pickfromshipment, rm_receivematerials, rm_createinvoice, c_return_reason_id, 
+            rm_addorphanline, a_asset_id, calculate_promotions, c_costcenter_id, 
+            convertquotation, c_reject_reason_id, validuntil, quotation_id, 
+            so_res_status, em_ds_totalitemqty, em_ds_totalpriceadj, em_ds_posno, 
+            em_ds_time, em_ds_receiptno, em_ds_ratesatisfaction, em_ds_grandtotalamt, 
+            em_ds_chargeamt, em_rc_mobileno, em_rc_oxylaneno, em_sw_hscode, 
+            em_sw_modelcode, em_sw_modelname, em_sw_dept_id, em_sw_brand_id, 
+            em_sw_expdeldate, em_sw_estshipdate, em_sw_actshipdate, em_sw_pricelistver, 
+            em_sw_currency, em_sw_postatus, em_obwpl_generatepicking, 
+            em_obwpl_isinpickinglist)
+    VALUES (?, ?, ?, ?, now(), ?, now(), ?, ?, ?, 'DR', 'CO', ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), 
+            to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+            TO_NUMBER(?), ?, ?, ?, TO_NUMBER(?), ?, TO_NUMBER(?), TO_NUMBER(?), ?, ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+            ?, ?, to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), ?, ?, TO_NUMBER(?), TO_NUMBER(?), ?, to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'),
+             ?, ?, TO_NUMBER(?),TO_NUMBER(?), ?,
+             ?, ?, ?, ?, ?, ?, to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), 
+            to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), ?, 
+            ?, ?, ?, ?)    
+             ]]>
+    </Sql>
+    <Parameter name="corderid"></Parameter>
+    <Parameter name="adclientid"></Parameter>
+    <Parameter name="adorgid"></Parameter>
+    <Parameter name="isactive"></Parameter>
+    <Parameter name="createdby"></Parameter>
+    <Parameter name="updatedby"></Parameter>
+    <Parameter name="issotrx"></Parameter>
+    <Parameter name="dcumentno"></Parameter>
+    <Parameter name="cprocessing"></Parameter>
+    <Parameter name="cprocessed"></Parameter>
+    <Parameter name="docTypeId"></Parameter>
+    <Parameter name="docTargetTypeId"></Parameter>
+    <Parameter name="description"></Parameter>
+    <Parameter name="isdelivered"></Parameter>
+    <Parameter name="isinvoiced"></Parameter>
+    <Parameter name="isprinted"></Parameter>
+    <Parameter name="isselected"></Parameter>
+    <Parameter name="salesrepid"></Parameter>
+    <Parameter name="dateordered"></Parameter>
+    <Parameter name="datepromised"></Parameter>
+    <Parameter name="dateprinted"></Parameter>
+    <Parameter name="dateacct"></Parameter>
+    <Parameter name="cbpartnerid"></Parameter>
+    <Parameter name="billtoid"></Parameter>
+    <Parameter name="cbpartnerlocationid"></Parameter>
+    <Parameter name="poreference"></Parameter>
+    <Parameter name="isdiscountprinted"></Parameter>
+    <Parameter name="ccurrencyid"></Parameter>
+    <Parameter name="paymentrule"></Parameter>
+    <Parameter name="cpaymenttermid"></Parameter>
+    <Parameter name="invoicerule"></Parameter>
+    <Parameter name="deliveryrule"></Parameter>
+    <Parameter name="freightcostrule"></Parameter>
+    <Parameter name="freightamt"></Parameter>
+    <Parameter name="deliveryviarule"></Parameter>
+    <Parameter name="mshipperid"></Parameter>
+    <Parameter name="cchargeid"></Parameter>
+    <Parameter name="chargeamt"></Parameter>
+    <Parameter name="priorityrule"></Parameter>
+    <Parameter name="totallines"></Parameter>
+    <Parameter name="grandtotal"></Parameter>
+    <Parameter name="mwarehouseid"></Parameter>
+    <Parameter name="mpricelistid"></Parameter>
+    <Parameter name="istaxincluded"></Parameter>
+    <Parameter name="ccampaignid"></Parameter>
+    <Parameter name="cprojectid"></Parameter>
+    <Parameter name="cactivityid"></Parameter>
+    <Parameter name="posted"></Parameter>
+    <Parameter name="aduserid"></Parameter>
+    <Parameter name="copyfrom"></Parameter>
+    <Parameter name="dropshipbpartnerid"></Parameter>
+    <Parameter name="dropshiplocationid"></Parameter>
+    <Parameter name="dropshipuserid"></Parameter>
+    <Parameter name="isselfservice"></Parameter>
+    <Parameter name="adorgtrxid"></Parameter>
+    <Parameter name="user1id"></Parameter>
+    <Parameter name="user2id"></Parameter>
+    <Parameter name="deliverynotes"></Parameter>
+    <Parameter name="cincotermsid"></Parameter>
+    <Parameter name="incotermsdescription"></Parameter>
+    <Parameter name="generatetemplate"></Parameter>
+    <Parameter name="deliverylocationid"></Parameter>
+    <Parameter name="copyfrompo"></Parameter>
+    <Parameter name="finpaymentmethodid"></Parameter>
+    <Parameter name="finpaymentpriorityid"></Parameter>
+    <Parameter name="rmpickfromshipment"></Parameter>
+    <Parameter name="rmreceivematerials"></Parameter>
+    <Parameter name="rmcreateinvoice"></Parameter>
+    <Parameter name="creturnreasonid"></Parameter>
+    <Parameter name="rmaddorphanline"></Parameter>
+    <Parameter name="aassetid"></Parameter>
+    <Parameter name="calculatepromotions"></Parameter>
+    <Parameter name="ccostcenterid"></Parameter>
+    <Parameter name="convertquotation"></Parameter>
+    <Parameter name="crejectreasonid"></Parameter>
+    <Parameter name="validuntil"></Parameter>
+    <Parameter name="quotationid"></Parameter>
+    <Parameter name="soresstatus"></Parameter>
+    <Parameter name="emdstotalitemqty"></Parameter>
+    <Parameter name="emdstotalpriceadj"></Parameter>
+    <Parameter name="emdsposno"></Parameter>
+    <Parameter name="emdstime"></Parameter>
+    <Parameter name="emdsreceiptno"></Parameter>
+    <Parameter name="emdsratesatisfaction"></Parameter>
+    <Parameter name="emdsgrandtotalamt"></Parameter>
+    <Parameter name="emdschargeamt"></Parameter>
+    <Parameter name="emrcmobileno"></Parameter>
+    <Parameter name="emrcoxylaneno"></Parameter>
+    <Parameter name="emswhscode"></Parameter>
+    <Parameter name="emswmodelcode"></Parameter>
+    <Parameter name="emswmodelname"></Parameter>
+    <Parameter name="emswdeptid"></Parameter>
+    <Parameter name="emswbrandid"></Parameter>
+    <Parameter name="emswexpdeldate"></Parameter>
+    <Parameter name="emswestshipdate"></Parameter>
+    <Parameter name="emswactshipdate"></Parameter>
+    <Parameter name="emswpricelistver"></Parameter>
+    <Parameter name="emswcurrency"></Parameter>
+    <Parameter name="emswpostatus"></Parameter>
+    <Parameter name="emobwplgeneratepicking"></Parameter>
+    <Parameter name="emobwplisinpickinglist"></Parameter>
+ 
+   </SqlMethod>  
+
+
+<SqlMethod name="insertcorderline" type="preparedStatement" return="rowCount">
+  <SqlMethodComment></SqlMethodComment>
+    <Sql>
+     <![CDATA[ 
+     INSERT INTO c_orderline(
+            c_orderline_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby, c_order_id, line, c_bpartner_id, c_bpartner_location_id, 
+            dateordered, datepromised, datedelivered, dateinvoiced, description, 
+            m_product_id, m_warehouse_id, directship, c_uom_id, qtyordered, 
+            qtyreserved, qtydelivered, qtyinvoiced, m_shipper_id, c_currency_id, 
+            pricelist, priceactual, pricelimit, linenetamt, discount, freightamt, 
+            c_charge_id, chargeamt, c_tax_id, s_resourceassignment_id, ref_orderline_id, 
+            m_attributesetinstance_id, isdescription, quantityorder, m_product_uom_id, 
+            m_offer_id, pricestd, cancelpricead, c_order_discount_id, iseditlinenetamt, 
+            taxbaseamt, m_inoutline_id, c_return_reason_id, gross_unit_price, 
+            line_gross_amount, grosspricelist, c_costcenter_id, grosspricestd, 
+            a_asset_id, m_warehouse_rule_id, user1_id, quotationline_id, 
+            user2_id, create_reservation, c_project_id, so_res_status, manage_reservation, 
+            manage_prereservation, explode, bom_parent_id, em_ds_salesexcl, 
+            em_ds_taxamount, em_ds_lotqty, em_ds_lotprice, em_ds_boxqty, 
+            em_ds_boxprice, em_ds_unitqty, em_ds_cessionprice, em_ds_ccunitprice, 
+            em_ds_mrpprice, em_ds_linenetamt, em_sw_orderqty, em_sw_suppliercode, 
+            em_sw_volpcb, em_sw_ntwtpcb, em_sw_grwtpcb, em_sw_noofparcel, 
+            em_sw_itemcode, em_cl_modelname, em_cl_color_id, em_cl_size, em_sw_recqty, 
+            em_sw_confirmedqty)
+    VALUES (get_uuid(), ?, ?, ?, now(), ?, now(), ?, ?, TO_NUMBER(?), ?, ?
+    ,to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'), to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX'),to_timestamp(?, 'DD-MM-YYYY HH24:MI:SS-XXXX')
+     , ?, ?, ?, ?, ?,TO_NUMBER(?), TO_NUMBER(?),TO_NUMBER(?), TO_NUMBER(?), ?, ?, 
+            TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), ?, TO_NUMBER(?)
+            , ?, ?, ?, ?, ?, TO_NUMBER(?), ?, ?, TO_NUMBER(?), ?, ?, ?, TO_NUMBER(?), ?, ?, TO_NUMBER(?), 
+            TO_NUMBER(?), TO_NUMBER(?), ?, TO_NUMBER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), 
+            TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), ?, TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), ?, ?, ?, ?, ?, TO_NUMBER(?)) ]]>
+    </Sql>
+    <Parameter name="adclientid"></Parameter>
+    <Parameter name="adorgid"></Parameter>
+    <Parameter name="isactive"></Parameter>
+    <Parameter name="createdby"></Parameter>
+    <Parameter name="updatedby"></Parameter>
+    <Parameter name="corderid"></Parameter>
+    <Parameter name="lineno"></Parameter>
+    <Parameter name="cbpartnerid"></Parameter>
+    <Parameter name="cbpartnerlocationid"></Parameter>
+    <Parameter name="dateordered"></Parameter>
+    <Parameter name="datepromised"></Parameter>
+    <Parameter name="datedelivered"></Parameter>
+    <Parameter name="dateinvoiced"></Parameter>
+    <Parameter name="description"></Parameter>
+    <Parameter name="mproductid"></Parameter>
+    <Parameter name="mwarehouseid"></Parameter>
+    <Parameter name="directship"></Parameter>
+    <Parameter name="cuomid"></Parameter>
+    <Parameter name="movqty"></Parameter>
+    <Parameter name="qtyreserved"></Parameter>
+    <Parameter name="qtydelivered"></Parameter>
+    <Parameter name="qtyinvoiced"></Parameter>
+    <Parameter name="mshipperid"></Parameter>
+    <Parameter name="ccurrencyid"></Parameter>
+    <Parameter name="pricelist"></Parameter>
+    <Parameter name="priceactual"></Parameter>
+    <Parameter name="pricelimit"></Parameter>
+    <Parameter name="linenetamt"></Parameter>
+    <Parameter name="discount"></Parameter>
+    <Parameter name="freightamt"></Parameter>
+    <Parameter name="cchargeid"></Parameter>
+    <Parameter name="chargeamt"></Parameter>
+    <Parameter name="ctaxid"></Parameter>
+    <Parameter name="sresourceassignmentid"></Parameter>
+    <Parameter name="reforderlineid"></Parameter>
+    <Parameter name="mattributesetinstanceid"></Parameter>
+    <Parameter name="isdescription"></Parameter>
+    <Parameter name="quantityorder"></Parameter>
+    <Parameter name="mproductuomid"></Parameter>
+    <Parameter name="mofferid"></Parameter>
+    <Parameter name="pricestd"></Parameter>
+    <Parameter name="cancelpricead"></Parameter>
+    <Parameter name="corderdiscountid"></Parameter>
+    <Parameter name="iseditlinenetamt"></Parameter>
+    <Parameter name="taxbaseamt"></Parameter>
+    <Parameter name="minoutlineid"></Parameter>
+    <Parameter name="creturnreasonid"></Parameter>
+    <Parameter name="grossunitprice"></Parameter>
+    <Parameter name="grossAmount"></Parameter>
+    <Parameter name="grosspricelist"></Parameter>
+    <Parameter name="ccostcenterid"></Parameter>
+    <Parameter name="grosspricestd"></Parameter>
+    <Parameter name="aassetid"></Parameter>
+    <Parameter name="mwarehouseruleid"></Parameter>
+    <Parameter name="user1id"></Parameter>
+    <Parameter name="quotationlineid"></Parameter>
+    <Parameter name="user2id"></Parameter>
+    <Parameter name="createreservation"></Parameter>
+    <Parameter name="cprojectid"></Parameter>
+    <Parameter name="soresstatus"></Parameter>
+    <Parameter name="managereservation"></Parameter>
+    <Parameter name="manageprereservation"></Parameter>
+    <Parameter name="explode"></Parameter>
+    <Parameter name="bomparentid"></Parameter>
+    <Parameter name="emdssalesexcl"></Parameter>
+    <Parameter name="emdstaxamount"></Parameter>
+    <Parameter name="emdslotqty"></Parameter>
+    <Parameter name="emdslotprice"></Parameter>
+    <Parameter name="emdsboxqty"></Parameter>
+    <Parameter name="emdsboxprice"></Parameter>
+    <Parameter name="emdsunitqty"></Parameter>
+    <Parameter name="emdscessionprice"></Parameter>
+    <Parameter name="emdsccunitprice"></Parameter>
+    <Parameter name="emdsmrpprice"></Parameter>
+    <Parameter name="emdslinenetamt"></Parameter>
+    <Parameter name="emsworderqty"></Parameter>
+    <Parameter name="emswsuppliercode"></Parameter>
+    <Parameter name="emswvolpcb"></Parameter>
+    <Parameter name="emswntwtpcb"></Parameter>
+    <Parameter name="emswgrwtpcb"></Parameter>
+    <Parameter name="emswnoofparcel"></Parameter>
+    <Parameter name="emswitemcode"></Parameter>
+    <Parameter name="emswmodelname"></Parameter>
+    <Parameter name="emswcolor"></Parameter>
+    <Parameter name="emswsize"></Parameter>
+    <Parameter name="emswrecqty"></Parameter>
+    <Parameter name="emswconfirmedqty"></Parameter>
+   </SqlMethod>  
+
+
+<SqlMethod name="selectqtygr" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+           select sum(movementqty) from m_inoutline where m_inout_id = 
+			(select m_inout_id from m_inout where documentno  = ? and issotrx = 'N'
+          and c_doctype_id = (select c_doctype_id from c_doctype where name = 'MM Receipt'))
+		and m_product_id = (select m_product_id from m_product where name = ?)
+      ]]>
+    </Sql>
+    <Parameter name="documentno"/>
+    <Parameter name="itemcode"/>
+ </SqlMethod>
+ 
+ 
+ <SqlMethod name="selectminoutid" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+           select m_inoutline_id from m_inoutline where m_inout_id = 
+			(select m_inout_id from m_inout where documentno  = ? and issotrx = 'N'
+          and c_doctype_id = (select c_doctype_id from c_doctype where name = 'MM Receipt'))
+		and m_product_id = (select m_product_id from m_product where name = ?)
+      ]]>
+    </Sql>
+    <Parameter name="documentno"/>
+    <Parameter name="itemcode"/>
+ </SqlMethod>
+ 
+ 
+ 
+ <SqlMethod name="selectmwarehouseid" type="preparedStatement" return="String">
+ 	<SqlMethodComment></SqlMethodComment>
+ 	<Sql>
+ 	<![CDATA[
+ 		select m_warehouse_id  from m_warehouse where name = 'Return'
+	]]>
+	</Sql> 
+ </SqlMethod>
+
+<SqlMethod name="selectBOrgId" type="preparedStatement" return="String">
+     <SqlMethodComment></SqlMethodComment>
+     <Sql>
+     <![CDATA[
+         select ad_org_id from ad_org where name = (select name from c_bpartner where c_bpartner_id = ?) 
+                                           
+    ]]>
+    </Sql> 
+    <Parameter name="cbpartnerid"/>
+ </SqlMethod>
+ 
+ 
+  <SqlMethod name="selectBWHouseID" type="preparedStatement" return="String">
+     <SqlMethodComment></SqlMethodComment>
+     <Sql>
+     <![CDATA[
+          select m_warehouse_id  from m_warehouse where name like '%Saleable%' and ad_org_id = ?
+    ]]>
+    </Sql> 
+    <Parameter name="adBOrgID"/>
+ </SqlMethod>
+ 
+ 
+  <SqlMethod name="selectbpID" type="preparedStatement" return="String">
+     <SqlMethodComment></SqlMethodComment>
+     <Sql>
+     <![CDATA[
+         select c_bpartner_id  from c_bpartner where name like (select name from ad_org where ad_org_id = ?)
+    ]]>
+    </Sql> 
+    <Parameter name="adorgid"/>
+ </SqlMethod>
+ 
+ 
+  <SqlMethod name="selectbplocationID" type="preparedStatement" return="String">
+     <SqlMethodComment></SqlMethodComment>
+     <Sql>
+     <![CDATA[
+          select c_bpartner_location_id from c_bpartner_location where c_bpartner_id = ?
+    ]]>
+    </Sql> 
+    <Parameter name="bpID"/>
+ </SqlMethod>
+
+<SqlMethod name="selectreasonID" type="preparedStatement" return="String">
+     <SqlMethodComment></SqlMethodComment>
+     <Sql>
+     <![CDATA[
+          select c_return_reason_id from c_return_reason  where  value='SC'
+    ]]>
+    </Sql> 
+ </SqlMethod>
+
+</SqlClass>
+

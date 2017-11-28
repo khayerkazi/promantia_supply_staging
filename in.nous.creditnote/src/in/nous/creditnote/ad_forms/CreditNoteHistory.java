@@ -1,0 +1,84 @@
+
+package in.nous.creditnote.ad_forms;
+
+import java.io.*;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import javax.servlet.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
+import org.openbravo.base.filter.IsIDFilter;
+import org.openbravo.base.secureApp.*;
+import org.openbravo.erpCommon.businessUtility.WindowTabs;
+import org.openbravo.erpCommon.utility.SequenceIdData;
+import org.openbravo.erpCommon.utility.*;
+import org.openbravo.utils.Replace;
+import org.openbravo.xmlEngine.*;
+import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
+
+import com.sysfore.decathlonsales.ad_reports.*;
+
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+
+
+
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
+
+import org.openbravo.base.secureApp.HttpSecureAppServlet;
+import org.openbravo.base.secureApp.VariablesSecureApp;
+
+
+
+public class CreditNoteHistory extends HttpSecureAppServlet
+{
+	private static final long serialVersionUID = 1L;
+    
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws IOException, ServletException
+		{		
+		VariablesSecureApp vars = new VariablesSecureApp(request);
+	  if (vars.commandIn("DEFAULT")) {
+      String strInvoiceId = vars.getSessionValue("CreditNoteHistory.inpncnMemCrnHistoryVId");
+	        System.out.println("strInvoiceId_R------------>"+strInvoiceId);
+      if (strInvoiceId.equals(""))
+        strInvoiceId = vars.getSessionValue("CreditNoteHistory.inpncnMemCrnHistoryVId");
+      if (log4j.isDebugEnabled())
+        log4j.debug("+***********************: " +strInvoiceId);
+        System.out.println("--- --------->"+strInvoiceId);
+        printPageXls(response, vars, strInvoiceId);
+    }else
+      pageError(response);
+    }
+void printPageXls(HttpServletResponse response, VariablesSecureApp vars, String strInvoiceId) throws IOException, ServletException {
+    String strBaseDesign = getBaseDesignPath(vars.getLanguage());
+	String strReportName = "@basedesign@/in/nous/creditnote/ad_forms/Report_credit.jrxml";
+    String strOutput = "pdf";
+    String strTitle = classInfo.name;
+    response.setHeader("Content-disposition","inline;filename=CreditNote.pdf");
+	HashMap<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("REPORT_TITLE", strTitle);
+	
+    // Added for displaying lines in excel file
+    strInvoiceId = strInvoiceId.replaceAll("\\(|\\)|'", "");
+    System.out.println("strInvoiceId**************** << " +strInvoiceId);
+    parameters.put("creditnoteId", strInvoiceId);
+    HashMap<Object, Object> parametersexport = new HashMap<Object, Object>();
+    renderJR(vars, response, strReportName, strOutput, parameters, null, null);
+	
+  }
+    public String getServletInfo()
+    {
+        return "CreditNoteHistory controller servlet made specifically for CBD Training";
+    }
+
+    
+}

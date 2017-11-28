@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+
+
+<SqlClass name="ImportMembersData" package="com.sysfore.decathlonimport.ad_process">
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT distinct im_importmembers_id, ad_client_id, ad_org_id
+		FROM im_importmembers where ad_client_id = ?
+      ]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+  </SqlMethod>
+  <SqlMethod name="impmembers" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+
+              SELECT im_importmembers(?,?,?) from Dual
+             
+      ]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+     <Parameter name="ad_org_id"/>
+    <Parameter name="ad_user_id"/>
+  </SqlMethod>
+ </SqlClass>

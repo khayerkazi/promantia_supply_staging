@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER DS_C_ORDERLINE_TRG">
+    <trigger name="DS_C_ORDERLINE_TRG" table="C_ORDERLINE" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[ v_oldcessionprice NUMBER:= 0;
+       
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+  IF INSERTING THEN  
+  
+   SELECT em_cl_cessionprice INTO v_oldcessionprice
+   FROM M_ProductPrice WHERE M_Product_ID = :NEW.M_Product_ID and m_pricelist_version_id='0F39C05C15EE4E5BB50BD5FEC1645DA1';
+   :NEW.EM_DS_CessionPrice := v_oldcessionprice;
+
+  END IF;
+
+END DS_C_ORDERLINE_TRG
+]]></body>
+    </trigger>
+  </database>

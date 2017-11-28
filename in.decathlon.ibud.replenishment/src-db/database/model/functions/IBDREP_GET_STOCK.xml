@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IBDREP_GET_STOCK">
+    <function name="IBDREP_GET_STOCK" type="NUMERIC">
+      <parameter name="p_product_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_result NUMBER:=1;
+v_warehouse VARCHAR(32);
+  
+BEGIN --BODY
+  select m_warehouse_id into v_warehouse from ad_org_warehouse where ad_org_warehouse.ad_org_id = p_org_id order by priority limit 1; 
+  
+  select sum(qtyonhand) into v_result from m_storage_detail sd 
+  join m_locator l  on l.m_locator_id = sd.m_locator_id
+  join m_warehouse mw on mw.m_warehouse_id = l.m_warehouse_id
+  where l.m_warehouse_id = v_warehouse
+  and sd.m_product_id = p_product_id and mw.name like 'Saleable%'; 
+ 
+
+  
+  RETURN v_result;
+END IBDREP_GET_STOCK
+]]></body>
+    </function>
+  </database>

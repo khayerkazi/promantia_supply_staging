@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved. SELECT CO.DOCUMENTNO,CO.DATEORDERED,COL.QTYORDERED
+      FROM C_ORDERLINE COL LEFT OUTER JOIN C_ORDER CO
+      ON COL.C_ORDER_ID = CO.C_ORDER_ID
+      WHERE CO.ISSOTRX='Y'
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+TO_CHAR(o.dateordered,'HH:MM:SS')
+-->
+
+
+<SqlClass name="ReportCreditNoteData" package="in.nous.creditnote.ad_reports">
+  <SqlClassComment></SqlClassComment>
+
+
+ <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+	select COALESCE(o.em_ncn_crtype,rr.name) as CreditNoteType, inv.documentno as DocumentNo,
+ inv.dateinvoiced as Date, rr.name as movementtype, p.name as ItemCode,
+ abs(ol.qtyordered) as Qty, ol.priceactual as Amount, abs(ol.line_gross_amount) as TotalAmount
+ from c_invoice inv
+ join c_order o on o.c_order_id=inv.c_order_id
+ join c_orderline ol on ol.c_order_id=o.c_order_id
+ join m_inout io on io.c_order_id=o.c_order_id
+ join c_return_reason rr on rr.c_return_reason_id=o.c_return_reason_id
+ join m_product p on p.m_product_id=ol.m_product_id
+ where inv.issotrx='Y' and o.issotrx='Y' and io.issotrx='Y'
+ and inv.documentno like 'CRN-%'  and abs(ol.qtyordered) > 0
+ AND 1=1 and ? is not null 
+ order by inv.dateinvoiced
+     ]]></Sql>
+
+  <Field name="rownum" value="count"/>
+  <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[ AND inv.created >= to_date(?)]]>
+</Parameter>
+  <Parameter name="dateTo" optional="true" after="AND 1=1"><![CDATA[ AND inv.created < to_date(?)]]> 
+</Parameter> 
+<Parameter name="clientCheckNotNull"/> 
+</SqlMethod>
+
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+ </SqlClass>
+

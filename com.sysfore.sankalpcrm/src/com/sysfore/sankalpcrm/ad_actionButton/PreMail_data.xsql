@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SL 
+ * All portions are Copyright (C) 2008 Openbravo SL 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+<SqlClass name="PreMailData" package="com.sysfore.sankalpcrm.ad_actionButton">
+  <SqlMethod name="selectModule" type="preparedStatement" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql><![CDATA[
+         SELECT b.EM_RC_EMAIL AS EMAIL,b.EM_RC_MOBILE AS MOBILE ,b.EM_RC_OXYLANE AS OXYLANE,b.NAME AS FIRSTNAME,b.NAME2 AS LASTNAME ,b.EM_RC_STATUS AS STATUS,b.CREATED,b.UPDATED,COALESCE(b.em_rc_emailstatus,'0') AS emailStatus,c.companyname as companyname,c.rc_company_id as companyid,   
+b.em_rc_licenseno,cc.firstname as rFirstName,cc.lastname as rLastName,cc.designation as rDesignation,cc.mobile as rMobile,b.em_rc_location as billingLocation,em_rc_optin as opt,
+b.em_rc_aikido,b.em_rc_archery,b.em_rc_alpinism,b.em_rc_basketball,b.em_rc_badminton,b.em_rc_boxing,b.em_rc_cricket,b.em_rc_cycling,b.em_rc_climbing,b.em_rc_diving,b.em_rc_dance,
+b.em_rc_fishing,b.em_rc_football,b.em_rc_fieldhockey,b.em_rc_fitness,b.em_rc_gym,b.em_rc_golf,b.em_rc_handball,b.em_rc_horseriding,b.em_rc_hiking,b.em_rc_judo,b.em_rc_karate,b.em_rc_kitesurfing,
+b.em_rc_paddle,b.em_rc_rollerskating,b.em_rc_running,b.em_rc_rugby,b.em_rc_sailing,b.em_rc_skiing,b.em_rc_snowboarding,b.em_rc_squash,b.em_rc_surfing,b.em_rc_swimming,b.em_rc_tennis,
+b.em_rc_tabletennis,b.em_rc_volleyball,b.em_rc_windsurfing,b.em_rc_yoga
+           FROM C_BPARTNER b ,rc_company c,rc_compcontact cc
+          WHERE b.C_BPARTNER_ID =?
+          and b.em_rc_company_id =c.rc_company_id
+          and c.rc_company_id = cc.rc_company_id      
+          ]]>
+      </Sql>
+      <Parameter name="inpcBpartnerId"/>
+  </SqlMethod>
+   <SqlMethod name="selectRepEmail" type="preparedStatement" return="string">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql><![CDATA[
+         select em_rc_email from c_bpartner where em_rc_company_id = ? and lower(name) = lower(?) and  lower(name2)=lower(?)      
+          ]]>
+      </Sql>
+      <Parameter name="companyId"/>
+      <Parameter name="name"/>
+      <Parameter name="name2"/>
+  </SqlMethod>
+  <SqlMethod name="updateModule" type="preparedStatement" return="rowcount">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql><![CDATA[
+         UPDATE C_BPARTNER SET  em_rc_emailstatus = 1  WHERE C_BPARTNER_ID = ?        
+          ]]>
+      </Sql>
+      <Parameter name="inpcBpartnerId"/>
+  </SqlMethod>
+
+  <SqlMethod name="getHelp" type="preparedStatement" return="string">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql><![CDATA[
+         SELECT COALESCE(T.HELP, P.HELP) AS NAME
+           FROM AD_PROCESS P LEFT JOIN AD_PROCESS_TRL T 
+                                       ON T.AD_PROCESS_ID = P.AD_PROCESS_ID
+                                      AND AD_LANGUAGE = ?
+          WHERE P.AD_PROCESS_ID = '4062D3F4448547C3A2BCDFB09D062BA2'
+           
+          ]]>
+      </Sql>
+      <Parameter name="adLanguage"/>
+  </SqlMethod>
+  
+</SqlClass>

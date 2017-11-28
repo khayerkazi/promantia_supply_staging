@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER DCT_PRODUCT_MINMAX_TRG">
+    <trigger name="DCT_PRODUCT_MINMAX_TRG" table="M_PRODUCT" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_adorgid character varying;
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+IF INSERTING  THEN
+
+FOR v_adorgid IN 
+   (select ad_org_id from ad_org where em_sw_isstore='Y') 
+
+LOOP 
+	
+	insert into cl_minmax(cl_minmax_id, ad_client_id, ad_org_id, isactive, 
+	created, createdby, updated, updatedby,m_product_id, minqty,maxqty,displaymin)
+	values
+	(get_uuid(),:NEW.ad_client_id, v_adorgid, 'Y',  :NEW.created, :NEW.createdby, 
+	:NEW.updated, :NEW.updatedby, :NEW.m_product_id, 0,1,0);
+
+END LOOP;
+
+END IF;
+END DCT_PRODUCT_MINMAX_TRG
+]]></body>
+    </trigger>
+  </database>

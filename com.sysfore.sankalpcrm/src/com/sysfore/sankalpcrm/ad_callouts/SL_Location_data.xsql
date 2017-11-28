@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SL 
+ * All portions are Copyright (C) 2001-2006 Openbravo SL 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="SLLocationData" package="com.sysfore.sankalpcrm.ad_callouts">
+  <SqlMethod name="select" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+          SELECT (coalesce(l.address1,'addr1') ||'-'||coalesce(l.address2,'addr2')||'-'||coalesce(l.em_rc_address3,'addr3')
+                  ||'-'||coalesce(l.em_rc_address4,'addr4')
+                  ||'-'||coalesce(l.city,'city')||'-'||coalesce(l.postal,'560000')||'-'||coalesce(r.name,'Karnataka')||'-'||coalesce(c.name,'country')) as companyaddress
+          FROM c_location l,c_region r,c_country c
+          WHERE l.c_region_id = r.c_region_id
+            AND l.c_country_id = c.c_country_id
+            AND l.c_location_id = ?
+      ]]>
+    </Sql>
+    <Parameter name="cLocationId"/>
+  </SqlMethod>
+
+</SqlClass>

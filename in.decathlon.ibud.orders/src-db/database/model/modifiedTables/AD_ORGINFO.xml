@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE AD_ORGINFO">
+    <table name="AD_ORGINFO" primaryKey="AD_ORGINFO_KEY">
+      <column name="EM_IBDO_AD_ORG_V_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="AD_ORG" name="EM_IBDO_AD_ORG_V_AD_ORGINFO" onDelete="cascade">
+        <reference local="EM_IBDO_AD_ORG_V_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+    </table>
+  </database>

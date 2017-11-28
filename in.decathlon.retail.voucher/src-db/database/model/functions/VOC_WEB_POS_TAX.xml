@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION VOC_WEB_POS_TAX">
+    <function name="VOC_WEB_POS_TAX" type="NULL">
+      <parameter name="p_calc_type" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_message VARCHAR(2000);
+Cur_Tax record;
+
+TYPE RECORD IS REF CURSOR;
+Cur_Params RECORD;
+p_docaction varchar(60);
+p_record_id varchar(60);
+p_user varchar(60);
+p_result varchar(60);
+v_ResultStr  VARCHAR(2000);
+v_LineNetAmt NUMBER:=0;
+xTotalLines NUMBER:=0;
+xTotalPriceAdj NUMBER:=0;
+HeaderNotAdded BOOLEAN:=TRUE;
+xGrandTotalWithOutTax NUMBER:=0;
+V_TaxAmt NUMBER:=0;
+cur_order RECORD;
+BEGIN
+for cur_order in(
+select c_order_id from c_order o where o.dateordered>=now()-5
+         AND (o.totallines<>0) AND 
+        (em_ds_grandtotalamt is null or em_ds_grandtotalamt = 0)
+) loop
+xTotalLines:=0;
+FOR Cur_Tax IN
+      (SELECT l.C_OrderLine_ID, l.C_Tax_ID, o.IsTaxIncluded,p.producttype,
+        --SUM(coalesce(l.gross_unit_price,0)*coalesce(l.em_ds_unitqty,0)) + SUM(l.FreightAmt) + SUM(coalesce(l.ChargeAmt,0)) + 
+	--SUM(coalesce(l.em_ds_lotprice,0)*coalesce(l.em_ds_lotqty,0)) + SUM(coalesce(l.em_ds_boxprice,0)*coalesce(l.em_ds_boxqty,0)) AS LineNetAmt,
+        line_gross_amount as LineNetAmt,
+	SUM(l.TaxBaseAmt) + SUM(l.FreightAmt) + SUM(coalesce(l.ChargeAmt,0)) AS TaxBaseAmt,
+        SUM(o.FreightAmt) + SUM(coalesce(o.ChargeAmt,0)) AS HeaderNet,
+        t.Rate, t.IsSummary, c.StdPrecision, t.BaseAmount, o.C_Order_ID,o.em_ds_chargeamt
+      FROM C_ORDER o,  C_ORDERLINE l,
+           C_TAX t, C_CURRENCY c,m_product p
+      WHERE o.C_Order_ID=l.C_Order_ID
+        AND l.C_Tax_ID=t.C_Tax_ID
+        AND o.C_Currency_ID=c.C_Currency_ID
+        AND l.m_product_id = p.m_product_id
+       -- AND (em_ds_taxamount is null or em_ds_taxamount =0)
+        AND t.Rate<>'0'
+        AND o.c_order_id=cur_order.c_order_id
+      GROUP BY l.C_OrderLine_ID, l.C_Tax_ID,
+        o.IsTaxIncluded,
+        t.Rate,
+        t.IsSummary,
+        c.StdPrecision,
+        t.BaseAmount, 
+        o.C_Order_ID,
+        p.producttype,
+        o.em_ds_chargeamt
+      ORDER BY 4 DESC
+      )
+    LOOP
+      v_LineNetAmt:=Cur_Tax.LineNetAmt;
+      xTotalLines:=xTotalLines + v_LineNetAmt; -- w/o Header Freight/Charge
+      IF(HeaderNotAdded) THEN --  add header net to first tax
+        HeaderNotAdded:=FALSE;
+        v_LineNetAmt:=v_LineNetAmt;
+      END IF; 
+
+    V_TaxAmt:= (Cur_Tax.LineNetAmt-(Cur_Tax.LineNetAmt*(100/(100+COALESCE(Cur_Tax.rate,0)))));
+   UPDATE C_ORDERLINE
+   SET em_ds_taxamount=V_TaxAmt,
+   em_ds_linenetamt = line_gross_amount,
+   --linenetamt=(em_ds_linenetamt - V_TaxAmt), -- removed tax as it is already added in the linenetamt.
+   --line_gross_amount=(em_ds_linenetamt),
+   --gross_unit_price=((em_ds_linenetamt)/(em_ds_unitqty+em_ds_boxqty+em_ds_lotqty)),
+   description = 'Tax calculated'
+   WHERE 
+   C_OrderLine_ID = Cur_Tax.C_OrderLine_ID ;
+
+      IF((Cur_Tax.producttype) = 'S') THEN
+      xTotalPriceAdj :=xTotalPriceAdj+Cur_Tax.LineNetAmt;
+      END IF; 
+    END LOOP; 
+    UPDATE C_ORDER
+      SET 
+      em_ds_grandtotalamt=(xTotalLines),
+      em_ds_totalpriceadj = xTotalPriceAdj,
+      updated = now()
+    WHERE C_Order_ID=Cur_Tax.c_order_id;
+
+end loop;
+--------------------------------------------------------------------------   
+END VOC_WEB_POS_TAX
+]]></body>
+    </function>
+  </database>

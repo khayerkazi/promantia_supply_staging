@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+   <bean>
+       <name>MasterWS</name>
+       <class>in.decathlon.ibud.masters.server.MasterWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>PriceListWS</name>
+       <class>in.decathlon.ibud.masters.server.PriceListWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>PartnerWS</name>
+       <class>in.decathlon.ibud.masters.server.BusinessPartnerWS</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>TestWS</name>
+       <class>in.decathlon.ibud.masters.server.TestMaster</class>
+       <singleton>true</singleton>
+   </bean>
+ <bean>
+       <name>OrgSyncWS</name>
+       <class>in.decathlon.ibud.masters.server.OrgnizationSyncWS</class>
+       <singleton>true</singleton>
+   </bean>
+
+<bean>
+       <name>UserSyncWS</name>
+       <class>in.decathlon.ibud.masters.server.UserSyncWS</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   
+   
+</provider>
+

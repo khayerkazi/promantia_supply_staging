@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_CHECK_TAX">
+    <function name="SW_CHECK_TAX" type="VARCHAR">
+      <body><![CDATA[v_count NUMBER;
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF; 
+END IF;
+
+IF TG_OP='UPDATE' THEN
+
+
+--Check if organization is thane and ahmedabad and range is being set to Y
+IF (NEW.isinrange='Y' AND (NEW.ad_org_id='5634F9BED7E94DB4A742DEF487DFCF3C' OR NEW.ad_org_id='763822B8D9594A7BA0E8AC93006179FB')) THEN
+
+--Check if the tax is uploaded for the product.
+SELECT count(*) into v_count From m_productprice where m_product_id=NEW.m_product_id and ad_org_id=NEW.ad_org_id
+and em_cl_taxcategory_id is null;
+
+--If tax not uploaded, show error.
+IF(v_count=0) THEN 
+RAISE EXCEPTION 'Tax is not uploaded for the product. You cannot make any modifications until tax is uploaded.';
+END IF;--count
+
+END IF;--org
+
+END IF;--TG_OP
+IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END SW_CHECK_TAX
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE CL_COLOR">
+    <table name="CL_COLOR" primaryKey="CL_COLOR_KEY">
+      <unique name="CL_CNAME">
+        <unique-column name="CL_COLOR_ID"/>
+        <unique-column name="NAME"/>
+      </unique>
+    </table>
+  </database>

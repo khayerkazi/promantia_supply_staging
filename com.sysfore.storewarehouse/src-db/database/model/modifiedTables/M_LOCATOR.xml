@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_LOCATOR">
+    <table name="M_LOCATOR" primaryKey="M_LOCATOR_KEY">
+      <unique name="EM_SW_LOCATOR_UNIQUE">
+        <unique-column name="VALUE"/>
+        <unique-column name="AD_ORG_ID"/>
+      </unique>
+    </table>
+  </database>

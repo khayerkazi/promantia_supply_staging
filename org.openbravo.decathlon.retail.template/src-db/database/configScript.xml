@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <vector>
+    <versionInfo version="3.0.26898"/>
+    <columnDataChange tablename="AD_MESSAGE" columnname="MSGTEXT" pkRow="6B1CD5C303EE4516B6B77ADB142024B6">
+      <oldValue><![CDATA[Cash Up]]></oldValue>
+      <newValue><![CDATA[Shift End]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MESSAGE" columnname="MSGTEXT" pkRow="F92A739501F543A6BC7F3449B640310B">
+      <oldValue><![CDATA[Cash Management]]></oldValue>
+      <newValue><![CDATA[Float]]></newValue>
+    </columnDataChange>
+  </vector>

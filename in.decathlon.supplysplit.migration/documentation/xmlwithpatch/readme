@@ -1,0 +1,2 @@
+1. Copy app/build.xml to file path app/build.xml
+2. Copy src-db/database to file path src-db/database/build.xml

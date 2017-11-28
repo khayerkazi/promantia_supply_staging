@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE FACT_ACCT">
+    <table name="FACT_ACCT" primaryKey="FACT_ACCT_KEY">
+      <column name="EM_DJE_PROCESSED" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <index name="EM_DJE_FACT_ACCT_DJE_PROCESSED" unique="false">
+        <index-column name="EM_DJE_PROCESSED"/>
+      </index>
+    </table>
+  </database>

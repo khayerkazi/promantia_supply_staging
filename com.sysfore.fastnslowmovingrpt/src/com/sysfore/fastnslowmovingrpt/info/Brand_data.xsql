@@ -1,0 +1,52 @@
+<SqlClass name="BrandData" package="com.sysfore.fastnslowmovingrpt.info">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql> <![CDATA[
+      SELECT * FROM ( SELECT '0' AS RN1, A.* FROM (
+        SELECT p.Cl_Brand_Id,  p.Name, REPLACE(p.Name, '''', CHR(92) || '''') AS NAME_HIDDEN,
+        p.description as description,
+        p.Cl_Brand_Id || '#' || p.Name as RowKey
+        FROM Cl_Brand p
+        WHERE  p.AD_Client_ID IN ('1')
+          AND p.AD_Org_ID IN ('1')
+        ORDER BY p.Name
+      ) A ) B
+      WHERE 1=1
+    ]]></Sql>
+    <Field name="position" value="count"/>
+    <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+
+    <Parameter name="name" ignoreValue="%" optional="true" after="WHERE "><![CDATA[ UPPER(p.Name) LIKE UPPER(?) AND ]]></Parameter>
+    <Parameter name="adUserClient" type="replace" optional="true" after="p.AD_Client_ID IN (" text="'1'"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="p.AD_Org_ID IN (" text="'1'"/>
+    <Parameter name="orderBy" type="replace" optional="true" after="ORDER BY " text="p.Name" />
+    <Parameter name="pgLimit" type="argument" optional="true" after="ORDER BY p.Name"><![CDATA[LIMIT ]]></Parameter>
+    <Parameter name="oraLimit1" type="argument" optional="true" after=") A "><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+    <Parameter name="oraLimit2" type="argument" optional="true" after="WHERE 1=1"><![CDATA[AND RN1 BETWEEN ]]></Parameter>
+  </SqlMethod>
+  <SqlMethod name="set" type="constant" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql></Sql>
+  </SqlMethod>
+  <SqlMethod name="countRows" type="preparedStatement" return="String">
+      <Sql> <![CDATA[
+        SELECT count(*) as value
+        FROM ( SELECT '0' AS RN1, B.* FROM ( SELECT 1 FROM Cl_Brand p
+        WHERE  p.AD_Client_ID IN ('1')
+        AND p.AD_Org_ID IN ('1')
+        AND 1=1
+        ) B
+        ) A
+      ]]></Sql>
+        <Field name="position" value="count"/>
+        <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+
+        <Parameter name="name" ignoreValue="%" optional="true" after="WHERE "><![CDATA[ UPPER(p.Name) LIKE UPPER(?) AND ]]></Parameter>
+        <Parameter name="adUserClient" type="replace" optional="true" after="p.AD_Client_ID IN (" text="'1'"/>
+        <Parameter name="adUserOrg" type="replace" optional="true" after="p.AD_Org_ID IN (" text="'1'"/>
+        <Parameter name="pgLimit" type="argument" optional="true" after="AND 1=1"><![CDATA[LIMIT ]]></Parameter>
+        <Parameter name="oraLimit1" type="argument" optional="true" after=") B"><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+        <Parameter name="oraLimit2" type="argument" optional="true" after=") A"><![CDATA[ WHERE RN1 BETWEEN ]]></Parameter>
+   </SqlMethod>
+ </SqlClass>

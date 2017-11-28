@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_INVOICELINE_OFFER">
+    <table name="C_INVOICELINE_OFFER" primaryKey="C_INVOICELINE_OFFER_KEY">
+      <column name="EM_OBDISC_QTYOFFER" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

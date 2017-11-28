@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION NCRS_RATING_SCREEN">
+    <function name="NCRS_RATING_SCREEN" type="VARCHAR">
+      <parameter name="p_store" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_startdt" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_enddt" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_startyeardt" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[ratingRecord Record;
+v_adorg_id VARCHAR(32);
+v_adorg_id_nz VARCHAR(32);
+v_adorg_id_wz VARCHAR(32);
+v_adorg_id_sz VARCHAR(32);
+v_sumnz VARCHAR(32);
+v_countnz VARCHAR(32);
+v_sumwz VARCHAR(32);
+v_countwz VARCHAR(32);
+v_sumsz VARCHAR(32);
+v_countsz VARCHAR(32);
+v_sum VARCHAR(32);
+v_sum1 NUMBER:=0;
+v_sum2 VARCHAR(32);
+v_sum_temp NUMBER:=0;
+v_count VARCHAR(32);
+v_count1 NUMBER:=0;
+v_count2 VARCHAR(32);
+v_count_temp NUMBER:=0;
+v_store VARCHAR(32);
+v_startdt DATE;
+v_enddt DATE;
+v_startyeardt DATE;
+v_status VARCHAR(2000):='';
+
+
+BEGIN
+v_startdt := p_startdt;
+v_enddt := p_enddt;
+v_store := p_store;
+v_startyeardt := p_startyeardt;
+--RETURN 'v_startdt; v_enddt; v_store; v_startyeardt ' || v_startdt || ' ' || v_enddt || ' ' || v_store || ' ' || v_startyeardt;
+
+IF (v_store = 'Office') THEN
+FOR ratingRecord IN (select ad_org_id from ad_org where em_sw_isstore='Y')
+LOOP
+--select ad_org_id into v_adorg_id from ad_org where em_sw_isstore='Y';
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sum1,v_count1 from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startdt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in (ratingRecord.ad_org_id)
+and issotrx='Y' and processed='Y'
+order by dateordered desc limit 50) alias;
+
+v_sum_temp:=v_sum1+v_sum_temp;
+v_count_temp:=v_count1+v_count_temp;
+
+END LOOP;
+
+v_sum:=v_sum_temp;
+v_count:=v_count_temp;
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sum2,v_count2 from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startyeardt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in (select ad_org_id from ad_org where em_sw_isstore='Y')
+and issotrx='Y' and processed='Y') alias2;
+
+
+v_status := v_sum || ',' || v_count || ',' || v_sum2 || ',' || v_count2;
+
+ELSIF (v_store='BestStore') THEN
+
+FOR ratingRecord IN (select ad_org_id,description from ad_org where em_sw_isstore='Y' and description!='')
+LOOP
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sum,v_count from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startdt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in (ratingRecord.ad_org_id)
+and issotrx='Y' and processed='Y'
+order by dateordered desc limit 50) alias;
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sum2,v_count2 from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startyeardt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in (ratingRecord.ad_org_id)
+and issotrx='Y' and processed='Y') alias2;
+
+v_status := ratingRecord.description || ',' || v_sum || ',' || v_count || ',' || v_sum2 || ',' || v_count2 || '&' || v_status ;
+
+END LOOP;
+--RAISE EXCEPTION 'v_statusss beststore %', v_status;
+ELSIF (v_store='ZonalLevel') THEN
+
+--select ad_org_id into v_adorg_id_nz from ad_orginfo where em_idsd_zone = 'NZ';
+--select ad_org_id into v_adorg_id_wz from ad_orginfo where em_idsd_zone = 'WZ';
+--select ad_org_id into v_adorg_id_sz from ad_orginfo where em_idsd_zone = 'SZ';
+-- Use the above 3 set of queries when West Zone will be configured in Organisation window 
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sumnz,v_countnz from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startyeardt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in ('13D67CE499E84F84BF95A66A4875BDB5','52994C1A45C940099B61315D599FB66F','B1377E1D8D3A4765ACEFC0D704707066','B8A24E7BF233470EA2E0F2545559F427')
+and issotrx='Y' and processed='Y') alias2;
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sumwz,v_countwz from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startyeardt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in ('763822B8D9594A7BA0E8AC93006179FB','5634F9BED7E94DB4A742DEF487DFCF3C','77B6F4F0AA98496C8567B82FB57A4455','0994F82184D643ABB2D4DEA9FBA6D8DF')
+and issotrx='Y' and processed='Y') alias2;
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sumsz,v_countsz from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startyeardt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in ('057FF7ABBAAA43ECA533ACA272264A1A','37C769A36F7F4E858D690F5E96E69F5F','6C2C1AF9EE94432096C657FF4EE45990','83ACE25CB7684EF0937B01BB6969C6DE','4BB328C91599449BB1FBE90E781097F2','77301C98A8124D4CB0E19404E9B6A26F','07DB4B94385D4118808BE349EEEAB022','653A6FBA5DF4400C990AEF14FCC84CDE')
+and issotrx='Y' and processed='Y') alias2;
+
+
+v_status := v_sumnz || ',' || v_countnz || ',' || v_sumwz || ',' || v_countwz || ',' || v_sumsz || ',' || v_countsz;
+
+ --RAISE EXCEPTION 'v_statussszonal %', v_status;
+
+ELSE
+
+select ad_org_id into v_adorg_id from ad_org where description = v_store;
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sum,v_count from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startdt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in (v_adorg_id)
+and issotrx='Y' and processed='Y'
+order by dateordered desc limit 50) alias;
+
+select coalesce(sum(customersatisfaction),0),count(*)  into v_sum2,v_count2 from (select 
+CASE em_ds_ratesatisfaction
+     WHEN '1' THEN 0
+     WHEN '2' THEN 0
+     WHEN '3' THEN 1
+     END as customersatisfaction
+from c_order where dateordered >= v_startyeardt and dateordered < v_enddt and em_ds_ratesatisfaction in ('1','2','3')
+and ad_org_id in (v_adorg_id)
+and issotrx='Y' and processed='Y') alias2;
+
+
+v_status := v_sum || ',' || v_count || ',' || v_sum2 || ',' || v_count2;
+
+END IF;
+
+RETURN v_status;
+END NCRS_RATING_SCREEN
+]]></body>
+    </function>
+  </database>

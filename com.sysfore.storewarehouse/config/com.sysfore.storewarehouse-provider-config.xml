@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <provider>
+  <bean>
+       <name>countwebservice</name>
+       <class>com.sysfore.storewarehouse.WebService.GetCountOfProductsWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>stockwebservice</name>
+       <class>com.sysfore.storewarehouse.WebService.GetStockWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>updatestockwebservice</name>
+       <class>com.sysfore.storewarehouse.WebService.PostStoreStockWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>getdetailswebservice</name>
+       <class>com.sysfore.storewarehouse.WebService.GetWidgetDetailsWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>setpriceswebservice</name>
+       <class>com.sysfore.storewarehouse.WebService.UpdatePricesWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>manualorder</name>
+       <class>com.sysfore.storewarehouse.WebService.PurchaseOrderService</class>
+       <singleton>true</singleton>
+   </bean> 
+   <bean>
+       <name>cyclic_inventory</name>
+       <class>com.sysfore.storewarehouse.ad_webServices.CyclicInventory</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>cyclic_inventory_queries</name>
+       <class>com.sysfore.storewarehouse.ad_webServices.CyclicInventoryQueries</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>cyclic_inventory_m_storagedetail</name>
+       <class>com.sysfore.storewarehouse.ad_webServices.CyclicInventoryMStorageDetail</class>
+       <singleton>true</singleton>
+   </bean> 
+ </provider>

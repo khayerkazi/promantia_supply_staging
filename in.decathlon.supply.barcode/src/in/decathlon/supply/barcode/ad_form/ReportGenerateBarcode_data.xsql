@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+
+<SqlClass name="ReportGenerateBarcodeData" package="in.decathlon.supply.barcode.ad_form">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[SELECT sbc_barcode_sequence('1') as slno, sbc_barcode_sequence('1') as barcode from dual]]></Sql>
+     <Field name="rownum" value="count"/>
+     <Parameter name="ID" type="replace" optional="true" after="sbc_barcode_sequence(" text="'1'"/>
+     
+  </SqlMethod>
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>

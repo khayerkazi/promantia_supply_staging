@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER OBINUTL_CONTRACOMPLETE_TRG">
+    <trigger name="OBINUTL_CONTRACOMPLETE_TRG" table="OBINUTL_CONENTRY" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+ v_NextNo    VARCHAR2(32);
+    
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+
+  IF (DELETING) THEN
+    IF (:old.DocStatus = 'CO') THEN
+   RAISE_APPLICATION_ERROR(-20000, 'Completed Document');
+  END IF;
+  END IF;
+
+  END OBINUTL_CONTRACOMPLETE_TRG
+]]></body>
+    </trigger>
+  </database>

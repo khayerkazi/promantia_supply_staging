@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <provider>
+  
+     <bean>
+       <name>getallboxdetails</name>
+       <class>in.decathlon.supply.stockreception.ad_webservice.GetAllBoxDetails</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>getitemdetails</name>
+       <class>in.decathlon.supply.stockreception.ad_webservice.GetItemDetails</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>updateboxstatus</name>
+       <class>in.decathlon.supply.stockreception.ad_webservice.UpdateBoxStatus</class>
+       <singleton>true</singleton>
+   </bean>
+    <bean>
+       <name>CompleteShipmentWS</name>
+       <class>in.decathlon.supply.stockreception.ad_webservice.CompleteShipmentInSupply</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>

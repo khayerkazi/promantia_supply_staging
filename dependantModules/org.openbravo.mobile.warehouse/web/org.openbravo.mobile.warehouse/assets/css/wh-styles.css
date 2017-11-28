@@ -1,0 +1,67 @@
+/*
+ ************************************************************************************
+ * Copyright (C) 2013 Openbravo S.L.U.
+ * Licensed under the Openbravo Commercial License version 1.0
+ * You may obtain a copy of the License at http://www.openbravo.com/legal/obcl.html
+ * or in the legal folder of this module distribution.
+ ************************************************************************************
+ */
+ 
+ul.nav-pos > li.active:nth-child(1) > div > button {
+  background-color: #7da7d9;
+}
+
+ul.nav-pos > li.active:nth-child(2) > div > button {
+  background-color: #f8941d;
+}
+
+div {
+  word-wrap: break-word;
+}
+
+.WHInfoText {
+  border-bottom: 1px solid #cccccc;
+  padding: 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 30px;
+  color: #999797;
+  line-height: 40px;
+}
+
+.WHMenuText {
+  font-weight: bold;
+  font-size: 25px;
+  color: DimGrey !important;
+  line-height: 50px;
+}
+
+.WHDocCreatedText {
+  background: #7da7d9;
+  font-size: 18px;
+  color: white;
+}
+
+button.btnbig {
+  height: 45px;
+  padding: 15px 80px 15px 80px;
+}
+
+.WHLabel {
+  padding-left: 10px;
+}
+
+.WHDocHeader {
+  font-weight: bold;
+  border-bottom: 1px solid #cccccc;
+  color: #999797;
+  padding: 5px 0px 10px 0px; 
+  height: 25px;
+}
+
+.WHMenuContainer {
+  position: relative;
+  background-color: #ffffff;
+  color: black;
+  margin: 5px
+}

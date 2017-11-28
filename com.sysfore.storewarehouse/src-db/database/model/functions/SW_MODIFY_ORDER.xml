@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_MODIFY_ORDER">
+    <function name="SW_MODIFY_ORDER" type="NULL">
+      <parameter name="pinstanceid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_ResultStr VARCHAR2(2000):='';
+Cur_Parameter RECORD;
+v_Record_ID VARCHAR(32);
+v_orderStatus CHARACTER(2);
+
+
+BEGIN 
+--RAISE EXCEPTION 'pInstanceId %',pInstanceId;
+
+DBMS_OUTPUT.PUT_LINE('Updating Purchase Order - Processing ' || pInstanceId) ;
+v_ResultStr:='PInstanceNotFound'; AD_UPDATE_PINSTANCE(pInstanceId, NULL, 'Y', NULL, NULL) ;
+
+BEGIN 
+--BODY
+--Get Parameters
+
+v_ResultStr:='ReadingParameters';
+FOR Cur_Parameter IN
+	(SELECT i.Record_ID, i.AD_User_ID, i.AD_Client_ID, i.AD_Org_ID,
+	p.ParameterName, p.P_String, p.P_Number, p.P_Date
+	FROM AD_PInstance i
+	LEFT JOIN AD_PInstance_Para p
+	ON i.AD_PInstance_ID=p.AD_PInstance_ID
+	WHERE i.AD_PInstance_ID=pInstanceId
+	ORDER BY p.SeqNo) LOOP
+	v_Record_ID:=Cur_Parameter.Record_ID;
+END LOOP; 
+-- Get Parameter
+
+select em_sw_postatus into v_orderStatus From c_order where c_order_id=v_Record_ID;
+IF(v_orderStatus!='VO' OR v_orderStatus!='VD'OR v_orderStatus!='OC' OR v_orderStatus!='VD' OR v_orderStatus!='CL') THEN
+
+update c_order set em_sw_postatus='MO' where c_order_id=v_Record_ID;
+
+--RAISE EXCEPTION 'pInstanceId %',v_Record_ID;
+
+v_ResultStr:= 'Modified Order will be sent in next 1 hour' ;
+
+END IF;
+END; AD_UPDATE_PINSTANCE(pInstanceId, NULL, 'N', 1, v_ResultStr);
+END SW_MODIFY_ORDER
+]]></body>
+    </function>
+  </database>

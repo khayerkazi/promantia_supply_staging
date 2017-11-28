@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERC. 
+ * The Initial Developer of the Original Code is Openbravo SL 
+ * All portions are Copyright (C) 2001-2006 Openbravo SL 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+
+C.value || ' - ' || before "as rowkey"
+ ************************************************************************
+-->
+
+
+
+
+
+<SqlClass name="CompanyData" package="com.sysfore.sankalpcrm.info">
+   <SqlClassComment></SqlClassComment>
+   <SqlMethod name="select" type="preparedStatement" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql> <![CDATA[
+      SELECT * FROM ( SELECT '0' AS RN1, A.* FROM (  
+        SELECT C.RC_COMPANY_ID, C.VALUE, REPLACE(C.VALUE, '''', CHR(92) || '''') AS VALUE_HIDDEN, C.COMPANYNAME AS NAME, 
+        REPLACE(C.COMPANYNAME, '''', CHR(92) || CHR(92) || '''') AS NAME_HIDDEN,C.DOCUMENTNO AS COMPANYID, 
+        REPLACE(C.DOCUMENTNO, '''', CHR(92) || CHR(92) || '''') AS COMPANYID_HIDDEN, 
+        C.RC_COMPANY_Id || '#' || C.COMPANYNAME as rowkey
+        FROM RC_COMPANY C
+        WHERE C.AD_CLIENT_ID IN ('1') 
+        AND C.AD_ORG_ID IN ('1') 
+        AND C.ISACTIVE = 'Y' 
+        ORDER BY C.VALUE
+		) A ) B
+		WHERE 1=1
+      ]]></Sql>
+        <Field name="position" value="count"/>
+			<Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+       <!-- <Parameter name="language"/> -->
+        <Parameter name="adUserClient" type="replace" optional="true" after="C.AD_CLIENT_ID IN (" text="'1'"/>
+        <Parameter name="adUserOrg" type="replace" optional="true" after="C.AD_ORG_ID IN (" text="'1'"/>
+        <Parameter name="key" ignoreValue="%" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND UPPER(C.VALUE) LIKE UPPER(?) ]]></Parameter>
+        <Parameter name="name" ignoreValue="%" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND UPPER(C.COMPANYNAME) LIKE UPPER(?) ]]></Parameter>
+        <Parameter name="companyid" ignoreValue="%" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND UPPER(C.DOCUMENTNO) LIKE UPPER(?) ]]></Parameter>
+       <!-- <Parameter name="bpartner" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND C.C_BPARTNER_ID = ? ]]></Parameter> -->
+        <Parameter name="orderBy" type="replace" optional="true" after="ORDER BY " text="C.VALUE" />
+        <Parameter name="oraLimit" type="argument" optional="true" after="WHERE 1=1"><![CDATA[AND RN1 BETWEEN ]]></Parameter>
+        <Parameter name="pgLimit" type="argument" optional="true" after="WHERE 1=1"><![CDATA[LIMIT ]]></Parameter>
+   </SqlMethod>
+   <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+   </SqlMethod>
+   <SqlMethod name="countRows" type="preparedStatement" return="String">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql> <![CDATA[
+      SELECT COUNT(*) AS VALUE FROM ( SELECT '0' AS RN1 FROM (  
+        SELECT 1
+        FROM RC_COMPANY C
+        WHERE C.AD_CLIENT_ID IN ('1') 
+        AND C.AD_ORG_ID IN ('1') 
+        AND C.ISACTIVE = 'Y' 
+        AND 1=1
+		) B
+		) A 
+      ]]></Sql>
+        <Field name="position" value="count"/>
+	<Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+       <!-- <Parameter name="language"/> -->
+        <Parameter name="adUserClient" type="replace" optional="true" after="C.AD_CLIENT_ID IN (" text="'1'"/>
+        <Parameter name="adUserOrg" type="replace" optional="true" after="C.AD_ORG_ID IN (" text="'1'"/>
+        <Parameter name="key" ignoreValue="%" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND UPPER(C.VALUE) LIKE UPPER(?) ]]></Parameter>
+        <Parameter name="name" ignoreValue="%" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND UPPER(C.COMPANYNAME) LIKE UPPER(?) ]]></Parameter>
+        <Parameter name="companyid" ignoreValue="%" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND UPPER(C.DOCUMENTNO) LIKE UPPER(?) ]]></Parameter>
+       <!-- <Parameter name="bpartner" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND C.C_BPARTNER_ID = ? ]]></Parameter> -->
+         <Parameter name="pgLimit" type="argument" optional="true" after="AND 1=1"><![CDATA[LIMIT ]]></Parameter>
+        <Parameter name="oraLimit1" type="argument" optional="true" after=") B"><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+        <Parameter name="oraLimit2" type="argument" optional="true" after=") A "><![CDATA[WHERE RN1 BETWEEN ]]></Parameter>
+   </SqlMethod>
+   <SqlMethod name="selectKey" type="preparedStatement" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql> <![CDATA[
+        SELECT C.RC_COMPANY_ID, C.VALUE, C.COMPANYNAME AS NAME, C.DOCUMENTNO AS COMPANYID
+        FROM RC_COMPANY C 
+        WHERE C.AD_CLIENT_ID IN ('1') 
+        AND C.AD_ORG_ID IN ('1') 
+        AND C.ISACTIVE = 'Y' 
+        AND UPPER(C.VALUE) LIKE UPPER(?)
+        ORDER BY C.COMPANYNAME
+      ]]></Sql>
+        <Parameter name="adUserClient" type="replace" optional="true" after="C.AD_CLIENT_ID IN (" text="'1'"/>
+        <Parameter name="adUserOrg" type="replace" optional="true" after="C.AD_ORG_ID IN (" text="'1'"/>
+      <!--  <Parameter name="bpartner" optional="true" after="AND C.ISACTIVE = 'Y'"><![CDATA[ AND C.C_BPARTNER_ID = ? ]]></Parameter> -->
+        <Parameter name="key"/>
+   </SqlMethod>
+<!--   <SqlMethod name="selectTercero" type="preparedStatement" return="String" default="">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql> <![CDATA[
+        SELECT NAME FROM C_BPARTNER WHERE C_BPARTNER_ID = ?
+      ]]></Sql>
+        <Parameter name="cBparnterId"/>
+   </SqlMethod> -->
+</SqlClass>

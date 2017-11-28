@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_INOUT">
+    <table name="M_INOUT" primaryKey="M_INOUT_KEY">
+      <column name="EM_OBWPACK_PACKING" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPACK_PACKINGH_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPACK_PROCESSED" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[DR]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPACK_REACTIVATED" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[DR]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPACK_PACKINGREQUIRED" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault><![CDATA['N']]></onCreateDefault>
+      </column>
+      <foreign-key foreignTable="OBWPACK_PACKINGH" name="EM_OBWPACK_M_INOUT_PACK">
+        <reference local="EM_OBWPACK_PACKINGH_ID" foreign="OBWPACK_PACKINGH_ID"/>
+      </foreign-key>
+      <check name="EM_OBWPACK_M_INOUT_PREQUIRED"><![CDATA[EM_OBWPACK_PACKINGREQUIRED IN ('Y', 'N')]]></check>
+    </table>
+  </database>

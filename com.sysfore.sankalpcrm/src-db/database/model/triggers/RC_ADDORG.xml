@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER RC_ADDORG">
+    <trigger name="RC_ADDORG" table="RC_CREDITNOTELINE" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+credit_ad_org_id character varying(32);
+
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+
+--After inserting a new row inside rc_creditnote
+select ad_org_id into credit_ad_org_id from rc_creditnote where rc_creditnote_id = :NEW.rc_creditnote_id;
+
+
+
+
+--After Inserting the lines inside rc_creditnoteline
+:NEW.ad_org_id:=credit_ad_org_id;
+
+IF TG_OP='DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF;
+
+END IF;
+END RC_ADDORG
+]]></body>
+    </trigger>
+  </database>

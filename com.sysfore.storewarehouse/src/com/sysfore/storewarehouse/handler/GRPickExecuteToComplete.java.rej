@@ -1,0 +1,13 @@
+--- com.sysfore.storewarehouse/src/com/sysfore/storewarehouse/handler/GRPickExecuteToComplete.java	Wed Jun 18 12:38:55 2014 +0530
++++ com.sysfore.storewarehouse/src/com/sysfore/storewarehouse/handler/GRPickExecuteToComplete.java	Thu Jun 19 19:00:22 2014 +0530
+@@ -79,8 +79,9 @@
+   }
+ 
+   private void completeReceipts(ArrayList<ShipmentInOut> shipmentInOuts) throws Exception {
++	  EnhancedProcessGoods enhProGoods = new EnhancedProcessGoods();
+     for (ShipmentInOut shipmentInOut : shipmentInOuts) {
+-    	EnhancedProcessGoods enhProGoods = new EnhancedProcessGoods();
++    	
+       logger.debug("Process going to complete GRN " + shipmentInOut.getDocumentNo());
+       if (shipmentInOut.getDocumentStatus().equals("DR")) {
+         shipmentInOut.setDocumentAction("CO");

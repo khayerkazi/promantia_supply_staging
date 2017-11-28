@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<REPORT>
+  <template file="ReportGenerateBarcode.html"/>
+  <PARAMETER id="paramToolBar" name="toolbar" default=""/>
+  <PARAMETER id="fieldCalendar" name="calendar" attribute="src" replace="es" default="en"/>
+  <PARAMETER id="paramDirectory" name="directory" default=""/>
+  <PARAMETER id="paramLanguage" name="paramLanguage" default=""/>
+  
+  <PARAMETER id="paramQty" name="Qty" attribute="value"/>
+  <PARAMETER id="paramStore" name="Store" default=""/>
+  <PARAMETER id="paramBrand" name="Brand" default=""/>
+  
+  <PARAMETER id="paramCSS" name="theme" attribute="href" replace="Default"/>
+  <PARAMETER id="tdleftTabs" name="leftTabs" default=""/>
+  <PARAMETER id="paramParentTabContainer" name="parentTabContainer" default=" "/>
+  <PARAMETER id="paramMainTabContainer" name="mainTabContainer" default=" "/>
+  <PARAMETER id="paramChildTabContainer" name="childTabContainer" default=" "/>
+  <PARAMETER id="tdtopButtons" name="navigationBar" default=""/>
+  <PARAMETER id="messageBoxID" name="messageType" attribute="class" replace="yy" default="HIDDEN"/>
+  <PARAMETER id="messageBoxIDTitle" name="messageTitle" default=""/>
+  <PARAMETER id="messageBoxIDMessage" name="messageMessage" default=""/>
+  <PARAMETER id="param2" name="param2" default="2"/>
+  <!--<FIELD id="fieldSearchedItem">searcheditem</FIELD>  -->
+  <structure name="structure1">
+    <FIELD id="fieldRownum1">rownum</FIELD>
+    <FUNCTION id="funcEvenOddRow1xx" name="MODULE" arg1="fieldRownum1" arg2="param2" format="integerEdition" attribute="class" replace="yy"/>
+<FIELD id="fieldSlno">slno</FIELD>
+<FIELD id="fieldBarcode">barcode</FIELD>
+
+
+<!--<FIELD id="fieldmProductId">pdtid</FIELD>
+<FIELD id="idfieldmProductId" attribute="onclick" replace="xx">mProductId</FIELD>
+<FIELD id="idfieldEMCLMODELID" attribute="onclick" replace="xx">EMCLMODELID</FIELD>
+<FIELD id="idfieldmProductId1" attribute="onclick" replace="yy">mProductId</FIELD>
+ <SECTION id="sectionStatus" field="status"/>-->
+
+<SUBREPORT id="reportad_org_Id" name="reportad_org_Id" report="org/openbravo/erpCommon/reference/List">
+      <ARGUMENT name="parameterListSelected" withId="paramStore"/>
+    </SUBREPORT>
+<SUBREPORT id="reportcl_Brand_Id" name="reportcl_Brand_Id" report="org/openbravo/erpCommon/reference/List">
+      <ARGUMENT name="parameterListSelected" withId="paramBrand"/>
+    </SUBREPORT>
+    
+    <SECTION id="sectionBpartner"/>
+    <SECTION id="sectionDetail"/>
+  </structure>
+</REPORT>

@@ -1,0 +1,28 @@
+diff -r 6af26661c789 modules/org.openbravo.client.application/src/org/openbravo/client/application/navigationbarcomponents/UserInfoWidgetActionHandler.java
+--- a/modules/org.openbravo.client.application/src/org/openbravo/client/application/navigationbarcomponents/UserInfoWidgetActionHandler.java	Thu Oct 23 17:31:32 2014 +0000
++++ b/modules/org.openbravo.client.application/src/org/openbravo/client/application/navigationbarcomponents/UserInfoWidgetActionHandler.java	Wed Dec 17 12:51:49 2014 +0530
+@@ -206,6 +206,16 @@
+     for (Organization org : orgs) {
+       JSONObject orgWarehouse = new JSONObject();
+       orgWarehouse.put("orgId", org.getId());
++      Organization extorg = OBDal.getInstance().get(Organization.class, org.getId());
++       if (extorg.isFacstIsExternal()) {
++       User user = OBContext.getOBContext().getUser();
++       List<Warehouse> userwarehouse = new ArrayList<Warehouse>();
++       if (user.getDefaultWarehouse() != null) {
++       userwarehouse.add(user.getDefaultWarehouse());
++       }
++       orgWarehouse.put("warehouseMap", createValueMapObject(userwarehouse));
++       orgWarehouseArray.add(orgWarehouse);
++       } else {
+       final OBQuery<Warehouse> warehouses = OBDal
+           .getInstance()
+           .createQuery(Warehouse.class,
+@@ -216,6 +226,7 @@
+       warehouses.setFilterOnReadableOrganization(false);
+       orgWarehouse.put("warehouseMap", createValueMapObject(warehouses.list()));
+       orgWarehouseArray.add(orgWarehouse);
++       }
+     }
+     return new JSONArray(orgWarehouseArray);
+   }

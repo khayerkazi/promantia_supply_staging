@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <provider>
+   <bean>
+       <name>ratingscreen</name>
+       <class>in.nous.crm.ratingscreen.ad_webservices.RatingScreenWebService</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>

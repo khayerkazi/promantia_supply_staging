@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+  <database name="TABLE LVLPR_LEVELPRODUCTPRICE">
+    <table name="LVLPR_LEVELPRODUCTPRICE" primaryKey="LVLPR_LEVELPRODUCTPRICE_KEY">
+      <column name="LVLPR_LEVELPRODUCTPRICE_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="PRICE" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="QTY" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="M_PRODUCTPRICE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="LVLPR_RANGE_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="AD_CLIENT" name="LVLPR_LEVELPROD_RICE_AD_CLIENT">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="LVLPR_LEVELPRODUCTPRICE_AD_ORG">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="LVLPR_RANGE" name="LVLPR_LEVELPRODUCTPRICE_RANGE">
+        <reference local="LVLPR_RANGE_ID" foreign="LVLPR_RANGE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="M_PRODUCTPRICE" name="LVLPR_LVLPRDPRICE_PRODPRICE">
+        <reference local="M_PRODUCTPRICE_ID" foreign="M_PRODUCTPRICE_ID"/>
+      </foreign-key>
+      <unique name="LVLPR_UNIQUEQTYPERPRODUCT">
+        <unique-column name="M_PRODUCTPRICE_ID"/>
+        <unique-column name="QTY"/>
+      </unique>
+      <unique name="LVLPR_UNIQUERANGEPERPRODUCT">
+        <unique-column name="M_PRODUCTPRICE_ID"/>
+        <unique-column name="LVLPR_RANGE_ID"/>
+      </unique>
+      <check name="LVLPR_PPQTY_GT_ONE"><![CDATA[QTY > 1]]></check>
+    </table>
+  </database>

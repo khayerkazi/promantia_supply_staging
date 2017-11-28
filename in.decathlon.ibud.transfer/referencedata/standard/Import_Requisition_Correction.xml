@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IDL_Entities id="49E612EDCFBA43A7A3D0AE4F325DDE8C" identifier="Import Requisition Correction">
+    <id>49E612EDCFBA43A7A3D0AE4F325DDE8C</id>
+    <active>true</active>
+    <creationDate transient="true">2014-06-25T12:04:42.564Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-06-25T12:04:42.564Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Import Requisition Correction</name>
+    <description xsi:nil="true"/>
+    <javaClassName>in.decathlon.ibud.transfer.ad_process.ImportRequisitionCorrectionIDL</javaClassName>
+    <iDLEntitiesTrlList/>
+    <iDLFieldsList>
+      <IDL_Fields id="07BAA725C4074CAEB63CCD988C2B78FA" identifier="Qty received">
+        <id>07BAA725C4074CAEB63CCD988C2B78FA</id>
+        <active>true</active>
+        <creationDate transient="true">2014-06-25T12:06:38.540Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2014-06-25T12:06:38.540Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <name>Qty received</name>
+        <description xsi:nil="true"/>
+        <entityRef id="49E612EDCFBA43A7A3D0AE4F325DDE8C" entity-name="IDL_Entities" identifier="Import Requisition Correction"/>
+        <defaultValue>0</defaultValue>
+        <dataType>string</dataType>
+      </IDL_Fields>
+      <IDL_Fields id="1EB60395DFE74A52AB2ADADF4751E914" identifier="Document No">
+        <id>1EB60395DFE74A52AB2ADADF4751E914</id>
+        <active>true</active>
+        <creationDate transient="true">2014-06-25T12:05:46.179Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2014-06-25T12:05:46.179Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <name>Document No</name>
+        <description xsi:nil="true"/>
+        <entityRef id="49E612EDCFBA43A7A3D0AE4F325DDE8C" entity-name="IDL_Entities" identifier="Import Requisition Correction"/>
+        <defaultValue xsi:nil="true"/>
+        <dataType>string</dataType>
+      </IDL_Fields>
+      <IDL_Fields id="ED1A99FC4E624496B71994C289D23B7D" identifier="Item Code">
+        <id>ED1A99FC4E624496B71994C289D23B7D</id>
+        <active>true</active>
+        <creationDate transient="true">2014-06-25T12:06:11.422Z</creationDate>
+        <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <updated transient="true">2014-06-25T12:06:11.422Z</updated>
+        <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+        <name>Item Code</name>
+        <description xsi:nil="true"/>
+        <entityRef id="49E612EDCFBA43A7A3D0AE4F325DDE8C" entity-name="IDL_Entities" identifier="Import Requisition Correction"/>
+        <defaultValue xsi:nil="true"/>
+        <dataType>string</dataType>
+      </IDL_Fields>
+    </iDLFieldsList>
+  </IDL_Entities>
+</ob:Openbravo>

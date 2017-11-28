@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_PRODUCT_CATEGORY">
+    <table name="M_PRODUCT_CATEGORY" primaryKey="M_PRODUCT_CATEGORY_KEY">
+      <column name="EM_INGST_GSTPRODUCTCODE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="INGST_GSTPRODUCTCODE" name="EM_INGST_PRODUCT_CATEGORYID">
+        <reference local="EM_INGST_GSTPRODUCTCODE_ID" foreign="INGST_GSTPRODUCTCODE_ID"/>
+      </foreign-key>
+    </table>
+  </database>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+   
+   
+   <bean>
+       <name>ReplenishmentWS</name>
+       <class>in.decathlon.ibud.replenishment.ReplenishmentWS</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>ibudStockWS</name>
+       <class>in.decathlon.ibud.replenishment.webservice.IBUDGetStockWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   
+   
+</provider>

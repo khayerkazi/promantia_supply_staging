@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportCreditNote" pageWidth="950" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="910" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" fontName="Arial" fontSize="26" isBold="true" pdfFontName="Helvetica-Bold"/>
+	<style name="SubTitle" forecolor="#666666" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<parameter name="DateFrom" class="java.util.Date" isForPrompting="false"/>
+	<parameter name="aux_DateFrom" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("")) ? "" : "AND inv.created >= TO_DATE('" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTo" class="java.util.Date" isForPrompting="false"/>
+	<parameter name="aux_DateTo" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateTo} == null || $P{DateTo}.equals("")) ? "" : "AND inv.created <= TO_DATE('" + new java.sql.Date($P{DateTo}.getTime()) + "', 'YYYY-MM-DD') + INTERVAL '1 days'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="USER_ORG" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select COALESCE(o.em_ncn_crtype,rr.name) as CreditNoteType, inv.documentno as DocumentNo,
+inv.dateinvoiced as Date, rr.name as movementtype, p.name as ItemCode,
+abs(ol.qtyordered) as Qty, ol.priceactual as Amount, abs(ol.line_gross_amount) as TotalAmount
+from c_invoice inv
+join c_order o on o.c_order_id=inv.c_order_id
+join c_orderline ol on ol.c_order_id=o.c_order_id
+join m_inout io on io.c_order_id=o.c_order_id
+join c_return_reason rr on rr.c_return_reason_id=o.c_return_reason_id
+join m_product p on p.m_product_id=ol.m_product_id
+where inv.issotrx='Y' and o.issotrx='Y' and io.issotrx='Y'
+and inv.documentno like 'CRN-%'  and abs(ol.qtyordered) > 0
+AND 1=1
+$P!{aux_DateFrom}
+$P!{aux_DateTo}
+AND inv.AD_ORG_ID IN ($P!{USER_ORG})
+order by inv.dateinvoiced]]>
+	</queryString>
+	<field name="creditnotetype" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="date" class="java.sql.Timestamp"/>
+	<field name="movementtype" class="java.lang.String"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<field name="totalamount" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="15" splitType="Stretch">
+			<staticText>
+				<reportElement x="-20" y="0" width="950" height="15"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Credit Note Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="21" splitType="Stretch">
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="-21" y="0" width="120" height="21" forecolor="#0B0707"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Credit Note Type]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="99" y="0" width="128" height="21" forecolor="#0B0707"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Document Number]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="227" y="0" width="109" height="21" forecolor="#0B0707"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="336" y="0" width="114" height="21" forecolor="#0B0707"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Movement Type]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="450" y="0" width="94" height="21" forecolor="#0B0707"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="544" y="0" width="80" height="21" forecolor="#0B0707"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Quantity]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="624" y="0" width="79" height="21" forecolor="#070202"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="703" y="0" width="97" height="21" forecolor="#0B0707"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="-21" y="0" width="120" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{creditnotetype}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="99" y="0" width="128" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="227" y="0" width="109" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="336" y="0" width="114" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{movementtype}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="450" y="0" width="94" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="544" y="0" width="80" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="624" y="0" width="79" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" mode="Transparent" x="703" y="0" width="97" height="20" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{totalamount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="950" height="25">
+					<printWhenExpression><![CDATA[$V{COLUMN_COUNT}==0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No records Found]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

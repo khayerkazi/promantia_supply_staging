@@ -1,0 +1,17 @@
+--- /home//huehner/ob/clients/decathlon/tmp/opt/atlas/build.xml	2013-05-20 18:47:47.000000000 +0200
++++ build.xml	2014-02-01 18:30:48.128269787 +0100
+@@ -607,6 +607,14 @@
+     <ant dir="${base.src}" target="export.sample.data" inheritAll="true" inheritRefs="true" />
+   </target>
+ 
++  <target name="export.dataset.as.sampledata" depends="init, core.lib">
++    <ant dir="${base.db}" target="export.dataset.as.sample.data" inheritAll="true" inheritRefs="true" />
++  </target>
++
++  <target name="import.sample.data.new" depends="init, core.lib">
++    <ant dir="${base.db}" target="import.sample.data" inheritAll="true" inheritRefs="true" />
++  </target>
++
+   <target name="import.sample.data" depends="code.rev">
+     <ant dir="${base.src}" target="import.sample.data" inheritAll="true" inheritRefs="true" />
+   </target>

@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_INVENTORY_POST1">
+    <function name="IM_INVENTORY_POST1" type="VARCHAR">
+      <parameter name="p_inventory" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+  * The contents of this file are subject to the Compiere Public
+  * License 1.1 ("License"); You may not use this file except in
+  * compliance with the License. You may obtain a copy of the License in
+  * the legal folder of your Openbravo installation.
+  * Software distributed under the License is distributed on an
+  * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+  * implied. See the License for the specific language governing rights
+  * and limitations under the License.
+  * The Original Code is  Compiere  ERP &  Business Solution
+  * The Initial Developer of the Original Code is Jorg Janke and ComPiere, Inc.
+  * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke,
+  * parts created by ComPiere are Copyright (C) ComPiere, Inc.;
+  * All Rights Reserved.
+  * Contributor(s): Openbravo SLU
+  * Contributions are Copyright (C) 2001-2010 Openbravo, S.L.U.
+  *
+  * Specifically, this derivative work is based upon the following Compiere
+  * file and version.
+  *************************************************************************
+  * $Id: M_Inventory_Post.sql,v 1.4 2003/09/05 04:58:06 jjanke Exp $
+  ***
+  * Title: Physical Inventory Post
+  * Description:
+  * - Update Storage with correct QtyOnHand
+  * - Generate Transcation
+  ************************************************************************/
+  -- Logistice
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Record_ID VARCHAR2(32) := p_inventory;
+  v_Result NUMBER:=0; -- failure
+  v_User VARCHAR2(32);
+  v_IsProcessing CHAR(1) ;
+  v_IsProcessed VARCHAR2(60) ;
+  v_NoProcessed NUMBER:=0;
+  v_is_included NUMBER:=0;
+  v_available_period NUMBER:=0;
+  v_is_ready AD_Org.IsReady%TYPE;
+  v_is_tr_allow AD_OrgType.IsTransactionsAllowed%TYPE;
+  v_isacctle AD_OrgType.IsAcctLegalEntity%TYPE;
+  v_org_bule_id AD_Org.AD_Org_ID%TYPE;
+  --Added by PSarobe 13062007
+  v_line NUMBER;
+  v_Aux NUMBER;
+  -- Parameter
+  TYPE RECORD IS REF CURSOR;
+    Cur_Parameter RECORD;
+    Cur_InvLine RECORD;
+    Cur_Lines RECORD;
+    -- Parameter Variables
+    v_InvDate DATE;
+    v_Client_ID VARCHAR2(32) ;
+    v_Org_ID VARCHAR(32);
+    v_User_ID VARCHAR(32);
+    NextNo VARCHAR(32);
+ --OBTG:VARCHAR2--
+    v_Count NUMBER:=0;
+    PROCESS_ERROR BOOLEAN:=false;
+    END_PROCESS BOOLEAN:=false;
+    END_PROCESSING BOOLEAN:=false;
+    rowcount NUMBER;
+
+  BEGIN
+
+      SELECT MovementDate,
+      Processing,
+      Processed,
+      createdby,
+      AD_Client_ID,
+      AD_Org_ID
+    INTO v_InvDate,
+      v_IsProcessing,
+      v_IsProcessed,
+      v_User_ID,
+      v_Client_ID,
+      v_Org_ID
+    FROM M_Inventory
+    WHERE M_Inventory_ID = v_Record_ID;
+    --RAISE EXCEPTION 'v_Record_ID: % ;',v_Record_ID;
+
+   FOR Cur_InvLine IN(SELECT * FROM M_InventoryLine  WHERE M_Inventory_ID=v_Record_ID)
+    LOOP
+    --RAISE EXCEPTION 'QtyBook: %',Cur_InvLine.QtyBook;
+        AD_Sequence_Next('M_Transaction', v_Client_ID, NextNo) ;
+        INSERT
+        INTO M_Transaction
+          (
+            M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+            Created, CreatedBy, Updated, UpdatedBy,
+            MovementType, M_Locator_ID, M_Product_ID, M_AttributeSetInstance_ID,
+            MovementDate, MovementQty, M_InventoryLine_ID, M_Product_UOM_ID,
+            QuantityOrder, C_UOM_ID
+          )
+          VALUES
+          (
+            NextNo, Cur_InvLine.AD_Client_ID, Cur_InvLine.AD_Org_ID, 'Y',
+            now(), v_User_ID, now(), v_User_ID,
+            'M+', Cur_InvLine.M_Locator_ID, Cur_InvLine.M_Product_ID, COALESCE(Cur_InvLine.M_AttributeSetInstance_ID, '0'),
+            v_InvDate, Cur_InvLine.QtyCount-COALESCE(Cur_InvLine.QtyBook, 0), Cur_InvLine.M_InventoryLine_ID,
+            Cur_InvLine.M_Product_UOM_ID,
+            Cur_InvLine.QuantityOrder-COALESCE(Cur_InvLine.QuantityOrderBook, 0), Cur_InvLine.C_UOM_ID
+          );
+ 
+    END LOOP;
+   RETURN 'SUCCESS';
+END IM_INVENTORY_POST1
+]]></body>
+    </function>
+  </database>

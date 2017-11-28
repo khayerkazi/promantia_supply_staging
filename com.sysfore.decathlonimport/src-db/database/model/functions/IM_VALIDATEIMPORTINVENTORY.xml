@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPORTINVENTORY">
+    <function name="IM_VALIDATEIMPORTINVENTORY" type="VARCHAR">
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateInventory Record;
+  v_count NUMBER:=0;
+  v_qtyonhand NUMBER;
+  v_reservedqty NUMBER;
+  v_availqty NUMBER;
+  v_value VARCHAR(40);
+  v_whvalue VARCHAR(40);
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_inventoryErrorNotice VARCHAR(2000) := '';
+  v_formatErrorNotice  VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+   v_boxid VARCHAR(32) :='';
+    v_locid VARCHAR(32) :='';
+
+BEGIN
+
+  --SELECT 
+  
+  FOR validateInventory IN (SELECT distinct i.i_inventory_id,i.ad_client_id, i.ad_org_id,
+  i.createdby, i.updatedby, i.warehousevalue, i.value , i.qtycount,i.lot,i.locatorvalue
+  FROM i_inventory i WHERE i.ad_org_id = org_id)
+  LOOP
+--RAISE EXCEPTION 'i.ad_org_id: %',i.ad_org_id;
+--RAISE EXCEPTION 'org_id: %',org_id;
+  IF (validateInventory.warehousevalue IS NULL OR TRIM(BOTH ' ' FROM validateInventory.warehousevalue) = '') THEN
+  	v_inventoryErrorNotice := v_inventoryErrorNotice || 'Warehouse, ';
+  END IF;
+  
+  IF (validateInventory.value IS NULL OR TRIM(BOTH ' ' FROM validateInventory.value) = '') THEN
+  	v_inventoryErrorNotice := v_inventoryErrorNotice || 'Item Code, ';
+  END IF;
+
+  ---- Reservation Check for Inventory ----
+
+
+IF(validateInventory.lot IS NULL OR TRIM(BOTH ' ' FROM validateInventory.lot) = '') THEN
+
+SELECT SUM(qtyonhand),SUM(reservedqty),COUNT(1) INTO  v_qtyonhand,v_reservedqty,v_count FROM m_storage_detail WHERE m_product_id in (select m_product_id from m_product where name=validateInventory.value) and m_locator_id in (select m_locator_id from m_locator where value=validateInventory.locatorvalue) and m_attributesetinstance_id = '0';
+
+ELSE
+
+SELECT SUM(qtyonhand),SUM(reservedqty),COUNT(1) INTO  v_qtyonhand,v_reservedqty,v_count FROM m_storage_detail WHERE m_product_id in (select m_product_id from m_product where name=validateInventory.value) and m_locator_id in (select m_locator_id from m_locator where value=validateInventory.locatorvalue) and m_attributesetinstance_id in (select m_attributesetinstance_id from m_attributesetinstance where lot=validateInventory.lot);
+
+END IF;
+
+	IF (validateInventory.qtycount < v_reservedqty) THEN
+	v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Qty not available for inventory as qtyonhand :' || v_qtyonhand || ' and reservedqty : ' || v_reservedqty ||',';
+	END IF;
+        
+  ----check warehouse is existed
+
+  SELECT COUNT(*) AS total INTO v_count FROM m_warehouse WHERE lower(m_warehouse.name)=lower(validateInventory.warehousevalue);
+  IF (v_count = 0 ) THEN
+  	v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Warehouse is not defined, ';
+  END IF;
+
+  -----check if location exists
+  SELECT COUNT(*) AS total INTO v_count FROM m_locator WHERE lower(m_locator.value)=lower(validateInventory.locatorvalue);
+  IF (v_count = 0 ) THEN
+  	v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Location is not defined, ';
+  END IF;	
+
+-----check if box exists
+IF(validateInventory.lot is not null OR validateInventory.lot<>'')THEN
+  SELECT COUNT(*) AS total INTO v_count FROM m_attributesetinstance WHERE lower(m_attributesetinstance.lot)=lower(validateInventory.lot);
+  IF (v_count = 0 ) THEN
+  	v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Box Number is not defined, ';
+  END IF;
+  /*--check if the box num and locator exists
+  SELECT m_attributesetinstance_id INTO v_boxid FROM m_attributesetinstance WHERE lower(m_attributesetinstance.lot)=lower(validateInventory.lot);
+  SELECT m_locator_id INTO v_locid FROM m_locator WHERE lower(m_locator.value)=lower(validateInventory.locatorvalue);
+
+  SELECT count(*) into v_count From m_storage_detail where  m_attributesetinstance_id=v_boxid and m_locator_id=v_locid;
+  IF (v_count = 0 ) THEN
+  	v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Box Number in given Location does not exist, ';
+  END IF;*/
+END IF;
+  ------check product is existed
+  
+  SELECT COUNT(*) AS total INTO v_count FROM m_product WHERE lower(m_product.name)=lower(validateInventory.value);
+  IF (v_count = 0 ) THEN
+  	v_inventoryErrorNotice := v_inventoryErrorNotice || 'Item code is not defined, ';
+  END IF;
+
+  ----check warehouse is existed
+
+  SELECT COUNT(*) AS total INTO v_count FROM m_warehouse 
+  WHERE lower(m_warehouse.name)=lower(validateInventory.warehousevalue)
+  AND m_warehouse.ad_org_id = org_id;
+  IF (v_count = 0 ) THEN
+  	v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Not Authorized, ';
+  END IF;
+  
+  
+  --IF (validateInventory.warehousevalue IS NOT NULL) THEN 
+       select COUNT(*) 
+--value, warehousevalue,
+      INTO v_count 
+--v_value, v_whvalue,
+       from i_inventory
+       WHERE lower(i_inventory.value) = lower(validateInventory.value)
+       AND lower(i_inventory.warehousevalue) = lower(validateInventory.warehousevalue)
+       AND i_inventory.ad_org_id = org_id
+	   AND i_inventory.lot= lower(validateInventory.lot);
+	   
+       --group by value,warehousevalue
+       --having count(*) > 1;
+ --RAISE EXCEPTION 'v_count: %',v_count;
+
+IF (validateInventory.lot IS NOT NULL) THEN
+
+SELECT COUNT(*) AS total INTO v_count FROM i_inventory WHERE lower(i_inventory.value) = lower(validateInventory.value) AND lower(i_inventory.locatorvalue) = lower(validateInventory.locatorvalue) AND lower(i_inventory.lot) = lower(validateInventory.lot);
+
+   IF(v_count >1) THEN
+     v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Duplicate records are present, ';
+   END IF;
+
+ELSE 
+
+SELECT COUNT(*) AS total INTO v_count FROM i_inventory WHERE lower(i_inventory.value) = lower(validateInventory.value) AND lower(i_inventory.locatorvalue) = lower(validateInventory.locatorvalue);
+
+   IF(v_count >1) THEN
+     v_inventoryErrorNotice :=v_inventoryErrorNotice || 'Duplicate records are present, ';
+   END IF;
+
+END IF;
+    
+----
+ IF (v_inventoryErrorNotice != '') THEN
+  	  v_messageImport := v_inventoryErrorNotice; --|| 'is Mandatory ';
+  END IF;
+                         
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE i_inventory SET i_errormsg = v_messageImport, em_im_validated = 'Y' where i_inventory.i_inventory_id=validateInventory.i_inventory_id;
+  	
+  ELSE 
+    UPDATE i_inventory SET i_errormsg = v_messageImport, em_im_validated = 'N' where i_inventory.i_inventory_id=validateInventory.i_inventory_id;
+   
+   v_flag :=FALSE;
+  
+  END IF;
+  v_missingErrorNotice := '';
+  v_inventoryErrorNotice := '';
+  v_formatErrorNotice  := '';
+  v_messageImport := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPORTINVENTORY
+]]></body>
+    </function>
+  </database>

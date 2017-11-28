@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION NCI_CYCLIC_INVENTORY_HEADER">
+    <function name="NCI_CYCLIC_INVENTORY_HEADER" type="VARCHAR">
+      <parameter name="p_userid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_inv_id VARCHAR(32);
+v_pInstanceInv_ID VARCHAR(32);
+v_warehouse_id VARCHAR(32);
+v_ad_org VARCHAR(32);
+v_client_id VARCHAR(32);
+v_user_id VARCHAR(32);
+v_doc_id VARCHAR(32);
+
+BEGIN
+v_inv_id:=get_uuid();
+v_pInstanceInv_ID:=get_uuid();
+v_user_id:=p_userid;
+select m_warehouse_id into v_warehouse_id from m_warehouse where name like 'Saleable Omega';
+select ad_org_id into v_ad_org from ad_org where name = 'DSI Warehouse';
+select ad_client_id into v_client_id from ad_client where name = 'DSI';
+select 'CI' || to_char(nci_document_sequence_number.nextval,'fm099999') into v_doc_id; 
+
+
+ INSERT INTO m_inventory(m_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby,processing, processed, name, description, m_warehouse_id, movementdate,em_sw_movementtype)
+	VALUES (v_inv_id, v_client_id,v_ad_org,
+                'Y', now(),
+                v_user_id, now(),
+                v_user_id, 'N','N',
+                v_doc_id,
+                'CYCLIC INVENTORY FOR CAR',v_warehouse_id,
+                 now(),'PI');
+                 
+INSERT INTO ad_pinstance(ad_pinstance_id,ad_process_id,record_id,isprocessing, created,ad_user_id,updated,result,errormsg,ad_client_id,ad_org_id,createdby,updatedby,isactive)
+VALUES(v_pInstanceInv_ID,(select ad_process_id from ad_process where value='M_Inventory Post'),v_inv_id,'Y',now(),v_user_id,now(),'1','',v_client_id,v_ad_org,v_user_id,v_user_id,'Y');
+
+
+RETURN v_pInstanceInv_ID;
+END NCI_CYCLIC_INVENTORY_HEADER
+]]></body>
+    </function>
+  </database>

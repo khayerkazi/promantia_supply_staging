@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IBDCOM_DROP_CONSTRAINTS">
+    <function name="IBDCOM_DROP_CONSTRAINTS" type="NULL">
+      <parameter name="p_table_name" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[DECLARE r RECORD;
+ 
+BEGIN
+
+for r in
+ (select tc.constraint_name from  information_schema.table_constraints tc
+where tc.constraint_type = 'UNIQUE' and tc.table_name=p_table_name )
+
+loop
+                raise Notice 'dropping constraint %',r.constraint_name;
+
+	BEGIN
+		execute 'alter table '||p_table_name ||' drop constraint ' || r.constraint_name;
+	EXCEPTION WHEN others THEN
+		RAISE NOTICE 'constraint % of relation % does not exist',r.constraint_name,p_table_name;
+        END;
+end loop;
+
+RETURN ;
+END IBDCOM_DROP_CONSTRAINTS
+]]></body>
+    </function>
+  </database>

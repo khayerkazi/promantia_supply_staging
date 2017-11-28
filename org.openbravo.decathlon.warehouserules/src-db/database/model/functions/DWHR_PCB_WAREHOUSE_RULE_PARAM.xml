@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DWHR_PCB_WAREHOUSE_RULE_PARAM">
+    <function name="DWHR_PCB_WAREHOUSE_RULE_PARAM" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_orgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_productid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_uomid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_productuomid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_warehouse_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_locatorid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_attributesetinstanceid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_quantity" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_priority_warehouse_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_m_warehouse_rule_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_tableid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_auxid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_lineno" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_m_reservation_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_result" type="NUMERIC" mode="out">
+        <default/>
+      </parameter>
+      <parameter name="p_message" type="VARCHAR" mode="out">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* Proposes stock based on the following critiria:
+*  - Ordered using FIFO based on Attribute creation date
+*  - Grouped by Attibute (box)
+*  - Only propose those boxes that have the same or more quantity
+*    available than the PCB quantity
+************************************************************************/
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+
+  TYPE RECORD IS REF CURSOR;
+  Cur_MStock    RECORD;
+  Cur_Stock RECORD;
+
+  v_Count NUMBER:=1;
+  v_quantity NUMBER;
+  v_PCB NUMBER;
+  v_ProductID   VARCHAR2(32);
+  v_ProductName M_Product.NAME%TYPE;
+  v_Reservation_ID VARCHAR2(32);
+  v_Warehouse_ID VARCHAR2(32);
+  v_uomid VARCHAR2(32);
+  v_productuomid VARCHAR2(32);
+  v_attributesetinstanceid VARCHAR2(32);
+  v_locatorid VARCHAR2(32);
+  v_PriorityWarehouseID VARCHAR2(32);
+  v_ClientID VARCHAR2(32);
+  v_OrgID VARCHAR2(32);
+  v_AD_User_ID VARCHAR2(32);
+  v_has_reservation_parameter VARCHAR2(1);
+  
+BEGIN
+
+  v_ResultStr:='ReadingParameters';
+  v_has_reservation_parameter:='N';
+  
+  v_Quantity:=p_Quantity;
+  v_ProductID:=p_ProductID;
+  v_Reservation_ID:=p_M_Reservation_ID;
+  IF(v_Reservation_ID IS NOT NULL) THEN
+    v_has_reservation_parameter:='Y';
+  END IF;
+  v_Warehouse_ID:=p_warehouse_id;
+  v_OrgID:=p_OrgID;
+  v_ClientID:=p_ClientID;
+  
+  SELECT em_cl_pcb_qty
+  INTO v_PCB
+  FROM m_product
+  WHERE m_product_id = v_ProductID;
+  
+  v_AD_User_ID := '0';
+  
+IF (v_Warehouse_ID IS NULL) THEN
+ 
+    SELECT o.m_warehouse_id, o.ad_org_id, o.ad_client_id, o.createdby
+    INTO v_Warehouse_ID, v_OrgID, v_ClientID, v_AD_User_ID
+    FROM m_reservation r
+    JOIN c_orderline ol ON (ol.c_orderline_id = r.c_orderline_id)
+    JOIN c_order o ON (ol.c_order_id = o.c_order_id)
+    WHERE m_reservation_id = v_Reservation_ID;
+    
+    IF v_Warehouse_ID IS NULL THEN
+      RAISE_APPLICATION_ERROR(-20000, '@DWHR_Parameters_Error@') ;
+    END IF;
+  END IF;
+
+  DELETE FROM m_stock_proposed ms
+  WHERE ad_pinstance_id = pinstance_id;
+
+  -- Insert Values from Storage Detail
+  FOR Cur_Stock  IN (
+    select sd.m_storage_detail_id, 
+    case when (v_has_reservation_parameter = 'Y')
+    then (case when sd.allocated > 0 then 0 else sd.qtyonhand end)
+    else (case when sd.reservedqty > 0 then 0 else sd.qtyonhand end)
+    end as qty,
+    sum(qtyorderonhand) as QtyOrder,
+    sum(qtyonhand) as origqty,
+    sum(case when v_has_reservation_parameter = 'Y' then sd.allocatedqty else sd.reservedqty end) as reservedqty
+    from m_storage_detail sd
+    join m_locator l on (sd.m_locator_id = l.m_locator_id)
+    join m_attributesetinstance asi on (sd.m_attributesetinstance_id = asi.m_attributesetinstance_id)
+    where sd.m_product_id = v_ProductID
+    and sd.m_attributesetinstance_id <> '0'
+    and l.m_warehouse_id = v_Warehouse_ID
+    AND  l.em_obwhs_type <> 'OUT'
+    and l.isactive = 'Y'
+    and sd.qtyonhand = v_PCB
+    group by m_product_id, sd.m_locator_id, sd.m_attributesetinstance_id, 
+    asi.created, l.priorityno, sd.created, sd.m_storage_detail_id
+    order by asi.created, l.priorityno, sd.created 
+  ) LOOP
+    IF (cur_stock.qty > 0) THEN
+      INSERT INTO m_stock_proposed (
+          m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
+          created , createdby, updated, updatedby,
+          ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
+          isfinal
+      ) VALUES (
+          get_uuid(), v_ClientID, v_OrgID, 'Y',
+          now(), v_AD_User_ID, now(), v_AD_User_ID,
+          pinstance_id, v_Count, Cur_Stock.M_STORAGE_DETAIL_ID, Cur_Stock.Qty, Cur_Stock.QtyOrder,
+          'Y'
+      );
+      v_Count:=v_Count+1;
+    END IF;
+  END LOOP;
+  P_message:=v_ResultStr;
+  p_Result:=1;
+  RETURN;
+EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  P_message:=v_ResultStr;
+  p_Result:=0;
+  RETURN;
+END DWHR_PCB_WAREHOUSE_RULE_PARAM
+]]></body>
+    </function>
+  </database>

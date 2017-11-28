@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_COPY_ORGINAL_PO">
+    <function name="SW_COPY_ORGINAL_PO" type="NULL">
+      <parameter name="p_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_uuid character varying(32);
+  v_uuid_payment character varying(32);
+BEGIN
+
+v_uuid:=get_uuid();
+INSERT INTO c_order(
+		    c_order_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+		    updated, updatedby, issotrx, documentno, docstatus, docaction, 
+		    processing, processed, c_doctype_id, c_doctypetarget_id, description, 
+		    isdelivered, isinvoiced, isprinted, isselected, salesrep_id, 
+		    dateordered, datepromised, dateprinted, dateacct, c_bpartner_id, 
+		    billto_id, c_bpartner_location_id, poreference, isdiscountprinted, 
+		    c_currency_id, paymentrule, c_paymentterm_id, invoicerule, deliveryrule, 
+		    freightcostrule, freightamt, deliveryviarule, m_shipper_id, c_charge_id, 
+		    chargeamt, priorityrule, totallines, grandtotal, m_warehouse_id, 
+		    m_pricelist_id, istaxincluded, c_campaign_id, c_project_id, c_activity_id, 
+		    posted, ad_user_id, copyfrom, dropship_bpartner_id, dropship_location_id, 
+		    dropship_user_id, isselfservice, ad_orgtrx_id, user1_id, user2_id, 
+		    deliverynotes, c_incoterms_id, incotermsdescription, generatetemplate, 
+		    delivery_location_id, copyfrompo, fin_paymentmethod_id, fin_payment_priority_id, 
+		    rm_pickfromshipment, rm_receivematerials, rm_createinvoice, c_return_reason_id, 
+		    rm_addorphanline, a_asset_id, calculate_promotions, c_costcenter_id, 
+		    convertquotation, c_reject_reason_id, validuntil, quotation_id, 
+		    so_res_status, em_ds_totalitemqty, em_ds_totalpriceadj, em_ds_posno, 
+		    em_ds_time, em_ds_receiptno, em_ds_ratesatisfaction, em_ds_grandtotalamt, 
+		    em_ds_chargeamt, em_rc_mobileno, em_rc_oxylaneno, em_sw_hscode, 
+		    em_sw_modelcode, em_sw_modelname, em_sw_dept_id, em_sw_brand_id, 
+		    em_sw_expdeldate, em_sw_estshipdate, em_sw_actshipdate, em_sw_pricelistver, 
+		    em_sw_currency, em_sw_postatus, em_obwpl_generatepicking, 
+		    em_obwpl_isinpickinglist, em_sw_isauto_order, em_sw_po_reference,em_sw_is2post,em_cl_storedept_id)
+		select v_uuid, ad_client_id, ad_org_id, isactive, created, createdby, 
+		    updated, updatedby, issotrx, documentno, 'DR', 'CO', 
+		    processing, processed, c_doctype_id, c_doctypetarget_id, description, 
+		    isdelivered, isinvoiced, isprinted, isselected, salesrep_id, 
+		    dateordered, datepromised, dateprinted, dateacct, c_bpartner_id, 
+		    billto_id, c_bpartner_location_id, poreference, isdiscountprinted, 
+		    c_currency_id, paymentrule, c_paymentterm_id, invoicerule, deliveryrule, 
+		    freightcostrule, freightamt, deliveryviarule, m_shipper_id, c_charge_id, 
+		    chargeamt, priorityrule, 0, 0, m_warehouse_id, 
+		    m_pricelist_id, istaxincluded, c_campaign_id, c_project_id, c_activity_id, 
+		    posted, ad_user_id, copyfrom, dropship_bpartner_id, dropship_location_id, 
+		    dropship_user_id, isselfservice, ad_orgtrx_id, user1_id, user2_id, 
+		    deliverynotes, c_incoterms_id, incotermsdescription, generatetemplate, 
+		    delivery_location_id, copyfrompo, fin_paymentmethod_id, fin_payment_priority_id, 
+		    rm_pickfromshipment, rm_receivematerials, rm_createinvoice, c_return_reason_id, 
+		    rm_addorphanline, a_asset_id, calculate_promotions, c_costcenter_id, 
+		    convertquotation, c_reject_reason_id, validuntil, quotation_id, 
+		    so_res_status, em_ds_totalitemqty, em_ds_totalpriceadj, em_ds_posno, 
+		    em_ds_time, em_ds_receiptno, em_ds_ratesatisfaction, em_ds_grandtotalamt, 
+		    em_ds_chargeamt, em_rc_mobileno, em_rc_oxylaneno, em_sw_hscode, 
+		    em_sw_modelcode, em_sw_modelname, em_sw_dept_id, em_sw_brand_id, 
+		    em_sw_expdeldate, em_sw_estshipdate, em_sw_actshipdate, em_sw_pricelistver, 
+		    em_sw_currency, em_sw_postatus, em_obwpl_generatepicking, 
+		    em_obwpl_isinpickinglist, 'Y', '','Y', em_cl_storedept_id
+		    from c_order
+		    where c_order_id = p_order_id;
+
+		    update c_orderline
+		    set c_order_id = v_uuid
+		    where c_order_id = p_order_id;
+     
+
+                    --insert into temp_table
+		    --select count(1) from c_orderline where c_order_id = v_uuid;
+
+
+		    C_ORDER_POST1(NULL,v_uuid);
+END SW_COPY_ORGINAL_PO
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPFOBPRICELIST">
+    <function name="IM_IMPFOBPRICELIST" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[fobUpdateCursor RECORD;
+  --catalogCreateCursor RECORD;
+
+  v_errorNotice VARCHAR(2000) := '';
+  v_validated NUMBER:=0;
+  v_updatedCounter NUMBER:=0;
+  v_insertedCounter NUMBER:=0; 
+  v_count NUMBER:=0;
+  v_itemcode_id VARCHAR(32):='';
+  v_pricelistversion_id VARCHAR(32):='';
+  v_productprice_id VARCHAR(32):=''; 
+
+  v_fobPrice NUMBER:=0;
+  
+  
+BEGIN
+
+ Select count(*) INTO v_validated from im_fobprice where validated='N';
+ 
+ IF v_validated != 0 THEN
+  
+ 	RAISE EXCEPTION 'Validation is not Completed';
+    
+ END IF;
+  
+  FOR fobUpdateCursor IN (SELECT im_fobprice_id, ad_client_id, ad_org_id, isactive, created, 
+       createdby, updated, updatedby, pricelistversion, itemcode, fobprice, im_errormsg, validateimport, 
+       validated, processing  FROM im_fobprice)
+  LOOP 
+  
+	select m_product_id INTO v_itemcode_id from m_product where name = fobUpdateCursor.itemcode;
+
+	select m_pricelist_version_id INTO v_pricelistversion_id from m_pricelist_version where lower(name) = lower(fobUpdateCursor.pricelistversion);
+
+	SELECT COUNT(*) AS total INTO v_count FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+
+
+  IF (v_count = 0 ) THEN
+
+	INSERT INTO m_productprice(
+		m_productprice_id, m_pricelist_version_id, m_product_id, ad_client_id, 
+		ad_org_id, isactive, created, createdby, updated, updatedby, 
+		em_cl_fobprice 
+		)
+	VALUES (get_uuid(), v_pricelistversion_id, v_itemcode_id, fobUpdateCursor.ad_client_id, 
+		fobUpdateCursor.ad_org_id, fobUpdateCursor.isactive, fobUpdateCursor.created, fobUpdateCursor.createdby, fobUpdateCursor.updated, fobUpdateCursor.updatedby, 
+		coalesce(fobUpdateCursor.fobprice,0));
+	ELSE
+
+	SELECT m_productprice_id,em_cl_fobprice  INTO  
+		v_productprice_id,v_fobPrice       
+	FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+  
+	IF(fobUpdateCursor.fobprice != 0 ) THEN
+		v_fobPrice :=fobUpdateCursor.fobprice;
+	END IF; 	
+
+	UPDATE m_productprice
+		SET updated=fobUpdateCursor.updated, updatedby=fobUpdateCursor.updatedby, 
+			em_cl_fobprice=v_fobPrice
+	WHERE m_productprice_id=v_productprice_id;
+ 
+  END IF; 
+   
+	delete from im_fobprice where im_fobprice_id = fobUpdateCursor.im_fobprice_id;                               
+		v_updatedCounter := v_updatedCounter+1; 
+	
+	v_fobPrice :=0;
+	
+   END LOOP;
+	v_updatedCounter := v_updatedCounter - v_insertedCounter;
+RETURN 'Successfully Inserted '||v_insertedCounter|| ' and Successfully updated ' || v_updatedCounter || ' items.' ;
+END IM_IMPFOBPRICELIST
+]]></body>
+    </function>
+  </database>

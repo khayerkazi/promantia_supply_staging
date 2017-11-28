@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+   
+   
+   <bean>
+       <name>OrdersWS</name>
+       <class>in.decathlon.ibud.orders.client.SalesOrderListner</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>OrdersWS_bulk</name>
+       <class>in.decathlon.ibud.orders.client.SalesOrderBulkListner</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>TestOrderWS</name>
+       <class>in.decathlon.ibud.orders.server.TestPO</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   
+</provider>
+

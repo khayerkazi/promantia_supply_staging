@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER IBUDS_UPDATE_MOVEMENTTYPE_TRG">
+    <trigger name="IBUDS_UPDATE_MOVEMENTTYPE_TRG" table="M_INOUT" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+document_type_v varchar(100);
+v_purchase_order_id varchar(100);
+v_isimplanted varchar(1);
+v_isdirectdelivery varchar(1);
+
+  
+    
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+	select m_inout.c_doctype_id,m_inout.c_order_id into  document_type_v,v_purchase_order_id
+        from m_inout 
+        join c_doctype on c_doctype.c_doctype_id=m_inout.c_doctype_id
+        where m_inout.m_inout_id=:new.m_inout_id;
+        
+select em_sw_isimplantation, em_facst_is_direct_delivery into v_isimplanted, v_isdirectdelivery from c_order where c_order_id = :new.c_order_id;
+
+--Update Goods Shipment sw_movement type to SRQ
+
+if(v_isdirectdelivery='Y' and coalesce(:new.EM_Sw_Movement,'')<>'FACST_DD' )
+then
+                :new.EM_Sw_Movement='FACST_DD';
+ELSIF(:NEW.em_ibodtr_correction='N' and :new.c_doctype_id is not null and :new.EM_Sw_Movement<>'SRQ' 
+and :NEW.em_ibodtr_vaidate='N' and v_isimplanted='N'
+and v_isdirectdelivery='N')
+	then
+		:new.EM_Sw_Movement='SRQ';
+ELSIF(:NEW.em_ibodtr_correction='N' and document_type_v  is not null and :new.EM_Sw_Movement<>'IMPL' 
+and :NEW.em_ibodtr_vaidate='N' and v_isimplanted='Y' and v_isdirectdelivery='N')
+then
+		:new.EM_Sw_Movement='IMPL';
+	end if;
+END IBUDS_UPDATE_MOVEMENTTYPE_TRG
+]]></body>
+    </trigger>
+  </database>

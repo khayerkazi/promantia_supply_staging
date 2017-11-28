@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DJE_COMPANY_PROCE">
+    <function name="DJE_COMPANY_PROCE" type="NULL">
+      <body><![CDATA[Cur_Company RECORD;
+Cur_Bpartner RECORD;
+Cur_Customer_Bpgroup  RECORD;
+Cur_Vendor_Bpgroup  RECORD;
+
+v_Vendor_Seqno                    VARCHAR(32); 
+v_Campany_Seqno                   VARCHAR(32); 
+v_Acct_Length                     NUMBER(10);
+v_Subacct_Length                  NUMBER(10); 
+v_BP_Acct_ID                      VARCHAR(32); 
+v_C_Receivable_Acct               VARCHAR(32); 
+v_C_Prepayment_Acct               VARCHAR(32); 
+v_C_Prepayment                    VARCHAR(32); 
+v_seq_name		          VARCHAR(32); 
+v_Sequence_No		          VARCHAR(32); 
+v_C_AcctSchema_ID	          VARCHAR(32); 
+v_isbpnewaccount                  CHARACTER(1);
+v_em_dje_iscmnewaccount           CHARACTER(1);
+v_IsCustomer                      CHARACTER(1);
+v_C_Receivable                    VARCHAR(32); 
+v_C_Receivable_Customer_Acct      VARCHAR(32); 
+v_C_Prepayment_Customer_Acct      VARCHAR(32); 
+v_c_bp_group_id                   VARCHAR(32); 
+v_c_acctschema_customer_id        VARCHAR(32);
+v_C_Receivable_Vendor_Acct        VARCHAR(32);
+v_C_Prepayment_Vendor_Acct        VARCHAR(32);
+v_c_acctschema_vendor_id          VARCHAR(32);
+v_V_Liability_Acct          VARCHAR(32);
+ v_V_Liability         VARCHAR(32);
+
+BEGIN 
+
+SELECT 
+ad_Org_AcctSchema.em_dje_sequence_cm_id,  
+ad_Org_AcctSchema.acct_length, 
+ad_Org_AcctSchema.subacct_length, 
+ad_Org_AcctSchema.C_AcctSchema_ID, 
+C_AcctSchema_Default.C_Receivable_Acct,
+C_AcctSchema_Default.C_Prepayment_Acct,
+ad_Org_AcctSchema.em_dje_iscmnewaccount
+
+INTO 
+v_Campany_Seqno,
+v_Acct_Length,
+v_Subacct_Length,
+v_C_AcctSchema_ID,
+v_C_Receivable,
+v_C_Prepayment,
+v_em_dje_iscmnewaccount
+FROM  C_AcctSchema_Default , ad_Org_AcctSchema 
+WHERE C_AcctSchema_Default.C_AcctSchema_ID = ad_Org_AcctSchema.C_AcctSchema_ID
+AND ad_Org_AcctSchema.em_dje_iscmnewaccount = 'Y';
+
+IF (v_em_dje_iscmnewaccount='Y') THEN
+
+/*
+Retrieving the sequence NUMBER for sub account.	
+*/
+SELECT NAME INTO v_seq_name FROM AD_SEQUENCE 
+WHERE AD_SEQUENCE.AD_SEQUENCE_ID=v_Campany_Seqno;
+
+FOR  Cur_Company IN (select rc_company.rc_company_id,rc_company.companyname,rc_company.ad_client_id,rc_company.ad_org_id,rc_company.createdby,rc_company.updatedby from rc_company left join DJE_Company_Accounting on dje_company_accounting.rc_company_id = rc_company.rc_company_id where dje_company_accounting.rc_company_id is null) 
+
+LOOP
+/*
+Retrieving the receivable account NUMBER
+*/
+AD_Sequence_Doc(v_seq_name, Cur_Company.AD_Client_ID, 'Y', v_Sequence_No);
+
+c_validcombination_clone(v_C_Receivable, v_Sequence_No, Cur_Company.companyname, v_Acct_Length, v_Subacct_Length, v_C_Receivable_Acct);
+
+
+IF(v_C_Prepayment IS NOT NULL) THEN
+c_validcombination_clone(v_C_Prepayment, v_Sequence_No, Cur_Company.companyname, v_Acct_Length, v_Subacct_Length, v_C_Prepayment_Acct);
+
+END IF;
+
+
+INSERT INTO DJE_Company_Accounting
+(DJE_Company_Accounting_ID, RC_Company_ID, C_AcctSchema_ID,
+AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,
+DJE_Company_Receivables, DJE_Company_Prepayment)
+VALUES
+(get_uuid(), Cur_Company.RC_Company_ID, v_C_AcctSchema_ID,
+Cur_Company.AD_Client_ID, Cur_Company.AD_Org_ID, 'Y', now(), Cur_Company.CreatedBy, now(), Cur_Company.UpdatedBy,
+v_C_Receivable_Acct, v_C_Prepayment_Acct);
+
+
+FOR  Cur_Bpartner IN (select c_bpartner.c_bpartner_id, C_BP_Customer_Acct.C_BPartner_ID as Acct_Bpartner_id, c_bpartner.Name,c_bpartner.ad_client_id,c_bpartner.ad_org_id,c_bpartner.createdby,c_bpartner.updatedby,c_bpartner.iscustomer,c_bpartner.em_rc_company_id from c_bpartner 
+left join C_BP_Customer_Acct on C_BP_Customer_Acct.C_BPartner_ID = C_Bpartner.C_BPartner_ID 
+where c_bpartner.em_rc_company_id = Cur_Company.rc_company_id )
+LOOP
+
+
+IF(Cur_Bpartner.Acct_Bpartner_id IS NOT NULL) THEN
+
+UPDATE C_BP_CUSTOMER_ACCT SET C_Receivable_Acct = v_C_Receivable_Acct,C_Prepayment_Acct=v_C_Prepayment_Acct,C_AcctSchema_ID=v_C_AcctSchema_ID  WHERE C_BPARTNER_ID = Cur_Bpartner.C_BPartner_ID;	
+
+
+
+ELSE
+
+INSERT INTO C_BP_Customer_Acct(C_BP_Customer_Acct_ID,C_BPartner_ID, C_AcctSchema_ID,AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,
+C_Receivable_Acct, C_Prepayment_Acct)
+VALUES (get_uuid(),Cur_Bpartner.C_BPartner_ID, v_C_AcctSchema_ID, Cur_Bpartner.AD_Client_ID, Cur_Bpartner.AD_Org_ID, 'Y', now(), Cur_Bpartner.CreatedBy, now(), Cur_Bpartner.UpdatedBy, v_C_Receivable_Acct, v_C_Prepayment_Acct);
+
+
+
+END IF ;
+
+END LOOP;	
+
+
+
+END LOOP;
+
+END IF;
+
+
+FOR  Cur_Customer_Bpgroup IN (select c_bpartner.c_bpartner_id, C_BP_Customer_Acct.C_BPartner_ID as Acct_Customer_Bpartner_id,c_bpartner.Name,c_bpartner.ad_client_id,c_bpartner.ad_org_id,c_bpartner.createdby,c_bpartner.updatedby,c_bpartner.iscustomer,c_bpartner.c_bp_group_id from c_bpartner 
+left join C_BP_Customer_Acct on C_BP_Customer_Acct.C_BPartner_ID = C_Bpartner.C_BPartner_ID 
+where c_bpartner.em_rc_company_id is null AND c_bpartner.iscustomer = 'Y')
+LOOP
+
+
+SELECT 
+C_BP_Group_Acct.C_Receivable_Acct, 
+C_BP_Group_Acct.C_Prepayment_Acct,
+C_BP_Group_Acct.c_acctschema_id
+
+INTO 
+v_C_Receivable_Customer_Acct,
+v_C_Prepayment_Customer_Acct,
+v_c_acctschema_customer_id
+
+FROM  C_BP_Group_Acct
+WHERE C_BP_Group_Acct.c_bp_group_id = Cur_Customer_Bpgroup.c_bp_group_id;
+
+IF(Cur_Customer_Bpgroup.Acct_Customer_Bpartner_id IS NOT NULL) THEN
+
+UPDATE C_BP_CUSTOMER_ACCT SET C_Receivable_Acct=v_C_Receivable_Customer_Acct,C_Prepayment_Acct=v_C_Prepayment_Customer_Acct,C_AcctSchema_ID=v_c_acctschema_customer_id WHERE C_BPARTNER_ID = Cur_Customer_Bpgroup.C_BPartner_ID;	
+
+
+ELSE
+
+INSERT INTO C_BP_Customer_Acct(C_BP_Customer_Acct_ID, C_BPartner_ID, C_AcctSchema_ID,AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,
+C_Receivable_Acct, C_Prepayment_Acct)
+VALUES (get_uuid(),Cur_Customer_Bpgroup.C_BPartner_ID, v_c_acctschema_customer_id, Cur_Customer_Bpgroup.AD_Client_ID, Cur_Customer_Bpgroup.AD_Org_ID, 'Y', now(), Cur_Customer_Bpgroup.CreatedBy, now(), Cur_Customer_Bpgroup.UpdatedBy, v_C_Receivable_Customer_Acct, 
+v_C_Prepayment_Customer_Acct);
+
+
+END IF;
+END LOOP;
+END DJE_COMPANY_PROCE
+]]></body>
+    </function>
+  </database>

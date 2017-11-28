@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_PRODUCT">
+    <table name="M_PRODUCT" primaryKey="M_PRODUCT_KEY">
+      <unique name="EM_DCT_PRODUCT_NAMEUNIQUE">
+        <unique-column name="NAME"/>
+      </unique>
+      <unique name="EM_DCT_PRODUCT_UPCUNIQUE">
+        <unique-column name="UPC"/>
+      </unique>
+    </table>
+  </database>

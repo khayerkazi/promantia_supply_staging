@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_PRODUCT">
+    <table name="M_PRODUCT" primaryKey="M_PRODUCT_KEY">
+      <index name="EM_ICT_PRODUCT_MODEL" unique="false">
+        <index-column name="EM_CL_MODEL_ID"/>
+      </index>
+    </table>
+  </database>

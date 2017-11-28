@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_INOUTLINE">
+    <table name="M_INOUTLINE" primaryKey="M_INOUTLINE_KEY">
+      <column name="EM_SW_STOCK_RESERVATION" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

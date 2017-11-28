@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE AD_ORG">
+    <table name="AD_ORG" primaryKey="AD_ORG_KEY">
+      <column name="EM_IDSD_DCPRIORITY" primaryKey="false" required="false" type="DECIMAL" size="4,0" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_IDSD_ODRCLSTIME" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

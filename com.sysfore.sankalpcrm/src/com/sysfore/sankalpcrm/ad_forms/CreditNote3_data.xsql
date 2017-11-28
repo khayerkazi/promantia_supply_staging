@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2008 Openbravo SLU 
+ * All Rights Reserved.  (SW_SRECEIPT.DOCUMENTNO  ||' & ' ||CL_BRAND.NAME) AS DOCUMENTNO,
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<SqlClass name="CreditNote3Data" package="com.sysfore.sankalpcrm.ad_forms">
+	<SqlMethod name="selectactivecreditnoteline" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       SELECT rc_creditnoteline_id as ID, name as itemcode, docno as cbillno, echangeredundprice as refprice, refundexchangeqty as refqty,linetotal as lineamt, reason as reason, comment as comment from rc_creditnoteline where rc_creditnote_id=?
+	   ]]>
+    </Sql>
+	<Parameter name="rcCreditnoteId"/>
+	</SqlMethod>
+	<SqlMethod name="selectdocno" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+	<Sql>
+	<![CDATA[
+     select c.documentno as docno from c_order c, c_orderline l where c.c_order_id=l.c_order_id and l.c_orderline_id=?
+	]]>
+    </Sql>
+	<Parameter name="cOrderlineId"/>
+	</SqlMethod>
+	<SqlMethod name="maxdocnonew" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select max(documentno) from sw_srequisition
+			]]>
+		</Sql>
+		</SqlMethod>
+	<SqlMethod name="selectmaxodcno" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+	<Sql>
+	<![CDATA[
+     select max(documentno) from rc_creditnote
+	]]>
+    </Sql>
+	</SqlMethod>
+	<SqlMethod name="selectuuid" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+	<Sql>
+	<![CDATA[
+     select get_uuid() as uuid
+	]]>
+    </Sql>
+	</SqlMethod>
+	<SqlMethod name="insert" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      INSERT INTO rc_creditnote(rc_creditnote_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, exchangedate, c_bpartner_id, crtype, processed, acctype, processing, documentno)
+	  VALUES(?,?,?,'Y',now(),?,now(),?,now(),?,?,'N',?,'Y',TO_NUMBER(?))	  
+	  </Sql>
+	  <Parameter name="swCreditnoteId"/>
+	  <Parameter name="adClientId"/>
+      <Parameter name="adOrgId"/>
+      <Parameter name="createdby"/>
+      <Parameter name="updatedby"/>
+	  <Parameter name="emCBpartherId"/>
+	  <Parameter name="rcType"/>
+	  <Parameter name="acctype"/>
+	  <Parameter name="documentno"/>	  
+      </SqlMethod>
+	<SqlMethod name="selectlocaterid" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+	<Sql>
+	<![CDATA[
+     select m_locator_id from m_locator where m_warehouse_id=?
+	]]>
+    </Sql>
+	<Parameter name="mWarehouseId"/>
+	</SqlMethod>	
+	<SqlMethod name="selectproductid" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+	<Sql>
+	<![CDATA[
+     select m_product_id from m_product where name=?
+	]]>
+    </Sql>
+	<Parameter name="name"/>
+	</SqlMethod>
+	<SqlMethod name="mname" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select em_cl_modelname as modelname from m_product where name=?
+			]]>
+		</Sql>
+		<Parameter name="name"/>
+	</SqlMethod>
+	<SqlMethod name="msize" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select em_cl_size as size from m_product where name=?
+			]]>
+		</Sql>
+		<Parameter name="name"/>
+	</SqlMethod>
+	<SqlClassComment>Active Member</SqlClassComment>
+	<SqlMethod name="updateactivemember" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      update rc_creditnote set c_bpartner_id=? where processed='N' and processing='Y' and rc_creditnote_id=?  
+	  </Sql>
+	  <Parameter name="cbpartnerId"/>
+	  <Parameter name="rcCreditnoteId"/>
+     </SqlMethod>
+   	</SqlClass>

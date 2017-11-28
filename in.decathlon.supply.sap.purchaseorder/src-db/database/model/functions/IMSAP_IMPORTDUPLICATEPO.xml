@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IMSAP_IMPORTDUPLICATEPO">
+    <function name="IMSAP_IMPORTDUPLICATEPO" type="VARCHAR">
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[DECLARE
+  validateduplicatepo Record;
+  validatepo Record;
+  importpo Record;
+  importdistinctpo Record;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_flag boolean := FALSE;
+  v_validateflag NUMBER:=0;
+    v_count NUMBER:=0;
+  v_errormsg VARCHAR(2000) := '';
+  v_C_DocType_ID VARCHAR(32):=NULL;
+v_DocumentNo VARCHAR(30) ;
+v_C_Bpartner_ID VARCHAR(32):='';
+v_C_Bpartner_Location_ID VARCHAR(32):='';
+v_C_Order_ID VARCHAR(32):=NULL;
+v_C_Order_Line_ID VARCHAR(32):=NULL;
+v_M_Product_ID VARCHAR(32):=NULL;
+v_FOB_Price NUMBER;
+v_Tax_ID VARCHAR(32):=NULL;
+v_Tax_Rate NUMBER;
+v_Cession_Price VARCHAR(32):=NULL;
+v_currencyID VARCHAR(32):=NULL;
+v_Vol_PCB NUMBER;
+v_Weight NUMBER;
+v_GrossWt NUMBER;
+v_MRP NUMBER;
+v_CC NUMBER;
+v_Color VARCHAR(32):=NULL;
+v_Size VARCHAR(30):=NULL;
+v_Line NUMBER:=0;
+v_LineNet_Amt NUMBER;
+v_Tax_Amt NUMBER;
+v_NoOfParcel NUMBER;
+v_Ad_Client_ID VARCHAR(32):='187D8FC945A5481CB41B3EE767F80DBB';
+v_Grand_Total_Amt NUMBER:=0;
+v_headerflag NUMBER:=0;
+v_warehouseId VARCHAR(32):='';
+v_modelCode VARCHAR(32):='';
+v_modelName VARCHAR(120):='';
+v_deptId VARCHAR(32):='';
+v_brandId VARCHAR(32):='';
+v_prlistverId VARCHAR(32):='';
+
+BEGIN
+--get document no
+IF(v_C_DocType_ID IS NULL) THEN
+	v_C_DocType_ID :='C7CD4AC8AC414678A525AB7AE20D718C'; --"Purchase Order   (Decathlon)"
+        IF(v_C_DocType_ID IS NULL) THEN
+           RAISE_APPLICATION_ERROR(-20000, '@PODocumenttypenotfound@');
+        END IF;
+END IF;
+
+	Ad_Sequence_Doctype(v_C_DocType_ID, v_Ad_Client_ID, 'Y', v_DocumentNo) ;
+--import sap po starts
+FOR importdistinctpo IN (SELECT distinct poreference FROM imsap_importduplicate_po 
+			 WHERE validated='Y' AND create_po='Y' AND createdby=user_id AND processed='N' order by poreference) LOOP
+v_headerflag=0;	
+FOR importpo IN 
+(SELECT imsap_importduplicate_po_id, created, createdby, updated, updatedby, poreference, itemcode, orderedqty, confirmedqty, net_order_price, 
+ currency, suppliercode, cdd, edd, orderstatus, comments, validated, processing, processed, validateimport, errormsg, create_po, duplicate_po, 
+ status_count, created_by, changed_by FROM imsap_importduplicate_po WHERE poreference = importdistinctpo.poreference AND validated='Y' 
+ AND create_po='Y' AND createdby=user_id AND processed='N') LOOP
+
+--set variables
+v_FOB_Price:=importpo.net_order_price;
+
+  select count(1) into v_count from c_order where poreference = importpo.poreference;
+  IF (v_count>0) THEN
+
+  --update c_order as it exists
+
+ELSE 
+ --insert newly
+--get SupplierId and Supplier Location ID
+SELECT b.c_bpartner_id,l.c_bpartner_location_id into v_C_Bpartner_ID,v_C_Bpartner_Location_ID
+From c_bpartner b,c_bpartner_location l where b.em_cl_supplierno=importpo.suppliercode and b.isvendor='Y'
+and b.c_bpartner_id=l.c_bpartner_id;
+
+IF (v_C_Bpartner_Location_ID IS NULL OR v_C_Bpartner_Location_ID='') THEN
+v_C_Bpartner_Location_ID='CF474260D60641439922F679EE439FD9';
+END IF;
+
+--get WarhouseID
+select m_warehouse_id into v_warehouseId from m_warehouse where name='Saleable Whitefield';
+
+--get productid,volume,pcb,grosswt,wt,size,color,weight,taxcategoryid
+SELECT p.m_product_id,p.em_cl_volume_pcb,p.em_cl_grosswt_pcb,p.weight,t.c_tax_id,t.rate 
+,p.em_cl_size,c.name,p.em_cl_grosswt_pcb,pr.em_cl_mrpprice,pr.em_cl_ccunitprice
+into v_M_Product_ID,v_Vol_PCB,v_GrossWt,v_Weight,v_Tax_ID,v_Tax_Rate,v_Size,v_Color,v_GrossWt
+From m_productprice pr,m_product p,c_tax t,cl_color c
+where p.name=importpo.itemcode and p.m_product_id=pr.m_product_id
+and pr.ad_org_id='0'
+and p.c_taxcategory_id=t.c_taxcategory_id and p.m_product_id=pr.m_product_id and p.em_cl_color_id=c.cl_color_id;
+
+--get Currency ID
+select c_currency_id into v_currencyID from c_currency where iso_code=importpo.currency;
+
+--get pricelist id
+v_prlistverId='F6614863A18E4A64B5B6D316BDE368FD'; 
+
+--others
+SELECT distinct p.em_cl_modelcode,p.em_cl_modelname, d.cl_department_id,b.cl_brand_id into v_modelCode,v_modelName,v_deptId,v_brandId 
+From m_product p,cl_department d,cl_brand b,cl_model m
+where p.name=importpo.itemcode and m.cl_department_id=d.cl_department_id 
+and p.em_cl_model_id=m.cl_model_id and m.cl_brand_id=b.cl_brand_id;
+
+IF(v_Vol_PCB=0) THEN
+v_Vol_PCB=1;
+END IF;
+
+v_LineNet_Amt=(to_number(importpo.orderedqty) * (v_FOB_Price));
+v_Tax_Amt=((((v_FOB_Price) / 100) * (v_Tax_Rate))* to_number(importpo.orderedqty));
+v_NoOfParcel=(to_number(importpo.orderedqty) / v_Vol_PCB);
+
+--get header id
+
+v_C_Order_Line_ID=get_uuid();
+
+--Create Header
+if(v_headerflag=0) THEN
+v_C_Order_ID=get_uuid();
+
+INSERT INTO c_order(c_order_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, issotrx, 
+documentno, docstatus,docaction, processing, processed, c_doctype_id, c_doctypetarget_id, description, isdelivered, 
+isinvoiced, isprinted,isselected,dateordered, datepromised, dateacct, c_bpartner_id, billto_id, c_bpartner_location_id,
+poreference,isdiscountprinted, c_currency_id,paymentrule, c_paymentterm_id, invoicerule, deliveryrule, freightcostrule, 
+deliveryviarule, priorityrule, totallines,grandtotal, m_warehouse_id, m_pricelist_id, posted, copyfrom, isselfservice, 
+generatetemplate, copyfrompo, em_ds_totalpriceadj,em_ds_grandtotalamt, em_sw_modelcode, em_sw_modelname, em_sw_dept_id, 
+em_sw_brand_id, em_sw_expdeldate, em_sw_estshipdate, em_sw_actshipdate,em_sw_pricelistver, em_sw_currency, em_sw_postatus)
+VALUES 
+(v_C_Order_ID,'187D8FC945A5481CB41B3EE767F80DBB','603C6A266B4C40BCAD87C5C43DDF53EE','Y', importpo.created,user_id, importpo.updated,user_id,'N',
+v_DocumentNo,'DR', 'CO', 'N','N','C7CD4AC8AC414678A525AB7AE20D718C','C7CD4AC8AC414678A525AB7AE20D718C','Bulk PO Upload','N',
+'N', 'N', 'N',now(), importpo.cdd, now(),v_C_Bpartner_ID,v_C_Bpartner_Location_ID,v_C_Bpartner_Location_ID,importpo.poreference,
+'N',v_currencyID, 'P','A4B18FE74DF64897B71663B0E57A4EFE', 'D', 'A', 'I', 'P', '5','0.0', v_Grand_Total_Amt,v_warehouseId,
+'A6178825A4CD48A5BFF15471CA4AB823','N', 'N', 'N', 'N', 'N', '0', '0.00',v_modelCode,v_modelName,v_deptId,v_brandId, 
+TO_DATE(importpo.cdd),TO_DATE(importpo.cdd),TO_DATE(importpo.cdd), v_prlistverId,v_currencyID, 'DR');
+
+
+v_LineNet_Amt=(to_number(importpo.orderedqty) * (v_FOB_Price));
+v_Grand_Total_Amt=v_Grand_Total_Amt+v_LineNet_Amt;
+
+v_Line=v_Line+10;
+insert into c_orderline(c_orderline_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, 
+updatedby, c_order_id, line, c_bpartner_id, c_bpartner_location_id, dateordered, datepromised, dateinvoiced, 
+m_product_id, m_warehouse_id, directship, c_uom_id, qtyordered, qtyreserved, qtydelivered, qtyinvoiced, 
+c_currency_id, pricelist, priceactual, pricelimit, linenetamt, freightamt, chargeamt, c_tax_id, isdescription, 
+pricestd, cancelpricead, iseditlinenetamt, taxbaseamt, em_ds_taxamount, em_ds_unitqty, em_ds_cessionprice, 
+em_sw_orderqty, em_sw_suppliercode, em_sw_volpcb, em_sw_ntwtpcb, em_sw_grwtpcb, em_sw_noofparcel, em_sw_itemcode, 
+em_cl_modelname, em_cl_color_id, em_cl_size, em_ds_ccunitprice, em_ds_mrpprice,em_sw_fob  ) 
+VALUES(v_C_Order_Line_ID,'187D8FC945A5481CB41B3EE767F80DBB','603C6A266B4C40BCAD87C5C43DDF53EE','Y',importpo.created,user_id,importpo.updated, 
+user_id,v_C_Order_ID,v_Line, v_C_Bpartner_ID, v_C_Bpartner_Location_ID, now(), TO_DATE(importpo.cdd), now(),
+v_M_Product_ID,v_warehouseId,'N', '100', to_number(importpo.orderedqty), 0, 0, 0, 
+v_currencyID,0,v_FOB_Price,0, v_LineNet_Amt, 0, 0, v_Tax_ID, 'N',
+0.0,'N','N', 0, v_Tax_Amt,0,v_FOB_Price,
+to_number(importpo.orderedqty),importpo.suppliercode,v_Vol_PCB,v_Weight,v_GrossWt,v_NoOfParcel,importpo.itemcode,
+v_modelName,v_Color,v_Size,v_FOB_Price,v_FOB_Price,v_FOB_Price);
+
+	v_flag:=TRUE;		
+	v_headerflag=1;	
+ELSE 
+
+v_LineNet_Amt=(to_number(importpo.orderedqty) * (v_FOB_Price));
+v_Grand_Total_Amt=v_Grand_Total_Amt+v_LineNet_Amt;
+
+v_Line=v_Line+10;
+insert into c_orderline(c_orderline_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, 
+updatedby, c_order_id, line, c_bpartner_id, c_bpartner_location_id, dateordered, datepromised, dateinvoiced, 
+m_product_id, m_warehouse_id, directship, c_uom_id, qtyordered, qtyreserved, qtydelivered, qtyinvoiced, 
+c_currency_id, pricelist, priceactual, pricelimit, linenetamt, freightamt, chargeamt, c_tax_id, isdescription, 
+pricestd, cancelpricead, iseditlinenetamt, taxbaseamt, em_ds_taxamount, em_ds_unitqty, em_ds_cessionprice, 
+em_sw_orderqty, em_sw_suppliercode, em_sw_volpcb, em_sw_ntwtpcb, em_sw_grwtpcb, em_sw_noofparcel, em_sw_itemcode, 
+em_cl_modelname, em_cl_color_id, em_cl_size, em_ds_ccunitprice, em_ds_mrpprice,em_sw_fob  ) 
+VALUES(v_C_Order_Line_ID,'187D8FC945A5481CB41B3EE767F80DBB','603C6A266B4C40BCAD87C5C43DDF53EE','Y',importpo.created,user_id,importpo.updated, 
+user_id,v_C_Order_ID,v_Line, v_C_Bpartner_ID, v_C_Bpartner_Location_ID, now(), TO_DATE(importpo.cdd), now(),
+v_M_Product_ID,v_warehouseId,'N', '100', to_number(importpo.orderedqty), 0, 0, 0, 
+v_currencyID,0,v_FOB_Price,0, v_LineNet_Amt, 0, 0, v_Tax_ID, 'N',
+0.0,'N','N', 0, v_Tax_Amt,0,v_FOB_Price,
+to_number(importpo.orderedqty),importpo.suppliercode,v_Vol_PCB,v_Weight,v_GrossWt,v_NoOfParcel,importpo.itemcode,
+v_modelName,v_Color,v_Size,v_FOB_Price,v_FOB_Price,v_FOB_Price);
+
+	v_flag:=TRUE;	
+
+END IF;
+END IF; --end of v_count if
+END LOOP;       
+update imsap_importduplicate_po set processed='Y' where poreference=importdistinctpo.poreference;
+END LOOP; --main loop
+--import sap po ends
+	IF ( v_validateflag=0 ) THEN   
+	v_flag :=TRUE; 
+	ELSE
+	v_flag :=FALSE; 
+	END IF;
+RETURN v_flag;
+END IMSAP_IMPORTDUPLICATEPO
+]]></body>
+    </function>
+  </database>

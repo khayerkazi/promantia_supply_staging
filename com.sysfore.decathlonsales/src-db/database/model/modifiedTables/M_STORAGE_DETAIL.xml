@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_STORAGE_DETAIL">
+    <table name="M_STORAGE_DETAIL" primaryKey="M_STORAGE_DETAIL_KEY">
+      <column name="EM_DS_RECEPTIONDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_DS_SEQUENCE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DuplicateBill" pageWidth="481" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="421" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="5"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="ORDERID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_ORDERID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{ORDERID} == null || $P{ORDERID}.equals("")) ? "" : " AND  c_order.c_order_id = '"+ $P{ORDERID}+"'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SR_LINES1" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="SR_LINES2" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="SR_LINES3" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT
+        c_order.c_order_id as id,
+        c_order.em_ds_receiptno as receiptid,
+	c_order.documentno as bill,
+	c_order.dateordered as date,
+	 round(c_order.grandtotal,0) as total,
+          c_order.em_ds_totalitemqty as totalQuantity,
+	c_order.em_ds_totalpriceadj as totalpriceadjustment,
+        c_order.em_ds_posno as posno,
+c_order.em_ds_posno as pno,
+	ad_org.name as orgname,
+	ad_org.ad_org_id as ogid,
+	ad_org.em_ds_tinno as tin,
+           ad_org.EM_Dcss_Str as strno,
+	ad_org.em_ds_telno as telno,
+	(select c_location.postal from
+	c_location loc,ad_org org,ad_orginfo orginfo
+	where org.ad_org_id=orginfo.ad_org_id
+	and  orginfo.c_location_id=loc.c_location_id
+	and org.ad_org_id=ad_org.ad_org_id
+	) as pin,
+	(select c_location.city from
+	c_location loc,ad_org org,ad_orginfo orginfo
+	where org.ad_org_id=orginfo.ad_org_id
+	and  orginfo.c_location_id=loc.c_location_id
+	and org.ad_org_id=ad_org.ad_org_id
+	) as loc,
+
+	usr.name as cashier ,
+          c_order.SalesRep_ID as salesrep,
+        c_bpartner.name as cardholder,
+        c_location.address1 as add1,
+	c_location.address2 as add2,
+	c_location.postal as pincode,
+        c_location.city as city,
+	--c_city.name as city
+	c_country.name as country,
+	c_region.name as region
+
+FROM   c_order
+inner join c_bpartner  on c_order.c_bpartner_id = c_bpartner.c_bpartner_id
+left outer join ad_org  on c_order.ad_org_id = ad_org.ad_org_id
+left outer join rc_company on c_bpartner.em_rc_company_id = rc_company.rc_company_id
+join  ad_orginfo on ad_orginfo.ad_org_id = ad_org.ad_org_id
+join  c_location on c_location.c_location_id = ad_orginfo.c_location_id
+--left outer join obpos_applications on c_order.ad_org_id =obpos_applications.ad_org_id
+left outer join ad_user on c_order.salesrep_id  = ad_user.ad_user_id
+left outer join ad_user  usr on c_order.ad_user_id  = usr.ad_user_id
+--left outer join rc_company on c_bpartner.em_rc_company_id = rc_company.rc_company_id
+--left outer join c_location on rc_company.c_location_id = c_location.c_location_id
+left outer join  c_country on c_location.c_country_id = c_country.c_country_id
+left outer join  c_region  on c_location.c_region_id = c_region.c_region_id
+left outer join  c_city  on c_location.c_city_id = c_city.c_city_id
+where 1=1
+$P!{AUX_ORDERID}]]>
+	</queryString>
+	<field name="id" class="java.lang.String"/>
+	<field name="receiptid" class="java.lang.String"/>
+	<field name="bill" class="java.lang.String"/>
+	<field name="date" class="java.sql.Timestamp"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="totalquantity" class="java.math.BigDecimal"/>
+	<field name="totalpriceadjustment" class="java.math.BigDecimal"/>
+	<field name="posno" class="java.lang.String"/>
+	<field name="pno" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="ogid" class="java.lang.String"/>
+	<field name="tin" class="java.lang.String"/>
+	<field name="strno" class="java.lang.String"/>
+	<field name="telno" class="java.lang.String"/>
+	<field name="pin" class="java.lang.String"/>
+	<field name="loc" class="java.lang.String"/>
+	<field name="cashier" class="java.lang.String"/>
+	<field name="salesrep" class="java.lang.String"/>
+	<field name="cardholder" class="java.lang.String"/>
+	<field name="add1" class="java.lang.String"/>
+	<field name="add2" class="java.lang.String"/>
+	<field name="pincode" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="country" class="java.lang.String"/>
+	<field name="region" class="java.lang.String"/>
+	<variable name="productcount" class="java.lang.Integer" resetType="None"/>
+	<variable name="Qtysum" class="java.math.BigDecimal" resetType="None"/>
+	<group name="ProductsLineGroup">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band height="18" splitType="Stretch">
+				<staticText>
+					<reportElement key="staticText-17" x="131" y="0" width="137" height="9"/>
+					<box leftPadding="4"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Item Code-Description]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-18" x="133" y="8" width="35" height="10"/>
+					<box leftPadding="3"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Qty]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-19" x="221" y="8" width="48" height="10"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Rate]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-20" x="274" y="8" width="38" height="10"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Amount]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-14" x="120" y="17" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="23" splitType="Stretch">
+				<subreport isUsingCache="true">
+					<reportElement key="subreport-3" x="0" y="2" width="421" height="21"/>
+					<subreportParameter name="AUX_ORDERID">
+						<subreportParameterExpression><![CDATA[$P{AUX_ORDERID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="RECEIPTID">
+						<subreportParameterExpression><![CDATA[$F{receiptid}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="Total">
+						<subreportParameterExpression><![CDATA[$F{total}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES3}]]></subreportExpression>
+				</subreport>
+				<line>
+					<reportElement key="line-17" x="120" y="2" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="TaxGroup">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band height="21" splitType="Stretch">
+				<subreport isUsingCache="true">
+					<reportElement key="subreport-2" x="0" y="0" width="421" height="21"/>
+					<subreportParameter name="ORDERID">
+						<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES2}]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="PAYEMNTGROUP">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band height="35" splitType="Stretch">
+				<staticText>
+					<reportElement key="staticText-21" x="135" y="3" width="45" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Items/Qty:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-22" x="135" y="13" width="103" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Total Price Adjustment:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-23" x="135" y="23" width="45" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Total:]]></text>
+				</staticText>
+				<textField pattern="###0.00" isBlankWhenNull="true">
+					<reportElement key="textField" x="185" y="23" width="123" height="10"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="false" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{total}==null || $F{total}.equals("") ? "Rs.0.00" :"Rs."+$F{total}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" x="181" y="3" width="123" height="10"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$V{productcount}.toString()+"/"+$V{Qtysum}.toString()]]></textFieldExpression>
+				</textField>
+				<textField pattern="##0.00" isBlankWhenNull="true">
+					<reportElement key="textField" x="229" y="13" width="79" height="10"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{totalpriceadjustment}==null?"Rs.0.00":"Rs."+$F{totalpriceadjustment}.toString()]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement key="line-15" x="120" y="1" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement key="line-16" x="120" y="34" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="800" splitType="Stretch">
+			<rectangle>
+				<reportElement key="rectangle-1" positionType="Float" stretchType="RelativeToBandHeight" x="91" y="0" width="277" height="800" isPrintInFirstWholeBand="true"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</rectangle>
+		</band>
+	</background>
+	<title>
+		<band height="205" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-1" x="96" y="34" width="289" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DECATHLON SPORTS INDIA PVT. LTD]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" positionType="FixRelativeToBottom" x="216" y="105" width="120" height="13"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{tin} == null || $F{tin}.equals("") ? "" :$F{tin}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" positionType="FixRelativeToBottom" x="216" y="129" width="122" height="13"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{telno}== null || $F{telno}.equals("") ? "" :$F{telno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="162" y="69" width="156" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add1}== null || $F{add1}.equals("") ? "" :$F{add1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="156" y="81" width="156" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[(($F{add2}== null || $F{add2}.equals("") ? "" :$F{add2})+","+($F{region}== null || $F{region}.equals("") ? "" :$F{region})
++","+($F{pincode}== null || $F{pincode}.equals("") ? "" :$F{pincode}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" x="156" y="93" width="156" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{country}== null || $F{country}.equals("") ? "" :$F{country}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-11" x="120" y="157" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Cashier]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-12" x="120" y="167" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Store Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-13" x="120" y="177" width="42" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Bill]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-14" x="120" y="195" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" positionType="FixRelativeToBottom" x="248" y="167" width="26" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Pos No :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" x="166" y="157" width="153" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{cashier}== null || $F{cashier}.equals("") ? $F{salesrep} :$F{cashier}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" x="166" y="177" width="87" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{bill}== null || $F{bill}.equals("") ? "" :$F{bill}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-26" x="249" y="191" width="26" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Time]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-1" x="278" y="191" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("HH:mm:ss").format($F{date})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-8" x="120" y="150" width="200" height="1"/>
+				<graphicElement fill="Solid">
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement key="staticText-32" x="162" y="157" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-33" x="162" y="167" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-34" x="162" y="177" width="3" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-35" x="162" y="195" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-36" positionType="FixRelativeToBottom" x="274" y="167" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-37" x="274" y="191" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-38" positionType="FixRelativeToBottom" x="212" y="105" width="3" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-39" positionType="FixRelativeToBottom" x="212" y="129" width="3" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-13" x="120" y="204" width="200" height="1"/>
+				<graphicElement fill="Solid">
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="FixRelativeToBottom" x="277" y="167" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{posno}== null || $F{posno}.equals("") ? $F{pno} :$F{posno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-3" x="166" y="167" width="83" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{orgname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="166" y="195" width="83" height="10"/>
+				<textElement verticalAlignment="Top">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="96" y="117" width="116" height="13"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[STR NO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="212" y="117" width="3" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="FixRelativeToBottom" x="216" y="117" width="120" height="13"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{strno}== null || $F{strno}.equals("") ? "" :$F{strno}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-5" positionType="FixRelativeToBottom" x="121" y="105" width="89" height="13"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[TIN NO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-6" positionType="FixRelativeToBottom" x="93" y="129" width="118" height="13"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[TEL NO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-27" x="156" y="21" width="156" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Duplicate Bill]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-2" x="96" y="47" width="289" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[PLAY MORE. PAY LESS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" x="96" y="57" width="289" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[INDIA'S SPORTS CASH AND CARRY]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<subreport isUsingCache="true">
+				<reportElement key="subreport-1" x="0" y="0" width="421" height="24"/>
+				<subreportParameter name="ORDERID">
+					<subreportParameterExpression><![CDATA[$P{ORDERID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="ProductCount" toVariable="productcount"/>
+				<returnValue subreportVariable="sum" toVariable="Qtysum"/>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES1}]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

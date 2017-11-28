@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPCATALOGPRICELIST">
+    <function name="IM_IMPCATALOGPRICELIST" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[catalogUpdateCursor RECORD;
+  --catalogCreateCursor RECORD;
+
+  v_errorNotice VARCHAR(2000) := '';
+  v_validated NUMBER:=0;
+  v_updatedCounter NUMBER:=0;
+  v_insertedCounter NUMBER:=0; 
+  v_count NUMBER:=0;
+  v_itemcode_id VARCHAR(32):='';
+  v_pricelistversion_id VARCHAR(32):='';
+  v_productprice_id VARCHAR(32):=''; 
+
+  v_mrpPrice NUMBER:=0;
+  v_cessionPrice NUMBER:=0;
+  v_unitPrice NUMBER:=0;
+  v_uePrice NUMBER:=0;
+  v_pcbPrice NUMBER:=0;  
+  
+BEGIN
+
+ Select count(*) INTO v_validated from im_catalogprice where validated='N';
+ 
+ IF v_validated != 0 THEN
+  
+ 	RAISE EXCEPTION  'Validation is not Completed';--OBTG:-20000--
+    
+ END IF;
+  
+  FOR catalogUpdateCursor IN (SELECT im_catalogprice_id, ad_client_id, ad_org_id, isactive, created, 
+       createdby, updated, updatedby, pricelistversion, itemcode, mrpprice, 
+       cessionprice, unitprice, ueprice, pcbprice, im_errormsg, validateimport, 
+       validated, processing  FROM im_catalogprice)
+  LOOP 
+  
+	select m_product_id INTO v_itemcode_id from m_product where name = catalogUpdateCursor.itemcode;
+
+	select m_pricelist_version_id INTO v_pricelistversion_id from m_pricelist_version where lower(name) = lower(catalogUpdateCursor.pricelistversion);
+
+	SELECT COUNT(*) AS total INTO v_count FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+--RAISE EXCEPTION 'v_count % %',v_itemcode_id,v_count ;
+
+
+  IF (v_count = 0 ) THEN
+
+	INSERT INTO m_productprice(
+		m_productprice_id, m_pricelist_version_id, m_product_id, ad_client_id, 
+		ad_org_id, isactive, created, createdby, updated, updatedby, 
+		em_cl_mrpprice, em_cl_cessionprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice 
+		)
+	VALUES (get_uuid(), v_pricelistversion_id, v_itemcode_id, catalogUpdateCursor.ad_client_id, 
+		'0', catalogUpdateCursor.isactive, catalogUpdateCursor.created, catalogUpdateCursor.createdby, catalogUpdateCursor.updated, catalogUpdateCursor.updatedby, 
+		coalesce(catalogUpdateCursor.mrpprice,0),coalesce(catalogUpdateCursor.cessionprice,0), coalesce(catalogUpdateCursor.unitprice,0), coalesce(catalogUpdateCursor.ueprice,0), coalesce(catalogUpdateCursor.pcbprice,0));
+	ELSE
+
+	SELECT m_productprice_id, em_cl_mrpprice, 
+		em_cl_cessionprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice INTO  
+		v_productprice_id,v_mrpPrice,v_cessionPrice,v_unitPrice,v_uePrice,v_pcbPrice       
+	FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+  
+	IF(catalogUpdateCursor.mrpprice != 0 ) THEN
+		v_mrpPrice :=catalogUpdateCursor.mrpprice;
+	END IF; 
+
+	IF(catalogUpdateCursor.cessionprice != 0 ) THEN
+		v_cessionPrice :=catalogUpdateCursor.cessionprice;
+	END IF;
+
+	IF(catalogUpdateCursor.unitprice != 0 ) THEN
+		v_unitPrice :=catalogUpdateCursor.unitprice;
+	END IF;
+
+	IF(catalogUpdateCursor.ueprice != 0 ) THEN
+		v_uePrice :=catalogUpdateCursor.ueprice;
+	END IF;
+
+	IF(catalogUpdateCursor.pcbprice != 0 ) THEN
+		v_pcbPrice :=catalogUpdateCursor.pcbprice;
+	END IF;
+
+	UPDATE m_productprice
+		SET updated=catalogUpdateCursor.updated, updatedby=catalogUpdateCursor.updatedby, 
+			em_cl_mrpprice=v_mrpPrice, em_cl_cessionprice=v_cessionPrice, em_cl_ccunitprice=v_unitPrice, 
+			em_cl_ccueprice=v_uePrice, em_cl_ccpcbprice=v_pcbPrice
+	WHERE m_productprice_id=v_productprice_id;
+ 
+  END IF; 
+   
+	delete from im_catalogprice where im_catalogprice_id = catalogUpdateCursor.im_catalogprice_id;                               
+		v_updatedCounter := v_updatedCounter+1; 
+	
+	v_mrpPrice :=0;
+	v_cessionPrice :=0;
+	v_unitPrice :=0;
+	v_uePrice :=0;
+	v_pcbPrice :=0;
+   END LOOP;
+	v_updatedCounter := v_updatedCounter - v_insertedCounter;
+RETURN 'Successfully Inserted '||v_insertedCounter|| ' and Successfully updated ' || v_updatedCounter || ' items.' ;
+END IM_IMPCATALOGPRICELIST
+]]></body>
+    </function>
+  </database>

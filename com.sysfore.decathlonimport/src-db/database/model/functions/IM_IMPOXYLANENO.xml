@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPOXYLANENO">
+    <function name="IM_IMPOXYLANENO" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[oxylaneUpdateCursor RECORD;
+
+  v_errorNotice VARCHAR(2000) := '';
+  v_validated NUMBER:=0;
+  v_updatedCounter NUMBER:=0;
+  v_insertedCounter NUMBER:=0; 
+  v_count NUMBER:=0;
+  v_itemcode_id VARCHAR(32):='';
+
+  --v_pricelistversion_id VARCHAR(32):='';
+ -- v_productprice_id VARCHAR(32):=''; 
+
+ -- v_fobPrice numeric:=0;
+  
+  
+BEGIN
+
+ Select count(*) INTO v_validated from im_oxylane where validated='N';
+ 
+ IF (v_validated != 0) THEN
+  
+ 	--RAISE EXCEPTION 'Validation is not Completed';
+    
+ END IF;
+  
+  FOR oxylaneUpdateCursor IN (SELECT im_oxylane_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+       updated, updatedby, oxylaneno, im_errormsg, validateimport, validated, 
+       processing  FROM im_oxylane
+)
+  LOOP 
+  
+	INSERT INTO rc_oxylane(
+            rc_oxylane_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby, oxylaneno,oxylanestatus)
+	VALUES (get_uuid(), oxylaneUpdateCursor.ad_client_id, oxylaneUpdateCursor.ad_org_id, oxylaneUpdateCursor.isactive, oxylaneUpdateCursor.created, oxylaneUpdateCursor.createdby, 
+            oxylaneUpdateCursor.updated, oxylaneUpdateCursor.updatedby, oxylaneUpdateCursor.oxylaneno,'NA');
+	
+	 
+	delete from im_oxylane where im_oxylane_id = oxylaneUpdateCursor.im_oxylane_id;                               
+		v_updatedCounter := v_updatedCounter+1; 
+	
+	
+	
+   END LOOP;
+	v_updatedCounter := v_updatedCounter - v_insertedCounter;
+RETURN 'Successfully Inserted '||v_insertedCounter|| ' and Successfully updated ' || v_updatedCounter || ' items.' ;
+END IM_IMPOXYLANENO
+]]></body>
+    </function>
+  </database>

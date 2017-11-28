@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+
+
+<SqlClass name="ValidateGtdData" package="com.sysfore.decathlonimport.ad_process">
+  <SqlMethod name="selectdocumentno" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+         select distinct documentno from im_gtd where validated='N' and createdby=?
+      ]]>
+    </Sql>
+    <Parameter name="createdby"/>
+  </SqlMethod>
+  <SqlMethod name="documentnocheck" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        select count(*) from c_order where c_doctype_id='C7CD4AC8AC414678A525AB7AE20D718C' and documentno=?
+      ]]>
+    </Sql>
+    <Parameter name="documentno"/>
+  </SqlMethod>
+<SqlMethod name="warehousecheck" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT count(*) as whco from m_warehouse where name=?
+      ]]>
+    </Sql>
+    <Parameter name="name"/>
+  </SqlMethod>
+<SqlMethod name="locatorcheck" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+       select count(*) as loc from m_locator where value =? and m_warehouse_id=(SELECT m_warehouse_id from m_warehouse where name=?)
+      ]]>
+    </Sql>
+    <Parameter name="value"/>
+    <Parameter name="name"/>
+  </SqlMethod>
+ <SqlMethod name="selectlocation" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+       select count(*) from m_locator where m_warehouse_id=(SELECT m_warehouse_id from m_warehouse where name=?) and z=?
+      ]]>
+    </Sql>
+    <Parameter name="warehouse"/>
+    <Parameter name="box"/>
+  </SqlMethod>
+  <SqlMethod name="updatemessage" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	update im_gtd set im_errormsg =? where documentno=?
+      ]]>
+    </Sql>
+    <Parameter name="imErrormsg"/>	
+    <Parameter name="documentno"/>
+  </SqlMethod>	
+    <SqlMethod name="updatemessage1" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	update im_gtd set im_errormsg =?
+      ]]>
+    </Sql>
+    <Parameter name="imErrormsg"/>	
+  </SqlMethod>
+  <SqlMethod name="updatemessage2" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	update im_gtd set im_errormsg =? where documentno=? and itemcode=?
+      ]]>
+    </Sql>
+    <Parameter name="imErrormsg"/>	
+    <Parameter name="documentno"/>
+    <Parameter name="itemcode"/>
+  </SqlMethod>
+  <SqlMethod name="updatemessage3" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	update im_gtd set im_errormsg =? where warehouse=?
+      ]]>
+    </Sql>
+    <Parameter name="imErrormsg"/>	
+    <Parameter name="warehouse"/>
+  </SqlMethod>
+  <SqlMethod name="updatemessage4" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	update im_gtd set im_errormsg =? where locator=?
+      ]]>
+    </Sql>
+    <Parameter name="imErrormsg"/>	
+    <Parameter name="locator"/>
+  </SqlMethod>	
+<SqlMethod name="updatemessage5" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	update im_gtd set im_errormsg =? where createdby=?
+      ]]>
+    </Sql>
+    <Parameter name="imErrormsg"/>	
+    <Parameter name="createdby"/>
+  </SqlMethod>	
+<SqlMethod name="updatemessage6" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	update im_gtd set im_errormsg =? where warehouse=? and locator=? and boxno=?
+      ]]>
+    </Sql>
+    <Parameter name="imErrormsg"/>	
+    <Parameter name="warehouse"/>
+    <Parameter name="locator"/>
+    <Parameter name="box"/>
+
+  </SqlMethod>	
+ <SqlMethod name="selectcountitemcode" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        select count(itemcode) as itemcount from im_gtd where warehouse=? and locator=? and boxno=?
+      ]]>
+    </Sql>
+    <Parameter name="warehouse"/>
+    <Parameter name="locator"/>	
+    <Parameter name="boxno"/>	
+  </SqlMethod>
+ <SqlMethod name="selectcountname" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        select count(name) as itemcount from m_product where name =?
+      ]]>
+    </Sql>
+    <Parameter name="name"/>
+  </SqlMethod>
+ <SqlMethod name="selectItemcode" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+	select count(o.m_product_id) from c_orderline o,c_order co where co.documentno=?
+	and co.c_order_id=o.c_order_id and o.m_product_id=(select m_product_id from m_product where name =?)
+      ]]>
+    </Sql>
+    <Parameter name="documentno"/>
+    <Parameter name="name"/>
+  </SqlMethod>
+ <SqlMethod name="ValidateUpdate" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        update im_gtd set validated ='Y' where createdby=?	
+      ]]>
+    </Sql>
+    <Parameter name="createdby"/>
+  </SqlMethod>
+ </SqlClass>
+

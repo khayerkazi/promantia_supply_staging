@@ -1,0 +1,429 @@
+diff -r 3ad6303602e8 src-db/database/sourcedata/AD_MODEL_OBJECT.xml
+--- a/src-db/database/sourcedata/AD_MODEL_OBJECT.xml	Thu Nov 27 17:05:13 2014 +0000
++++ b/src-db/database/sourcedata/AD_MODEL_OBJECT.xml	Sat Dec 06 10:44:35 2014 +0530
+@@ -13,6 +13,19 @@
+ <!--1CE39145366544FBAF0077C78D0F46F5-->  <NAME><![CDATA[Mobile Login Handler]]></NAME>
+ <!--1CE39145366544FBAF0077C78D0F46F5--></AD_MODEL_OBJECT>
+ 
++<!--3ED6923C06834C05A024211002DF79C3--><AD_MODEL_OBJECT>
++<!--3ED6923C06834C05A024211002DF79C3-->  <AD_MODEL_OBJECT_ID><![CDATA[3ED6923C06834C05A024211002DF79C3]]></AD_MODEL_OBJECT_ID>
++<!--3ED6923C06834C05A024211002DF79C3-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--3ED6923C06834C05A024211002DF79C3-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--3ED6923C06834C05A024211002DF79C3-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--3ED6923C06834C05A024211002DF79C3-->  <ACTION><![CDATA[P]]></ACTION>
++<!--3ED6923C06834C05A024211002DF79C3-->  <CLASSNAME><![CDATA[org.openbravo.mobile.core.utils.ShowProductImage]]></CLASSNAME>
++<!--3ED6923C06834C05A024211002DF79C3-->  <ISDEFAULT><![CDATA[N]]></ISDEFAULT>
++<!--3ED6923C06834C05A024211002DF79C3-->  <AD_MODULE_ID><![CDATA[08943B85ADF64E708797A753E5B6AAEE]]></AD_MODULE_ID>
++<!--3ED6923C06834C05A024211002DF79C3-->  <OBJECT_TYPE><![CDATA[S]]></OBJECT_TYPE>
++<!--3ED6923C06834C05A024211002DF79C3-->  <NAME><![CDATA[Product Image provider]]></NAME>
++<!--3ED6923C06834C05A024211002DF79C3--></AD_MODEL_OBJECT>
++
+ <!--43ADA4F09EAD4034A8F9B1F4759407B5--><AD_MODEL_OBJECT>
+ <!--43ADA4F09EAD4034A8F9B1F4759407B5-->  <AD_MODEL_OBJECT_ID><![CDATA[43ADA4F09EAD4034A8F9B1F4759407B5]]></AD_MODEL_OBJECT_ID>
+ <!--43ADA4F09EAD4034A8F9B1F4759407B5-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 3ad6303602e8 src-db/database/sourcedata/AD_MODEL_OBJECT_MAPPING.xml
+--- a/src-db/database/sourcedata/AD_MODEL_OBJECT_MAPPING.xml	Thu Nov 27 17:05:13 2014 +0000
++++ b/src-db/database/sourcedata/AD_MODEL_OBJECT_MAPPING.xml	Sat Dec 06 10:44:35 2014 +0530
+@@ -20,6 +20,16 @@
+ <!--02BABC887F6D45FF94C1576AD43A0464-->  <ISDEFAULT><![CDATA[Y]]></ISDEFAULT>
+ <!--02BABC887F6D45FF94C1576AD43A0464--></AD_MODEL_OBJECT_MAPPING>
+ 
++<!--48C744C246D64F6098B143D216BCECA6--><AD_MODEL_OBJECT_MAPPING>
++<!--48C744C246D64F6098B143D216BCECA6-->  <AD_MODEL_OBJECT_MAPPING_ID><![CDATA[48C744C246D64F6098B143D216BCECA6]]></AD_MODEL_OBJECT_MAPPING_ID>
++<!--48C744C246D64F6098B143D216BCECA6-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--48C744C246D64F6098B143D216BCECA6-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--48C744C246D64F6098B143D216BCECA6-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--48C744C246D64F6098B143D216BCECA6-->  <AD_MODEL_OBJECT_ID><![CDATA[3ED6923C06834C05A024211002DF79C3]]></AD_MODEL_OBJECT_ID>
++<!--48C744C246D64F6098B143D216BCECA6-->  <MAPPINGNAME><![CDATA[/org.openbravo.mobile.core.productimageprovider]]></MAPPINGNAME>
++<!--48C744C246D64F6098B143D216BCECA6-->  <ISDEFAULT><![CDATA[N]]></ISDEFAULT>
++<!--48C744C246D64F6098B143D216BCECA6--></AD_MODEL_OBJECT_MAPPING>
++
+ <!--79A16D4B50E6473F920072732E0878F4--><AD_MODEL_OBJECT_MAPPING>
+ <!--79A16D4B50E6473F920072732E0878F4-->  <AD_MODEL_OBJECT_MAPPING_ID><![CDATA[79A16D4B50E6473F920072732E0878F4]]></AD_MODEL_OBJECT_MAPPING_ID>
+ <!--79A16D4B50E6473F920072732E0878F4-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff -r 3ad6303602e8 src/org/openbravo/mobile/core/utils/ShowProductImage.java
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/src/org/openbravo/mobile/core/utils/ShowProductImage.java	Sat Dec 06 10:44:35 2014 +0530
+@@ -0,0 +1,97 @@
++/*
++ *************************************************************************
++ * The contents of this file are subject to the Openbravo  Public  License
++ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
++ * Version 1.1  with a permitted attribution clause; you may not  use this
++ * file except in compliance with the License. You  may  obtain  a copy of
++ * the License at http://www.openbravo.com/legal/license.html
++ * Software distributed under the License  is  distributed  on  an "AS IS"
++ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
++ * License for the specific  language  governing  rights  and  limitations
++ * under the License.
++ * The Original Code is Openbravo ERP.
++ * The Initial Developer of the Original Code is Openbravo SLU 
++ * All portions are Copyright (C) 2014 Openbravo SLU
++ * All Rights Reserved.
++ * Contributor(s):  ______________________________________.
++ ************************************************************************
++ */
++
++package org.openbravo.mobile.core.utils;
++
++import java.io.IOException;
++import java.io.OutputStream;
++import java.util.Calendar;
++
++import javax.servlet.ServletException;
++import javax.servlet.http.HttpServletRequest;
++import javax.servlet.http.HttpServletResponse;
++
++import org.apache.log4j.Logger;
++import org.openbravo.base.secureApp.HttpSecureAppServlet;
++import org.openbravo.base.secureApp.VariablesSecureApp;
++import org.openbravo.dal.core.OBContext;
++import org.openbravo.dal.service.OBDal;
++import org.openbravo.erpCommon.utility.MimeTypeUtil;
++import org.openbravo.erpCommon.utility.Utility;
++import org.openbravo.model.ad.utility.Image;
++import org.openbravo.model.common.plm.Product;
++
++/**
++ * 
++ * This utility class implements a servlet that shows a product image, stored in database based on
++ * the product id:
++ * http://localhost:8080/openbravo/org.openbravo.mobile.core.productimageprovider?id=x
++ * 
++ * @author guilleaer
++ */
++public class ShowProductImage extends HttpSecureAppServlet {
++
++  private static final Logger log = Logger.getLogger(ShowProductImage.class);
++  private static final long serialVersionUID = 1L;
++
++  @Override
++  public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException,
++      ServletException {
++    Image img = null;
++    VariablesSecureApp vars = new VariablesSecureApp(req);
++    String productId = vars.getStringParameter("id");
++    try {
++      OBContext.setAdminMode();
++      Product curProduct = OBDal.getInstance().get(Product.class, productId);
++      if (curProduct.getImage() != null) {
++        img = Utility.getImageObject(curProduct.getImage().getId());
++
++        // read the image data
++        byte[] imgByte = img.getBindaryData();
++
++        // write the mimetype which should be JPEG
++        String mimeType = img.getMimetype();// write the mimetype
++        if (mimeType == null) {
++          mimeType = MimeTypeUtil.getInstance().getMimeTypeName(img.getBindaryData());
++        }
++
++        if (!mimeType.equals("")) {
++          resp.setContentType(mimeType);
++        }
++
++        // write the image
++        OutputStream out = resp.getOutputStream();
++        resp.setContentLength(imgByte.length);
++        Calendar inOneMonth = Calendar.getInstance();
++        inOneMonth.add(Calendar.MONTH, 1);
++        resp.setDateHeader("Expires", inOneMonth.getTimeInMillis());
++        out.write(imgByte);
++        out.close();
++      } else {
++        // Not found
++        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
++      }
++    } catch (Exception e) {
++      log.error("An error happened when the image for product " + productId + " was retrieved: "
++          + e.getMessage());
++    } finally {
++      OBContext.restorePreviousMode();
++    }
++  }
++}
+diff -r 3ad6303602e8 web/org.openbravo.mobile.core/source/component/ob-keyboard.js
+--- a/web/org.openbravo.mobile.core/source/component/ob-keyboard.js	Thu Nov 27 17:05:13 2014 +0000
++++ b/web/org.openbravo.mobile.core/source/component/ob-keyboard.js	Sat Dec 06 10:44:35 2014 +0530
+@@ -428,10 +428,15 @@
+           keeper.value = '';
+         }
+       } else {
+-        if (keeper) {
+-          keeper.value = '';
+-          this.$.editbox.setContent(this.$.editbox.getContent());
+-        }
++      	 if (keeper) {
++          if (keeper.value.length > 0) {
++            this.$.editbox.setContent(keeper.value);
++            keeper.value = '';
++          } else {
++            keeper.value = '';
++            this.$.editbox.setContent(this.$.editbox.getContent());
++          }
++      	 }
+       }
+       if (this.$.editbox.getContent() === '0') {
+         this.doCommandFired({
+@@ -564,7 +569,7 @@
+       // preference is defined using a posterminal preference property. Other applications that
+       // want to disable the shortcut should deliver its own preference property and add it to
+       // this if clause.
+-      if (txt === '0' && this.status === '' && !OB.POS.modelterminal.hasPermission('OBPOS_DisableLockShortcut', true)) {
++      if (txt === '0' && this.status === '' && OB.MobileApp.model.get('appName') != 'OBWH') {
+         OB.MobileApp.model.lock();
+         return;
+       }
+diff -r 3ad6303602e8 web/org.openbravo.mobile.core/source/component/ob-scrollabletable.js
+--- a/web/org.openbravo.mobile.core/source/component/ob-scrollabletable.js	Thu Nov 27 17:05:13 2014 +0000
++++ b/web/org.openbravo.mobile.core/source/component/ob-scrollabletable.js	Sat Dec 06 10:44:35 2014 +0530
+@@ -152,34 +152,68 @@
+       return;
+     }
+ 
+-    this.collection.on('selected', function (model) {
++    /*selected*/
++    this.func_selected = function (model) {
++      //if the same collection is used by different components and one of them has been destroyed, the event is ignored
++      if (this.destroyed) {
++        this.collection.off('selected', this.func_selected);
++        return true;
++      }
+       if (!model && this.listStyle && this.listStyle !== 'checkboxlist') {
+         if (this.selected) {
+           this.selected.addRemoveClass('selected', false);
+         }
+         this.selected = null;
+       }
+-    }, this);
++    };
++    this.collection.on('selected', this.func_selected, this);
+ 
+-    this.collection.on('unSelectAll', function (col) {
++    /*unSelectAll*/
++    this.func_unSelectAll = function (col) {
++      //if the same collection is used by different components and one of them has been destroyed, the event is ignored
++      if (this.destroyed) {
++        this.collection.off('unSelectAll', this.func_unSelectAll);
++        return true;
++      }
+       this.collection.each(function (model) {
+         model.trigger('unselected');
+       });
+-    }, this);
++    };
++    this.collection.on('unSelectAll', this.func_unSelectAll, this);
+ 
+-    this.collection.on('checkAll', function (col) {
++    /*checkAll*/
++    this.func_checkAll = function (col) {
++      //if the same collection is used by different components and one of them has been destroyed, the event is ignored
++      if (this.destroyed) {
++        this.collection.off('checkAll', this.func_checkAll);
++        return true;
++      }
+       this.collection.each(function (model) {
+         model.trigger('check');
+       });
+-    }, this);
++    };
++    this.collection.on('checkAll', this.func_checkAll, this);
+ 
+-    this.collection.on('unCheckAll', function (col) {
++    /*unCheckAll*/
++    this.func_unCheckAll = function (col) {
++      //if the same collection is used by different components and one of them has been destroyed, the event is ignored
++      if (this.destroyed) {
++        this.collection.off('unCheckAll', this.func_unCheckAll);
++        return true;
++      }
+       this.collection.each(function (model) {
+         model.trigger('uncheck');
+       });
+-    }, this);
++    };
++    this.collection.on('unCheckAll', this.func_unCheckAll, this);
+ 
+-    this.collection.on('add', function (model, prop, options) {
++    /*add*/
++    this.func_add = function (model, prop, options) {
++      //if the same collection is used by different components and one of them has been destroyed, the event is ignored
++      if (this.destroyed) {
++        this.collection.off('add', this.func_add);
++        return true;
++      }
+ 
+       this.$.tempty.hide();
+       this.$.tbody.show();
+@@ -194,12 +228,20 @@
+         model.trigger('selected', model);
+       }
+       this.setScrollAfterAdd();
+-    }, this);
++    };
++    this.collection.on('add', this.func_add, this);
+ 
+-    this.collection.on('remove', function (model, prop, options) {
++    /*remove*/
++    this.func_remove = function (model, prop, options) {
+       var index = options.index,
+           indexToPoint = index - 1;
+ 
++      //if the same collection is used by different components and one of them has been destroyed, the event is ignored
++      if (this.destroyed) {
++        this.collection.off('remove', this.func_remove);
++        return true;
++      }
++
+       this.$.tbody.getComponents()[index].destroy(); // controlAtIndex ?
+       if (index >= this.collection.length) {
+         if (this.collection.length === 0) {
+@@ -222,11 +264,19 @@
+         }
+         this.getScrollArea().scrollToControl(this.$.tbody.getComponents()[indexToPoint]);
+       }
+-    }, this);
++    };
++    this.collection.on('remove', this.func_remove, this);
+ 
+-    this.collection.on('reset', function (a, b, c) {
++    /*reset*/
++    this.func_reset = function (a, b, c) {
+       var modelsel, dataLimit;
+ 
++      //if the same collection is used by different components and one of them has been destroyed, the event is ignored
++      if (this.destroyed) {
++        this.collection.off('reset', this.func_reset);
++        return true;
++      }
++
+       this.$.tlimit.hide();
+       this.$.tbody.hide();
+       this.$.tempty.show();
+@@ -256,19 +306,32 @@
+           modelsel.trigger('selected', modelsel);
+         } else if (this.listStyle === 'edit') {
+           modelsel = this.collection.at(this.collection.size() - 1);
+-          modelsel.trigger('selected', modelsel);
++          if (this.autoSelectOnReset === false){
++            //nothing
++          } else {
++            modelsel.trigger('selected', modelsel);  
++          }
+         }
+       }
+-    }, this);
++    };
+ 
+-    this.collection.on('info', function (info) {
++    this.collection.on('reset', this.func_reset, this);
++
++    /*info*/
++    this.func_info = function (info) {
++      //if the same collection is used by different components and one of them has been destroyed.
++      if (this.destroyed) {
++        this.collection.off('info', this.func_info);
++        return true;
++      }
+       if (info) {
+         this.$.tinfo.setContent(OB.I18N.getLabel(info));
+         this.$.tinfo.show();
+       } else {
+         this.$.tinfo.hide();
+       }
+-    }, this);
++    };
++    this.collection.on('info', this.func_info, this);
+ 
+     // XXX: Reseting to show the collection if registered with data
+     this.collection.trigger('reset');
+@@ -280,6 +343,10 @@
+ 	//Put scroller in the position of new item
+       this.getScrollArea().scrollToBottom();
+   },
++  setScrollAfterAdd: function () {
++    //Put scroller in the position of new item
++    this.getScrollArea().scrollToBottom();
++  },
+   getHeader: function () {
+     var tableName = this.name || '';
+     if (this.$.theader.getComponents()) {
+@@ -357,6 +424,16 @@
+     }, this);
+ 
+     model.on('selected', function () {
++      var selectedCssClass = this.selectedCssClass ? this.selectedCssClass : 'selected';
++      if (this.scrollableTableGroup) {
++        var elems = $('.' + this.scrollableTableGroup + '_activeScrollableTable');
++        if (elems.length === 0) {
++          $('#' + this.id).addClass(this.scrollableTableGroup + '_activeScrollableTable');
++        } else if (elems && elems.length ===1 && elems[0].id != this.id) {
++          elems.removeClass(this.scrollableTableGroup + '_activeScrollableTable');
++          $('#' + this.id).addClass(this.scrollableTableGroup + '_activeScrollableTable');
++        }
++      }
+       if (this.listStyle && this.listStyle === 'nonselectablelist') {
+         //do nothing in this case, we don't want to select anything
+         return;
+@@ -365,10 +442,10 @@
+           return;
+         }
+         if (this.selected) {
+-          this.selected.addRemoveClass('selected', false);
++          this.selected.addRemoveClass(selectedCssClass, false);
+         }
+         this.selected = tr;
+-        this.selected.addRemoveClass('selected', true);
++        this.selected.addRemoveClass(selectedCssClass, true);
+         // FIXME: OB.UTIL.makeElemVisible(this.node, this.selected);
+       } else if (this.listStyle === 'checkboxlist') {
+         if (tr.destroyed) {
+diff -r 3ad6303602e8 web/org.openbravo.mobile.core/source/component/ob-terminal-component.js
+--- a/web/org.openbravo.mobile.core/source/component/ob-terminal-component.js	Thu Nov 27 17:05:13 2014 +0000
++++ b/web/org.openbravo.mobile.core/source/component/ob-terminal-component.js	Sat Dec 06 10:44:35 2014 +0530
+@@ -167,7 +167,7 @@
+   /**
+    * Checks whether focus should be places on focusKeeper and puts it there if needed
+    */
+-  scanningFocus: function (scanMode, forced) {
++  scanningFocus: function (scanMode) {
+     var keeper;
+     if (!OB.MobileApp.model.get('useBarcode')) {
+       return;
+@@ -185,7 +185,7 @@
+       keeper.focus();
+     }
+ 
+-    if (!this.scanMode && forced) {
++    if (!this.scanMode) {
+       return;
+     }
+ 
+@@ -197,7 +197,7 @@
+     //   2. if timeout is not used, on-screen keyboard is shown when settin focus in
+     //      keeper
+     setTimeout(function () {
+-      if (this.scanMode || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT')) {
++      if (this.scanMode || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT' && document.activeElement.tagName !== 'TEXTAREA')) {
+         keeper = document.getElementById('_focusKeeper');
+         keeper.focus();
+       }
+diff -r 3ad6303602e8 web/org.openbravo.mobile.core/source/utils/ob-utilities.js
+--- a/web/org.openbravo.mobile.core/source/utils/ob-utilities.js	Thu Nov 27 17:05:13 2014 +0000
++++ b/web/org.openbravo.mobile.core/source/utils/ob-utilities.js	Sat Dec 06 10:44:35 2014 +0530
+@@ -401,13 +401,13 @@
+ 
+   OB.UTIL.saveLogClient = function (msg, level) {
+     try {
+-      if (OB.POS && OB.POS.modelterminal && OB.MobileApp.model.supportLogClient()) {
++      if (OB.MobileApp && OB.MobileApp.model && OB.MobileApp.model.supportLogClient()) {
+         var date, json, logClientModel = new OB.Model.LogClient();
+         date = new Date();
+ 
+         logClientModel.set('obmobc_logclient_id', OB.UTIL.get_UUID());
+         logClientModel.set('created', date.getTime());
+-        logClientModel.set('createdby', OB.POS.modelterminal.get('orgUserId'));
++        logClientModel.set('createdby', OB.MobileApp.model.get("orgUserId"));
+         logClientModel.set('loglevel', level);
+         logClientModel.set('msg', msg);
+         logClientModel.set('deviceId', OB.MobileApp.model.get('logConfiguration').deviceIdentifier);

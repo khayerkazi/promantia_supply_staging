@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_PRODUCT_PO">
+    <table name="M_PRODUCT_PO" primaryKey="M_PRODUCT_PO_KEY">
+      <column name="EM_CL_BPARTNER_LOCATION_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_CL_SOURCING_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_CL_COUNTRY_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_CL_SUPPLIERNO" primaryKey="false" required="false" type="VARCHAR" size="40" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_BPARTNER_LOCATION" name="EM_CL_BPLOC">
+        <reference local="EM_CL_BPARTNER_LOCATION_ID" foreign="C_BPARTNER_LOCATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_COUNTRY" name="EM_CL_PRODUCTCOUNTRY">
+        <reference local="EM_CL_COUNTRY_ID" foreign="C_COUNTRY_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="CL_SOURCING" name="EM_CL_SOURCING_PRODUCT_PO">
+        <reference local="EM_CL_SOURCING_ID" foreign="CL_SOURCING_ID"/>
+      </foreign-key>
+    </table>
+  </database>

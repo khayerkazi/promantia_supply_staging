@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IDSD_DC_POST1">
+    <function name="IDSD_DC_POST1" type="NULL">
+      <parameter name="p_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_message VARCHAR(2000);
+  BEGIN
+
+  update c_order set docstatus='IP' where c_order_id=p_order_id;
+
+       UPDATE C_ORDER
+        SET DocStatus='CO',
+            DocAction='--',
+            IsDelivered='N',
+            IsInvoiced='N',
+            Processed='Y',
+            Processing='N',
+            em_sw_is2post='N',
+            dateordered=now(),
+     datepromised=now(),
+     dateacct=now(),
+            Updated=now()
+            WHERE C_Order_ID=p_order_id;
+END IDSD_DC_POST1
+]]></body>
+    </function>
+  </database>

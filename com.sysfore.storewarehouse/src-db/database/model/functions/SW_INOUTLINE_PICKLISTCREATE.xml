@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_INOUTLINE_PICKLISTCREATE">
+    <function name="SW_INOUTLINE_PICKLISTCREATE" type="NUMERIC">
+      <parameter name="porgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pmproductid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pminoutlineid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pdocumentno" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pmovementtype" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pmovementqty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="psrequisitionid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pwarehousename" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Vorgid       VARCHAR(32);
+Vmproductid  VARCHAR(32);
+Vmovementqty NUMBER;
+V_locatorid VARCHAR(32);
+V_qtyonhand NUMBER;
+Vwarehouseid VARCHAR(32):='603C6A266B4C40BCAD87C5C43DDF53EE';
+VminoutID VARCHAR(32);
+VsreqID VARCHAR(32);
+Vdocumentno VARCHAR(32); 
+Vmovementtype VARCHAR(32);
+Vuser VARCHAR(32);
+Vboxno VARCHAR(32);
+Vreqorgid VARCHAR(32);
+Vattributsetinstanceid VARCHAR(32);
+VclientID VARCHAR(32):='187D8FC945A5481CB41B3EE767F80DBB'; 
+Cur_Picklist RECORD;
+Vshuttleqty NUMBER;
+vBoxType NUMBER;
+v_ResultStr VARCHAR2(2000):='';
+Vtrxqty1 NUMBER:= 0 ;
+Vtrxqty2 NUMBER:= 0 ;
+v_WarehousName VARCHAR(60):='';
+v_PickedQty NUMBER:= 0 ;
+v_toBePicked NUMBER:= 0 ;
+BEGIN
+
+Vorgid=porgid;
+Vmproductid=pmproductid;
+Vmovementqty=pmovementqty;
+Vshuttleqty=pmovementqty;
+VminoutID=pminoutlineid;
+Vdocumentno=pdocumentno;
+Vmovementtype=pmovementtype;
+VsreqID=psrequisitionid;
+v_WarehousName=pwarehousename;
+
+FOR Cur_Picklist IN
+(SELECT m_locator_id,qtyonhand,m_attributesetinstance_id From m_storage_detail where m_product_id =Vmproductid and qtyonhand>0 and m_locator_id in(select m_locator_id from m_locator where
+m_warehouse_id in (select m_warehouse_id from m_warehouse where 
+name ilike v_WarehousName
+and ad_org_id=Vwarehouseid) and value not like 'System' and isactive='Y') ORDER BY em_ds_receptiondate,em_ds_sequence asc) LOOP
+	V_locatorid:=Cur_Picklist.m_locator_id;
+	V_qtyonhand:=Cur_Picklist.qtyonhand;
+	Vattributsetinstanceid:=Cur_Picklist.m_attributesetinstance_id;
+
+	--getting box no
+	select lot into Vboxno from m_attributesetinstance where m_attributesetinstance_id=Vattributsetinstanceid and isactive='Y';
+     --RAISE EXCEPTION 'inside picklist%',VsreqID;
+	--getting user id for requisition
+	
+        IF(VsreqID IS NOT NULL) THEN
+--IF(VsreqID is not null OR VsreqID='')
+
+	select createdby,ad_org_id into Vuser,Vreqorgid from sw_sreqline where sw_sreqline_id=VsreqID;
+
+         ELSE
+        select createdby,ad_org_id into Vuser,Vreqorgid from m_inoutline where m_inoutline_id=VminoutID;
+	END IF;
+	
+	
+IF(V_qtyonhand >= Vmovementqty) THEN
+	
+
+	-- M Transaction
+	INSERT INTO M_Transaction (M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,Created,Createdby,Updated,Updatedby,MovementType, M_Locator_ID, M_Product_ID, MovementDate, 
+	MovementQty, C_UOM_ID, m_inoutline_id,em_sw_sreqline_id ,em_sw_movementtype,em_sw_documentno,m_attributesetinstance_id)
+	VALUES (get_uuid(), VclientID,Vorgid, 'Y',now()+interval '1 second', Vuser, now()+interval '1 second', Vuser,  'C-', 
+	V_locatorid, Vmproductid, now()+interval '1 second', (Vmovementqty * -1) ,'100',VminoutID,VsreqID,Vmovementtype,Vdocumentno,Vattributsetinstanceid);
+	
+	-- Pick list
+	INSERT INTO sw_picklist(sw_picklist_id, ad_client_id, ad_org_id, created, createdby, 
+        updated, updatedby,itemcode,qty_req,m_locator_id, m_product_id,documentno,isactive,boxno)
+	VALUES (get_uuid(),VclientID,Vreqorgid, now(),Vuser,now(),Vuser,(select name from m_product where m_product_id=Vmproductid),Vmovementqty,
+        V_locatorid,Vmproductid,Vdocumentno,'Y',Vboxno);
+
+
+	Vtrxqty1=V_qtyonhand-Vmovementqty;
+	Vtrxqty2=V_qtyonhand-Vtrxqty1;
+	Vmovementqty=Vtrxqty2-Vmovementqty;
+	
+	--RAISE EXCEPTION 'CALLED Vmovementqty % V_qtyonhand %',Vmovementqty,V_qtyonhand;
+	
+	--Vmovementqty=V_qtyonhand-Vmovementqty;
+
+	EXIT;
+ELSE IF (V_qtyonhand < Vmovementqty) THEN
+	RAISE NOTICE 'In else REQ,ONHAND % %',Vmovementqty,V_qtyonhand;
+	Vmovementqty=Vmovementqty-V_qtyonhand;
+	RAISE NOTICE 'In else After ONHAND,%',Vmovementqty;
+
+	-- M Transaction
+	INSERT INTO M_Transaction (M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,Created,Createdby,Updated,Updatedby,MovementType, M_Locator_ID, M_Product_ID, MovementDate, 
+	MovementQty, C_UOM_ID, m_inoutline_id,em_sw_sreqline_id ,em_sw_movementtype,em_sw_documentno,m_attributesetinstance_id)
+	VALUES (get_uuid(), VclientID,Vorgid, 'Y',now()+interval '1 second', Vuser, now()+interval '1 second', Vuser,  'C-', 
+	V_locatorid, Vmproductid, now()+interval '1 second', (V_qtyonhand * -1),'100',VminoutID,VsreqID,Vmovementtype,Vdocumentno,Vattributsetinstanceid);
+	-- Pick list
+	INSERT INTO sw_picklist(sw_picklist_id, ad_client_id, ad_org_id, created, createdby, 
+        updated, updatedby,itemcode,qty_req,m_locator_id, m_product_id,documentno,isactive,boxno)
+	VALUES (get_uuid(),VclientID,Vreqorgid, now(),Vuser,now(),Vuser,(select name from m_product where m_product_id=Vmproductid),V_qtyonhand,
+        V_locatorid,Vmproductid,Vdocumentno,'Y',Vboxno);
+
+END IF;
+END IF;
+END LOOP;
+v_PickedQty=Vmovementqty;
+v_toBePicked=Vmovementqty-v_PickedQty;
+
+--RAISE EXCEPTION 'CALLED Vmovementqty % V_qtyonhand %',Vmovementqty,V_qtyonhand;
+
+RETURN Vmovementqty;
+END SW_INOUTLINE_PICKLISTCREATE
+]]></body>
+    </function>
+  </database>

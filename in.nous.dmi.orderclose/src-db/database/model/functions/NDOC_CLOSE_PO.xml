@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION NDOC_CLOSE_PO">
+    <function name="NDOC_CLOSE_PO" type="VARCHAR">
+      <parameter name="p_startdt" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_enddt" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[transRecord Record;
+orderRecord Record;
+v_startdt DATE;
+v_enddt DATE;
+v_status VARCHAR(32):='';
+v_orderid VARCHAR(60):='';
+v_qtyordered NUMBER:=0;
+v_linecount NUMBER:=0;
+v_msg VARCHAR(2000):='';
+
+
+BEGIN
+v_startdt:=p_startdt;
+v_enddt:=p_enddt;
+
+FOR transRecord IN (select * from m_transaction where em_sw_movementtype='DPP' and m_locator_id = 
+(select m_locator_id from m_locator where value = 'Saleable Whitefield') 
+and created >= v_startdt and created < v_enddt)
+  LOOP
+  FOR orderRecord IN (select co.c_order_id ,col.c_orderline_id, coalesce(col.qtyordered,0) as qtyordered from c_order co
+  join c_orderline col on co.c_order_id = col.c_order_id
+  where co.poreference = transRecord.em_sw_documentno and col.m_product_id = transRecord.m_product_id)
+	LOOP
+	select count(1) into v_linecount from c_orderline where c_order_id=orderRecord.c_order_id
+	 and em_sw_recqty is null;
+	IF (v_linecount=0) THEN
+		update c_order set em_sw_postatus='CL',docstatus='CO', docaction='CL',processed='Y' where c_order_id = orderRecord.c_order_id;
+	END IF;
+	 
+	END LOOP;
+
+  END LOOP;
+
+v_status:='Success';
+
+RETURN v_status;
+END NDOC_CLOSE_PO
+]]></body>
+    </function>
+  </database>

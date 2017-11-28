@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+  <vector>
+    <versionInfo version="3.0.24019"/>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="1219572727A8485F9B0F7F8743919311">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="150A2C88A6E142928BB9D08E8CA5E227">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="167789DDECD64E1887A14DE14DE50B55">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="1F1F91C550A24D62BDCF58DCC161D717">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="402B4659617144288883470CFF788C89">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="52B06BBA6A2A486084026120C9E5D4D2">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="5B258E7614D8433CBA2F592A732A84CF">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="5F662C8840C34BB29721EF44C808DB65">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="6A96EB6E4D24451D8A0F370937E288A1">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="7419C01A097C4E34AD9F61C2BF8F2AB4">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="96EA300D2D764E8EB922886B593D6094">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="A5A76D4C0D084A80AFB9A2A8F4A0A8AE">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="D8CD4F4B22BB42D9A66A24C59ADB095A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="DBABB05BFF4C4EEE9A3D37A8AAA4A649">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="DFA6D0C0888643A7B499397AA7A7A6CF">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="E3EB070BE7534059903544A1BDD8D2CA">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="F550F6DA808E40368794AE9D54782879">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="F5C274DEAE9048DCAD48473D2F622CEC">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MESSAGE" columnname="MSGTEXT" pkRow="D790C87262B14E0391348DA8619AD240">
+      <oldValue><![CDATA[Order No:]]></oldValue>
+      <newValue><![CDATA[SO Document No:]]></newValue>
+    </columnDataChange>
+<columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2174">
+      <oldValue/>
+      <newValue><![CDATA[@Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3045">
+      <oldValue/>
+      <newValue><![CDATA[@Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="01B5BEFECF8C479C9944D62C577C0ECC">
+      <oldValue><![CDATA[@EM_SW_POStatus@='CD']]></oldValue>
+      <newValue><![CDATA[@EM_SW_POStatus@='CD' | @Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="0FA9866C996D4C52B6EE0AF3D9CBE9D1">
+      <oldValue/>
+      <newValue><![CDATA[@Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="18717D8FF7014058B5839380EC7BC5DF">
+      <oldValue><![CDATA[@EM_SW_POStatus@='CD' | @EM_SW_POStatus@='CO']]></oldValue>
+      <newValue><![CDATA[@EM_SW_POStatus@='CD' | @EM_SW_POStatus@='CO' | @Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="391D3792434D40EC8C411F97ECF204E3">
+      <oldValue/>
+      <newValue><![CDATA[@Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="699212BEDAED4985915E8DBAA3F5926E">
+      <oldValue/>
+      <newValue><![CDATA[@Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="77B3DBA8B5E4477285ADE242FC625855">
+      <oldValue><![CDATA[@EM_SW_POStatus@='CD']]></oldValue>
+      <newValue><![CDATA[@EM_SW_POStatus@='CD' | @Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="POSITION" pkRow="919328AB72254FE29720CABBC8B1FB5C">
+      <oldValue><![CDATA[88]]></oldValue>
+      <newValue><![CDATA[140]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="POSITION" pkRow="AD093BB30C1043DD9252CBF5F19B5198">
+      <oldValue><![CDATA[89]]></oldValue>
+      <newValue><![CDATA[141]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="AF5586B9BEF5447087A0726B70687D9C">
+      <oldValue/>
+      <newValue><![CDATA[@Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="B9C1E7ED797843E09F0B6D79DDD5BF65">
+      <oldValue/>
+      <newValue><![CDATA[@Processed@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="POSITION" pkRow="CBF6D4DC7A254C47B180486DABC0388B">
+      <oldValue><![CDATA[87]]></oldValue>
+      <newValue><![CDATA[139]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="257">
+      <oldValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false]]></oldValue>
+      <newValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false and exists (select org.id from Organization org where org.facstIsExternal = false and org.id = @#AD_Org_ID@ ) or e.organization.id in ( select org.id from Organization org where org.facstIsExternal = true and org.id = @#AD_Org_ID@ and e.warehouse.id in (select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@))]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="294">
+      <oldValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false  and e.businessPartner.id!='35586321F375451389832DD198CA1DC7']]></oldValue>
+      <newValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false  and e.businessPartner.id!='35586321F375451389832DD198CA1DC7' and e.documentStatus!='VO']]></newValue>
+    </columnDataChange>
+ <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="AB28683387C44BD5B4AA1A4714C098C3">
+      <oldValue><![CDATA[e.salesTransaction=true AND e.transactionDocument.return= false AND e.documentStatus<>'VO']]></oldValue>
+      <newValue><![CDATA[e.salesTransaction=true AND e.transactionDocument.return= false AND e.documentStatus<>'VO' and 
+( 
+  exists ( select id from ADRole r where r.id = @#AD_Role_ID@ and r.clientAdmin = true )  or 
+  (e.organization.id = @#AD_Org_ID@ and e.organization.facstIsExternal = true  and e.warehouse.id  in 
+      (select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@)
+  ) or 
+  ( e.warehouse.ibdoWarehousetype != 'FACST_External'  and e.organization.id = @#AD_Org_ID@ and e.organization.facstIsExternal = false ) )]]></newValue>
+    </columnDataChange>
+<columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3429">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3429">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3429">
+      <oldValue/>
+      <newValue><![CDATA[300]]></newValue>
+    </columnDataChange>
+<columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="257">
+      <oldValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false]]></oldValue>
+      <newValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false and exists (select org.id from Organization org where org.facstIsExternal = false and org.id = @#AD_Org_ID@ ) or e.organization.id in ( select org.id from Organization org where org.facstIsExternal = true and org.id = @#AD_Org_ID@ and e.warehouse.id in (select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@))]]></newValue>
+    </columnDataChange>
+  </vector>

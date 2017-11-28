@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+<SqlClass name="ProductionSearchItemData" package="in.decathlon.production.modelitem.searchItem">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+	select b.name as brand,lower(p.EM_cl_MODELNAME) as modelname,p.EM_cl_MODELCODE as modelcode,m.Cl_Model_Id as cl_Model_Id,p.em_cl_size as size,p.name as pdtname,
+np.name as NatofPdt,c.name as color,d.name as dept,p.EM_cl_LIFESTAGE as lifestage,bp.name as supplier,pp.name as Process,pcl.name as ComponentLabel
+		
+			from m_product p right join cl_model m on (m.cl_model_id=p.em_cl_model_id)
+           left join cl_natureofproduct np on(np.CL_NATUREOFPRODUCT_ID = m.CL_NATUREOFPRODUCT_ID)
+            left join cl_brand b on (b.cl_brand_id = m.cl_brand_id)
+            left join cl_color c on (c.cl_color_id = p.em_cl_color_id)
+            left join cl_department d on (d.cl_department_id=m.cl_department_id) 
+             left join cl_purchasing pc on (pc.cl_model_id=m.cl_model_id)
+            left join c_bpartner bp on (bp.c_bpartner_id=pc.c_bpartner_id)
+            left join prmi_process pp on(pp.prmi_process_id = m.EM_prmi_process_id)
+            left join prmi_componentlabel pcl on(pcl.prmi_componentlabel_id = m.EM_prmi_componentlabel_id)
+          
+            where p.isactive='Y'
+            AND 1=1
+           group by p.EM_cl_MODELNAME,b.name,p.EM_cl_MODELCODE,p.name,p.m_Product_Id,m.Cl_Model_Id,
+            p.em_cl_size,c.name, np.name,d.name,p.EM_cl_LIFESTAGE,bp.name,pp.prmi_process_id,pcl.prmi_componentlabel_id order by p.EM_cl_MODELNAME
+
+     ]]></Sql>
+     <Field name="rownum" value="count"/>
+     <Parameter name="Brand" optional="true" after="AND 1=1"><![CDATA[ AND b.cl_brand_id = ? ]]></Parameter>
+     <Parameter name="pdtname" optional="true" after="AND 1=1"><![CDATA[ AND p.name LIKE ? ]]></Parameter>
+     <Parameter name="ModelName" optional="true" after="AND 1=1"><![CDATA[AND lower(p.EM_cl_MODELNAME) LIKE lower(?)]]></Parameter>
+     <Parameter name="ModelCode" optional="true" after="AND 1=1"><![CDATA[ AND p.EM_cl_MODELCODE LIKE ? ]]></Parameter>
+      <Parameter name="Supplier" optional="true" after="AND 1=1"><![CDATA[ AND bp.name LIKE ? ]]></Parameter>
+     <Parameter name="Process" optional="true" after="AND 1=1"><![CDATA[ AND pp.prmi_process_id = ? ]]></Parameter>
+       <Parameter name="ComponentLabel" optional="true" after="AND 1=1"><![CDATA[ AND prmi_componentlabel_id = ? ]]></Parameter>
+     <Parameter name="LifeStage" optional="true" after="AND 1=1"><![CDATA[ AND p.EM_cl_LIFESTAGE = ? ]]></Parameter>
+  </SqlMethod>
+
+
+ 
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>
+

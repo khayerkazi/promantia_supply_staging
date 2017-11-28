@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_STORAGE_DETAIL">
+    <table name="M_STORAGE_DETAIL" primaryKey="M_STORAGE_DETAIL_KEY">
+      <index name="EM_SW_STORAG_DETAIL_PROD_IDX" unique="false">
+        <index-column name="M_PRODUCT_ID"/>
+        <index-column name="M_LOCATOR_ID"/>
+        <index-column name="C_UOM_ID"/>
+      </index>
+      <index name="EM_SW_STORAGE_UNIQUE_IDX" unique="true">
+        <index-column name="M_LOCATOR_ID"/>
+        <index-column name="M_ATTRIBUTESETINSTANCE_ID"/>
+        <index-column name="M_PRODUCT_ID"/>
+        <index-column name="C_UOM_ID"/>
+        <index-column name="AD_ORG_ID"/>
+      </index>
+    </table>
+  </database>

@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="ReportCustomerSatisfaction"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="1275"
+		 pageHeight="842"
+		 columnWidth="1275"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<queryString><![CDATA[select distinct o.documentno, TO_CHAR(o.dateordered,'DD-MM-YYYY') as date, TO_CHAR(o.dateordered,'hh24:mi:ss') as times,o.em_ds_posno as POSNO,org.name as Store,b.em_rc_oxylane,b.name as membername,o.ad_org_id,
+      l.postal as postalcode,b.em_rc_email as emailaddress,b.em_rc_mobile as MobileNo,                
+     CASE
+     WHEN o.em_ds_ratesatisfaction='1' THEN 'Not Satisfied'     
+     WHEN o.em_ds_ratesatisfaction='2' THEN 'Satisfied'
+     WHEN o.em_ds_ratesatisfaction='3' THEN 'Very Satisfied'
+     ELSE 'no satisfaction rate'
+     END as CustomerSatisfaction,
+    c.companyname,n.name as natureofbusiness,sum(ol.qtyordered)as billqyt,
+                o.grandtotal,u.name
+                from c_order o 
+                left join c_orderline ol on (ol.c_order_id=o.c_order_id)
+                left join c_bpartner b on (o.c_bpartner_id=b.c_bpartner_id)
+                left join c_bpartner_location bl on (o.c_bpartner_location_id=bl.c_bpartner_location_id)
+                left join c_location l on (bl.c_location_id=l.c_location_id)
+                left join rc_company c on (c.rc_company_id=b.em_rc_company_id)
+                left join rc_natbusi n on (n.rc_natbusi_id=c.rc_natbusi_id)
+                left join ad_user u on (u.ad_user_id=o.ad_user_id)
+	        left join ad_org org on (org.AD_Org_ID=o.AD_Org_ID)
+                where o.issotrx='Y' and processed='Y'
+     group by o.documentno, b.em_rc_oxylane,b.name,o.ad_org_id,u.name,o.dateordered,o.created,
+                l.postal,b.em_rc_email,b.em_rc_mobile,c.companyname,n.name,o.grandtotal,o.em_ds_posno,org.name,o.em_ds_ratesatisfaction
+                order by o.documentno]]></queryString>
+
+	<field name="documentno" class="java.lang.String"/>
+	<field name="date" class="java.lang.String"/>
+	<field name="times" class="java.lang.String"/>
+	<field name="posno" class="java.lang.String"/>
+	<field name="store" class="java.lang.String"/>
+	<field name="em_rc_oxylane" class="java.lang.String"/>
+	<field name="membername" class="java.lang.String"/>
+	<field name="ad_org_id" class="java.lang.String"/>
+	<field name="postalcode" class="java.lang.String"/>
+	<field name="emailaddress" class="java.lang.String"/>
+	<field name="mobileno" class="java.lang.String"/>
+	<field name="customersatisfaction" class="java.lang.String"/>
+	<field name="companyname" class="java.lang.String"/>
+	<field name="natureofbusiness" class="java.lang.String"/>
+	<field name="billqyt" class="java.math.BigDecimal"/>
+	<field name="grandtotal" class="java.math.BigDecimal"/>
+	<field name="name" class="java.lang.String"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="21"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="3"
+						width="1275"
+						height="18"
+						backcolor="#EDD3D3"
+						key="staticText-1"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Customer Satisfaction Report]]></text>
+				</staticText>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="20"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="100"
+						height="20"
+						key="staticText-2"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Decathlon ID]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="100"
+						y="0"
+						width="182"
+						height="20"
+						key="staticText-3"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Member Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="282"
+						y="0"
+						width="95"
+						height="20"
+						key="staticText-4"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Member Org]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="377"
+						y="0"
+						width="92"
+						height="20"
+						key="staticText-5"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Nature of Business]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="469"
+						y="0"
+						width="28"
+						height="20"
+						key="staticText-6"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[POS No]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="497"
+						y="0"
+						width="75"
+						height="20"
+						key="staticText-7"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Store]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="572"
+						y="0"
+						width="71"
+						height="20"
+						key="staticText-8"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Cashier Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="643"
+						y="0"
+						width="67"
+						height="20"
+						key="staticText-9"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="774"
+						y="0"
+						width="77"
+						height="20"
+						key="staticText-10"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Email]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="851"
+						y="0"
+						width="62"
+						height="20"
+						key="staticText-11"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Mobile]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="913"
+						y="0"
+						width="59"
+						height="20"
+						key="staticText-12"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Postal  Code]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="972"
+						y="0"
+						width="54"
+						height="20"
+						key="staticText-13"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill No]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1026"
+						y="0"
+						width="65"
+						height="20"
+						key="staticText-14"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill Qty]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1091"
+						y="0"
+						width="92"
+						height="20"
+						key="staticText-15"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Bill Amount]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1183"
+						y="0"
+						width="90"
+						height="20"
+						key="staticText-16"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Feedback]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="710"
+						y="0"
+						width="64"
+						height="20"
+						key="staticText-17"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Time]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="100"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{em_rc_oxylane}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="100"
+						y="0"
+						width="182"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{membername}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="282"
+						y="0"
+						width="95"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{companyname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="377"
+						y="0"
+						width="92"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{natureofbusiness}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="469"
+						y="0"
+						width="28"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{posno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="497"
+						y="0"
+						width="75"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{store}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="572"
+						y="0"
+						width="71"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="774"
+						y="0"
+						width="77"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{emailaddress}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="851"
+						y="0"
+						width="62"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{mobileno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="913"
+						y="0"
+						width="59"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{postalcode}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="972"
+						y="0"
+						width="54"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1026"
+						y="0"
+						width="65"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{billqyt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1091"
+						y="0"
+						width="92"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{grandtotal}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1183"
+						y="0"
+						width="90"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{customersatisfaction}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="643"
+						y="0"
+						width="67"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{date}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="HH.mm.ss" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="710"
+						y="0"
+						width="64"
+						height="20"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{times}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER CL_M_PRODUCT_TRG">
+    <trigger name="CL_M_PRODUCT_TRG" table="M_PRODUCT" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_ean NUMBER;
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF INSERTING OR UPDATING THEN
+
+   SELECT length(upc) INTO v_ean FROM M_PRODUCT WHERE upc = :NEW.upc;
+   
+     IF ((v_ean > 13) OR (v_ean < 8)) THEN
+        RAISE EXCEPTION 'EAN Code must be 8 to 13 digits...';
+     END IF;
+     IF NOT :NEW.upc SIMILAR TO '[0-9]+' THEN
+	RAISE EXCEPTION 'EAN Code must be Numeric...';
+     END IF;
+
+END IF;
+
+            
+END CL_M_PRODUCT_TRG
+]]></body>
+    </trigger>
+  </database>

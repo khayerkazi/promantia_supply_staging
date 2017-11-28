@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE CL_MODEL">
+    <table name="CL_MODEL" primaryKey="CL_MODEL_KEY">
+      <column name="EM_SW_FAMILYCODE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

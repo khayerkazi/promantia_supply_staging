@@ -1,0 +1,945 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DataImportFormat id="102" identifier="Accounting - Accounts">
+    <id>102</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <name>Accounting - Accounts</name>
+    <description>Based on the format of AccountingUS.cvs import natural Accounts</description>
+    <table id="534" entity-name="ADTable" identifier="I_ElementValue"/>
+    <format>C</format>
+    <processNow>false</processNow>
+  </DataImportFormat>
+  <DataImportFormat id="1000004" identifier="Taxes: Complete">
+    <id>1000004</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <name>Taxes: Complete</name>
+    <description xsi:nil="true"/>
+    <table id="800222" entity-name="ADTable" identifier="I_Tax"/>
+    <format>C</format>
+    <processNow>false</processNow>
+  </DataImportFormat>
+  <DataImportFormat id="1000007" identifier="Accounting - Budget">
+    <id>1000007</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <name>Accounting - Budget</name>
+    <description xsi:nil="true"/>
+    <table id="800175" entity-name="ADTable" identifier="I_Budgetline"/>
+    <format>C</format>
+    <processNow>false</processNow>
+  </DataImportFormat>
+  <DataImportFormatRow id="114" identifier="A - Key">
+    <id>114</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>10</sequenceNumber>
+    <name>A - Key</name>
+    <column id="7929" entity-name="ADColumn" identifier="Value"/>
+    <startingNo>1</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="115" identifier="B - Name">
+    <id>115</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>20</sequenceNumber>
+    <name>B - Name</name>
+    <column id="7913" entity-name="ADColumn" identifier="Name"/>
+    <startingNo>2</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="116" identifier="C - Description">
+    <id>116</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>30</sequenceNumber>
+    <name>C - Description</name>
+    <column id="7933" entity-name="ADColumn" identifier="Description"/>
+    <startingNo>3</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="117" identifier="D - Account Type (Asset, ..)">
+    <id>117</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>40</sequenceNumber>
+    <name>D - Account Type (Asset, ..)</name>
+    <column id="7919" entity-name="ADColumn" identifier="AccountType"/>
+    <startingNo>4</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="118" identifier="H - Account Assignment for default account">
+    <id>118</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>80</sequenceNumber>
+    <name>H - Account Assignment for default account</name>
+    <column id="7918" entity-name="ADColumn" identifier="Default_Account"/>
+    <startingNo>8</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="119" identifier="G - Summary Account">
+    <id>119</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>70</sequenceNumber>
+    <name>G - Summary Account</name>
+    <column id="7969" entity-name="ADColumn" identifier="IsSummary"/>
+    <startingNo>7</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="120" identifier="I - Parent (Summary) Account">
+    <id>120</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>90</sequenceNumber>
+    <name>I - Parent (Summary) Account</name>
+    <column id="7970" entity-name="ADColumn" identifier="ParentValue"/>
+    <startingNo>9</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="121" identifier="E - Account Sign">
+    <id>121</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>50</sequenceNumber>
+    <name>E - Account Sign</name>
+    <column id="7925" entity-name="ADColumn" identifier="AccountSign"/>
+    <startingNo>5</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="122" identifier="F - Document Controlled">
+    <id>122</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>60</sequenceNumber>
+    <name>F - Document Controlled</name>
+    <column id="7927" entity-name="ADColumn" identifier="IsDocControlled"/>
+    <startingNo>6</startingNo>
+    <endNo>0</endNo>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800002" identifier="Tax Name">
+    <id>800002</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>10</sequenceNumber>
+    <name>Tax Name</name>
+    <column id="803725" entity-name="ADColumn" identifier="T_Name"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800003" identifier="Tax Description">
+    <id>800003</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>20</sequenceNumber>
+    <name>Tax Description</name>
+    <column id="803726" entity-name="ADColumn" identifier="T_Description"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800004" identifier="Tax Indicator">
+    <id>800004</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>30</sequenceNumber>
+    <name>Tax Indicator</name>
+    <column id="803727" entity-name="ADColumn" identifier="TaxIndicator"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800005" identifier="Valid from">
+    <id>800005</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>40</sequenceNumber>
+    <name>Valid from</name>
+    <column id="803728" entity-name="ADColumn" identifier="ValidFrom"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800006" identifier="Summary Level">
+    <id>800006</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>50</sequenceNumber>
+    <name>Summary Level</name>
+    <column id="803729" entity-name="ADColumn" identifier="IsSummary"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800007" identifier="Rate">
+    <id>800007</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>60</sequenceNumber>
+    <name>Rate</name>
+    <column id="803730" entity-name="ADColumn" identifier="Rate"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800008" identifier="Parent Tax Name">
+    <id>800008</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>70</sequenceNumber>
+    <name>Parent Tax Name</name>
+    <column id="803752" entity-name="ADColumn" identifier="Parent_Name"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800009" identifier="Code Country From">
+    <id>800009</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>80</sequenceNumber>
+    <name>Code Country From</name>
+    <column id="803753" entity-name="ADColumn" identifier="From_Code_Country"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800010" identifier="Code Region From">
+    <id>800010</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>90</sequenceNumber>
+    <name>Code Region From</name>
+    <column id="803755" entity-name="ADColumn" identifier="From_Code_Region"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800011" identifier="Code Country To">
+    <id>800011</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>100</sequenceNumber>
+    <name>Code Country To</name>
+    <column id="803754" entity-name="ADColumn" identifier="TO_Code_Country"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800012" identifier="Code Region To">
+    <id>800012</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>110</sequenceNumber>
+    <name>Code Region To</name>
+    <column id="803756" entity-name="ADColumn" identifier="TO_Code_Region"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800013" identifier="Tax Category Name">
+    <id>800013</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>120</sequenceNumber>
+    <name>Tax Category Name</name>
+    <column id="803741" entity-name="ADColumn" identifier="TC_Name"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800014" identifier="Tax Cat. Description">
+    <id>800014</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>130</sequenceNumber>
+    <name>Tax Cat. Description</name>
+    <column id="803742" entity-name="ADColumn" identifier="TC_Description"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800015" identifier="BP Tax Cat Name">
+    <id>800015</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>140</sequenceNumber>
+    <name>BP Tax Cat Name</name>
+    <column id="803745" entity-name="ADColumn" identifier="BPTC_Name"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="800016" identifier="BP Tax Cat Desc.">
+    <id>800016</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000004" entity-name="DataImportFormat" identifier="Taxes: Complete"/>
+    <sequenceNumber>150</sequenceNumber>
+    <name>BP Tax Cat Desc.</name>
+    <column id="803746" entity-name="ADColumn" identifier="BPTC_Description"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000004" identifier="J - Element Level">
+    <id>1000004</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>100</sequenceNumber>
+    <name>J - Element Level</name>
+    <column id="803877" entity-name="ADColumn" identifier="Elementlevel"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600000" identifier="K - Operands">
+    <id>1000600000</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="102" entity-name="DataImportFormat" identifier="Accounting - Accounts"/>
+    <sequenceNumber>110</sequenceNumber>
+    <name>K - Operands</name>
+    <column id="1000600024" entity-name="ADColumn" identifier="Operands"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600018" identifier="Amount">
+    <id>1000600018</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>30</sequenceNumber>
+    <name>Amount</name>
+    <column id="802918" entity-name="ADColumn" identifier="Amount"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>N</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600019" identifier="Period">
+    <id>1000600019</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>40</sequenceNumber>
+    <name>Period</name>
+    <column id="802892" entity-name="ADColumn" identifier="Periodident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600020" identifier="Account">
+    <id>1000600020</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>100</sequenceNumber>
+    <name>Account</name>
+    <column id="1005500005" entity-name="ADColumn" identifier="Elementvalueident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600021" identifier="Org">
+    <id>1000600021</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>150</sequenceNumber>
+    <name>Org</name>
+    <column id="802900" entity-name="ADColumn" identifier="Orgtrxident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600022" identifier="Description">
+    <id>1000600022</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>160</sequenceNumber>
+    <name>Description</name>
+    <column id="802909" entity-name="ADColumn" identifier="Description"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600023" identifier="Currency">
+    <id>1000600023</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>170</sequenceNumber>
+    <name>Currency</name>
+    <column id="802967" entity-name="ADColumn" identifier="Currencyident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600024" identifier="BPGroup">
+    <id>1000600024</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>60</sequenceNumber>
+    <name>BPGroup</name>
+    <column id="802912" entity-name="ADColumn" identifier="Bpgroupident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1000600025" identifier="Product Category">
+    <id>1000600025</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>80</sequenceNumber>
+    <name>Product Category</name>
+    <column id="802914" entity-name="ADColumn" identifier="Prodcategoryident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500000" identifier="Account Schema">
+    <id>1005500000</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>90</sequenceNumber>
+    <name>Account Schema</name>
+    <column id="1005500002" entity-name="ADColumn" identifier="Acctschemaident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500003" identifier="Business Partner">
+    <id>1005500003</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>50</sequenceNumber>
+    <name>Business Partner</name>
+    <column id="802898" entity-name="ADColumn" identifier="Partnerident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500004" identifier="Product">
+    <id>1005500004</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>70</sequenceNumber>
+    <name>Product</name>
+    <column id="802896" entity-name="ADColumn" identifier="Productident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500005" identifier="Sales Region">
+    <id>1005500005</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>110</sequenceNumber>
+    <name>Sales Region</name>
+    <column id="802902" entity-name="ADColumn" identifier="Salesregionident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500006" identifier="Campaign">
+    <id>1005500006</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>120</sequenceNumber>
+    <name>Campaign</name>
+    <column id="802906" entity-name="ADColumn" identifier="Campaignident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500007" identifier="Activity">
+    <id>1005500007</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>130</sequenceNumber>
+    <name>Activity</name>
+    <column id="802908" entity-name="ADColumn" identifier="Activityident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500008" identifier="Project">
+    <id>1005500008</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>140</sequenceNumber>
+    <name>Project</name>
+    <column id="802904" entity-name="ADColumn" identifier="Projectident"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>S</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500009" identifier="Qty">
+    <id>1005500009</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>10</sequenceNumber>
+    <name>Qty</name>
+    <column id="802916" entity-name="ADColumn" identifier="Qty"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>N</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+  <DataImportFormatRow id="1005500010" identifier="Price">
+    <id>1005500010</id>
+    <active>true</active>
+    <creationDate transient="true">2011-05-16T17:21:03.0Z</creationDate>
+    <createdBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <updated transient="true">2011-05-16T17:21:03.0Z</updated>
+    <updatedBy transient="true" id="0" entity-name="ADUser" identifier="System"/>
+    <importFormat id="1000007" entity-name="DataImportFormat" identifier="Accounting - Budget"/>
+    <sequenceNumber>20</sequenceNumber>
+    <name>Price</name>
+    <column id="802917" entity-name="ADColumn" identifier="Price"/>
+    <startingNo xsi:nil="true"/>
+    <endNo xsi:nil="true"/>
+    <dataType>N</dataType>
+    <dataFormat xsi:nil="true"/>
+    <decimalPoint>.</decimalPoint>
+    <divideBy100>false</divideBy100>
+    <constantValue xsi:nil="true"/>
+    <calloutFunction xsi:nil="true"/>
+    <script xsi:nil="true"/>
+  </DataImportFormatRow>
+</ob:Openbravo>

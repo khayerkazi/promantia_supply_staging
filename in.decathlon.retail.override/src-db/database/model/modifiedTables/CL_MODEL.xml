@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE CL_MODEL">
+    <table name="CL_MODEL" primaryKey="CL_MODEL_KEY">
+      <unique name="CL_MODELNAME">
+        <unique-column name="CL_MODEL_ID"/>
+        <unique-column name="NAME"/>
+      </unique>
+      <unique name="CL_MODELVALUE">
+        <unique-column name="CL_MODEL_ID"/>
+        <unique-column name="VALUE"/>
+      </unique>
+    </table>
+  </database>

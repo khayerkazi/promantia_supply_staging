@@ -1,0 +1,1092 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="RptSW_Requisition"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="842"
+		 pageHeight="595"
+		 columnWidth="782"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="DOCUMENT_ID" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["'46DBD4E3097740AA844A0E8B311D030C'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SW_Srequisition_Id" isForPrompting="false" class="java.lang.String"/>
+	<queryString><![CDATA[select r.documentno,r.reqdate,b.name as brand,p.value as itemcode,
+rl.modelname||' - '||rl.size||' - '||rl.color as description,p.em_cl_pcb_qty as pcbqty,
+p.em_cl_ue_qty as ueqty,rl.qtyship as bmqty,pp.em_cl_cessionprice as landedpriceperitem, 
+(pp.em_cl_cessionprice*rl.qtyship) as total,
+CASE
+     WHEN lower(plv.name) not like lower('%DMI CATALOGUE%') THEN   
+     pp.em_cl_cessionprice=0 
+     END as CustomerSatisfaction
+from sw_srequisition r 
+left join sw_sreqline rl on (rl.sw_srequisition_id=r.sw_srequisition_id)
+left join m_product p on (p.m_product_id = rl.m_product_id)
+left join cl_brand b on (b.cl_brand_id=rl.cl_brand_id)
+left join m_productprice pp on (pp.m_product_id=p.m_product_id)
+left join m_pricelist_version plv on (plv.m_pricelist_version_id=pp.m_pricelist_version_id)
+where r.sw_srequisition_id = $P{SW_Srequisition_Id}
+group by  b.name,r.documentno , p.value, p.description, p.em_cl_pcb_qty,rl.modelname,rl.size,rl.color,
+ p.em_cl_ue_qty,  rl.qtyship,  pp.em_cl_cessionprice,  r.reqdate,plv.name
+ order by r.documentno]]></queryString>
+
+	<field name="documentno" class="java.lang.String"/>
+	<field name="reqdate" class="java.sql.Timestamp"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="pcbqty" class="java.math.BigDecimal"/>
+	<field name="ueqty" class="java.math.BigDecimal"/>
+	<field name="bmqty" class="java.math.BigDecimal"/>
+	<field name="landedpriceperitem" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal"/>
+
+	<variable name="Total" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<variable name="Landedpriceperitem" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{landedpriceperitem}]]></variableExpression>
+	</variable>
+	<variable name="bmqty" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{bmqty}]]></variableExpression>
+	</variable>
+
+		<group  name="Total" >
+			<groupExpression><![CDATA[]]></groupExpression>
+			<groupHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="StoreRet" >
+			<groupExpression><![CDATA[]]></groupExpression>
+			<groupHeader>
+			<band height="190"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="27"
+						width="781"
+						height="0"
+						key="line-6"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="2"
+						y="2"
+						width="144"
+						height="20"
+						key="staticText-2"/>
+					<box></box>
+					<textElement textAlignment="Justified" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Reason for return:]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="0"
+						width="0"
+						height="190"
+						key="line-8"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="781"
+						y="0"
+						width="0"
+						height="190"
+						key="line-9"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="4"
+						y="55"
+						width="357"
+						height="38"
+						key="staticText-4"/>
+					<box></box>
+					<textElement>
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Decathlon Sports india Pvt Ltd ,
+Survey 96/1,(old No.96) Sarjapur road, Kodathi Village,
+Varthur, Hobli, Bangalore -South Taluk.After Railway Crossing)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="4"
+						y="30"
+						width="357"
+						height="25"
+						key="staticText-5"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Seller
+Decathlon Sports India Pvt. Ltd.]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="375"
+						y="27"
+						width="0"
+						height="163"
+						key="line-11"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="4"
+						y="102"
+						width="281"
+						height="25"
+						key="staticText-6"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<text><![CDATA[TIN: 29640215582]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="379"
+						y="69"
+						width="89"
+						height="24"
+						key="staticText-7"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Invoice date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="379"
+						y="110"
+						width="51"
+						height="16"
+						key="staticText-8"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Sender]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="379"
+						y="147"
+						width="47"
+						height="16"
+						key="staticText-9"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[C&C]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="379"
+						y="163"
+						width="237"
+						height="18"
+						key="staticText-10"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<text><![CDATA[Decathlon Sports India]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="471"
+						y="31"
+						width="171"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="474"
+						y="69"
+						width="113"
+						height="24"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$F{reqdate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="379"
+						y="127"
+						width="257"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="379"
+						y="30"
+						width="89"
+						height="21"
+						key="staticText-26"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Document No :]]></text>
+				</staticText>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="78"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="4"
+						y="5"
+						width="417"
+						height="36"
+						key="staticText-23"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[CHECKED AND CONFIRMED BY LOG - CHECKED AND CONFIRMED BY BM -]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="435"
+						y="5"
+						width="343"
+						height="36"
+						key="staticText-24"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Signature of BM/DM]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="4"
+						y="46"
+						width="774"
+						height="27"
+						key="staticText-25"/>
+					<box></box>
+					<textElement textAlignment="Justified">
+						<font fontName="Verdana" pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<text><![CDATA[In respect of the goods covered by this invoice, no credit of the additional duty of customs levied under section 3(5) of the Customs Tariff Act shall be admissible.]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="75"
+						width="781"
+						height="0"
+						key="line-43"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="43"
+						width="781"
+						height="0"
+						key="line-44"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="430"
+						y="2"
+						width="0"
+						height="42"
+						key="line-47"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="0"
+						width="0"
+						height="74"
+						key="line-48"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="781"
+						y="0"
+						width="0"
+						height="75"
+						key="line-49"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="1"
+						width="780"
+						height="0"
+						key="line-50"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="StoreRetCol" >
+			<groupExpression><![CDATA[]]></groupExpression>
+			<groupHeader>
+			<band height="34"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="1"
+						width="780"
+						height="0"
+						key="line-5"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="1"
+						width="0"
+						height="33"
+						key="line-12"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="781"
+						y="1"
+						width="0"
+						height="33"
+						key="line-13"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="3"
+						y="3"
+						width="68"
+						height="28"
+						key="staticText-11"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Item code]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="73"
+						y="2"
+						width="0"
+						height="31"
+						key="line-14"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="594"
+						y="1"
+						width="0"
+						height="32"
+						key="line-15"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="503"
+						y="2"
+						width="0"
+						height="31"
+						key="line-16"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="413"
+						y="2"
+						width="0"
+						height="31"
+						key="line-17"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="354"
+						y="2"
+						width="0"
+						height="31"
+						key="line-18"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="290"
+						y="2"
+						width="0"
+						height="31"
+						key="line-19"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="162"
+						y="2"
+						width="0"
+						height="31"
+						key="line-20"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="76"
+						y="3"
+						width="85"
+						height="28"
+						key="staticText-12"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Brand]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="164"
+						y="3"
+						width="125"
+						height="28"
+						key="staticText-13"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Description]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="292"
+						y="3"
+						width="60"
+						height="28"
+						key="staticText-14"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[PCB Qty]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="357"
+						y="3"
+						width="54"
+						height="28"
+						key="staticText-15"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[UE Qty]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="416"
+						y="3"
+						width="86"
+						height="28"
+						key="staticText-16"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Qty Sent By BM]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="506"
+						y="3"
+						width="87"
+						height="28"
+						key="staticText-17"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Qty Received By WH]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="680"
+						y="1"
+						width="0"
+						height="32"
+						key="line-21"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="597"
+						y="3"
+						width="82"
+						height="28"
+						key="staticText-18"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Landed Price (Per Item)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="684"
+						y="3"
+						width="94"
+						height="28"
+						key="staticText-19"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Landed Price Total]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="33"
+						width="781"
+						height="0"
+						key="line-22"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="61"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="0"
+						width="0"
+						height="60"
+						key="line-34"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="781"
+						y="1"
+						width="0"
+						height="60"
+						key="line-35"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="290"
+						y="-2"
+						width="0"
+						height="27"
+						key="line-36"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="354"
+						y="-2"
+						width="0"
+						height="27"
+						key="line-37"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="413"
+						y="-2"
+						width="0"
+						height="27"
+						key="line-38"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="503"
+						y="-2"
+						width="0"
+						height="27"
+						key="line-39"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="594"
+						y="-2"
+						width="0"
+						height="27"
+						key="line-40"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="680"
+						y="-2"
+						width="0"
+						height="27"
+						key="line-41"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="25"
+						width="781"
+						height="0"
+						key="line-42"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="254"
+						y="2"
+						width="33"
+						height="22"
+						key="staticText-20"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Total ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="4"
+						y="35"
+						width="85"
+						height="17"
+						key="staticText-21"/>
+					<box></box>
+					<textElement textAlignment="Left">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Invoice Total :]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="231"
+						y="35"
+						width="139"
+						height="20"
+						key="staticText-22"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Place and Date of Issue]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="60"
+						width="781"
+						height="0"
+						key="line-45"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="227"
+						y="26"
+						width="0"
+						height="35"
+						key="line-46"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="682"
+						y="4"
+						width="96"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{Total}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="597"
+						y="5"
+						width="82"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{Landedpriceperitem}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="416"
+						y="5"
+						width="86"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{bmqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="95"
+						y="36"
+						width="127"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{Total}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="34"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="174"
+						y="4"
+						width="468"
+						height="26"
+						key="staticText-1"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[STORE RETURN TO THE WAREHOUSE
+]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="1"
+						width="0"
+						height="32"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="781"
+						y="1"
+						width="0"
+						height="32"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="33"
+						width="781"
+						height="0"
+						key="line-4"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="1"
+						width="780"
+						height="0"
+						key="line-10"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="29"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="0"
+						width="0"
+						height="29"
+						key="line-23"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="781"
+						y="0"
+						width="0"
+						height="29"
+						key="line-24"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="73"
+						y="0"
+						width="0"
+						height="28"
+						key="line-25"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="162"
+						y="0"
+						width="0"
+						height="28"
+						key="line-26"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="290"
+						y="0"
+						width="0"
+						height="29"
+						key="line-27"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="354"
+						y="0"
+						width="0"
+						height="29"
+						key="line-28"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="413"
+						y="0"
+						width="0"
+						height="29"
+						key="line-29"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="503"
+						y="0"
+						width="0"
+						height="29"
+						key="line-30"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="594"
+						y="0"
+						width="0"
+						height="29"
+						key="line-31"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="680"
+						y="0"
+						width="0"
+						height="29"
+						key="line-32"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="28"
+						width="780"
+						height="1"
+						key="line-33"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3"
+						y="2"
+						width="68"
+						height="25"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="76"
+						y="2"
+						width="84"
+						height="25"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="292"
+						y="2"
+						width="61"
+						height="25"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{pcbqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="358"
+						y="2"
+						width="53"
+						height="25"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{ueqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="416"
+						y="2"
+						width="85"
+						height="25"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{bmqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="596"
+						y="2"
+						width="83"
+						height="25"
+						key="textField"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{landedpriceperitem}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="683"
+						y="2"
+						width="95"
+						height="25"
+						key="textField"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{total}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="163"
+						y="2"
+						width="126"
+						height="25"
+						key="textField"
+						stretchType="RelativeToBandHeight"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{description}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

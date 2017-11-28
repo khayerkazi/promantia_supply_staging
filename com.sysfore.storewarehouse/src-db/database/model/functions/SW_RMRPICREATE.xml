@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_RMRPICREATE">
+    <function name="SW_RMRPICREATE" type="VARCHAR">
+      <parameter name="p_c_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_DocType_ID VARCHAR(32) :='';
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Record_ID VARCHAR2(32) := p_c_order_id;
+   v_InOut_ID VARCHAR(32) :='';
+   v_org_id VARCHAR(32) :='';
+    inventoryItemCreateCursor RECORD;
+  
+    inventoryCreateCursor RECORD;
+    -- Parameter Variables
+    v_InvDate DATE;
+    v_Count NUMBER:=0;
+    v_InvId VARCHAR(32) :='';
+    v_locator_id VARCHAR(32) :='';
+    v_line NUMBER:=10;
+    vm_line NUMBER:=10;
+    v_qtycount NUMBER:=0;
+    v_qtybook NUMBER:=0;
+
+    v_Countr NUMBER:=0;
+     rmrItemCreateCursor RECORD;
+    rmrCreateCursor RECORD;
+    v_Countstatus NUMBER:=0;
+    v_countAcceptedstatus NUMBER:=0;
+    v_isrejected character(1):='N';
+    v_pInstanceInv_ID  VARCHAR(32):= get_uuid();
+BEGIN
+
+
+-- Handling RMR
+
+SELECT COUNT(1) INTO v_Countr FROM c_orderline WHERE c_order_id=v_Record_ID;
+
+v_InOut_ID := get_uuid();
+
+IF (v_Countr>0) THEN
+
+select c_doctype_id from c_doctype into v_DocType_ID where name ='RFC Receipt';
+
+FOR rmrCreateCursor IN(SELECT * FROM c_order WHERE c_order_id=v_Record_ID)
+LOOP
+select m_returnlocator_id into v_locator_id from m_warehouse where ad_org_id = rmrCreateCursor.ad_org_id
+and m_warehouse_id=rmrCreateCursor.m_warehouse_ID;
+-- Handling the  status column - Accepted,Rejected,Partial,Pending
+IF(rmrCreateCursor.em_sw_status='RJ')THEN
+UPDATE C_ORDERLINE set  em_sw_isaccepted= 'N' WHERE c_order_id=rmrCreateCursor.c_order_id;
+v_isrejected = 'Y';
+END IF;
+
+IF(v_isrejected = 'N') THEN
+SELECT COUNT(1) INTO V_Countstatus FROM c_orderline WHERE c_order_id = rmrCreateCursor.c_order_id;
+SELECT COUNT(1) INTO V_CountAcceptedstatus FROM c_orderline WHERE c_order_id = rmrCreateCursor.c_order_id and em_sw_isaccepted ='Y';
+
+if(V_Countstatus = V_CountAcceptedstatus)THEN 
+-- UPDATE STATUS AS ACCEPTED IN C_ORDER TABLE
+UPDATE C_ORDER set em_sw_status='AC' WHERE c_order_id=rmrCreateCursor.c_order_id; 
+ELSIF(V_CountAcceptedstatus >0)THEN
+UPDATE C_ORDER set em_sw_status='PR' WHERE c_order_id=rmrCreateCursor.c_order_id;
+ELSE
+UPDATE C_ORDER set em_sw_status='RJ' WHERE c_order_id=rmrCreateCursor.c_order_id;
+END IF;
+END IF;
+
+ 
+ INSERT INTO M_INOUT
+              (M_InOut_ID, C_Order_ID, IsSOTrx, C_Invoice_ID,
+              AD_Client_ID, AD_Org_ID, IsActive, Created,
+              CreatedBy, Updated, UpdatedBy, DocumentNo,
+              C_DocType_ID, Description, IsPrinted, MovementType,
+              MovementDate, DateAcct, C_BPartner_ID, C_BPartner_Location_ID,
+              AD_User_ID, M_Warehouse_ID, POReference, DateOrdered,
+              SalesRep_ID,
+              DeliveryRule,
+              FreightCostRule,
+              FreightAmt,
+              DeliveryViaRule, M_Shipper_ID, C_Charge_ID, ChargeAmt,
+              PriorityRule,
+              DocStatus, DocAction, Processing, Processed,em_sw_return_reason
+              )
+            VALUES
+              (v_InOut_ID, rmrCreateCursor.C_Order_ID, rmrCreateCursor.IsSoTrx, null,
+              rmrCreateCursor.AD_Client_ID, rmrCreateCursor.AD_Org_ID, 'Y', now(),
+              '0', now(), '0', rmrCreateCursor.documentno,
+              v_DocType_ID, null, 'N', 'C+',
+              now(),rmrCreateCursor.DateAcct, rmrCreateCursor.C_BPartner_ID, rmrCreateCursor.C_BPartner_Location_ID,
+              rmrCreateCursor.AD_User_ID, rmrCreateCursor.m_warehouse_ID, NULL, rmrCreateCursor.DateOrdered,
+              rmrCreateCursor.SalesRep_ID,
+              'A', -- Available
+              'I',
+              0, -- Freight included
+              'P', NULL, rmrCreateCursor.C_Charge_ID, rmrCreateCursor.ChargeAmt,
+              '5', -- PickUp, High Priority
+              'DR', 'CO', 'N', 'N','Shuttle Correction'
+              );
+            --
+            INSERT INTO ad_pinstance(ad_pinstance_id,ad_process_id,record_id,isprocessing, created,ad_user_id,updated,result,errormsg,ad_client_id,ad_org_id,createdby,updatedby,isactive)
+VALUES(v_pInstanceInv_ID,(select ad_process_id from ad_process where value='M_InOut Post'),v_InOut_ID,'Y',now(),'100',now(),'1','',rmrCreateCursor.AD_Client_ID,rmrCreateCursor.AD_Org_ID,'100','100','Y');
+
+
+    END LOOP;     
+ FOR rmrItemCreateCursor IN(SELECT * FROM c_orderline WHERE c_order_id=v_Record_ID)
+    LOOP
+              INSERT INTO M_INOUTLINE
+                (M_InOutLine_ID, Line, M_InOut_ID, C_OrderLine_ID,
+                AD_Client_ID, AD_Org_ID, IsActive, Created,
+                CreatedBy, Updated, UpdatedBy, M_Product_ID,
+                C_UOM_ID, M_Locator_ID, MovementQty, Description,
+                IsInvoiced,
+               
+                QuantityOrder, M_Product_Uom_ID, M_AttributeSetInstance_ID
+                )
+              VALUES
+                (get_uuid(), vm_line, v_InOut_ID, rmrItemCreateCursor.C_OrderLine_ID,
+                rmrItemCreateCursor.AD_Client_ID, rmrItemCreateCursor.AD_Org_ID, 'Y', now(),
+                '0', now(), '0', rmrItemCreateCursor.M_Product_ID,
+                rmrItemCreateCursor.C_UOM_ID, v_locator_id, rmrItemCreateCursor.qtyordered, rmrItemCreateCursor.Description,
+                'Y',
+             
+                rmrItemCreateCursor.QuantityOrder, rmrItemCreateCursor.M_Product_Uom_ID, rmrItemCreateCursor.M_ATTRIBUTESETINSTANCE_ID
+                );
+ vm_line:= vm_line+10;
+END LOOP;
+
+
+ M_INOUT_POST(v_pInstanceInv_ID,v_InOut_ID);             
+
+v_pInstanceInv_ID := get_uuid();
+
+END IF;
+
+    --Inventory
+    SELECT COUNT(1) INTO v_Count FROM c_orderline WHERE c_order_id=v_Record_ID and em_sw_isaccepted='N';
+v_InvId := get_uuid();
+
+
+IF (v_Count>0) THEN
+
+
+FOR inventoryCreateCursor IN(SELECT * FROM c_order WHERE c_order_id=v_Record_ID)
+LOOP
+    --RAISE EXCEPTION 'QtyBook: %',Cur_InvLine.QtyBook;
+select m_returnlocator_id into v_locator_id from m_warehouse where ad_org_id = inventoryCreateCursor.ad_org_id
+and m_warehouse_id=inventoryCreateCursor.m_warehouse_ID;
+     
+
+INSERT INTO m_inventory(m_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby,
+            updated, updatedby,processing, processed, name, description, m_warehouse_id, movementdate,em_sw_movementtype)
+    VALUES (v_InvId, inventoryCreateCursor.ad_client_id, inventoryCreateCursor.ad_org_id,
+                'Y', now(),
+                inventoryCreateCursor.createdby, now(),
+                inventoryCreateCursor.updatedby, 'N','N',
+                inventoryCreateCursor.documentno,
+                'SHUTTLE CORRECTION VIRTUAL SHRINKAGE',inventoryCreateCursor.m_warehouse_id,
+                 now(),'PI');
+
+ INSERT INTO ad_pinstance(ad_pinstance_id,ad_process_id,record_id,isprocessing, created,ad_user_id,updated,result,errormsg,ad_client_id,ad_org_id,createdby,updatedby,isactive)
+VALUES(v_pInstanceInv_ID,(select ad_process_id from ad_process where value='M_Inventory Post'),v_InvId,'Y',now(),'100',now(),'1','',inventoryCreateCursor.AD_Client_ID,inventoryCreateCursor.AD_Org_ID,'100','100','Y');
+
+ 
+   END LOOP;
+
+   FOR inventoryItemCreateCursor IN(SELECT * FROM c_orderline WHERE c_order_id=v_Record_ID and em_sw_isaccepted='N')
+    LOOP
+    --RAISE EXCEPTION 'QtyBook: %',Cur_InvLine.QtyBook
+   
+    IF NOT EXISTS (
+  select qtyonhand  from m_storage_detail where m_product_id=inventoryItemCreateCursor.m_product_id
+  and m_attributesetinstance_id='0'
+  and m_locator_id = v_locator_id) then
+  v_qtybook :=0;
+  else
+select COALESCE(qtyonhand,0) into v_qtybook from m_storage_detail where m_product_id=inventoryItemCreateCursor.m_product_id
+  and m_attributesetinstance_id='0'
+  and m_locator_id = v_locator_id;
+  end if;
+
+IF (v_qtybook IS NULL) THEN
+ RAISE EXCEPTION 'QtyBook cannot be null: %',v_qtybook;
+    END IF;
+  v_qtycount := v_qtybook+inventoryItemCreateCursor.qtyordered;
+ 
+  INSERT INTO m_inventoryline(m_inventoryline_id, ad_client_id, ad_org_id, isactive, created, createdby,
+    updated, updatedby,m_inventory_id,m_locator_id,m_product_id,line,
+    qtycount,qtybook,description,c_uom_id,m_attributesetinstance_id)
+
+  VALUES
+    (get_uuid(), inventoryItemCreateCursor.ad_client_id, inventoryItemCreateCursor.ad_org_id,
+    'Y', now(),
+    inventoryItemCreateCursor.createdby, now(),
+    inventoryItemCreateCursor.updatedby, v_InvId, v_locator_id,
+    inventoryItemCreateCursor.m_product_id,v_line,
+    v_qtycount,v_qtybook,'SHUTTLE CORRECTION VIRTUAL SHRINKAGE',
+    inventoryItemCreateCursor.c_uom_id,inventoryItemCreateCursor.m_attributesetinstance_id);
+
+    v_line:= v_line+10;
+    v_qtycount:=0;
+    v_qtybook :=0;
+
+ M_INVENTORY_POST(v_pInstanceInv_ID);
+   
+    END LOOP;
+    
+--PERFORM M_INOUT_POST(PINSTANCEID);
+--PERFORM M_INVENTORY_POST(PINSTANCEID);
+
+    END IF;
+   RETURN 'SUCCESS';
+END SW_RMRPICREATE
+]]></body>
+    </function>
+  </database>

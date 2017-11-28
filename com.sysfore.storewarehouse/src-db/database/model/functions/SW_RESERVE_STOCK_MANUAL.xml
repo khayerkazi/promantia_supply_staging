@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_RESERVE_STOCK_MANUAL">
+    <function name="SW_RESERVE_STOCK_MANUAL" type="NULL">
+      <parameter name="p_reservation_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_type_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_stock_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_qty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_allocated" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_reservation_stock_id" type="VARCHAR" mode="out">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_reservation_stock_ID    VARCHAR2(32) := get_uuid();
+  v_aux_rs_id               VARCHAR2(32);
+  v_client_id               VARCHAR2(32);
+  v_org_id                  VARCHAR2(32);
+  v_locator_id              VARCHAR2(32);
+  v_asi_id                  VARCHAR2(32);
+  v_poline_id               VARCHAR2(32);
+
+  v_orderline_id  	    VARCHAR(32);
+  v_count                   NUMBER;
+  v_record			Record;
+BEGIN
+ SELECT ad_client_id, ad_org_id,c_orderline_id
+    INTO v_client_id, v_org_id,v_orderline_id
+  FROM m_reservation
+  WHERE m_reservation_id = p_reservation_id;
+
+
+    SELECT m_locator_id, m_attributesetinstance_id
+      INTO v_locator_id, v_asi_id
+    FROM m_storage_detail
+    WHERE m_storage_detail_id = p_stock_id;
+
+SELECT count(1) INTO v_count
+    FROM m_reservation_stock
+    WHERE m_reservation_id = p_reservation_id AND m_attributesetinstance_id = v_asi_id;
+
+    
+/*SELECT * INTO v_record
+    FROM m_reservation_stock
+    WHERE m_reservation_id = p_reservation_id;
+*/
+--Raise Exception '% Count , m_reservation_id % ,m_attributesetinstance_id %',v_count,p_reservation_id, v_asi_id ;
+-- if the box picked from is not changed then existing reservation_stock (v_count > 0) 
+
+IF (v_count > 0) THEN 
+
+SELECT m_reservation_stock_id INTO v_aux_rs_id
+    FROM m_reservation_stock
+    WHERE m_reservation_id = p_reservation_id  AND m_attributesetinstance_id = v_asi_id;
+
+
+UPDATE m_reservation_stock
+    SET quantity = quantity + p_qty
+    WHERE m_reservation_stock_id = v_aux_rs_id;
+    
+ELSE 
+--Else create a new m_reservation stock with the same m_reservation_id
+  /*  SELECT m_locator_id, m_attributesetinstance_id
+      INTO v_locator_id, v_asi_id
+    FROM m_storage_detail
+    WHERE m_storage_detail_id = p_stock_id;*/
+
+  INSERT INTO m_reservation_stock(
+    m_reservation_stock_id, ad_client_id, ad_org_id, isactive,
+    created, createdby, updated, updatedby,
+    m_reservation_id, m_attributesetinstance_id, m_locator_id, c_orderline_id,
+    quantity, releasedqty, isallocated
+  ) VALUES (
+    v_reservation_stock_id, v_client_id, v_org_id, 'Y',
+    now(), p_user_id, now(), p_user_id,
+    p_reservation_id, v_asi_id, v_locator_id, v_orderline_id,
+    p_qty, 0, p_allocated
+  );
+
+  END IF;
+ /*
+*/
+  p_reservation_stock_id := v_reservation_stock_id;
+
+  RETURN;
+END SW_RESERVE_STOCK_MANUAL
+]]></body>
+    </function>
+  </database>

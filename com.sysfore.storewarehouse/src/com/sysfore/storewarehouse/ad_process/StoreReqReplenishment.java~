@@ -1,0 +1,466 @@
+/*
+*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html 
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License. 
+* The Original Code is Openbravo ERP. 
+* The Initial Developer of the Original Code is Openbravo SLU 
+* All portions are Copyright (C) 2008 Openbravo SLU 
+* All Rights Reserved. 
+* Contributor(s):  ______________________________________.
+************************************************************************
+*/
+
+package com.sysfore.storewarehouse.ad_process;
+/**
+* Process for create the store requisition automatically.
+* 
+* @author Johnson Joseph
+*/
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+
+import javax.servlet.ServletException;
+
+import org.apache.log4j.Logger;
+import org.hibernate.criterion.Expression;
+import org.openbravo.base.secureApp.VariablesSecureApp;
+import org.openbravo.dal.service.OBCriteria;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.database.ConnectionProvider;
+import org.openbravo.erpCommon.businessUtility.BpartnerMiscData;
+import org.openbravo.erpCommon.businessUtility.Tax;
+import org.openbravo.erpCommon.reference.PInstanceProcessData;
+import org.openbravo.erpCommon.utility.DateTimeData;
+import org.openbravo.erpCommon.utility.OBError;
+import org.openbravo.erpCommon.utility.SequenceIdData;
+import org.openbravo.erpCommon.utility.Utility;
+import org.openbravo.exception.NoConnectionAvailableException;
+import org.openbravo.model.ad.system.Client;
+import org.openbravo.scheduling.ProcessBundle;
+import org.openbravo.scheduling.ProcessContext;
+import org.openbravo.scheduling.ProcessLogger;
+import org.openbravo.scheduling.ProcessBundle.Channel;
+import org.openbravo.service.db.DalBaseProcess;
+
+public class StoreReqReplenishment extends DalBaseProcess {
+static Logger log4j = Logger.getLogger(StoreReqReplenishment.class);
+private final static String SYSTEM_CLIENT_ID = "0";
+private ProcessLogger logger;
+private ConnectionProvider connection;
+
+@Override
+protected void doExecute(ProcessBundle bundle) throws Exception {
+// TODO Auto-generated method stub
+logger = bundle.getLogger();
+connection = bundle.getConnection();
+
+VariablesSecureApp vars = bundle.getContext().toVars();
+if (vars.getClient().equals(SYSTEM_CLIENT_ID)) {
+OBCriteria<Client> obc = OBDal.getInstance().createCriteria(
+Client.class);
+obc.add(Expression.not(Expression.eq(Client.PROPERTY_ID,
+SYSTEM_CLIENT_ID)));
+
+for (Client c : obc.list()) {
+final VariablesSecureApp vars1 = new VariablesSecureApp(bundle
+.getContext().getUser(), c.getId(), bundle.getContext()
+.getOrganization());
+processOrder(vars1, bundle);
+}
+} else {
+processOrder(vars, bundle);
+}
+}
+
+/**
+* 
+* @param vars
+* @param bundle
+* @return
+* @throws ServletException
+*/
+@SuppressWarnings("static-access")
+private OBError processOrder(VariablesSecureApp vars, ProcessBundle bundle)
+throws ServletException {
+OBError myError = new OBError();
+String clientId = bundle.getContext().getClient();
+String orgId = bundle.getContext().getOrganization();
+String userId = bundle.getContext().getUser();
+
+ConnectionProvider conn = null;
+Connection con = null;
+log4j.debug("clientId: " + clientId);	
+log4j.debug("orgId: " + orgId);	
+log4j.debug("userId: " + userId);
+
+try {
+int no = 0;
+conn = bundle.getConnection();
+con = conn.getTransactionConnection();
+String warehouseId = "";
+String locatorId = "";
+String documentNo = "";
+String BrandId="";  // Added by mitesh
+int docNo = 0;
+System.out.print("code here ");
+//StoreReqReplenishmentData[] brandData = StoreReqReplenishmentData.selectBrand(conn, clientId);
+warehouseId = StoreReqReplenishmentData.selectWarehouse(con, conn,orgId, clientId);
+
+// mitesh has added store dept... inplace of brand
+StoreReqReplenishment1Data[] storedptData = StoreReqReplenishment1Data.selectStoreDept(conn, clientId);
+
+log4j.debug("userId: " + userId);
+locatorId = StoreReqReplenishmentData.selectLocator(con, conn,warehouseId);
+System.out.println("locatorId:" + locatorId);
+log4j.debug("userId: " + userId);
+conn.releaseCommitConnection(con);
+if (storedptData.length > 0) {
+if (log4j.isDebugEnabled())
+log4j.debug("Total Brands = " + storedptData.length);
+con = conn.getTransactionConnection();
+String docTargetType = StoreReqReplenishmentData.cDoctypeTarget(conn,clientId, "0");
+log4j.debug("docTargetType: " + docTargetType);
+documentNo = Utility.getDocumentNo(conn, vars, "","SW_SRequisition",
+docTargetType,docTargetType, false, true);
+if (documentNo == null|| documentNo.equals("")) {
+documentNo = StoreReqReplenishmentData.cDocNumber(conn,clientId, orgId);
+//docNo = Integer.parseInt(documentNo);
+
+
+}
+for (int i = 0; i < storedptData.length; i++) {
+// System.out.println(""+i +" : "+ data[i].brand);
+
+StoreReqReplenishmentData[] itemData = StoreReqReplenishmentData.selectItem(conn, clientId, orgId, storedptData[i].sdept);
+if (itemData.length > 0) {
+if (log4j.isDebugEnabled())
+	log4j.debug("Total Item = " + itemData.length);						
+String stockTransactionData = "0";
+String warehouseStock = "0";
+//String storeStockData = "0";
+String approvedQty = "0";
+String shippedQty = "0";
+String UeQty = "1";
+boolean headerValue = true;
+String headerid = "";
+String displayqtycheck="";
+String Implatationqty="";
+int lineNo = 10;
+int checkStock = 0;
+int totalStockData = 0;
+int totalWarehouseStock = 0;
+int qtyApproved = 0;
+int qtyshiped=0;
+int implantationQty=0;
+for (int j = 0; j < itemData.length; j++) {							
+	log4j.debug("ProductId: " + itemData[j].mProductId);
+	
+	//This data is from m_storage_details table
+	stockTransactionData = StoreReqReplenishmentData.selectStockTransaction(conn,itemData[j].mProductId,locatorId, clientId);
+	//storeStockData = StoreReqReplenishmentData.selectStoreStock(conn, itemData[j].mProductId, orgId, clientId);
+	log4j.debug("Total stockTransactionData: " + stockTransactionData);
+	log4j.debug("minqty: " + itemData[j].minqty);
+	warehouseStock = StoreReqReplenishmentData.selectStockTransactionWarehouse(conn,"603C6A266B4C40BCAD87C5C43DDF53EE",itemData[j].mProductId, clientId);
+	// new code here
+	//System.out.println( warehouseStock + " warehouseStock ");
+	BrandId=StoreReqReplenishment1Data.selectbrand(conn, itemData[j].mProductId);			
+	
+	int totalStock = 0;
+	int orderQty = 0;
+	
+	totalStockData = 0;
+	totalWarehouseStock = 0;
+	int qtyMin = 0;
+	int qtyMax = 0;
+	int displayQty=0;
+	if (stockTransactionData == null || stockTransactionData.equals(""))
+		stockTransactionData = "" + 0;
+	if (warehouseStock == null || warehouseStock.equals(""))
+		warehouseStock = "" + 0;
+	//if (storeStockData == null || storeStockData.equals(""))
+	//	storeStockData = "" + 0;
+	
+	try {
+		totalWarehouseStock=(int) Double.parseDouble(warehouseStock);
+		//System.out.println( totalWarehouseStock + " totalWarehouseStock ");
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	try {
+		totalStockData =(int) Double.parseDouble(stockTransactionData);
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	try {	
+	qtyMin =(int) Integer.parseInt(itemData[j].minqty);		
+	//
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
+	try {		
+	qtyMax =(int) Integer.parseInt(itemData[j].maxqty);
+	    } catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	//need to add try block
+	// display min
+	//System.out.println(" qtyMin " + orgId + " item code " + itemData[j].mProductId); 
+	displayqtycheck=StoreReqReplenishment1Data.displayMin(conn, itemData[j].mProductId, orgId);
+	displayQty=(int) Integer.parseInt(displayqtycheck);
+	//System.out.println(" display qty pass "); 
+	if(displayQty > qtyMin)
+		{
+		qtyMin=displayQty;
+		qtyMax=qtyMin;
+		System.out.println(" setting display qty =min  "); 
+		}
+	
+	Implatationqty=StoreReqReplenishment1Data.selectimplantationqty(conn, itemData[j].mProductId, orgId);
+	if(Implatationqty>0)
+	{
+	qtyMin=Integer.parseInt(Implatationqty);
+	qtyMax=qtyMin;
+	StoreReqReplenishment1Data.updateimplantedy(conn, itemData[j].mProductId, orgId );	
+	}
+	/*if(qtyMin==0){
+	//System.out.println(" implantation qty "); 
+	//System.out.println(" itemData[j].mProductId, "+ itemData[j].mProductId +" orgId " + orgId); 
+	Implatationqty=StoreReqReplenishment1Data.selectimplantationqty(conn, itemData[j].mProductId, orgId);
+	if((Implatationqty==null)||(Implatationqty.equals("")))
+	{
+	qtyMin=0;
+	}
+	else{
+	qtyMin=Integer.parseInt(Implatationqty);
+	}
+	qtyMax=qtyMin;
+	//System.out.println(" ImplantationQty " + qtyMin + " item code " + itemData[j].mProductId + " orgId " + orgId);
+	nStoreReqReplenishment1Data.updateimplantedy(conn, itemData[j].mProductId, orgId );
+	}*/
+
+	if ((qtyMin > totalStockData) && (totalStockData >= 0) && totalWarehouseStock > 0) {
+		/* Check the already approved qty */
+		approvedQty = StoreReqReplenishmentData.selectApprovedQty(conn,itemData[j].mProductId,BrandId, clientId,orgId);
+		log4j.debug("approvedQty: " + approvedQty);
+		/* Check the already shipped qty */
+		shippedQty=StoreReqReplenishmentData.selectShippedQty(conn,itemData[j].mProductId,BrandId, clientId,orgId);
+		log4j.debug("shippedQty: " + shippedQty);
+		
+		if (approvedQty == null	|| approvedQty.equals(""))
+			approvedQty = "" + 0;
+		if (shippedQty == null	|| shippedQty.equals(""))
+			shippedQty = "" + 0;
+		
+		UeQty = itemData[j].ue;
+		if (itemData[j].ue == null || itemData[j].ue.equals("0"))
+			UeQty = "" + 1;
+		try {								
+			//qtyApproved =(int) Integer.parseInt(approvedQty);
+			qtyApproved=0;
+			qtyshiped=(int) Integer.parseInt(shippedQty);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		totalStock = totalStockData + qtyApproved+ qtyshiped;
+		log4j.debug("totalStock: " + totalStock);
+//			System.out.println("qtyMin: " + qtyMin);
+//		System.out.println("totalStock: " + totalStock);
+		
+		if (qtyMin >= totalStock) {   // mitesh has changed code here made min = or greater than stock in hand
+				
+			//checkStock = (Integer.parseInt(itemData[j].minqty)) - totalStock;
+			//log4j.debug("checkStock: " + checkStock);
+			
+		//		UeQty = itemData[j].ue;
+			//	System.out.println(" afetr totalStock UeQty : " + UeQty);
+				int QtyUE = 1;
+				try {
+				QtyUE = (int)Integer.parseInt(UeQty);
+				log4j.debug("QtyUE: " + QtyUE);
+				}catch (Exception e) {
+			// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//if (checkStock >= QtyUE) {
+				//log4j.debug("after checkStock: " + checkStock);
+				//shifted code from here
+				/* Create the Requisition Line */
+				//System.out.println(" afetr totalStock QTYUE: " + QtyUE);
+				/// mitesh adding code here 
+				/// qtyMax < QtyUE  than i am making orderQty =UE 
+				if(qtyMax<QtyUE)
+					qtyMax=QtyUE;
+				
+				orderQty = qtyMax- totalStock;
+				log4j.debug("itemData[j].maxqty: " + qtyMax);
+				log4j.debug("totalStock: " + totalStock);
+				log4j.debug("orderQty: " + orderQty);
+				log4j.debug("orderQty: " + QtyUE);
+				log4j.debug("Modular:"+ (orderQty % QtyUE));
+				// orderQty = orderQty %
+				// Integer.parseInt(itemData[j].ue);
+				//additional code
+				
+				
+				
+				
+				int modeUE = 1;
+				try {
+				//	System.out.println(" mode totalStock: ");
+					modeUE = orderQty % QtyUE;
+					log4j.debug("QtyUE: " + modeUE);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block 
+					modeUE = 0;
+					e.printStackTrace();
+				}
+				
+				//additional code end
+				if (modeUE != 0)
+					orderQty = orderQty- modeUE;
+				
+				if(orderQty > totalWarehouseStock)   
+						{
+					orderQty = totalWarehouseStock;
+					//System.out.println(orderQty + " orderQty " + totalWarehouseStock + " totalWarehouseStock ");
+						}
+																	
+				log4j.debug("UeQty in the line: " + UeQty);
+				log4j.debug("orderQty in the line: " + orderQty);
+				if (orderQty > 0){
+					if (headerValue) {
+						
+						/*
+						 * String docTargetType =
+						 * StoreReqReplenishmentData
+						 * .cDoctypeTarget(con, conn,
+						 * Utility.getContext( conn, vars,
+						 * "#User_Client",
+						 * "StoreRequisition"),
+						 * Utility.getContext(conn, vars,
+						 * "#User_Org",
+						 * "StoreRequisition"));
+						 * System.out.println
+						 * ("docTargetType:"+docTargetType);
+						 */
+						
+						/* Create the Requisition Header */
+						log4j.debug("documentNo: " + documentNo);
+						StoreReqReplenishmentHeaderData storeReqReplenishmentHeader = new StoreReqReplenishmentHeaderData();
+						storeReqReplenishmentHeader.swSrequisitionId = SequenceIdData.getUUID();
+						storeReqReplenishmentHeader.adClientId = clientId;
+						storeReqReplenishmentHeader.adOrgId = orgId;
+						storeReqReplenishmentHeader.adUserId = userId;
+						storeReqReplenishmentHeader.createdby = userId;
+						storeReqReplenishmentHeader.documentno = ""+(++docNo);
+						
+						documentNo = Utility.getDocumentNo(conn, vars, "","SW_SRequisition",
+								docTargetType,docTargetType, false, true);
+						storeReqReplenishmentHeader.updatedby = userId;
+						storeReqReplenishmentHeader.clStoredeptId = storedptData[i].sdept;
+						storeReqReplenishmentHeader.cDoctypeId = docTargetType;
+						storeReqReplenishmentHeader.cDoctypetargetId = docTargetType;
+						try {
+							no = storeReqReplenishmentHeader.insert(con, conn);
+						} catch (ServletException ex) {
+							try {
+							System.out.println(" i am in header exception");						
+							conn.releaseRollbackConnection(con);
+							} catch (Exception ignored) {
+							}
+						}
+						headerid = storeReqReplenishmentHeader.swSrequisitionId;
+						headerValue = false;
+						
+						if (log4j.isDebugEnabled())
+					log4j.debug("Heder inserted: = "+ no);
+						log4j.debug("Heder inserted: = "+ no);
+					}
+						log4j.debug("In the Requisition line: ");
+					StoreReqReplenishmentLineData storeReqReplenishmentLine = new StoreReqReplenishmentLineData();
+
+					storeReqReplenishmentLine.swSreqlineId = SequenceIdData
+							.getUUID();
+					storeReqReplenishmentLine.adClientId = clientId;
+					storeReqReplenishmentLine.adOrgId = orgId;
+					storeReqReplenishmentLine.createdby = userId;
+					storeReqReplenishmentLine.updatedby = userId;
+					storeReqReplenishmentLine.swSrequisitionId = headerid;
+					storeReqReplenishmentLine.mProductId = itemData[j].mProductId;
+					storeReqReplenishmentLine.clBrandId = BrandId;
+					storeReqReplenishmentLine.modelname = itemData[j].modelname;
+					storeReqReplenishmentLine.size = itemData[j].size;
+					storeReqReplenishmentLine.color = itemData[j].color;
+					storeReqReplenishmentLine.qtyreq = ""+ orderQty;
+					storeReqReplenishmentLine.line = "" + lineNo;
+					storeReqReplenishmentLine.mWarehouseId = warehouseId;
+					storeReqReplenishmentLine.itemcode = itemData[j].pdtname;
+					log4j.debug("Req Line completed: ");
+					try {
+						no = storeReqReplenishmentLine.insert(con, conn);
+					} catch (ServletException ex) {
+						try {
+						System.out.println(" i am in LINES exception");						
+						conn.releaseRollbackConnection(con);
+						} catch (Exception ignored) {
+						}
+					}
+					
+					if (log4j.isDebugEnabled())
+						log4j.debug("Total Line inserted: = "+ no);
+					lineNo += 10;
+				}
+				
+			//}
+		}
+		
+	}
+	
+}
+
+}
+
+}
+//
+conn.releaseCommitConnection(con);
+}
+
+} catch (NoConnectionAvailableException ex) {
+throw new ServletException("@CODE=NoConnectionAvailable");
+} catch (SQLException ex2) {
+try {
+conn.releaseRollbackConnection(con);
+} catch (Exception ignored) {
+}
+throw new ServletException("@CODE="
++ Integer.toString(ex2.getErrorCode()) + "@"
++ ex2.getMessage());
+} catch (Exception ex3) {
+try {
+conn.releaseRollbackConnection(con);
+} catch (Exception ignored) {
+}
+throw new ServletException("@CODE=@" + ex3.getMessage());
+}
+return myError;
+}
+
+}

@@ -1,0 +1,2 @@
+1. apply build-patch-for-app.diff to file path app/build.xml
+2. apply build-patch-for-db.diff to file path src-db/database/build.xml

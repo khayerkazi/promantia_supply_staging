@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ORDER">
+    <table name="C_ORDER" primaryKey="C_ORDER_KEY">
+      <index name="EM_DBSI_ONEBOX_IDX1" unique="false">
+        <index-column name="EM_SW_PO_REFERENCE"/>
+        <index-column name="ISSOTRX"/>
+        <index-column name="C_DOCTYPE_ID"/>
+      </index>
+    </table>
+  </database>

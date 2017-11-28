@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPORT_DC">
+    <function name="IM_IMPORT_DC" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[orderCreateCursor RECORD;
+  orderCursor RECORD ;
+  orderlineCursor RECORD;
+  loopvar record;
+
+v_flag boolean := TRUE;
+v_validated NUMBER:=0;
+v_Line NUMBER:=0;
+
+v_insertedorderno VARCHAR(32):='';
+v_userid VARCHAR(32):='';
+v_org_id VARCHAR(32):='';
+
+v_modelCode VARCHAR(32):='';
+v_modelName VARCHAR(120):='';
+v_deptId VARCHAR(32):='';
+v_brandId VARCHAR(32):='';
+v_warehouse_id VARCHAR(32):='';
+v_C_Order_Line_ID VARCHAR(32):=NULL;
+v_DocumentNo VARCHAR(30) ;
+
+vcessionprice NUMBER:=0;
+vrate NUMBER;
+vtaxbaseamt NUMBER:=0;
+vtaxamt NUMBER:=0;
+
+vgrossunitprice NUMBER:=0;
+v_lineamt NUMBER:=0;
+v_linegrossamt NUMBER:=0;
+
+v_Vol_PCB NUMBER;
+v_Weight NUMBER;
+v_GrossWt NUMBER;
+v_GrossWt_PCB NUMBER;
+v_Color VARCHAR(32):=NULL;
+v_Size VARCHAR(30):=NULL;
+v_M_Product_ID VARCHAR(32):=NULL;
+v_taxid VARCHAR(32):=NULL;
+v_partner_id VARCHAR(32):=NULL;
+v_emds_partner VARCHAR(32):=NULL;
+v_partnerlocation_id VARCHAR(32):=NULL;
+
+v_btobid VARCHAR(32):='';
+v_C_Order_ID VARCHAR(32):='';
+v_C_DocType_ID VARCHAR(32):='' ;
+
+--HARD Codes
+-- 1. condition used in retrieving warehouse => ilike Saleable%
+
+v_currency_id VARCHAR(32):='304';
+v_Ad_Client_ID VARCHAR(32):='187D8FC945A5481CB41B3EE767F80DBB'; 
+v_B2B_warehouseCBPartner VARCHAR(32):='35586321F375451389832DD198CA1DC7'; --DSI Warehouse ID from c_bpartner
+v_paymentterm_id VARCHAR(32):='A4B18FE74DF64897B71663B0E57A4EFE' ; --c_paymentterm_id
+v_pricelist_id VARCHAR(32):= '65EF50ECA5234A8FA788B4980D02EBC4'  ;--m_pricelist_id
+v_cl_storedept_id VARCHAR(32):= '0C1827B9863648B8A2269797E61BE83F';
+
+v_B2B VARCHAR(32):='B2B'; --Organization  name for B2B
+v_transportCharge NUMBER:=0;
+v_C_Orders_created VARCHAR(2000):='Order Created :';
+v_description VARCHAR(32):='Import DC';
+vmarginamt NUMBER:=0;
+v_em_cl_brandId VARCHAR(32):='';
+
+BEGIN
+v_userid=user_id;
+
+select count(*) into v_validated from im_importbulk_dc where im_importbulk_dc.validated='N' and im_importbulk_dc.createdby=v_userid;
+
+IF v_validated!=0 THEN
+	v_flag = FALSE;
+  RAISE EXCEPTION 'Records not validated';
+
+ELSE
+
+--get partner and partner location id 
+select cb.c_bpartner_id ,cbl.c_bpartner_location_id into v_partner_id,v_partnerlocation_id
+from c_bpartner_location cbl,c_bpartner cb
+where cb.c_bpartner_id=cbl.c_bpartner_id
+and cb.c_bpartner_id=v_B2B_warehouseCBPartner;
+
+
+FOR orderCreateCursor IN(Select distinct store from im_importbulk_dc where createdby=v_userid and processed='N' and validated='Y' and createdby=v_userid) 
+ LOOP
+
+SELECT ad_org_id into v_org_id from ad_org where name=orderCreateCursor.store;
+SELECT m_warehouse_id into v_warehouse_id from m_warehouse where ad_org_id=v_org_id and name like 'Saleable%';
+select cl_brand_id into v_em_cl_brandId from cl_brand where name ='*';
+
+for orderCursor IN (SELECT distinct btobcustomer FROM im_importbulk_dc where store = orderCreateCursor.store and processed='N' and validated='Y' and createdby=v_userid)
+ Loop
+v_C_Order_ID=get_uuid();
+
+
+select c_doctype_id into v_C_DocType_ID from c_doctype where ad_org_id IN (SELECT ad_org_id from ad_org where name=orderCreateCursor.store);
+Ad_Sequence_Doctype(v_C_DocType_ID, v_Ad_Client_ID, 'Y', v_DocumentNo) ;
+
+IF (orderCreateCursor.store=v_B2B) THEN
+	v_DocumentNo = orderCursor.btobcustomer ||'*'||v_DocumentNo;
+         --select c_bpartner_id into v_emds_partner from c_bpartner cb ,rc_company rc where cb.EM_RC_Company_ID=rc.rc_company_id and rc.value=orderCursor.btobcustomer and cb.name='Sangeeta';
+	 --select c_bpartner_id into v_emds_partner from c_bpartner cb ,rc_company rc where cb.EM_RC_Company_ID=rc.rc_company_id and rc.value=orderCursor.btobcustomer limit 1;
+	 --setting c_bpartner for B2B01 auto replenishment sportxs
+	 select c_bpartner_id into v_emds_partner from c_bpartner cb ,rc_company rc where cb.EM_RC_Company_ID=rc.rc_company_id and rc.value='B2B01' limit 1;
+
+END IF;
+
+INSERT INTO c_order(c_order_id,ad_client_id,ad_org_id,isactive,created, createdby, updated, updatedby, 
+issotrx, documentno, docstatus,docaction, processing, processed, c_doctype_id, c_doctypetarget_id, 
+description, isdelivered, isinvoiced, isprinted,isselected,dateordered, datepromised, dateacct, 
+c_bpartner_id, billto_id, c_bpartner_location_id,poreference,isdiscountprinted, c_currency_id,paymentrule, 
+c_paymentterm_id, invoicerule, deliveryrule, freightcostrule,deliveryviarule, priorityrule, totallines,
+grandtotal, m_warehouse_id, m_pricelist_id, posted, copyfrom, isselfservice,generatetemplate, copyfrompo, 
+em_ds_totalpriceadj,em_ds_grandtotalamt, em_sw_modelcode, em_sw_modelname, em_sw_dept_id,em_sw_brand_id, 
+em_sw_expdeldate,em_sw_estshipdate,em_sw_actshipdate,em_sw_pricelistver, em_sw_currency, em_sw_postatus,em_ds_bpartner_id,EM_DS_ChargeAmt,em_cl_storedept_id,EM_Ibdo_Createso,EM_Cl_Brand_ID)
+VALUES (v_C_Order_ID,v_Ad_Client_ID,v_org_id,'Y', now(),v_userid, now(),v_userid,
+ 'N',v_DocumentNo,'DR','CO','N','N',v_C_DocType_ID,v_C_DocType_ID,
+ v_description,'N','N', 'N', 'N',now(),now(),now(),
+ v_partner_id,v_partnerlocation_id,v_partnerlocation_id,v_DocumentNo,'N',v_currency_id, 'P',
+ v_paymentterm_id, 'I', 'A', 'I', 'P', '5','0.00', 
+ '0',v_warehouse_id,v_pricelist_id,'N', 'N', 'N', 'N', 'N', 
+ '0', '0.00',v_modelCode,v_modelName,v_deptId,v_brandId,
+ now(),now(),now(),'','', 'DR',v_emds_partner,v_transportCharge,v_cl_storedept_id,'N',v_em_cl_brandId);
+ 
+v_btobid =orderCursor.btobcustomer;
+
+FOR orderlineCursor IN (SELECT ic.itemcode,ic.qty,ic.createdby,p.em_cl_modelcode as modelcode,p.em_cl_modelname,
+d.cl_department_id,b.cl_brand_id From m_product p,cl_department d,cl_brand b,cl_model m,
+ im_importbulk_dc ic where p.name=ic.itemcode and ic.validated='Y' and ic.processed='N' and ic.createdby=v_userid and ic.store=orderCreateCursor.store 
+ and ic.btobcustomer=v_btobid and m.cl_department_id=d.cl_department_id and p.em_cl_model_id=m.cl_model_id and m.cl_brand_id=b.cl_brand_id) 
+LOOP
+v_modelCode:=orderlineCursor.modelcode;
+v_modelName:=orderlineCursor.em_cl_modelname;
+v_deptId:=orderlineCursor.cl_department_id;
+v_brandId:=orderlineCursor.cl_brand_id;  
+
+--get productid,volume,pcb,grosswt,wt,size,color,weight,taxcategoryid
+SELECT p.m_product_id,p.em_cl_volume_pcb,p.em_cl_grosswt_pcb,p.weight,
+p.em_cl_size,c.name,p.em_cl_grosswt_pcb
+into v_M_Product_ID,v_Vol_PCB,v_GrossWt,v_Weight,v_Size,v_Color,v_GrossWt_PCB
+From m_product p,cl_color c
+where p.name=orderlineCursor.itemcode and 
+p.em_cl_color_id=c.cl_color_id;
+
+--get tax id 
+select c_tax_id into v_taxid from c_tax where c_region_id in 
+(select l.c_region_id from ad_orginfo oi, c_location l where oi.ad_org_id= v_org_id 
+and oi.c_location_id=l.c_location_id) 
+and c_tax.c_taxcategory_id =(select c_taxcategory_id  from m_product where m_product_id=v_M_Product_ID)
+union select c_tax.c_tax_id from c_tax ,c_tax_zone where c_tax.c_tax_id = c_tax_zone.c_tax_id and c_tax_zone.from_region_id in 
+(select l.c_region_id from ad_orginfo oi, c_location l where oi.ad_org_id=v_org_id and oi.c_location_id=l.c_location_id) and 
+c_tax.c_taxcategory_id =(select c_taxcategory_id from m_product where m_product_id=v_M_Product_ID);
+
+IF (orderCreateCursor.store=v_B2B) THEN
+	select em_cl_cessionprice into vcessionprice from m_productprice where m_product_id =v_M_Product_ID and ad_org_id =v_org_id;
+	select rate into vrate from c_tax where c_tax_id = v_taxid;
+
+v_lineamt=coalesce((vcessionprice*orderlineCursor.qty),0);
+
+vtaxbaseamt= ((vcessionprice*vrate)/100);
+vtaxamt = vtaxbaseamt*to_number(orderlineCursor.qty);
+
+vgrossunitprice = vcessionprice+vtaxbaseamt;
+v_linegrossamt = vgrossunitprice*to_number(orderlineCursor.qty);
+
+END IF;
+--------------------------------
+
+v_Line=v_Line+10;
+v_C_Order_Line_ID=get_uuid();
+
+INSERT INTO c_orderline(C_OrderLine_ID, AD_Client_ID, AD_Org_ID, isActive, Created, CreatedBy, Updated, UpdatedBy, Line,
+M_Product_ID, QtyOrdered, PriceActual, C_Tax_ID, FreightAmt, C_Order_ID, PriceList, PriceStd,PriceLimit, Discount, 
+C_UOM_ID, DateOrdered, M_Warehouse_ID, C_Currency_ID, Description, C_BPartner_ID, C_BPartner_Location_ID, em_ds_lotqty, 
+em_ds_lotprice, em_ds_boxqty, em_ds_boxprice, em_ds_unitqty,grosspricelist, manage_reservation, manage_prereservation, 
+EM_Ds_Linenetamt,EM_Ds_Marginamt,taxbaseamt,em_ds_taxamount,gross_unit_price , line_gross_amount)
+
+VALUES(v_C_Order_Line_ID,v_Ad_Client_ID,v_org_id,'Y',now(),v_userid,now(),v_userid,v_Line,
+v_M_Product_ID,to_number(orderlineCursor.qty),vcessionprice,v_taxid,0,v_C_Order_ID,0,0,0,0,
+'100',now(),v_warehouse_id,v_currency_id,v_description,v_partner_id,v_partnerlocation_id,null,
+null,null,null,to_number(orderlineCursor.qty),'0','N','N',
+v_lineamt,vmarginamt,vtaxbaseamt,vtaxamt,vgrossunitprice,v_linegrossamt);
+
+
+IF (orderCreateCursor.store=v_B2B) THEN
+	update im_importbulk_dc id set processed='Y',validated='Y' where id.itemcode=orderlineCursor.itemcode and id.store = orderCreateCursor.store and id.btobcustomer=v_btobid and orderlineCursor.createdby=v_userid ;
+ELSE
+	update im_importbulk_dc id set processed='Y',validated='Y' where id.itemcode=orderlineCursor.itemcode and id.store = orderCreateCursor.store and orderlineCursor.createdby=v_userid ;
+
+END IF;
+
+END LOOP;
+END LOOP;
+END LOOP;
+
+END IF;
+delete from im_importbulk_dc id where id.processed='Y' and id.validated='Y' and id.createdby=v_userid ;
+
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_IMPORT_DC
+]]></body>
+    </function>
+  </database>

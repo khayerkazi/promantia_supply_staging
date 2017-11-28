@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<data>
+<!--135--><AD_PROCESS>
+<!--135-->  <AD_PROCESS_ID><![CDATA[135]]></AD_PROCESS_ID>
+<!--135-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--135-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--135-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--135-->  <VALUE><![CDATA[AD_ImpFormat Copy]]></VALUE>
+<!--135-->  <NAME><![CDATA[Copy Lines]]></NAME>
+<!--135-->  <DESCRIPTION><![CDATA[Copy Lines from other Import Format]]></DESCRIPTION>
+<!--135-->  <HELP><![CDATA[Select another Import Format on the combo.]]></HELP>
+<!--135-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--135-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--135-->  <PROCEDURENAME><![CDATA[AD_ImpFormat_Copy]]></PROCEDURENAME>
+<!--135-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--135-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--135-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--135-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--135-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--135-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--135-->  <UIPATTERN><![CDATA[S]]></UIPATTERN>
+<!--135-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--135-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--135--></AD_PROCESS>
+
+<!--194--><AD_PROCESS>
+<!--194-->  <AD_PROCESS_ID><![CDATA[194]]></AD_PROCESS_ID>
+<!--194-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--194-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--194-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--194-->  <VALUE><![CDATA[ImportBPartnerServlet]]></VALUE>
+<!--194-->  <NAME><![CDATA[Import Business Partners]]></NAME>
+<!--194-->  <DESCRIPTION><![CDATA[Import Business Partners]]></DESCRIPTION>
+<!--194-->  <HELP><![CDATA[The Parameters are default values for null import record values, they do not overwrite any data.]]></HELP>
+<!--194-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
+<!--194-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--194-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--194-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--194-->  <CLASSNAME><![CDATA[ad_process/ImportBPartner.html]]></CLASSNAME>
+<!--194-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--194-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--194-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--194-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--194-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--194-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--194-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--194--></AD_PROCESS>
+
+<!--196--><AD_PROCESS>
+<!--196-->  <AD_PROCESS_ID><![CDATA[196]]></AD_PROCESS_ID>
+<!--196-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--196-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--196-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--196-->  <VALUE><![CDATA[ImportProduct]]></VALUE>
+<!--196-->  <NAME><![CDATA[Import Products]]></NAME>
+<!--196-->  <DESCRIPTION><![CDATA[Imports products from a file into the application]]></DESCRIPTION>
+<!--196-->  <HELP><![CDATA[Import Products will bring a file of products, in a predefined format into the application.<p>||The Parameters are default values for null import record values, they do not overwrite any data.]]></HELP>
+<!--196-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
+<!--196-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--196-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--196-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--196-->  <CLASSNAME><![CDATA[ad_process/ImportProduct.html]]></CLASSNAME>
+<!--196-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--196-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--196-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--196-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--196-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--196-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--196-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--196--></AD_PROCESS>
+
+<!--197--><AD_PROCESS>
+<!--197-->  <AD_PROCESS_ID><![CDATA[197]]></AD_PROCESS_ID>
+<!--197-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--197-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--197-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--197-->  <VALUE><![CDATA[ImportAccount]]></VALUE>
+<!--197-->  <NAME><![CDATA[Import Accounts]]></NAME>
+<!--197-->  <DESCRIPTION><![CDATA[Import Natural Accounts]]></DESCRIPTION>
+<!--197-->  <HELP><![CDATA[Import accounts and their hierarchies and optional update the default accounts.  |Updating the Default Accounts changes the natural account segment of the used account, e.g. account 01-240 becomes 01-300).  If you create a new combination, the old account]]></HELP>
+<!--197-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
+<!--197-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--197-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--197-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--197-->  <CLASSNAME><![CDATA[ad_process/ImportAccount.html]]></CLASSNAME>
+<!--197-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--197-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--197-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--197-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--197-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--197-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--197-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--197--></AD_PROCESS>
+
+<!--206--><AD_PROCESS>
+<!--206-->  <AD_PROCESS_ID><![CDATA[206]]></AD_PROCESS_ID>
+<!--206-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--206-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--206-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--206-->  <VALUE><![CDATA[ImportOrderServlet]]></VALUE>
+<!--206-->  <NAME><![CDATA[Import Orders]]></NAME>
+<!--206-->  <DESCRIPTION><![CDATA[Import Orders]]></DESCRIPTION>
+<!--206-->  <HELP><![CDATA[The Parameters are default values for null import record values, they do not overwrite any data.]]></HELP>
+<!--206-->  <ACCESSLEVEL><![CDATA[7]]></ACCESSLEVEL>
+<!--206-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--206-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--206-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--206-->  <CLASSNAME><![CDATA[ad_process/ImportOrderServlet.html]]></CLASSNAME>
+<!--206-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--206-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--206-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--206-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--206-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--206-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--206-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--206--></AD_PROCESS>
+
+<!--207--><AD_PROCESS>
+<!--207-->  <AD_PROCESS_ID><![CDATA[207]]></AD_PROCESS_ID>
+<!--207-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--207-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--207-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--207-->  <VALUE><![CDATA[Import_Invoice]]></VALUE>
+<!--207-->  <NAME><![CDATA[Import Invoice]]></NAME>
+<!--207-->  <DESCRIPTION><![CDATA[Import Invoice]]></DESCRIPTION>
+<!--207-->  <HELP><![CDATA[The Parameters are default values for null import record values, they do not overwrite any data.]]></HELP>
+<!--207-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
+<!--207-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--207-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--207-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--207-->  <CLASSNAME><![CDATA[org.openbravo.process.ImportInvoice]]></CLASSNAME>
+<!--207-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--207-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--207-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--207-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--207-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--207-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--207-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--207--></AD_PROCESS>
+
+<!--219--><AD_PROCESS>
+<!--219-->  <AD_PROCESS_ID><![CDATA[219]]></AD_PROCESS_ID>
+<!--219-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--219-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--219-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--219-->  <VALUE><![CDATA[Import_Inventory]]></VALUE>
+<!--219-->  <NAME><![CDATA[Import Inventory]]></NAME>
+<!--219-->  <DESCRIPTION><![CDATA[Import Physical Inventory]]></DESCRIPTION>
+<!--219-->  <HELP><![CDATA[The Parameters are default values for null import record values, they do not overwrite any data.]]></HELP>
+<!--219-->  <ACCESSLEVEL><![CDATA[1]]></ACCESSLEVEL>
+<!--219-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--219-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--219-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--219-->  <CLASSNAME><![CDATA[org.openbravo.process.ImportInventory]]></CLASSNAME>
+<!--219-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--219-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--219-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--219-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--219-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--219-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--219-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--219--></AD_PROCESS>
+
+<!--220--><AD_PROCESS>
+<!--220-->  <AD_PROCESS_ID><![CDATA[220]]></AD_PROCESS_ID>
+<!--220-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--220-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--220-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--220-->  <VALUE><![CDATA[Import_GLJournal]]></VALUE>
+<!--220-->  <NAME><![CDATA[Import Journal]]></NAME>
+<!--220-->  <DESCRIPTION><![CDATA[Import General Ledger Batch/Journal/Line]]></DESCRIPTION>
+<!--220-->  <HELP><![CDATA[The Parameters are default values for null import record values, they do not overwrite any data.]]></HELP>
+<!--220-->  <ACCESSLEVEL><![CDATA[1]]></ACCESSLEVEL>
+<!--220-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--220-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--220-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--220-->  <CLASSNAME><![CDATA[org.openbravo.process.ImportGLJournal]]></CLASSNAME>
+<!--220-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--220-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--220-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--220-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--220-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--220-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--220-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--220--></AD_PROCESS>
+
+<!--800139--><AD_PROCESS>
+<!--800139-->  <AD_PROCESS_ID><![CDATA[800139]]></AD_PROCESS_ID>
+<!--800139-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--800139-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--800139-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--800139-->  <VALUE><![CDATA[ImportBudget]]></VALUE>
+<!--800139-->  <NAME><![CDATA[Import Budget]]></NAME>
+<!--800139-->  <DESCRIPTION><![CDATA[Import Budget]]></DESCRIPTION>
+<!--800139-->  <HELP><![CDATA[Import Budget]]></HELP>
+<!--800139-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
+<!--800139-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--800139-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--800139-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--800139-->  <CLASSNAME><![CDATA[org.openbravo.erpCommon.ad_process.ImportBudgetServlet]]></CLASSNAME>
+<!--800139-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--800139-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--800139-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--800139-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--800139-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--800139-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--800139-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--800139--></AD_PROCESS>
+
+<!--800167--><AD_PROCESS>
+<!--800167-->  <AD_PROCESS_ID><![CDATA[800167]]></AD_PROCESS_ID>
+<!--800167-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+<!--800167-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+<!--800167-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+<!--800167-->  <VALUE><![CDATA[ImportTaxes]]></VALUE>
+<!--800167-->  <NAME><![CDATA[Import Taxes]]></NAME>
+<!--800167-->  <DESCRIPTION><![CDATA[Import Taxes]]></DESCRIPTION>
+<!--800167-->  <HELP><![CDATA[Import Taxes from temporary tables to real ones.]]></HELP>
+<!--800167-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
+<!--800167-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
+<!--800167-->  <ISREPORT><![CDATA[N]]></ISREPORT>
+<!--800167-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
+<!--800167-->  <CLASSNAME><![CDATA[org.openbravo.erpCommon.ad_process.ImportTax]]></CLASSNAME>
+<!--800167-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
+<!--800167-->  <ISJASPER><![CDATA[N]]></ISJASPER>
+<!--800167-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
+<!--800167-->  <AD_MODULE_ID><![CDATA[FF8081812FBF677A012FBF6A0D3E0003]]></AD_MODULE_ID>
+<!--800167-->  <UIPATTERN><![CDATA[M]]></UIPATTERN>
+<!--800167-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
+<!--800167-->  <PREVENTCONCURRENT><![CDATA[N]]></PREVENTCONCURRENT>
+<!--800167--></AD_PROCESS>
+
+</data>

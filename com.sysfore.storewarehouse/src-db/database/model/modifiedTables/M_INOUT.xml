@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_INOUT">
+    <table name="M_INOUT" primaryKey="M_INOUT_KEY">
+      <column name="EM_SW_MOVEMENT" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_SHIPPEDSTATUS" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[NP]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_ISSHIPPED" primaryKey="false" required="false" type="VARCHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_SW_RETURN_REASON" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

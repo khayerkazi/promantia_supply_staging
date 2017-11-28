@@ -1,0 +1,220 @@
+Search Key,Name,Description,Account Type,Account Sign,Document Controlled,Summary Level,Default Account,Parent_Value,Element Level,Operands,Show Value Condition,Title Node
+L,EQUITY AND LIABILITIES,EQUITY AND LIABILITIES,Owner's Equity,Credit,false,true,,,E,,Algebraic,false
+L01,Shareholders' Funds,Shareholders' Funds,Owner's Equity,Credit,false,true,,L,E,,Algebraic,false
+L0101,Share Capital,Share Capital,Owner's Equity,Credit,false,true,,L01,D,,Algebraic,false
+L010101,Issued & Subscribed Capital,Issued & Subscribed Capital,Owner's Equity,Credit,false,true,,L0101,D,,Algebraic,false
+L01010101,Subscribed and fully paid,Subscribed and fully paid,Owner's Equity,Credit,false,true,,L010101,C,,Algebraic,false
+L01010102,Subscribed and not fully paid,Subscribed and not fully paid,Owner's Equity,Credit,false,true,,L010101,C,,Algebraic,false
+L0102,Reserves and Surplus,Reserves and Surplus,Liability,Credit,false,true,,L01,D,,Algebraic,false
+L010201,Reserves & Surplus A/c,Reserves & Surplus A/c,Liability,Credit,false,true,,L0102,C,,Algebraic,false
+L01020101,Reserves & Surplus A/c,Reserves & Surplus A/c,Liability,Credit,true,false,RETAINEDEARNING_ACCT,L010201,S,,Algebraic,false
+L010202,Profit & Loss Account,Profit & Loss Account,Liability,Credit,false,true,,L0102,C,,Algebraic,false
+L01020201,Profit & Loss Account - Current Financial Year,Profit & Loss Account - Current Financial Year,Liability,Credit,true,false,INCOMESUMMARY_ACCT,L010202,S,,Algebraic,false
+L010203,Money received against share warrants,Money received against share warrants,Owner's Equity,Credit,false,true,,L01,D,,Algebraic,false
+L02,Share Application Money Pending Allotment,Share Application Money Pending Allotment,Owner's Equity,Credit,false,true,,L,E,,Algebraic,false
+L03,Non-Current Liabilities,Non-Current Liabilities,Liability,Credit,false,true,,L,E,,Algebraic,false
+L0301,Longterm Borrowings,Longterm Borrowings,Liability,Credit,false,true,,L03,D,,Algebraic,false
+L0302,Deferred Tax Liability (Net),Deferred Tax Liability (Net),Liability,Credit,false,true,,L03,D,,Algebraic,false
+L0303,Other Longterm Liabilities,Other Longterm Liabilities,Liability,Credit,false,true,,L03,D,,Algebraic,false
+L0304,Longterm Provisions,Longterm Provisions,Liability,Credit,false,true,,L03,D,,Algebraic,false
+L04,Current Liabilities,Current Liabilities,Liability,Credit,false,true,,L,E,,Algebraic,false
+L0401,Short-term borrowings,Short-term borrowings,Liability,Credit,false,true,,L04,D,,Algebraic,false
+L0402,Trade payables,Trade payables,Liability,Credit,false,true,,L04,D,,Algebraic,false
+L040201,Sundry Creditors,Sundry Creditors,Liability,Credit,false,true,,L0402,C,,Algebraic,false
+L04020198,Sundry Creditors Suspense A/C,Sundry Creditors Suspense A/C,Liability,Credit,true,false,V_LIABILITY_ACCT,L040201,S,,Algebraic,false
+L04020199,Not Invoiced Receipts,Not Invoiced Receipts,Liability,Credit,true,false,NOTINVOICEDRECEIPTS_ACCT,L040201,S,,Algebraic,false
+L040202,Tax Liabilities,Tax Liabilities,Liability,Credit,false,true,,L0402,D,,Algebraic,false
+L04020201,Service Tax,Service Tax,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L0402020101,Consolidated Service Tax @ 14% - Output,Consolidated Service Tax @ 14% - Output,Liability,Credit,true,false,,L04020201,S,,Algebraic,false
+L0402020104,Consolidated Service Tax @ 14% - Input,Consolidated Service Tax @ 14% - Input,Asset,Debit,true,false,,L04020201,S,,Algebraic,false
+L0402020107,ST Control Account,ST Control Account,Liability,Credit,true,false,,L04020201,S,,Algebraic,false
+L04020202,CST,CST,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L0402020201,CST  2%,CST  2%,Liability,Credit,true,false,,L04020202,S,,Algebraic,false
+L0402020202,CST 14.5%,CST 14.5%,Liability,Credit,true,false,,L04020202,S,,Algebraic,false
+L04020203,VAT,VAT,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L0402020301,VAT 5.5% - Output,VAT 5.5% - Output,Liability,Credit,true,false,,L04020203,S,,Algebraic,false
+L0402020302,VAT 14.5% - Output,VAT 14.5% - Output,Liability,Credit,true,false,,L04020203,S,,Algebraic,false
+L0402020303,VAT 5.5% - Input,VAT 5.5% - Input,Liability,Credit,true,false,,L04020203,S,,Algebraic,false
+L0402020304,VAT 14.5% - Input,VAT 14.5% - Input,Liability,Credit,true,false,,L04020203,S,,Algebraic,false
+L0402020305,VAT Control Account,VAT Control Account,Liability,Credit,true,false,,L04020203,S,,Algebraic,false
+L04020204,Professional Tax,Professional Tax,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L0402020401,Professional Tax,Professional Tax,Liability,Credit,true,false,,L04020204,S,,Algebraic,false
+L04020205,Excise Duty,Excise Duty,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L0402020501,Basic Excise Duty ? 12% - Output,Basic Excise Duty ? 12% - Output,Liability,Credit,true,false,,L04020205,S,,Algebraic,false
+L0402020502,Education Cess ? 2% - Output,Education Cess ? 2% - Output,Liability,Credit,true,false,,L04020205,S,,Algebraic,false
+L0402020503,Secondary & Higher Education Cess ? 1% - Output,Secondary & Higher Education Cess ? 1% - Output,Liability,Credit,true,false,,L04020205,S,,Algebraic,false
+L0402020504,Basic Excise Duty ? 12% - Input,Basic Excise Duty ? 12% - Input,Liability,Credit,true,false,,L04020205,S,,Algebraic,false
+L0402020505,Education Cess ? 2% - Input,Education Cess ? 2% - Input,Liability,Credit,true,false,,L04020205,S,,Algebraic,false
+L0402020506,Secondary & Higher Education Cess ? 1% - Input,Secondary & Higher Education Cess ? 1% - Input,Liability,Credit,true,false,,L04020205,S,,Algebraic,false
+L04020206,Income Tax Payable,Income Tax Payable,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L04020207,TDS Payable,TDS Payable,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L0402020701,192B - Salaries,192B - Salaries,Liability,Credit,true,false,,L04020207,S,,Algebraic,false
+L0402020702,194C- contract HUF/Individual,194C- contract HUF/Individual,Liability,Credit,true,false,,L04020207,S,,Algebraic,false
+L0402020703,194J - professional and technical services,194J - professional and technical services,Liability,Credit,true,false,,L04020207,S,,Algebraic,false
+L0402020704,194I  - Rent,194I  - Rent,Liability,Credit,true,false,,L04020207,S,,Algebraic,false
+L04020208,Other Taxes,Other Taxes,Liability,Credit,false,true,,L040202,C,,Algebraic,false
+L0402020801,Other Taxes A/C,Other Taxes A/C,Liability,Credit,true,false,T_DUE_ACCT,L04020208,S,,Algebraic,false
+L0403,Other current liabilities,Other current liabilities,Liability,Credit,false,true,,L04,D,,Algebraic,false
+L040301,Statutory contribution,Statutory contribution,Liability,Credit,false,true,,L0403,C,,Algebraic,false
+L04030101,Employee Contribution to Provident Fund,Employee Contribution to Provident Fund,Liability,Credit,true,false,,L040301,S,,Algebraic,false
+L04030102,Employer Contribution to Provident Fund,Employer Contribution to Provident Fund,Liability,Credit,true,false,,L040301,S,,Algebraic,false
+L04030103,PF ? Administration Charges,PF ? Administration Charges,Liability,Credit,true,false,,L040301,S,,Algebraic,false
+L04030104,Employee Contribution to ESIC,Employee Contribution to ESIC,Liability,Credit,true,false,,L040301,S,,Algebraic,false
+L04030105,Employer Contribution to ESIC,Employer Contribution to ESIC,Liability,Credit,true,false,,L040301,S,,Algebraic,false
+L04030106,ESIC Admin Charges,ESIC Admin Charges,Liability,Credit,true,false,,L040301,S,,Algebraic,false
+L0404,Short-term provisions,Short-term provisions,Liability,Credit,false,true,,L04,D,,Algebraic,false
+LT,Equity and Liabilities Total,Equity and Liabilities Total,Liability,Credit,false,true,,,E,L01+L02+L03+L04,Algebraic,false
+A,ASSETS,ASSETS,Asset,Debit,false,true,,,E,,Algebraic,false
+A01,Non-Current Assets,Non-Current Assets,Asset,Debit,false,true,,A,E,,Algebraic,false
+A0101,Fixed Assets,Fixed Assets,Asset,Debit,false,true,,A01,D,,Algebraic,false
+A010101,Tangible Asset,Tangible Asset,Asset,Debit,false,true,,A0101,D,,Algebraic,false
+A01010101,Land,Land,Asset,Debit,false,true,,A010101,C,,Algebraic,false
+A01010102,Buildings,Buildings,Asset,Debit,false,true,,A010101,C,,Algebraic,false
+A01010103,Plant & Machinery,Plant & Machinery,Asset,Debit,false,true,,A010101,C,,Algebraic,false
+A01010104,Furniture & Fittings,Furniture & Fittings,Asset,Debit,false,true,,A010101,C,,Algebraic,false
+A01010105,Vehicles,Vehicles,Asset,Debit,false,true,,A010101,C,,Algebraic,false
+A010102,Intangible Assets,Intangible Assets,Asset,Debit,false,true,,A0101,D,,Algebraic,false
+A01010201,Software,Software,Asset,Debit,false,true,,A010102,C,,Algebraic,false
+A01010202,Goodwill,Goodwill,Asset,Debit,false,true,,A010102,C,,Algebraic,false
+A01010203,Copy Right & Patent Right,Copy Right & Patent Right,Asset,Debit,false,true,,A010102,C,,Algebraic,false
+A01010204,Brands / Trademarks,Brands / Trademarks,Asset,Debit,false,true,,A010102,C,,Algebraic,false
+A01010205,Licenses and Franchises,Licenses and Franchises,Asset,Debit,false,true,,A010102,C,,Algebraic,false
+A01010206,Other Fixed Assets A/C,Other Fixed Assets A/C,Asset,Debit,false,true,,A010102,C,,Algebraic,false
+A0101020601,Other Fixed Assets A/C,Other Fixed Assets A/C,Asset,Debit,true,false,P_ASSET_ACCT,A01010206,S,,Algebraic,false
+A0101020602,Accumulated Depreciation,Accumulated Depreciation,Asset,Debit,true,false,A_ACCUMDEPRECIATION_ACCT,A01010206,S,,Algebraic,false
+A010103,Capital Work in Progress,Capital Work in Progress,Asset,Debit,false,true,,A0101,D,,Algebraic,false
+A010104,Intangible Assets under Development,Intangible Assets under Development,Asset,Debit,false,true,,A0101,D,,Algebraic,false
+A0102,Non Current Investments,Non Current Investments,Asset,Debit,false,true,,A01,D,,Algebraic,false
+A0103,Deferred Tax Asset (NET),Deferred Tax Asset (NET),Asset,Debit,false,true,,A01,D,,Algebraic,false
+A0104,Longterm Loans and advances,Longterm Loans and advances,Asset,Debit,false,true,,A01,D,,Algebraic,false
+A0105,Other Non Current asset,Other Non Current asset,Asset,Debit,false,true,,A01,D,,Algebraic,false
+A02,Current Assets,Current Assets,Asset,Debit,false,true,,A,E,,Algebraic,false
+A0201,Current Investments,Current Investments,Asset,Debit,false,true,,A02,D,,Algebraic,false
+A0202,Inventories,Inventories,Asset,Debit,false,true,,A02,D,,Algebraic,false
+A020201,Raw Material,Raw Material,Asset,Debit,false,true,,A0202,C,,Algebraic,false
+A020202,Work In Progress,Work In Progress,Asset,Debit,false,true,,A0202,C,,Algebraic,false
+A020203,Finished Goods,Finished Goods,Asset,Debit,false,true,,A0202,C,,Algebraic,false
+A0203,Trade receivables,Trade receivables,Asset,Debit,false,true,,A02,D,,Algebraic,false
+A020301,Trade receivables outstanding for a period less than 6 months,Trade receivables outstanding for a period less than 6 months,Asset,Debit,false,true,,A0203,D,,Algebraic,false
+A02030101,Secured Considered Good,Secured Considered Good,Asset,Debit,false,true,,A020301,C,,Algebraic,false
+A02030102,Unsecured Considered Good,Unsecured Considered Good,Asset,Debit,false,true,,A020301,C,,Algebraic,false
+A0203010299,Sundry Debtors Suspense A/C,Sundry Debtors Suspense A/C,Asset,Debit,true,false,C_RECEIVABLE_ACCT,A02030102,S,,Algebraic,false
+A02030103,Unsecured Considered Doubtful,Unsecured Considered Doubtful,Asset,Debit,false,true,,A020301,C,,Algebraic,false
+A02030104,Provision for Doubtful Debts,Provision for Doubtful Debts,Asset,Credit,false,true,,A020301,C,,Algebraic,false
+A0203010401,Provision for Doubtful Debts,Provision for Doubtful Debts,Asset,Credit,true,false,,A02030104,S,,Algebraic,false
+A020302,Trade receivables outstanding for a period more than 6 months,Trade receivables outstanding for a period more than 6 months,Asset,Debit,false,true,,A0203,D,,Algebraic,false
+A02030201,Secured Considered Good,Secured Considered Good,Asset,Debit,false,true,,A020302,C,,Algebraic,false
+A02030202,Unsecured Considered Good,Unsecured Considered Good,Asset,Debit,false,true,,A020302,C,,Algebraic,false
+A02030203,Unsecured Considered Doubtful,Unsecured Considered Doubtful,Asset,Debit,false,true,,A020302,C,,Algebraic,false
+A02030204,Provision for Doubtful Debts,Provision for Doubtful Debts,Asset,Credit,false,true,,A020302,C,,Algebraic,false
+A0203020401,Provision for Doubtful Debts,Provision for Doubtful Debts,Asset,Credit,true,false,,A02030204,S,,Algebraic,false
+A0204,Cash and cash equivalents,Cash and cash equivalents,Asset,Debit,false,true,,A02,D,,Algebraic,false
+A020401,Cash on hand,Cash on hand,Asset,Debit,false,true,,A0204,C,,Algebraic,false
+A02040101,Cash on Hand,Cash on Hand,Asset,Debit,true,false,CB_ASSET_ACCT,A020401,S,,Algebraic,false
+A02040102,Petty Cash in Transfer,Petty Cash in Transfer,Asset,Debit,true,false,CB_CASHTRANSFER_ACCT,A020401,S,,Algebraic,false
+A020402,Balances with scheduled banks -Current a/c,Balances with scheduled banks -Current a/c,Asset,Debit,false,true,,A0204,C,,Algebraic,false
+A02040201,Primary Bank AC,Primary Bank AC,Asset,Debit,true,false,B_ASSET_ACCT,A020402,S,,Algebraic,false
+A02040202,Cheques and Demand Draft In Hand,Cheques and Demand Draft In Hand,Asset,Debit,true,false,,A020402,S,,Algebraic,false
+A02040203,Bank in Transit,Bank in Transit,Asset,Debit,true,false,B_INTRANSIT_ACCT,A020402,S,,Algebraic,false
+A0205,Short Term Loans and Advances,Short Term Loans and Advances,Asset,Debit,false,true,,A02,D,,Algebraic,false
+A020501,Advances recoverable in cash or in kind or for value to be received  -unsecured considered good,Advances recoverable in cash or in kind or for value to be received  -unsecured considered good,Asset,Debit,false,true,,A0205,C,,Algebraic,false
+A020502,Balance with Govt authorities,Balance with Govt authorities,Asset,Debit,false,true,,A0205,C,,Algebraic,false
+A020503,Advance Tax and TDS (net),Advance Tax and TDS (net),Asset,Debit,false,true,,A0205,C,,Algebraic,false
+A02050301,Advance Tax,Advance Tax,Asset,Debit,true,false,,A020503,S,,Algebraic,false
+A02050302,TDS Paid- Assessment Year 2012-2013,TDS Paid- Assessment Year 2012-2013,Asset,Debit,true,false,,A020503,S,,Algebraic,false
+A02050303,TDS Paid-Assessment Year 2013-2014,TDS Paid-Assessment Year 2013-2014,Asset,Debit,true,false,,A020503,S,,Algebraic,false
+A02050304,Other Tax Credit,Other Tax Credit,Asset,Debit,true,false,T_CREDIT_ACCT,A020503,S,,Algebraic,false
+A020504,Prepaid Expenses,Prepaid Expenses,Asset,Debit,false,true,,A0205,C,,Algebraic,false
+A0206,Other current assets,Other current assets,Asset,Debit,false,true,,A02,D,,Algebraic,false
+A03,Miscellaneous Expenditure,Miscellaneous Expenditure,Asset,Debit,false,true,,A,E,,Algebraic,false
+A0301,Pre-incoporation Expenses,Pre-incoporation Expenses,Asset,Debit,false,true,,A03,C,,Algebraic,false
+A0302,Preliminary Expenses,Preliminary Expenses,Asset,Debit,false,true,,A03,C,,Algebraic,false
+AT,Assets Total,Assets Total,Asset,Debit,false,true,,,E,A01+A02,Algebraic,false
+PL,STATEMENT OF PROFIT AND LOSS,STATEMENT OF PROFIT AND LOSS,Revenue,Credit,false,true,,,E,,Algebraic,false
+R,INCOME,INCOME,Revenue,Credit,false,true,,PL,E,,Algebraic,false
+R01,Revenue from operations,Revenue from operations,Revenue,Credit,false,true,,R,D,,Algebraic,false
+R0101,Income from Sale of Goods/spares and services,Income from Sale of Goods/spares and services,Revenue,Credit,false,true,,R01,C,,Algebraic,false
+R010101,Sales Suspense A/C,Sales Suspense A/C,Revenue,Credit,true,false,P_REVENUE_ACCT,R0101,S,,Algebraic,false
+R02,Other Income,Other Income,Revenue,Credit,false,true,,R,D,,Algebraic,false
+R0201,Interest & others,Interest & others,Revenue,Credit,false,true,,R02,C,,Algebraic,false
+R020101,Bank Revaluation Gain,Bank Revaluation Gain,Revenue,Credit,true,false,B_REVALUATIONGAIN_ACCT,R0201,S,,Algebraic,false
+TR,Total Income,Total Income,Revenue,Credit,false,true,,,E,R01+R02,Algebraic,false
+E,EXPENSES,EXPENSES,Expense,Debit,false,true,,PL,E,,Algebraic,false
+E01,Cost of Materials Consumed,Cost of Materials Consumed,Expense,Debit,false,true,,E,D,,Algebraic,false
+E0101,Product COGS,Product COGS,Expense,Debit,false,true,,E01,C,,Algebraic,false
+E010101,Product COGS a/c,Product COGS a/c,Expense,Debit,true,false,P_COGS_ACCT,E0101,S,,Algebraic,false
+E02,Purchases of Stock-in-Trade,Purchases of Stock-in-Trade,Expense,Debit,false,true,,E,D,,Algebraic,false
+E0201,Purchase Expenses,Purchase Expenses,Expense,Debit,false,true,,E02,C,,Algebraic,false
+E020101,Purchase Expenses,Purchase Expenses,Expense,Debit,true,false,P_EXPENSE_ACCT,E0201,S,,Algebraic,false
+E03,Changes in inventories of finished goods work-in-progress and Stock-in-Trade,Changes in inventories of finished goods work-in-progress and Stock-in-Trade,Expense,Debit,false,true,,E,D,,Algebraic,false
+E04,Employee Benefit Expenses,Employee Benefit Expenses,Expense,Debit,false,true,,E,D,,Algebraic,false
+E0401,"Salaries,Wages & Bonus","Salaries,Wages & Bonus",Expense,Debit,false,true,,E04,C,,Algebraic,false
+E040101,Salaries,Salaries,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040102,Wages,Wages,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040103,Dearness Allowance,Dearness Allowance,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040104,House Rent Allowance,House Rent Allowance,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040105,Transport Allowance,Transport Allowance,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040106,Medical Allowance,Medical Allowance,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040107,Leave Travel Allowance,Leave Travel Allowance,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040108,Bonus Payable,Bonus Payable,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E040109,Overtime Payable,Overtime Payable,Expense,Debit,true,false,,E0401,S,,Algebraic,false
+E0402,Contribution to PF and other funds,Contribution to PF and other funds,Expense,Debit,false,true,,E04,C,,Algebraic,false
+E040201,Employer Contribution to PF,Employer Contribution to PF,Expense,Debit,true,false,,E0402,S,,Algebraic,false
+E040202,Employer Contribution to ESIC,Employer Contribution to ESIC,Expense,Debit,true,false,,E0402,S,,Algebraic,false
+E05,Financial Expenses,Financial Expenses,Expense,Debit,false,true,,E,D,,Algebraic,false
+E0501,Interest,Interest,Expense,Debit,false,true,,E05,C,,Algebraic,false
+E050101,TDS ? Interest on Rent,TDS ? Interest on Rent,Expense,Debit,true,false,,E0501,S,,Algebraic,false
+E050102,TDS ? Interest on Professional Services,TDS ? Interest on Professional Services,Expense,Debit,true,false,,E0501,S,,Algebraic,false
+E050103,TDS ? Interest on Contract,TDS ? Interest on Contract,Expense,Debit,true,false,,E0501,S,,Algebraic,false
+E0502,Bank Charges,Bank Charges,Expense,Debit,false,true,,E05,C,,Algebraic,false
+E050201,Bank Charges,Bank Charges,Expense,Debit,true,false,B_EXPENSE_ACCT,E0502,S,,Algebraic,false
+E0503,Penalty,Penalty,Expense,Debit,false,true,,E05,C,,Algebraic,false
+E050301,TDS ? Penalty on Rent,TDS ? Penalty on Rent,Expense,Debit,true,false,,E0503,S,,Algebraic,false
+E050302,TDS ? Penalty on Professional Services,TDS ? Penalty on Professional Services,Expense,Debit,true,false,,E0503,S,,Algebraic,false
+E050303,TDS ? Penalty on Contract,TDS ? Penalty on Contract,Expense,Debit,true,false,,E0503,S,,Algebraic,false
+E06,Depreciation and amortization expense,Depreciation and amortization expense,Expense,Debit,false,true,,E,D,,Algebraic,false
+E0601,Building,Building,Expense,Debit,false,true,,E06,C,,Algebraic,false
+E0602,Plant & Machinery,Plant & Machinery,Expense,Debit,false,true,,E06,C,,Algebraic,false
+E0603,Furniture & Fittings,Furniture & Fittings,Expense,Debit,false,true,,E06,C,,Algebraic,false
+E0604,Vehicles,Vehicles,Expense,Debit,false,true,,E06,C,,Algebraic,false
+E0605,Software,Software,Expense,Debit,false,true,,E06,C,,Algebraic,false
+E0606,Other Assets,Other Assets,Expense,Debit,false,true,,E06,C,,Algebraic,false
+E060601,Depreciation Expense Default A/C,Depreciation Expense Default A/C,Expense,Debit,true,false,A_DEPRECIATION_ACCT,E0606,S,,Algebraic,false
+E07,Other Expenses,Other Expenses,Expense,Debit,false,true,,E,D,,Algebraic,false
+E0701,Telephone & Internet,Telephone & Internet,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0702,Traveling & Conveyance Expenses,Traveling & Conveyance Expenses,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0703,Repairs & Maintenance,Repairs & Maintenance,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0704,Insurance,Insurance,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0705,Audit Fees,Audit Fees,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0706,Rent,Rent,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0707,Postage & Courier,Postage & Courier,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0708,Security Charges,Security Charges,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0709,Professional Fee,Professional Fee,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0710,Freight Inward,Freight Inward,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0711,Freight Outward,Freight Outward,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0712,Debt and Recovery,Debt and Recovery,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E071201,Provision for Doubtful Debts,Provision for Doubtful Debts,Expense,Debit,true,false,WRITEOFF_ACCT,E0712,S,,Algebraic,false
+E0713,Currency Balancing,Currency Balancing,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E071301,Currency Balancing,Currency Balancing,Expense,Debit,true,false,CURRENCYBALANCING_ACCT,E0713,S,,Algebraic,false
+E0714,Inventory Loss,Inventory Loss,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E071401,Inventory Loss,Inventory Loss,Expense,Debit,true,false,W_DIFFERENCES_ACCT,E0714,S,,Algebraic,false
+E0715,Bank Revaluation Loss,Bank Revaluation Loss,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E071501,Bank Revaluation Loss,Bank Revaluation Loss,Expense,Debit,true,false,B_REVALUATIONLOSS_ACCT,E0715,S,,Algebraic,false
+E0716,Sales Promotion Expenses,Sales Promotion Expenses,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0717,Sales Commission,Sales Commission,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0718,Advertisement Expenses,Advertisement Expenses,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E0719,Preliminary Expenses,Preliminary Expenses,Expense,Debit,false,true,,E07,C,,Algebraic,false
+E071901,Preliminary Expenses ? Written off,Preliminary Expenses ? Written off,Expense,Debit,true,false,,E0719,S,,Algebraic,false
+E071902,Preincorporation Expenses - Written off,Preincorporation Expenses - Written off,Expense,Debit,true,false,,E0719,S,,Algebraic,false
+TE,Total Expenses,Total Expenses,Expense,Debit,false,true,,,E,E01+E02+E03+E04+E05+E06+E07,Algebraic,false
+V,"Profit Before Exceptional , Extra ordinary items and Tax","Profit Before Exceptional , Extra ordinary items and Tax",Expense,Debit,false,true,,PL,E,TR-TE,Algebraic,false
+999,Temporary Accounts,Temporary Accounts,Expense,Debit,false,true,,,E,,Algebraic,false
+999001,Cash book expenses,Cash book expenses,Expense,Debit,true,false,CB_EXPENSE_ACCT,999,S,,Algebraic,false
+999002,Cash book receipts,Cash book receipts,Expense,Debit,true,false,CB_RECEIPT_ACCT,999,S,,Algebraic,false
+999003,Charge Expenses,Charge Expenses,Expense,Debit,true,false,CH_EXPENSE_ACCT,999,S,,Algebraic,false
+999004,Suspense Balancing,Suspense Balancing,Expense,Debit,true,false,SUSPENSEBALANCING_ACCT,999,S,,Algebraic,false
+999005,Suspense Error,Suspense Error,Expense,Debit,true,false,SUSPENSEERROR_ACCT,999,S,,Algebraic,false
+999006,Default Payments,Default Payments,Expense,Debit,true,false,,999,S,,Algebraic,false
+999007,Petty Cash Differences,Petty Cash Differences,Expense,Debit,true,false,CB_DIFFERENCES_ACCT,999,S,,Algebraic,false
+L0402020203,CST 5.5%,CST 5.5%,Liability,Credit,false,false,,,S,,Algebraic,false
+L0402020705,194C-Work  contract Others,194C- Work contract Others,Liability,Credit,false,false,,,S,,Algebraic,false

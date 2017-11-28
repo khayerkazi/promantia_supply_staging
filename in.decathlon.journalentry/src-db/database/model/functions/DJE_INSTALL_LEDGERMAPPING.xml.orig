@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DJE_INSTALL_LEDGERMAPPING">
+    <function name="DJE_INSTALL_LEDGERMAPPING" type="NULL">
+      <parameter name="copy_path" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Cur_Mapping RECORD;
+v_count  NUMBER; 
+declare sql text;
+
+BEGIN 
+
+CREATE TEMP TABLE temp11(FinancialSystemType  VARCHAR(60),Organization  VARCHAR(32),
+AccountElement VARCHAR(32),Tax VARCHAR(80),LedgerName VARCHAR(60),LedgerAlias VARCHAR(60),Des VARCHAR(50))
+   ON COMMIT PRESERVE ROWS;
+
+--copy temp from '/home/promantia/LedgerMapping.csv' using delimiters ',' csv header; 
+
+sql := 'COPY temp11 FROM ' || quote_literal(copy_path) || ' using delimiters '','' csv header';
+DBMS_OUTPUT.PUT_LINE( sql);
+execute sql;
+
+FOR Cur_Mapping IN (select FinancialSystemType ,Organization, AccountElement, Tax, LedgerName, LedgerAlias, Des, ad_org.ad_org_id as org,c_elementvalue.c_elementvalue_id as elementid,c_tax_id as taxId from temp11
+left join ad_org on ad_org.name = Organization
+left join c_elementvalue on c_elementvalue.name = AccountElement
+left join c_tax on c_tax.name =Tax )
+LOOP
+
+--select count(*) into v_count from dje_ledger_mapping where ledger_name = Cur_Mapping.LedgerName ;
+
+  
+--IF(v_count= 0) THEN
+
+--UPDATE dje_ledger_mapping SET ledger_name = Cur_Mapping.LedgerName;
+
+--ELSE
+
+INSERT INTO dje_ledger_mapping(dje_ledger_mapping_id,ad_client_id,ad_org_id,isactive,created,createdby,
+  updated,updatedby,c_tax_id,c_elementvalue_id,ledger_name,financialsystemtype,ledger_alias,description)
+VALUES
+(get_uuid(),'187D8FC945A5481CB41B3EE767F80DBB',Cur_Mapping.org,'Y',now(), '100', now(),'100',Cur_Mapping.taxId, 
+Cur_Mapping.elementid,Cur_Mapping.LedgerName,'EONE',Cur_Mapping.LedgerAlias,Cur_Mapping.Des); 
+
+--END IF;
+END LOOP;
+END DJE_INSTALL_LEDGERMAPPING
+]]></body>
+    </function>
+  </database>

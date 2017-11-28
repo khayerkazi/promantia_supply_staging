@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DS_UPDGROSS_ORD">
+    <function name="DS_UPDGROSS_ORD" type="NULL">
+      <parameter name="p_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2010 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+
+p_message VARCHAR(2000);
+Cur_Tax record;
+
+TYPE RECORD IS REF CURSOR;
+Cur_Params RECORD;
+p_docaction varchar(60);
+p_record_id varchar(60);
+p_user varchar(60);
+p_result varchar(60);
+v_ResultStr  VARCHAR(2000);
+v_LineNetAmt NUMBER:=0;
+xTotalLines NUMBER:=0;
+xTotalPriceAdj NUMBER:=0;
+HeaderNotAdded BOOLEAN:=TRUE;
+xGrandTotalWithOutTax NUMBER:=0;
+v_taxamt NUMBER:=0;
+v_actual_price NUMBER:= 0 ;
+v_gross_unit_price NUMBER:= 0 ;
+
+BEGIN
+
+FOR Cur_Tax IN
+      (SELECT l.C_OrderLine_ID, l.C_Tax_ID, o.IsTaxIncluded,p.producttype,
+        SUM(coalesce(l.priceactual,0)*coalesce(l.em_ds_unitqty,0)) + SUM(l.FreightAmt) + 
+        SUM(coalesce(l.ChargeAmt,0)) + SUM(coalesce(l.em_ds_lotprice,0)*coalesce(l.em_ds_lotqty,0)) + 
+        SUM(coalesce(l.em_ds_boxprice,0)*coalesce(l.em_ds_boxqty,0))AS LineNetAmt,
+        SUM(l.TaxBaseAmt) + SUM(l.FreightAmt) + SUM(coalesce(l.ChargeAmt,0)) AS TaxBaseAmt,
+        SUM(o.FreightAmt) + SUM(coalesce(o.ChargeAmt,0)) AS HeaderNet,
+        t.Rate, t.IsSummary, c.StdPrecision, t.BaseAmount, o.C_Order_ID,o.em_ds_chargeamt,
+        coalesce(l.em_ds_lotqty,0) + coalesce(l.em_ds_unitqty,0) + coalesce(l.em_ds_boxqty,0) as SummedQty
+      FROM C_ORDER o,  C_ORDERLINE l,
+           C_TAX t, C_CURRENCY c,m_product p
+      WHERE o.C_Order_ID=l.C_Order_ID
+        AND l.C_Tax_ID=t.C_Tax_ID
+        AND o.C_Currency_ID=c.C_Currency_ID
+        AND l.m_product_id = p.m_product_id
+        AND o.c_order_id=p_order_id
+      GROUP BY l.C_OrderLine_ID, l.C_Tax_ID,
+        o.IsTaxIncluded,
+        t.Rate,
+        t.IsSummary,
+        c.StdPrecision,
+        t.BaseAmount, 
+        o.C_Order_ID,
+        p.producttype,
+        o.em_ds_chargeamt
+      ORDER BY 4 DESC
+      )
+    LOOP
+      v_LineNetAmt:=Cur_Tax.LineNetAmt;
+      xTotalLines:=xTotalLines + v_LineNetAmt; -- w/o Header Freight/Charge
+      IF(HeaderNotAdded) THEN --  add header net to first tax
+        HeaderNotAdded:=FALSE;
+        v_LineNetAmt:=v_LineNetAmt;
+      END IF; 
+
+--Additional code to calculate seperate line tax
+     v_taxamt= (Cur_Tax.LineNetAmt-(Cur_Tax.LineNetAmt*(100/(100+COALESCE(Cur_Tax.rate,0)))));
+     if ( Cur_Tax.SummedQty = 0 ) then
+       v_actual_price = 0;
+       v_gross_unit_price = 0 ;
+     else
+       v_gross_unit_price = Cur_Tax.LineNetAmt/Cur_Tax.SummedQty ;
+       v_actual_price = round((Cur_Tax.LineNetAmt-v_taxamt)/Cur_Tax.SummedQty,2) ;
+     end if ;
+   UPDATE C_ORDERLINE
+   SET em_ds_taxamount=(Cur_Tax.LineNetAmt-(Cur_Tax.LineNetAmt*(100/(100+COALESCE(Cur_Tax.rate,0))))),
+   line_gross_amount=Cur_Tax.LineNetAmt,
+   gross_unit_price=v_gross_unit_price,
+   priceactual=v_actual_price,
+   description='Gross calculated' 
+   WHERE 
+   C_OrderLine_ID = Cur_Tax.C_OrderLine_ID ;
+    --Additional code to calculate seperate line tax end here
+    --Total price adjustment  
+      IF((Cur_Tax.producttype) = 'S') THEN
+      xTotalPriceAdj :=xTotalPriceAdj+Cur_Tax.LineNetAmt;
+      END IF; 
+--ending the total price adjustment
+    END LOOP; 
+    --additional code for change grandtotal and line total
+    SELECT COALESCE(SUM(em_ds_taxamount), 0)
+    INTO xGrandTotalWithOutTax
+    FROM C_ORDERLINE
+    WHERE C_ORDER_ID = Cur_Tax.c_order_id;
+    
+    UPDATE C_ORDER
+      SET 
+      em_ds_grandtotalamt=(xTotalLines+Cur_Tax.em_ds_chargeamt)
+    WHERE C_Order_ID=Cur_Tax.c_order_id;
+UPDATE C_ORDER SET em_ds_totalpriceadj = xTotalPriceAdj WHERE C_Order.C_Order_ID = Cur_Tax.C_Order_ID;
+--------------------------------------------------------------------------   
+END DS_UPDGROSS_ORD
+]]></body>
+    </function>
+  </database>

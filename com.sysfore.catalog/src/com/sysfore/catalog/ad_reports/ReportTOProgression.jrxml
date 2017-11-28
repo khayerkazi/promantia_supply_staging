@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportTurnoverComparision" pageWidth="1568" pageHeight="842" columnWidth="1528" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="550"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<style name="default" vAlign="Middle" fontName="Bitstream Vera Sans" fontSize="8"/>
+	<style name="Title" fontName="Bitstream Vera Sans" fontSize="18">
+		<box leftPadding="5"/>
+	</style>
+	<style name="SubTitle" forecolor="#555555" fontName="Bitstream Vera Sans" fontSize="14">
+		<box leftPadding="5"/>
+	</style>
+	<style name="Report_Data_Label" fontName="Bitstream Vera Sans" fontSize="10" isBold="true"/>
+	<style name="Report_Data_Field" fontName="Bitstream Vera Sans" fontSize="10" isBold="false"/>
+	<style name="Total_Field" mode="Opaque" forecolor="#000000" backcolor="#CCCCCC" vAlign="Middle" fontName="Bitstream Vera Sans" fontSize="11" isBold="true">
+		<box leftPadding="5"/>
+	</style>
+	<style name="GroupHeader_DarkGray" mode="Opaque" forecolor="#FFFFFF" backcolor="#555555" vAlign="Middle" fontName="Bitstream Vera Sans" fontSize="12" isBold="true">
+		<box leftPadding="5"/>
+	</style>
+	<style name="Group_Data_Label" fontName="Bitstream Vera Sans" fontSize="11" isBold="true"/>
+	<style name="Group_Data_Field" fontName="Bitstream Vera Sans" fontSize="11"/>
+	<style name="Column header" mode="Opaque" forecolor="#FFFFFF" backcolor="#5D5D5D" vAlign="Middle" fontName="Bitstream Vera Sans" fontSize="10" isBold="true">
+		<box leftPadding="5">
+			<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#FFFFFF"/>
+			<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#FFFFFF"/>
+		</box>
+	</style>
+	<style name="Detail" fontName="Bitstream Vera Sans" fontSize="10"/>
+	<style name="Total_Gray" mode="Opaque" forecolor="#000000" backcolor="#CCCCCC"/>
+	<style name="Detail_Data_Label" mode="Opaque" backcolor="#CCCCCC" fontName="Bitstream Vera Sans" fontSize="10" isBold="true"/>
+	<style name="Detail_Data_Field" mode="Opaque" backcolor="#CCCCCC" fontName="Bitstream Vera Sans" fontSize="10"/>
+	<style name="Group_Footer" fontName="Bitstream Vera Sans" fontSize="11" isBold="true"/>
+	<style name="Report_Footer" isDefault="true" vAlign="Middle" fontName="Bitstream Vera Sans" fontSize="11"/>
+	<parameter name="CL_BRAND_ID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_brand" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{CL_BRAND_ID}.equals("") ? " " : " AND cl.CL_BRAND_ID = '" + $P{CL_BRAND_ID} + "'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="TOWeek" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="aux_Week" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{TOWeek}.equals("") ? " " : " AND TOWeek = '" + $P{TOWeek} + "'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateFrom" class="java.util.Date" isForPrompting="false"/>
+	<parameter name="aux_DateFrom" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("")) ? "" : "AND col.DATEORDERED >= TO_DATE('" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTo" class="java.util.Date" isForPrompting="false"/>
+	<parameter name="aux_DateTo" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateTo} == null || $P{DateTo}.equals("")) ? "" : "AND col.DATEORDERED <= TO_DATE('" + new java.sql.Date($P{DateTo}.getTime()) + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="USER_ORG" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select distinct
+mdl.MERCHANDISE_CATEGORY as Family,
+(round(sum(em_ds_linenetamt),0)) as turnoverCurrent,
+(select (round(sum(em_ds_linenetamt),0))
+from c_orderline col, cl_model cli, m_product p,cl_brand clb
+where col.dateordered >= (now()-7)-'1 year ' ::interval and col.dateordered < (now())-'1 year ' ::interval
+    and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id and clb.cl_brand_id=cl.cl_brand_id) as turnoverPrevious,
+round(((round(sum(em_ds_linenetamt),0)-(select round(sum(em_ds_linenetamt),0)
+from c_orderline col, cl_model cli, m_product p
+	where col.dateordered >= (now()-7)-'1 year ' ::interval and col.dateordered < (now())-'1 year ' ::interval
+	and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id)) /
+	(select round(sum(em_ds_linenetamt),0)
+	from c_orderline col, cl_model cli, m_product p
+	where col.dateordered >= (now()-7)-'1 year ' ::interval and col.dateordered < (now())-'1 year ' ::interval
+	and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id))*100,0) as TurnoverGrowth,
+(sum(coalesce((col.em_ds_unitqty),0))+sum(coalesce((col.em_ds_lotqty),0))+ sum(coalesce((col.em_ds_boxqty),0))) as qtyCurrent,
+(select (sum(coalesce((col.em_ds_unitqty),0))+sum(coalesce((col.em_ds_lotqty),0))+ sum(coalesce((col.em_ds_boxqty),0)))
+from c_orderline col, cl_model cli, m_product p,cl_brand clb
+where col.dateordered >= (now()-7)-'1 year ' ::interval and col.dateordered < (now())-'1 year ' ::interval
+    and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id and clb.cl_brand_id=cl.cl_brand_id) as qtyPrevious,
+(round((((sum(coalesce((col.em_ds_unitqty),0))+sum(coalesce((col.em_ds_lotqty),0))+ sum(coalesce((col.em_ds_boxqty),0)))-
+(select (sum(coalesce((col.em_ds_unitqty),0))+sum(coalesce((col.em_ds_lotqty),0))+ sum(coalesce((col.em_ds_boxqty),0)))
+from c_orderline col, cl_model cli, m_product p
+where col.dateordered >= (now()-7)-'1 year ' ::interval and col.dateordered < (now())-'1 year ' ::interval
+     and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id))/
+(select (sum(coalesce((col.em_ds_unitqty),0))+sum(coalesce((col.em_ds_lotqty),0))+ sum(coalesce((col.em_ds_boxqty),0)))
+from c_orderline col, cl_model cli, m_product p
+where col.dateordered >= (now()-7)-'1 year ' ::interval and col.dateordered < (now())-'1 year ' ::interval
+     and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id))*100,2))as QtyGrowth,
+round(round(sum(em_ds_linenetamt),0)-sum(coalesce(col.em_ds_taxamount,0))-
+(sum(coalesce(col.em_ds_cessionprice*((coalesce((col.em_ds_unitqty),0))+(coalesce((col.em_ds_lotqty),0))+
+(coalesce((col.em_ds_boxqty),0))),0))),0) as marginamtCurrent,
+(select round(round(sum(em_ds_linenetamt),0)-sum(coalesce(col.em_ds_taxamount,0))-
+(sum(coalesce(col.em_ds_cessionprice*((coalesce((col.em_ds_unitqty),0))+(coalesce((col.em_ds_lotqty),0))+
+(coalesce((col.em_ds_boxqty),0))),0))),0)
+ from c_orderline col, cl_model cli, m_product p
+ where col.dateordered >= (now()-7)-'1 year ' ::interval and col.dateordered < (now())-'1 year ' ::interval
+    and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id) as marginamtPrevious,
+CASE WHEN round((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+     sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0))),2)<0 THEN  -round(((((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))-sum(coalesce(col.em_ds_taxamount,0))-
+    (sum(coalesce(col.em_ds_cessionprice*((coalesce((col.em_ds_unitqty),0))+(coalesce((col.em_ds_lotqty),0))+ (coalesce((col.em_ds_boxqty),0))),0))))*100)/
+    case when ((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1)=0 then 1 else((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1) end),0) ELSE
+    round(((((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))-sum(coalesce(col.em_ds_taxamount,0))-
+    (sum(coalesce(col.em_ds_cessionprice*((coalesce((col.em_ds_unitqty),0))+(coalesce((col.em_ds_lotqty),0))+ (coalesce((col.em_ds_boxqty),0))),0))))*100)/
+    case when ((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1)=0 then 1 else((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1) end),0)
+    END as marginperCurrent,
+    (select CASE WHEN round((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+     sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0))),2)<0 THEN  -round(((((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))-sum(coalesce(col.em_ds_taxamount,0))-
+    (sum(coalesce(col.em_ds_cessionprice*((coalesce((col.em_ds_unitqty),0))+(coalesce((col.em_ds_lotqty),0))+ (coalesce((col.em_ds_boxqty),0))),0))))*100)/
+    case when ((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1)=0 then 1 else((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1) end),0) ELSE
+    round(((((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))-sum(coalesce(col.em_ds_taxamount,0))-
+    (sum(coalesce(col.em_ds_cessionprice*((coalesce((col.em_ds_unitqty),0))+(coalesce((col.em_ds_lotqty),0))+ (coalesce((col.em_ds_boxqty),0))),0))))*100)/
+    case when ((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1)=0 then 1 else((sum(coalesce((col.em_ds_unitqty*col.priceactual),0))+sum(coalesce((col.em_ds_lotqty*col.em_ds_lotprice),0))+
+    sum(coalesce((col.em_ds_boxqty*col.em_ds_boxprice),0)))+1) end),0)
+    END from c_orderline col, cl_model cli, m_product p
+    where col.dateordered >= (now()-7)-'1 year ' ::interval
+    and col.dateordered < (now())-'1 year ' ::interval
+    and cli.MERCHANDISE_CATEGORY=mdl.MERCHANDISE_CATEGORY
+    and p.em_cl_model_id=cli.cl_model_id and col.m_product_id=p.m_product_id) as marginPerPrevious
+from c_orderline col, cl_model mdl, m_product p,cl_brand cl
+where
+p.em_cl_model_id=mdl.cl_model_id
+and col.m_product_id=p.m_product_id
+AND 1=1
+AND col.dateordered <=now()
+$P!{aux_brand}
+$P!{aux_Week}
+$P!{aux_DateFrom}
+$P!{aux_DateTo}
+group by mdl.merchandise_category,cl.cl_brand_id]]>
+	</queryString>
+	<field name="family" class="java.lang.String"/>
+	<field name="turnovercurrent" class="java.lang.String"/>
+	<field name="turnoverprevious" class="java.lang.String"/>
+	<field name="turnovergrowth" class="java.lang.String"/>
+	<field name="qtycurrent" class="java.lang.String"/>
+	<field name="qtyprevious" class="java.lang.String"/>
+	<field name="qtygrowth" class="java.lang.String"/>
+	<field name="marginamtcurrent" class="java.lang.String"/>
+	<field name="marginamtprevious" class="java.lang.String"/>
+	<field name="marginpercurrent" class="java.lang.String"/>
+	<field name="marginPerPrevious" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="-20" y="1" width="1568" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Turnover analysis]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="14" splitType="Stretch">
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="-19" y="1" width="98" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Family]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="663" y="1" width="151" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Quantity Previous]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="521" y="1" width="142" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Quantity Current]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="79" y="1" width="149" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Turnover Current]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="956" y="1" width="145" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Margin Amt Current]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="228" y="1" width="149" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Turnover Previous]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="377" y="1" width="144" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Turnover Growth %]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="814" y="1" width="142" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Quantity Growth %]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="1395" y="1" width="153" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Margin % Previous]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="1101" y="1" width="144" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Margin Amt Previous]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" mode="Transparent" x="1245" y="1" width="150" height="13" isRemoveLineWhenBlank="true" forecolor="#170B0B" backcolor="#FDFBFB"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<text><![CDATA[Margin % Current]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="1395" y="0" width="153" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{marginPerPrevious}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="-19" y="0" width="98" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{family}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="663" y="0" width="151" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{qtyprevious}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="79" y="0" width="149" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{turnovercurrent}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="228" y="0" width="149" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{turnoverprevious}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="521" y="0" width="142" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{qtycurrent}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="956" y="0" width="145" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{marginamtcurrent}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="1101" y="0" width="144" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{marginamtprevious}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="377" y="0" width="144" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{turnovergrowth}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="814" y="0" width="142" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{qtygrowth}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="1245" y="0" width="150" height="13" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{marginpercurrent}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

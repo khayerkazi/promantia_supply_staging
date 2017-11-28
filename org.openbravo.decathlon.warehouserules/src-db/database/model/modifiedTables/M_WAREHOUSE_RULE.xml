@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_WAREHOUSE_RULE">
+    <table name="M_WAREHOUSE_RULE" primaryKey="M_WAREHOUSE_RULE_KEY">
+      <column name="EM_DWHR_JAVAPROCEDURE" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_DWHR_PRIORITY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <unique name="EM_DWHR_UNIQUE_JAVA">
+        <unique-column name="EM_DWHR_JAVAPROCEDURE"/>
+      </unique>
+    </table>
+  </database>

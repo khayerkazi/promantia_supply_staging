@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DS_ORDER_POST3">
+    <function name="DS_ORDER_POST3" type="VARCHAR">
+      <parameter name="p_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_em_ds_receiptno" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_ordered_date" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_message VARCHAR(2000);
+v_DocType_ID varchar(32);
+v_DocSubTypeSO VARCHAR(60);
+Invoice_ID VARCHAR(32);
+InOut_ID VARCHAR(32);
+v_DocumentNo VARCHAR(200) ;
+  v_DocAction VARCHAR(60) ;
+  v_DocStatus VARCHAR(60);
+  Cur_Order RECORD;
+  Cur_OrderI RECORD;
+p_inout_id varchar(32);
+p_Invoice_ID varchar(32);
+Cur_Orderline RECORD;
+xGrandTotal NUMBER:=0;
+xTotalLines NUMBER:=0;
+Cur_Tax RECORD;
+v_LineNetAmt NUMBER:=0;
+HeaderNotAdded BOOLEAN:=TRUE;
+v_istaxincluded CHAR(1);
+xTotalPriceAdj NUMBER:=0;
+xGrandTotalWithOutTax NUMBER:=0;
+v_taxamt NUMBER:=0;
+v_actual_price NUMBER:= 0 ;
+v_gross_unit_price NUMBER:= 0 ;
+v_inoutline_id varchar(32);
+v_locator_id varchar(32);
+v_org_id varchar(32);
+v_isstocked varchar(1);
+  BEGIN
+  
+
+Select c_order.docaction,c_order.C_Doctype_id,c_order.DocStatus,c_order.ad_org_id,m_pricelist.istaxincluded
+ into v_DocType_ID,v_DocAction,v_DocStatus,v_org_id,v_istaxincluded
+from c_order 
+join m_pricelist on m_pricelist.m_pricelist_id=c_order.m_pricelist_id
+where c_order_id=p_order_id;
+
+
+    SELECT DocSubTypeSO
+      INTO v_DocSubTypeSO
+    FROM C_DOCTYPE
+    WHERE C_DocType_ID=v_DocType_ID;
+    
+select m_locator_id into v_locator_id from m_locator
+  where m_warehouse_id = (select m_warehouse.m_warehouse_id from AD_Org_Warehouse  
+    join m_warehouse on m_warehouse.m_warehouse_id=AD_Org_Warehouse.m_warehouse_id
+         where    m_warehouse.ad_org_id=v_org_id and m_warehouse.name 
+         ilike '%saleable%' order by priority asc limit 1);
+        DBMS_OUTPUT.PUT_LINE('Create Shipment - ' || p_order_id) ;
+
+FOR Cur_Order IN (select * from c_order where c_order_id=p_order_id) loop
+p_inout_id:=get_uuid();
+INSERT INTO M_INOUT (
+            M_InOut_ID, C_Order_ID, IsSOTrx, AD_Client_ID,
+            AD_Org_ID, IsActive, Created, CreatedBy,
+            Updated, UpdatedBy, DocumentNo, C_DocType_ID,
+            Description, IsPrinted, MovementType, MovementDate,
+            DateAcct, C_BPartner_ID, C_BPartner_Location_ID, AD_User_ID,
+            M_Warehouse_ID, POReference, DateOrdered, DeliveryRule,
+            FreightCostRule, FreightAmt, C_Project_ID, C_Activity_ID,
+            C_Campaign_ID, AD_OrgTrx_ID, User1_ID, User2_ID,
+            DeliveryViaRule, M_Shipper_ID, C_Charge_ID, ChargeAmt,
+            PriorityRule, DocStatus, DocAction, Processing,
+            Processed, SALESREP_ID, A_Asset_ID, C_CostCenter_ID,
+            DELIVERY_LOCATION_ID 
+        ) VALUES (
+            p_inout_id, Cur_Order.C_Order_ID, Cur_Order.IsSOTrx, Cur_Order.AD_Client_ID,
+            Cur_Order.AD_Org_ID, 'Y', now(), Cur_Order.CREATEDBY,
+            now(), Cur_Order.CREATEDBY, Cur_Order.Documentno, 'F8CC92C7234644DEAD9F63174F45B2BF',
+            Cur_Order.Description, 'N', 'C-', TRUNC(now()),
+            TRUNC(now()), Cur_Order.C_BPartner_ID, Cur_Order.C_BPartner_Location_ID, Cur_Order.AD_User_ID,
+            Cur_Order.M_Warehouse_ID, Cur_Order.POReference, Cur_Order.DateOrdered, Cur_Order.DeliveryRule,
+            Cur_Order.FreightCostRule, Cur_Order.FreightAmt, Cur_Order.C_Project_ID, Cur_Order.C_Activity_ID,
+            Cur_Order.C_Campaign_ID, Cur_Order.AD_OrgTrx_ID, Cur_Order.User1_ID, Cur_Order.User2_ID,
+            Cur_Order.DeliveryViaRule, Cur_Order.M_Shipper_ID, Cur_Order.C_Charge_ID, Cur_Order.ChargeAmt,
+            Cur_Order.PriorityRule, 'CO', 'CL', 'N',
+            'N', Cur_Order.SALESREP_ID,Cur_Order.A_Asset_ID, Cur_Order.C_CostCenter_ID,
+            Cur_Order.DELIVERY_LOCATION_ID 
+        );
+end loop;
+FOR Cur_Orderline IN (select * from c_orderline where c_order_id=p_order_id) loop
+v_inoutline_id:=get_uuid();
+INSERT INTO M_INOUTLINE
+                        (M_InOutLine_ID, Line, M_InOut_ID, C_OrderLine_ID,
+                        AD_Client_ID, AD_Org_ID, IsActive, Created,
+                        CreatedBy, Updated, UpdatedBy, M_Product_ID,
+                        C_UOM_ID, M_Locator_ID, MovementQty, Description,
+                        IsInvoiced,
+                        M_AttributeSetInstance_ID,
+                        C_Project_ID, A_Asset_ID, 
+                        C_CostCenter_ID, User1_ID, User2_ID, 
+                        explode, bom_parent_id)
+                      VALUES
+                        (v_inoutline_id, Cur_Orderline.line, p_inout_id, Cur_Orderline.C_OrderLine_ID,
+                        Cur_Orderline.AD_Client_ID, Cur_Orderline.AD_Org_ID, 'Y', now(),
+                        Cur_Orderline.createdby, now(), Cur_Orderline.createdby, Cur_Orderline.M_Product_ID,
+                        Cur_Orderline.C_UOM_ID, v_locator_id, Cur_Orderline.qtyordered, 
+                        Cur_Orderline.Description,
+                        'N',
+                         Cur_Orderline.M_AttributeSetInstance_ID,
+                        coalesce(Cur_Orderline.C_Project_ID, Cur_Order.C_Project_ID), coalesce(Cur_Orderline.A_Asset_ID, Cur_Order.A_Asset_ID), 
+                        coalesce(Cur_Orderline.C_CostCenter_ID, Cur_Order.C_CostCenter_ID), coalesce(Cur_Orderline.User1_ID, Cur_Order.User1_ID), coalesce(Cur_Orderline.User2_ID, Cur_Order.User2_ID),
+                        Cur_Orderline.explode, Cur_Orderline.BOM_parent_id);
+-------------------------
+select producttype into v_isstocked from m_product where m_product_id=Cur_Orderline.m_product_id;
+if v_isstocked<>'S' then
+INSERT INTO M_TRANSACTION
+                (
+                  M_Transaction_ID, M_InOutLine_ID, AD_Client_ID, AD_Org_ID,
+                  IsActive, Created, CreatedBy, Updated,
+                  UpdatedBy, MovementType, M_Locator_ID, M_Product_ID,
+                  M_AttributeSetInstance_ID, MovementDate, MovementQty, M_Product_UOM_ID,
+                   C_UOM_ID
+                )
+                VALUES
+                (
+                  get_uuid(), v_inoutline_id, Cur_Orderline.AD_Client_ID, Cur_Orderline.AD_Org_ID,
+                   'Y', now(), Cur_Orderline.createdby, now(),
+                  Cur_Orderline.createdby, 'C-', v_locator_id, Cur_Orderline.M_Product_ID,
+                  COALESCE(Cur_Orderline.M_AttributeSetInstance_ID, '0'), Cur_Orderline.dateordered, (Cur_Orderline.qtyordered)*-1, null,
+                   Cur_Orderline.C_UOM_ID
+                );
+end if;
+-------------------------
+end loop;
+-- PERFORM M_INOUT_POST(NULL, p_inout_id) ;
+FOR Cur_Tax IN
+            (SELECT l.C_OrderLine_ID, l.C_Tax_ID, o.IsTaxIncluded,p.producttype,
+        SUM(coalesce(l.priceactual,0)*coalesce(l.em_ds_unitqty,0)) + SUM(l.FreightAmt) + 
+        SUM(coalesce(l.ChargeAmt,0)) + SUM(coalesce(l.em_ds_lotprice,0)*coalesce(l.em_ds_lotqty,0)) + 
+        SUM(coalesce(l.em_ds_boxprice,0)*coalesce(l.em_ds_boxqty,0))AS LineNetAmt,
+        SUM(l.TaxBaseAmt) + SUM(l.FreightAmt) + SUM(coalesce(l.ChargeAmt,0)) AS TaxBaseAmt,
+        SUM(o.FreightAmt) + SUM(coalesce(o.ChargeAmt,0)) AS HeaderNet,
+        t.Rate, t.IsSummary, c.StdPrecision, t.BaseAmount, o.C_Order_ID,o.em_ds_chargeamt,
+        coalesce(l.em_ds_lotqty,0) + coalesce(l.em_ds_unitqty,0) + coalesce(l.em_ds_boxqty,0) as SummedQty
+
+      FROM C_ORDER o,  C_ORDERLINE l,
+           C_TAX t, C_CURRENCY c,m_product p
+      WHERE o.C_Order_ID=l.C_Order_ID
+        AND o.C_Order_ID=p_order_id
+        AND l.C_Tax_ID=t.C_Tax_ID
+        AND o.C_Currency_ID=c.C_Currency_ID
+        AND l.m_product_id = p.m_product_id
+      GROUP BY l.C_OrderLine_ID, l.C_Tax_ID,
+        o.IsTaxIncluded,
+        t.Rate,
+        t.IsSummary,
+        c.StdPrecision,
+        t.BaseAmount, 
+        o.C_Order_ID,
+        p.producttype,
+        o.em_ds_chargeamt
+      ORDER BY 4 DESC
+      )
+
+        LOOP
+          v_LineNetAmt:=Cur_Tax.LineNetAmt;
+          xTotalLines:=xTotalLines + v_LineNetAmt; -- w/o Header Freight/Charge
+          IF (HeaderNotAdded) THEN --  add header net to first tax
+            HeaderNotAdded:=FALSE;
+            v_LineNetAmt:=v_LineNetAmt + Cur_Tax.HeaderNet;
+          END IF;
+          IF((Cur_Tax.producttype) = 'S') THEN
+             xTotalPriceAdj :=xTotalPriceAdj+Cur_Tax.LineNetAmt;
+          END IF; 
+     v_taxamt= (Cur_Tax.LineNetAmt-(Cur_Tax.LineNetAmt*(100/(100+COALESCE(Cur_Tax.rate,0)))));
+     if ( Cur_Tax.SummedQty = 0 ) then
+       v_actual_price = 0;
+       v_gross_unit_price = 0 ;
+     else
+       v_gross_unit_price = Cur_Tax.LineNetAmt/Cur_Tax.SummedQty ;
+       v_actual_price = round((Cur_Tax.LineNetAmt-v_taxamt)/Cur_Tax.SummedQty,2) ;
+     end if ;
+   
+   UPDATE C_ORDERLINE
+   SET em_ds_taxamount=(Cur_Tax.LineNetAmt-(Cur_Tax.LineNetAmt*(100/(100+COALESCE(Cur_Tax.rate,0))))),
+   line_gross_amount=Cur_Tax.LineNetAmt,
+   gross_unit_price=v_gross_unit_price,
+   priceactual=v_actual_price,
+   description='Gross calculated' 
+   WHERE 
+   C_OrderLine_ID = Cur_Tax.C_OrderLine_ID ;
+
+        IF (v_istaxincluded = 'Y') THEN
+          SELECT COALESCE(SUM(line_gross_amount), 0) INTO xGrandTotal
+          FROM c_orderline
+          WHERE c_order_id = p_order_id;
+        ELSE
+          SELECT COALESCE(SUM(TAXAMT), 0) INTO xGrandTotal
+          FROM C_ORDERTAX
+          WHERE C_ORDER_ID = p_order_id;
+          xGrandTotal:=xGrandTotal+ xTotalLines;
+        END IF;
+
+        END LOOP; -- Insert New Taxes
+        
+-------------------------------------------
+
+v_taxamt= (Cur_Tax.LineNetAmt-(Cur_Tax.LineNetAmt*(100/(100+COALESCE(Cur_Tax.rate,0)))));
+     if ( Cur_Tax.SummedQty = 0 ) then
+       v_actual_price = 0;
+       v_gross_unit_price = 0 ;
+     else
+       v_gross_unit_price = Cur_Tax.LineNetAmt/Cur_Tax.SummedQty ;
+       v_actual_price = round((Cur_Tax.LineNetAmt-v_taxamt)/Cur_Tax.SummedQty,2) ;
+     end if ;
+     -------------------------------------------
+       UPDATE C_ORDER
+        SET DocStatus='CO',
+            DocAction='--',
+            IsDelivered='Y',
+            IsInvoiced='N',
+            Processed='Y',
+            Processing='N',
+            dateordered=to_timestamp(p_ordered_date, 'YYYY-MM-DD HH24:MI:SS'),
+	    datepromised=to_timestamp(p_ordered_date, 'YYYY-MM-DD HH24:MI:SS'),
+	    dateacct=to_timestamp(p_ordered_date, 'YYYY-MM-DD HH24:MI:SS'),
+            GrandTotal=xGrandTotal,
+            em_ds_grandtotalamt=(xTotalLines),
+	    em_ds_totalpriceadj = xTotalPriceAdj,
+	    em_ds_receiptno=p_em_ds_receiptno,
+            Updated=now()
+            WHERE C_Order_ID=p_order_id;
+        DBMS_OUTPUT.PUT_LINE('DocAction - ' || v_DocAction) ;
+
+	RETURN '1';
+END DS_ORDER_POST3
+]]></body>
+    </function>
+  </database>

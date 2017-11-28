@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="RptSW_RequisitionSRQ"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="852"
+		 pageHeight="842"
+		 columnWidth="792"
+		 columnSpacing="0"    
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<parameter name="SW_Srequisition_Id" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select r.documentno,r.reqdate,b.name as brand,p.name as itemcode,rl.modelname||' - '||rl.size||' - '||rl.color as description,
+--p.em_cl_pcb_qty as pcbqty,p.em_cl_ue_qty as ueqty,rl.qtyship as bmqty,
+rl.qtyreq as QtyOrder,rl.qtyship as Qtyexpedition,rl.Qtyrec as Qtyreceived,r.movementtype,
+a.em_ds_tinno as tin, a.em_ds_telno as phone, l.address1 as add1,l.address2 as add2,l.em_rc_address3 as add3,
+l.em_rc_address4 as add4, l.city as city, l.postal as pin,
+
+CASE
+     WHEN lower(plv.name) not like lower('%DMI CATALOGUE%') THEN  0
+     else pp.em_cl_cessionprice
+    END as landedpriceperitem,
+CASE
+     WHEN lower(plv.name) not like lower('%DMI CATALOGUE%') THEN  0
+     else (pp.em_cl_cessionprice*rl.qtyship)
+    END as total
+from sw_srequisition r
+left join sw_sreqline rl on (rl.sw_srequisition_id=r.sw_srequisition_id)
+left join m_product p on (p.m_product_id = rl.m_product_id)
+left join cl_brand b on (b.cl_brand_id=rl.cl_brand_id)
+left join m_productprice pp on (pp.m_product_id=p.m_product_id)
+left join m_pricelist_version plv on (plv.m_pricelist_version_id=pp.m_pricelist_version_id)
+left join ad_org a on r.ad_org_id=a.ad_org_id
+left join ad_orginfo f on a.ad_org_id=f.ad_org_id
+left join c_location l on f.c_location_id=l.c_location_id
+where r.sw_srequisition_id =   $P{SW_Srequisition_Id}
+and (lower(plv.name) like lower('%DMI CATALOGUE%') OR plv.name IS NULL)order by landedpriceperitem]]>
+	</queryString>
+	<field name="documentno" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="reqdate" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="brand" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="itemcode" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="description" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="qtyorder" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="qtyexpedition" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="qtyreceived" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="movementtype" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tin" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="phone" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="add1" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="add2" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="add3" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="add4" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="city" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="pin" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="landedpriceperitem" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="total" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<group name="Detail1">
+		<groupExpression><![CDATA[$F{documentno}]]></groupExpression>
+		<groupFooter>
+			<band height="29">
+				<staticText>
+					<reportElement x="-16" y="1" width="263" height="25"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CHECKED AND CONFIRMED BY LOGISTICS-]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="247" y="2" width="294" height="27"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CHECKED AND CONFIRMED BY BM-]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="541" y="3" width="100" height="25"/>
+					<textElement>
+						<font size="11" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Invoice Total :]]></text>
+				</staticText>
+				<textField pattern="###0.00">
+					<reportElement x="642" y="3" width="148" height="25"/>
+					<textElement/>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band/>
+	</background>
+	<title>
+		<band height="36">
+			<staticText>
+				<reportElement x="-16" y="1" width="836" height="35"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Verdana" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[STORE REQUISITION TO THE WAREHOUSE]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="167">
+			<staticText>
+				<reportElement x="-16" y="126" width="139" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[City]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="123" y="66" width="277" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add2}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-16" y="6" width="139" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tin No :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="123" y="46" width="277" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="123" y="26" width="101" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{phone}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="123" y="146" width="101" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{pin}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-16" y="146" width="139" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Pin Code :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="123" y="6" width="101" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{tin}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-16" y="46" width="139" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Address :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="123" y="126" width="101" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{city}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-16" y="26" width="139" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Phone Number :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="123" y="106" width="277" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add4}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="123" y="86" width="277" height="20"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add3}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="59">
+			<staticText>
+				<reportElement x="-16" y="5" width="83" height="44"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Document No:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="67" y="6" width="76" height="42"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Invoice Date:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="143" y="5" width="69" height="43"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="212" y="5" width="106" height="44"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="318" y="4" width="108" height="44"/>
+				<textElement>
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="426" y="5" width="78" height="44"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty. Order by BM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="504" y="5" width="91" height="44"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty. Shipped by WH]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="595" y="5" width="73" height="44"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty. Received By BM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="668" y="5" width="98" height="44"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Catalog Unit Price (Per Item)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="766" y="5" width="54" height="44"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="50">
+			<textField>
+				<reportElement x="668" y="5" width="96" height="43"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{landedpriceperitem}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="212" y="5" width="106" height="45"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="764" y="5" width="56" height="43"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="5" width="76" height="45"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{reqdate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="-16" y="5" width="83" height="45"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="318" y="5" width="108" height="45"/>
+				<textElement>
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="143" y="5" width="69" height="45"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="595" y="6" width="73" height="42"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyreceived}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="426" y="6" width="78" height="42"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyorder}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="504" y="6" width="91" height="42"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyexpedition}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="52">
+			<staticText>
+				<reportElement x="-16" y="1" width="834" height="48"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Verdana" size="11" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In respect of the goods covered by this Invoice,no credits of the additional duty of customs levied under section 3(5) of the Customs Tariff Act shall be admissible.]]></text>
+			</staticText>
+		</band>
+	</columnFooter>
+</jasperReport>

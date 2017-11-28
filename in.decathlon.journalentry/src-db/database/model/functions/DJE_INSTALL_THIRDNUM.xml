@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DJE_INSTALL_THIRDNUM">
+    <function name="DJE_INSTALL_THIRDNUM" type="NULL">
+      <parameter name="copy_path" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Cur_Mapping RECORD;
+v_count  NUMBER; 
+declare sql text;
+
+BEGIN 
+
+CREATE TEMP TABLE temp6(ThirdNum NUMBER,OrgId  VARCHAR(32),Name VARCHAR(60))
+   ON COMMIT PRESERVE ROWS;
+
+--copy temp from '/home/promantia/LedgerMapping.csv' using delimiters ',' csv header; 
+
+sql := 'COPY temp6 FROM ' || quote_literal(copy_path) || ' using delimiters '','' csv header';
+DBMS_OUTPUT.PUT_LINE( sql);
+execute sql;
+
+FOR Cur_Mapping IN (select ThirdNum ,OrgId, Name from temp6)
+
+LOOP
+
+UPDATE rc_company SET em_dfex_third_num = Cur_Mapping.ThirdNum where documentno = Cur_Mapping.OrgId;
+
+
+END LOOP;
+END DJE_INSTALL_THIRDNUM
+]]></body>
+    </function>
+  </database>

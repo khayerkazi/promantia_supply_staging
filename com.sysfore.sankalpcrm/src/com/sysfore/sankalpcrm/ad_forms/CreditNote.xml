@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<REPORT>
+    <template file="CreditNote.html"/>
+    <PARAMETER id="paramToolBar" name="toolbar" default=""/>
+    <PARAMETER id="fieldCalendar" name="calendar" attribute="src" replace="es" default="en"/>
+    <PARAMETER id="paramDirectory" name="directory" default=""/>
+    <PARAMETER id="paramLanguage" name="paramLanguage" default=""/>
+    <PARAMETER id="paramDateFrom" name="dateFrom" attribute="value"/>
+    <PARAMETER id="paramDateFrom" name="dateFromdisplayFormat" attribute="displayformat" replace="xx"/>
+    <PARAMETER id="paramDateFrom" name="dateFromsaveFormat" attribute="saveformat" replace="yy"/>
+    <PARAMETER id="paramDateTo" name="dateTo" attribute="value"/>
+    <PARAMETER id="paramDateTo" name="dateTodisplayFormat" attribute="displayformat" replace="xx"/>
+    <PARAMETER id="paramDateTo" name="dateTosaveFormat" attribute="saveformat" replace="yy"/>
+    <PARAMETER id="paramCSS" name="theme" attribute="href" replace="Default"/>
+    <PARAMETER id="tdleftTabs" name="leftTabs" default=""/>
+    <PARAMETER id="paramParentTabContainer" name="parentTabContainer" default=" "/>
+    <PARAMETER id="paramMainTabContainer" name="mainTabContainer" default=" "/>
+    <PARAMETER id="paramChildTabContainer" name="childTabContainer" default=" "/>
+    <PARAMETER id="tdtopButtons" name="navigationBar" default=""/>
+    <PARAMETER id="paramDateFrom" name="dateFrom" attribute="value"/>
+    <PARAMETER id="paramDateFrom" name="displayFormat" attribute="displayformat"/>
+    <PARAMETER id="paramDateFrom" name="displayFormat" attribute="saveformat"/>
+    <PARAMETER id="paramCreditnotetype" name="inpemcrCreditnotetype" attribute="value"/>
+    <PARAMETER id="paramCreditNoteAccountType" name="inpemcrCreditNoteAccountType" attribute="value"/>
+    <PARAMETER id="paramCreditNoteId" name="inpCreditNoteId" attribute="value"/>
+    <PARAMETER id="paramProductId" name="inpmProductId" attribute="value"/>
+    <PARAMETER id="messageBoxID" name="messageType" attribute="class" replace="yy" default="HIDDEN"/>
+    <PARAMETER id="messageBoxIDTitle" name="messageTitle" default=""/>
+    <PARAMETER id="messageBoxIDMessage" name="messageMessage" default=""/>
+    <PARAMETER id="param2" name="param2" default="2"/>
+    <PARAMETER id="paramScript" name="script"/>
+    <SUBREPORT id="reportcr_Creditnotetype" name="reportcr_Creditnotetype"
+               report="org/openbravo/erpCommon/reference/List">
+        <ARGUMENT name="parameterListSelected" withId="paramCreditnotetype"/>
+    </SUBREPORT>
+    <SUBREPORT id="reportcr_CreditNoteAccountType" name="reportcr_CreditNoteAccountType"
+               report="org/openbravo/erpCommon/reference/List">
+        <ARGUMENT name="parameterListSelected" withId="paramCreditnoteaccounttype"/>
+    </SUBREPORT>
+    <SUBREPORT id="reportcr_ExchangeRefundResaone" name="reportcr_ExchangeRefundResaone"
+               report="org/openbravo/erpCommon/reference/List">
+        <ARGUMENT name="parameterListSelected" withId="paramExchangeRefundResaone"/>
+    </SUBREPORT>
+    <structure name="structure2">
+        <FIELD id="fieldCOrderlineId" attribute="value">id</FIELD>
+        <FIELD id="fieldbillno">billno</FIELD>
+        <FIELD id="fieldbilldate">billdate</FIELD>
+        <FIELD id="fielditemcode">itemcode</FIELD>
+        <FIELD id="fieldsize">size</FIELD>
+        <FIELD id="fieldcolor">color</FIELD>
+        <FIELD id="fieldqtyord">qtyord</FIELD>
+        <FIELD id="fieldl1">l1</FIELD>
+        <FIELD id="fieldl2">l2</FIELD>
+        <FIELD id="fieldl3">l3</FIELD>
+        <FIELD id="fieldl1new" attribute="value" format="euroEdition">l1new</FIELD>
+        <FIELD id="fieldl1new" attribute="name" replace="xx">id</FIELD>
+        <FIELD id="fieldqtyneword" attribute="value">qtyneword</FIELD>
+        <FIELD id="fieldqtyneword" attribute="name" replace="xx">id</FIELD>
+        <FIELD id="fieldcomment" attribute="value" format="euroEdition">comment</FIELD>
+        <FIELD id="fieldcomment" attribute="name" replace="xx">id</FIELD>
+        <FIELD id="paramExchangeRefundResaone" attribute="name" replace="xx">id</FIELD>
+
+        <SECTION id="sectionDetail"/>
+    </structure>
+    <structure name="structure1">
+        <FIELD id="fieldswCreditnotelineId" attribute="value">id</FIELD>
+        <FIELD id="fieldcbillno">cbillno</FIELD>
+        <FIELD id="fieldDisplayitemcode">itemcode</FIELD>
+        <FIELD id="fieldrefprice">refprice</FIELD>
+        <FIELD id="fieldrefqty">refqty</FIELD>
+        <FIELD id="fieldlineamt">lineamt</FIELD>
+        <FIELD id="fieldreason">reason</FIELD>
+        <FIELD id="fieldcomment">comment</FIELD>
+
+        <SECTION id="activecreditnote"/>
+    </structure>
+    <structure name="structure3">
+        <FIELD id="fieldname">name</FIELD>
+        <FIELD id="fieldname2">name2</FIELD>
+        <FIELD id="fielddecathlonid">decathlonid</FIELD>
+
+        <SECTION id="activemember"/>
+    </structure>
+</REPORT>

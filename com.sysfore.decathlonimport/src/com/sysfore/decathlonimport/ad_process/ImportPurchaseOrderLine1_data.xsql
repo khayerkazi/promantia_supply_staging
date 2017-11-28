@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+<SqlClass name="ImportPurchaseOrderLine1Data" package="com.sysfore.decathlonimport.ad_process" >
+   <SqlMethod name="itemdetail" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+	 <![CDATA[ select p.m_product_id as productid, p.name as itemcode, cl.name as color, p.em_cl_size as size, 
+CASE WHEN p.em_cl_age='1' THEN 'Junior' WHEN p.em_cl_age='2' THEN 'Adult' ELSE 'All' END as age, CASE WHEN p.em_cl_gender='1' THEN 'Boy' WHEN p.em_cl_gender='2' THEN 'Girl' WHEN  p.em_cl_gender='3' THEN 'Men' WHEN  p.em_cl_gender='4' THEN 'Women' ELSE 'Unisex' END as gender, 
+p.em_cl_ue_qty as UeQty,p.em_cl_pcb_qty as pcbqty,p.em_cl_volume_pcb as volumepcb,p.em_cl_grosswt_pcb as pcbgrossweight,p.weight as pcbnetweight,
+pp.pricelist as pricelist, pp.pricelimit as pricelimit, pp.pricestd as pricestd, 
+(select c_tax_id from c_tax where c_taxcategory_id=p.c_taxcategory_id)as taxid,	
+(select rate from c_tax where c_taxcategory_id=p.c_taxcategory_id)as taxrate,	
+pp.em_cl_mrpprice as mrp, pp.em_cl_cessionprice as cession, pp.em_cl_ccunitprice as cashandcarry, pp.em_cl_ccueprice as ueprice, pp.em_cl_ccpcbprice as pcbprice 
+ from m_product p inner join cl_model ml on p.em_cl_model_id=ml.cl_model_id 
+ inner join cl_brand b on ml.cl_brand_id=b.cl_brand_id
+ left join cl_storedept sd on ml.cl_storedept_id=sd.cl_storedept_id 
+ left join cl_universe u on ml.cl_universe_id=u.cl_universe_id 
+ left join cl_department d on ml.cl_department_id=d.cl_department_id
+ left join cl_sport s on ml.cl_sport_id=s.cl_sport_id
+ left join cl_natureofproduct n on ml.cl_natureofproduct_id=n.cl_natureofproduct_id
+ left join cl_component_brand c on ml.cl_component_brand_id=c.cl_component_brand_id
+ left join cl_color cl on p.em_cl_color_id=cl.cl_color_id 
+ left join m_productprice pp on p.m_product_id=pp.m_product_id
+ where p.name=? 
+ AND pp.m_pricelist_version_id='0F39C05C15EE4E5BB50BD5FEC1645DA1' 
+ order by d.name 
+      ]]>
+    </Sql>
+	-<Parameter name="name"></Parameter>
+	<!--<Parameter name="name" optional="true" after="where 1=1"><![CDATA[ m_product.name=?]]></Parameter>-->
+    </SqlMethod>
+<SqlMethod name="insertlines" type="preparedStatement" return="rowCount">
+<SqlMethodComment></SqlMethodComment>
+<Sql>
+ <![CDATA[ insert into c_orderline(c_orderline_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, c_order_id, line, c_bpartner_id, c_bpartner_location_id, dateordered, datepromised, dateinvoiced, m_product_id, m_warehouse_id, directship, c_uom_id, qtyordered, qtyreserved, qtydelivered, qtyinvoiced, c_currency_id, pricelist, priceactual, pricelimit, linenetamt, freightamt, chargeamt, c_tax_id, isdescription, pricestd, cancelpricead, iseditlinenetamt, taxbaseamt, em_ds_taxamount, em_ds_unitqty, em_ds_cessionprice, em_sw_orderqty, em_sw_suppliercode, em_sw_volpcb, em_sw_ntwtpcb, em_sw_grwtpcb, em_sw_noofparcel, em_sw_itemcode, em_sw_modelname, em_sw_color, em_sw_size, em_ds_ccunitprice, em_ds_mrpprice  ) VALUES(get_uuid(), ?, ?, 'Y' ,now(), ?,now(), ?, ?,TO_NUMBER(?), ?, ?, TO_DATE(?), TO_DATE(?), TO_DATE(?), ?, ?, 'N', '100', TO_NUMBER(?), 0, 0, 0, '304', TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), 0.0, 0.0, ?, 'N', TO_NUMBER(?),'N', 'N', 0, TO_NUMBER(?), 0, TO_NUMBER(?), TO_NUMBER(?), ?, TO_NUMBER(?), TO_NUMBER(?),TO_NUMBER(?), TO_NUMBER(?), ?, ?, ?, ?, TO_NUMBER(?), TO_NUMBER(?))]]>
+    </Sql>
+	<Parameter name="ad_client_id"></Parameter>
+	<Parameter name="ad_org_id"></Parameter>
+	<Parameter name="createdby"></Parameter>
+	<Parameter name="updatedby"></Parameter>
+	<Parameter name="cOrderId"></Parameter>
+	<Parameter name="line"></Parameter>
+	<Parameter name="cBpartnerId"></Parameter>
+	<Parameter name="cBpartnerLocationId"></Parameter> 
+	<Parameter name="dateordered"></Parameter>
+	<Parameter name="datepromised"></Parameter>
+	<Parameter name="dateinvoiced"></Parameter>
+	<Parameter name="mProductId"></Parameter>
+	<Parameter name="mWarehouseId"></Parameter>
+	<Parameter name="qtyordered"></Parameter>
+	<Parameter name="pricelist"></Parameter>  
+	<Parameter name="priceactual"></Parameter>
+  	<Parameter name="pricelimit"></Parameter>
+	<Parameter name="linenetamt"></Parameter>
+	<Parameter name="cTaxId"></Parameter>
+	<Parameter name="pricestd"></Parameter>
+	<Parameter name="emDsTaxamount"></Parameter>
+	<Parameter name="emDsCessionprice"></Parameter>
+	<Parameter name="emSwOrderqty"></Parameter>
+	<Parameter name="emSwSuppliercode"></Parameter>
+	<Parameter name="emSwVolpcb"></Parameter>
+	<Parameter name="emSwNtwtpcb"></Parameter>
+	<Parameter name="emSwGrwtpcb"></Parameter>
+	<Parameter name="emSwNoofparcel"></Parameter>
+	<Parameter name="emSwItemcode"></Parameter>
+	<Parameter name="emSwModelname"></Parameter>
+	<Parameter name="emSwColor"></Parameter>
+	<Parameter name="emSwSize"></Parameter>
+	<Parameter name="emDsCcunitprice"></Parameter>
+	<Parameter name="emDsMrpprice"></Parameter>	
+</SqlMethod>
+	<SqlMethod name="updatecorder" type="preparedStatement" return="rowCount">
+    	<SqlMethodComment></SqlMethodComment>
+    	<Sql>
+	 <![CDATA[update c_order set totallines=TO_NUMBER(?), em_ds_grandtotalamt=TO_NUMBER(?) where c_order_id=?]]>
+   	 </Sql>
+	<Parameter name="totallines"></Parameter>
+	<Parameter name="emDsGrandtotalamt"></Parameter>
+	<Parameter name="cOrderId"></Parameter>	
+	</SqlMethod>
+</SqlClass>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_DOCTYPE">
+    <table name="C_DOCTYPE" primaryKey="C_DOCTYPE_KEY">
+      <column name="EM_OBWPL_USEOUTBOUND" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_ISGROUP" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_GENERATESHIPMENT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_SHIPMENTDOCTYPE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_GROUPSHIPMENTS" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWPL_PICKUSINGBOXES" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_DOCTYPE" name="EM_OBWPL_DOCTYPE_SHIPDOCTYPE">
+        <reference local="EM_OBWPL_SHIPMENTDOCTYPE_ID" foreign="C_DOCTYPE_ID"/>
+      </foreign-key>
+      <check name="EM_OBWPL_DOCTYPE_GENSHIP_CHK"><![CDATA[EM_OBWPL_GENERATESHIPMENT IN ('Y', 'N')]]></check>
+      <check name="EM_OBWPL_DOCTYPE_GENSHIPDT_CHK"><![CDATA[(EM_OBWPL_GENERATESHIPMENT = 'N') OR ((EM_OBWPL_GENERATESHIPMENT = 'Y') AND (EM_OBWPL_SHIPMENTDOCTYPE_ID IS NOT NULL))]]></check>
+      <check name="EM_OBWPL_DOCTYPE_GROUPSHIP_CHK"><![CDATA[(EM_OBWPL_ISGROUP = 'N') OR ((EM_OBWPL_ISGROUP = 'Y') AND (EM_OBWPL_GENERATESHIPMENT = 'N'))]]></check>
+      <check name="EM_OBWPL_DOCTYPE_ISGROUP_CHK"><![CDATA[EM_OBWPL_ISGROUP IN ('Y', 'N')]]></check>
+      <check name="EM_OBWPL_DOCTYPE_OUTBOUND_CHK"><![CDATA[EM_OBWPL_USEOUTBOUND IN ('Y', 'N')]]></check>
+      <check name="EM_OBWPL_GROUPSHIPMENTS_CHK"><![CDATA[(EM_OBWPL_GROUPSHIPMENTS = 'N') OR ((EM_OBWPL_GROUPSHIPMENTS = 'Y') AND (EM_OBWPL_GENERATESHIPMENT = 'Y'))]]></check>
+    </table>
+  </database>

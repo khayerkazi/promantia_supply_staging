@@ -1,0 +1,2 @@
+OB.OBPOSPointOfSale.Print.ReceiptTemplate = '../org.openbravo.decathlon.retail.tickettemplates/res/printreceipt.xml';
+OB.OBPOSPointOfSale.Print.ReceiptClosedTemplate = '../org.openbravo.decathlon.retail.tickettemplates/res/printclosedreceipt.xml';

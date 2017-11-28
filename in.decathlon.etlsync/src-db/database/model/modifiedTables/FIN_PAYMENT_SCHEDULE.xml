@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE FIN_PAYMENT_SCHEDULE">
+    <table name="FIN_PAYMENT_SCHEDULE" primaryKey="FIN_PAYMENT_SCHEDULE_KEY">
+      <index name="EM_SYNC_PAYM_SCH_ORD_IDX" unique="false">
+        <index-column name="C_ORDER_ID"/>
+      </index>
+    </table>
+  </database>

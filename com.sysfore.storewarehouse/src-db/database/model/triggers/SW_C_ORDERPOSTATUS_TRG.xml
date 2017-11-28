@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_C_ORDERPOSTATUS_TRG">
+    <trigger name="SW_C_ORDERPOSTATUS_TRG" table="C_ORDERLINE" fires="before" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[ v_orderid VARCHAR(32);
+ v_postatus VARCHAR(30); 
+ v_isstrox VARCHAR(30);      
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+    
+  IF  UPDATING THEN  
+  Select issotrx, em_sw_postatus INTO v_isstrox, v_postatus from C_Order 
+  Where C_Order_Id = :NEW.C_Order_Id;
+  IF(v_isstrox='N' AND v_postatus='CD' ) THEN
+  IF (COALESCE(:OLD.EM_SW_OrderQty, '0') <> COALESCE(:NEW.EM_SW_OrderQty, '0')) 
+  OR  :OLD.DatePromised != :NEW.DatePromised
+  OR :OLD.DateOrdered != :NEW.DateOrdered
+  OR (COALESCE(:OLD.Line, '0') <> COALESCE(:NEW.Line, '0'))
+  OR (COALESCE(:OLD.EM_SW_ItemCode, '0') <> COALESCE(:NEW.EM_SW_ItemCode, '0'))
+  OR (COALESCE(:OLD.EM_SW_OrderQty, '0') <> COALESCE(:NEW.EM_SW_OrderQty, '0'))
+  OR (COALESCE(:OLD.QtyOrdered, '0') <> COALESCE(:NEW.QtyOrdered, '0'))
+  THEN 
+
+  RAISE NO_DATA_FOUND;
+   
+  END IF;
+  END IF;
+  END IF;
+
+
+
+END SW_C_ORDERPOSTATUS_TRG
+]]></body>
+    </trigger>
+  </database>

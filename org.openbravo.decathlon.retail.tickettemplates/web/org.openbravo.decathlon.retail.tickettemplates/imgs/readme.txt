@@ -1,0 +1,1 @@
+This image shuld be pasted in the hardware manager img folder.

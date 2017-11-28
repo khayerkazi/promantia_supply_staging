@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE OBWPACK_MOVLINEBOX">
+    <table name="OBWPACK_MOVLINEBOX" primaryKey="OBWPACK_MOVLINEBOX_KEY">
+      <index name="EM_IBUDPK_BOX" unique="false">
+        <index-column name="OBWPACK_BOX_ID"/>
+      </index>
+      <index name="EM_IBUDPK_MOVLINE" unique="false">
+        <index-column name="M_MOVEMENTLINE_ID"/>
+      </index>
+      <index name="EM_IBUDPK_ORDERLINE" unique="false">
+        <index-column name="C_ORDERLINE_ID"/>
+      </index>
+      <index name="EM_IBUDPK_PRODUCT_IDX" unique="false">
+        <index-column name="M_PRODUCT_ID"/>
+      </index>
+    </table>
+  </database>

@@ -1,0 +1,17 @@
+
+
+<SqlClass name="BlueProductData" package="com.sysfore.fastnslowmovingrpt.report">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+       Select ad_reference_id as id from ad_reference where lower(name)=lower('Blueproduct')
+     ]]></Sql>
+
+  </SqlMethod>
+  <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>

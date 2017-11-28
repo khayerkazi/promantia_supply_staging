@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION RC_BILLAMT">
+    <function name="RC_BILLAMT" type="NUMERIC">
+      <parameter name="p_name" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_rccompany_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_billamt NUMBER;
+v_noofbills NUMBER;
+v_qtyordered NUMBER;
+
+BEGIN
+
+IF(p_name='billamt') THEN
+Select sum(c_order.grandtotal) as billamt into v_billamt from c_order, C_bpartner, RC_Company  
+Where C_Order.C_Bpartner_Id= c_bpartner.c_bpartner_id
+and RC_Company.RC_Company_id=c_bpartner.Em_RC_Company_id
+and C_Order.issotrx='Y'
+and RC_Company.RC_Company_id=p_rccompany_id;
+
+RETURN v_billamt;
+
+END IF;
+
+IF(p_name='noofbills') THEN
+
+Select count(*) as noofbills into v_noofbills from c_order, C_bpartner, RC_Company  
+Where C_Order.C_Bpartner_Id= c_bpartner.c_bpartner_id
+and RC_Company.RC_Company_id=c_bpartner.Em_RC_Company_id
+and C_Order.issotrx='Y'
+and RC_Company.RC_Company_id=p_rccompany_id;
+
+RETURN v_noofbills;
+END IF;
+
+IF(p_name='billqty') THEN
+Select sum(c_orderline.qtyordered) as billqty into v_qtyordered  from c_orderline, c_order, C_bpartner, RC_Company  
+Where C_Order.C_Bpartner_Id= c_bpartner.c_bpartner_id
+and RC_Company.RC_Company_id=c_bpartner.Em_RC_Company_id
+and C_Order.C_Order_Id=C_Orderline.C_Order_id
+and C_Order.issotrx='Y'
+and RC_Company.RC_Company_id=p_rccompany_id;
+
+RETURN v_qtyordered;
+END IF;
+END RC_BILLAMT
+]]></body>
+    </function>
+  </database>

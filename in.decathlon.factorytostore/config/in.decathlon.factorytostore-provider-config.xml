@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+
+   <bean>
+       <name>DirectDelOrdersWS_bulk</name>
+       <class>in.decathlon.factorytostore.process.SODirectDeliveryBulkListener</class>
+       <singleton>true</singleton>
+   </bean>  
+
+   <bean>
+       <name>EmailListener</name>
+       <class>in.decathlon.factorytostore.process.EmailListener</class>
+       <singleton>true</singleton>
+   </bean>
+
+   <bean>
+       <name>MinMaxScriptListener</name>
+       <class>in.decathlon.factorytostore.process.MinMaxScriptListener</class>
+       <singleton>true</singleton>
+   </bean>
+   
+</provider>
+

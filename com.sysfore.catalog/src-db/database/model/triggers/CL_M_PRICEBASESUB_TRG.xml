@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER CL_M_PRICEBASESUB_TRG">
+    <trigger name="CL_M_PRICEBASESUB_TRG" table="M_PRODUCTPRICE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[/*************************************************************************
+    * The contents of this file are subject to the Compiere Public
+    * License 1.1 ("License"); You may not use this file except in
+    * compliance with the License. You may obtain a copy of the License in
+    * the legal folder of your Openbravo installation.
+    * Software distributed under the License is distributed on an
+    * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+    * implied. See the License for the specific language governing rights
+    * and limitations under the License.
+    * The Original Code is  Compiere  ERP &  Business Solution
+    * The Initial Developer of the Original Code is Jorg Janke and ComPiere, Inc.
+    * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke,
+    * parts created by ComPiere are Copyright (C) ComPiere, Inc.;
+    * All Rights Reserved.
+    * Contributor(s): Openbravo SLU
+    * Contributions are Copyright (C) 2001-2008 Openbravo, S.L.U.
+    *
+    * Specifically, this derivative work is based upon the following Compiere
+    * file and version.
+    *************************************************************************
+    * $Id: cl_m_pricebasesub_trg.sql,v 1.2 2003/03/19 06:46:56 jjanke Exp $
+    ***
+    * Title: store price
+    * Description:
+    *   Store pricelist update if any changes in the catalog price list
+    ************************************************************************/
+ v_mainpricelistversionid CHARACTER(40) :=null;
+ --v_basepricelistversionid CHARACTER(40) :=null;
+ v_m_product_id CHARACTER(40) :=null;
+ Cur_basepricelistversionid RECORD;
+ v_followcatalog CHARACTER(1) :=null;
+ BEGIN
+
+ IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF INSERTING  THEN
+   
+
+FOR Cur_basepricelistversionid in(select m_pricelist_version_id,ad_org_id from m_pricelist_version where m_pricelist_version_base_id=:NEW.m_pricelist_version_id)loop
+
+
+--IF (v_basepricelistversionid is not null)THEN
+--RAISE v_basepricelistversionid || 'base price list ID in IF';
+insert into m_productprice(
+            m_productprice_id, m_pricelist_version_id, m_product_id, ad_client_id, 
+            ad_org_id, isactive, created, createdby, updated, updatedby, 
+            pricelist, pricestd, pricelimit, em_cl_fobprice, em_cl_mrpprice, 
+            em_cl_cessionprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice, 
+            em_cl_unitmarginamount, em_cl_unitmarginpercentage, em_cl_uemarginamount, 
+            em_cl_uemarginpercentage, em_cl_pcbmarginamount, em_cl_pcbmarginpercentage,em_cl_followcatalog, em_cl_suqty, em_cl_sboxqty)
+    VALUES (get_uuid(), Cur_basepricelistversionid.m_pricelist_version_id, :NEW.m_product_id, :NEW.ad_client_id, 
+            Cur_basepricelistversionid.ad_org_id, :NEW.isactive, :NEW.created, :NEW.createdby, :NEW.updated, :NEW.updatedby, 
+            :NEW.pricelist, :NEW.pricestd, :NEW.pricelimit, :NEW.em_cl_fobprice, :NEW.em_cl_mrpprice, 
+            :NEW.em_cl_cessionprice, :NEW.em_cl_ccunitprice, :NEW.em_cl_ccueprice, :NEW.em_cl_ccpcbprice, 
+            :NEW.em_cl_unitmarginamount, :NEW.em_cl_unitmarginpercentage, :NEW.em_cl_uemarginamount, 
+            :NEW.em_cl_uemarginpercentage, :NEW.em_cl_pcbmarginamount, :NEW.em_cl_pcbmarginpercentage,'Y', (select em_cl_ue_qty from m_product where m_product_id=:NEW.m_product_id), (select em_cl_pcb_qty from m_product where m_product_id=:NEW.m_product_id) );
+            END LOOP;
+/*
+--for setting min max when price is set
+insert into cl_minmax 				 
+(cl_minmax_id,ad_client_id,ad_org_id,isactive,created,createdby,updated,updatedby,m_product_id,minqty,maxqty,displaymin)
+ values
+ (get_uuid(),'187D8FC945A5481CB41B3EE767F80DBB',:NEW.ad_org_id,'Y',:NEW.created,:NEW.createdby,:NEW.updated,:NEW.updatedby,:NEW.m_product_id,0,0,0);    
+----
+
+*/
+END IF;
+IF UPDATING  THEN
+--select m_product_id into v_m_product_id from m_productprice where m_productprice_id=NEW.m_productprice_id;
+
+
+
+
+
+
+UPDATE m_productprice
+   SET isactive=:NEW.isactive,updated=:NEW.updated, updatedby=:NEW.updatedby,
+   em_cl_fobprice=:NEW.em_cl_fobprice, em_cl_mrpprice=:NEW.em_cl_mrpprice, em_cl_cessionprice=:NEW.em_cl_cessionprice, 
+       em_cl_ccunitprice=:NEW.em_cl_ccunitprice,em_cl_ccueprice=:NEW.em_cl_ccueprice, em_cl_ccpcbprice=:NEW.em_cl_ccpcbprice, 
+       em_cl_unitmarginamount=:NEW.em_cl_unitmarginamount, 
+       em_cl_unitmarginpercentage=:NEW.em_cl_unitmarginpercentage, em_cl_uemarginamount=:NEW.em_cl_uemarginamount, em_cl_uemarginpercentage=:NEW.em_cl_uemarginpercentage, 
+       em_cl_pcbmarginamount=:NEW.em_cl_pcbmarginamount, em_cl_pcbmarginpercentage=:NEW.em_cl_pcbmarginpercentage
+ WHERE    m_product_id=:NEW.m_product_id and m_pricelist_version_id in (select m_pricelist_version_id from m_pricelist_version where m_pricelist_version_base_id=:NEW.m_pricelist_version_id) and em_cl_followcatalog='Y' ;
+
+
+	
+
+UPDATE m_productprice
+   SET updated=:NEW.updated, updatedby=:NEW.updatedby,
+   em_cl_fobprice=:NEW.em_cl_fobprice, em_cl_mrpprice=:NEW.em_cl_mrpprice, em_cl_cessionprice=:NEW.em_cl_cessionprice
+ WHERE   m_product_id=:NEW.m_product_id and m_pricelist_version_id in (select m_pricelist_version_id from m_pricelist_version where m_pricelist_version_base_id=:NEW.m_pricelist_version_id) and em_cl_followcatalog='N';
+
+
+END IF;
+IF DELETING THEN RETURN OLD; ELSE RETURN NEW; 
+END IF;
+END CL_M_PRICEBASESUB_TRG
+]]></body>
+    </trigger>
+  </database>

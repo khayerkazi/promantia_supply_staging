@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2008 Openbravo SLU 
+ * All Rights Reserved.  (SW_SRECEIPT.DOCUMENTNO  ||' & ' ||CL_BRAND.NAME) AS DOCUMENTNO,
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<SqlClass name="CreditNote4Data" package="com.sysfore.sankalpcrm.ad_forms">
+	<SqlMethod name="selectname" type="preparedStatement" return="multiple">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select c.acctype as accounttype, l.name as pname, l.refundexchangeqty as qtyext from rc_creditnoteline l, rc_creditnote c 
+			where c.rc_creditnote_id=l.rc_creditnote_id and c.rc_creditnote_id=?
+					]]>
+		</Sql>
+		<Parameter name="swCreditnoteId"/>
+	</SqlMethod>
+	<SqlMethod name="swname" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select m_warehouse_id from m_warehouse where ad_org_id=? and name LIKE '%In Transit%'
+			]]>
+		</Sql>
+		<Parameter name="adOrgID"/>
+	</SqlMethod>
+	<SqlMethod name="colorid" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select name from cl_color where cl_color_id=(select em_cl_color_id from m_product where name=?)
+			]]>
+		</Sql>
+		<Parameter name="name"/>
+	</SqlMethod>
+	<SqlMethod name="selectnameBrand" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select name as pname from rc_creditnoteline where rc_creditnote_id=?
+			]]>
+		</Sql>
+		<Parameter name="swCreditnoteId"/>
+	</SqlMethod>
+	<SqlMethod name="selectbrand" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			SELECT cl_brand_id from cl_model where cl_model_id=(select em_cl_model_id from m_product where  name=?)
+	]]>
+		</Sql>
+		<Parameter name="name"/>
+	</SqlMethod>
+		 <SqlMethod name="selectmaxqty" type="preparedStatement" return="String">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+     select afterqty from sw_stocktransaction where itemcode_id=? order by created desc limit 1
+	]]>
+		</Sql>
+		<Parameter name="itemcodeId"/>
+	</SqlMethod>	 
+	<SqlMethod name="insertsequsitionHeader" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>   
+		INSERT INTO sw_srequisition (sw_srequisition_id,ad_client_id,ad_org_id,isactive,created,createdby,updated,
+		updatedby,documentno,reqdate,ad_user_id,movementtype,requisitionstatus,docstatus,
+		processing,processed,docaction,cl_brand_id,c_doctypetarget_id,c_doctype_id)
+		values (?,?,?,'Y',now(),?,now(),?,?,now(),?,'SRN','DR','DR','N','N','CO',?,'BBF08BB6DE414A3F8DC98D7902E5848E','BBF08BB6DE414A3F8DC98D7902E5848E' )
+	</Sql>
+	  <Parameter name="sw_srequisition_id"/>
+      <Parameter name="ad_client_id"/>
+      <Parameter name="ad_org_id"/>
+      <Parameter name="createdby"/>
+	  <Parameter name="updatedby"/>
+	  <Parameter name="documentno"/>
+	  <Parameter name="ad_user_id"/>
+	  <Parameter name="cl_brand_id"/>
+	   </SqlMethod>	
+	<SqlMethod name="insertsequsitionLine" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>   
+		INSERT INTO sw_sreqline (sw_sreqline_id,ad_client_id,ad_org_id,isactive,created,createdby,updated,updatedby,
+		sw_srequisition_id,m_product_id,cl_brand_id,modelname,size,color,reqdate,qtyreq,qtyrec,qtyship,line,
+		m_warehouse_id,itemcode) values ( get_uuid(), ?, ?, 'Y', now(), ?, now(), ?, ?, ?, ?, ?, ?, ?, now(), TO_NUMBER(?), '0', '0', TO_NUMBER(?), ?, ?)
+	</Sql>
+	  <Parameter name="ad_client_id"/>
+      <Parameter name="ad_org_id"/>
+      <Parameter name="createdby"/>
+	  <Parameter name="updatedby"/>
+	  <Parameter name="sw_srequisition_id"/>
+	  <Parameter name="m_product_id"/>
+	  <Parameter name="cl_brand_id"/>
+	  <Parameter name="modelname"/>
+	  <Parameter name="size"/>
+	  <Parameter name="color"/>
+	  <Parameter name="qtyreq"/>
+	  <Parameter name="line"/>
+	  <Parameter name="m_warehouse_id"/>
+	  <Parameter name="itemcode"/>
+	   </SqlMethod>	
+	<SqlMethod name="inserttransection" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+		INSERT INTO M_Transaction
+           (
+              M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType, M_Locator_ID, C_UOM_ID,
+              MovementDate, M_Product_ID, MovementQty, em_sw_locatorto_id, em_sw_movementtype, em_sw_documentno
+            )
+            VALUES(get_uuid(), ?, ?, 'Y', now(), ?, now(), ?,'M+', ?, '100', now(), ?, TO_NUMBER(?), ?,?,?)
+	</Sql>
+	  <Parameter name="adClientId"/>
+      <Parameter name="adOrgId"/>
+      <Parameter name="createdby"/>
+      <Parameter name="updatedby"/>
+	  <Parameter name="mLocatorId"/>
+	  <Parameter name="mProductId"/>
+	  <Parameter name="movementqty"/>
+	  <Parameter name="emSWlocatortoId"/>
+	  <Parameter name="emSMovementtype"/>
+	  <Parameter name="emSwDocumentno"/>
+	  </SqlMethod>
+</SqlClass>

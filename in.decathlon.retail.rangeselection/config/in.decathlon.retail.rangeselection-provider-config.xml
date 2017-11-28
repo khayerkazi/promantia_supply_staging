@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <provider>
+	<bean>
+		<name>user</name>
+		<class>in.decathlon.retail.rangeselection.ad_webservices.UserWebService</class>
+		<singleton>true</singleton>
+	</bean>
+	<bean>
+		<name>rangeselection</name>
+		<class>in.decathlon.retail.rangeselection.ad_webservices.RangeSelectionWebService</class>
+		<singleton>true</singleton>
+	</bean>
+</provider>
+

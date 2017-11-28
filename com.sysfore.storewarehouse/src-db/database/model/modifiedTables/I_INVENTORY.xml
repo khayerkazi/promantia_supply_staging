@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE I_INVENTORY">
+    <table name="I_INVENTORY" primaryKey="I_INVENTORY_KEY">
+      <column name="EM_SW_VALIDATED" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

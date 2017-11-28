@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE RC_CREDITNOTE">
+    <table name="RC_CREDITNOTE" primaryKey="RC_CREDITNOTE_PKEY">
+      <column name="EM_NCN_ISMIGRATE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

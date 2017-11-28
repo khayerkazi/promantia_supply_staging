@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+<SqlClass name="ReportSearchItemData" package="com.sysfore.storewarehouse.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[select b.name as brand,lower(p.EM_cl_MODELNAME) as modelname,p.EM_cl_MODELCODE as modelcode, p.name as pdtname,p.m_Product_Id as m_Product_Id,
+            m.Cl_Model_Id as cl_Model_Id,p.em_cl_size as size,c.name as color, np.name as NatofPdt,d.name as dept,sd.name as sport,m.SPORT_CATEGORY as sportscat,
+            cb.name as combrand, m.MERCHANDISE_CATEGORY as merchandisecat,m.BLUEPRODUCT,p.EM_cl_LIFESTAGE as lifestage,bp.name as supplier,coalesce(round((select sum(movementqty) from m_transaction where m_locator_id='02AA5CD37B824B13981EA21D3B178807' and  m_product_id=p.m_product_id ),0),'0') as ssjstore,round((select sum(movementqty) from m_transaction where m_locator_id='90CEBD428F6044A2B1E9DF418419EC6B' and  m_product_id=p.m_product_id ),0) as bgtstore
+	     	    ,round((select sum(movementqty) from m_transaction where m_locator_id='35067080552A4BD2BAD56971FCAEF6FC' and  m_product_id=p.m_product_id ),0) as plastore,		
+	    round((select sum(movementqty) from m_transaction where m_locator_id IN (select m_locator_id from m_locator where 
+            m_warehouse_id in (select m_warehouse_id from m_warehouse where name ilike 'Saleable%' and ad_org_id='603C6A266B4C40BCAD87C5C43DDF53EE')) and  m_product_id=p.m_product_id ),0) as whstore  from m_product p right join cl_model m on (m.cl_model_id=p.em_cl_model_id)
+            left join cl_natureofproduct np on(np.CL_NATUREOFPRODUCT_ID = m.CL_NATUREOFPRODUCT_ID)
+            left join cl_brand b on (b.cl_brand_id = m.cl_brand_id)
+            left join cl_color c on (c.cl_color_id = p.em_cl_color_id)
+            left join cl_department d on (d.cl_department_id=m.cl_department_id)
+            left join cl_sport s on (s.cl_sport_id=m.cl_sport_id)
+            left join cl_component_brand cb on (cb.cl_component_brand_id = m.cl_component_brand_id)
+            left join cl_purchasing pc on (pc.cl_model_id=m.cl_model_id)
+            left join c_bpartner bp on (bp.c_bpartner_id=pc.c_bpartner_id)
+	    left join cl_storedept sd on (sd.cl_storedept_id=m.cl_storedept_id)
+            where p.isactive='Y'
+            AND p.AD_Client_ID IN ('1')
+            AND p.AD_Org_ID IN ('1')
+            AND 1=1
+            group by p.EM_cl_MODELNAME,b.name,p.EM_cl_MODELCODE,p.name,p.m_Product_Id,m.Cl_Model_Id,
+            p.em_cl_size,c.name, np.name,d.name,s.name,m.SPORT_CATEGORY,cb.name,
+            m.MERCHANDISE_CATEGORY,m.BLUEPRODUCT,p.EM_cl_LIFESTAGE,bp.name,sd.name
+            order by p.EM_cl_MODELNAME
+     ]]></Sql>
+     <Field name="rownum" value="count"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="p.AD_Client_ID IN (" text="'1'"/>
+      <Parameter name="adUserOrg" type="replace" optional="true" after="p.AD_Org_ID IN (" text="'1'"/>
+     <Parameter name="pdtname" optional="true" after="AND 1=1"><![CDATA[ AND p.name LIKE ? ]]></Parameter>
+     <Parameter name="ModelName" optional="true" after="AND 1=1"><![CDATA[AND lower(p.EM_cl_MODELNAME) LIKE lower(?)]]></Parameter>
+     <Parameter name="ModelCode" optional="true" after="AND 1=1"><![CDATA[ AND p.EM_cl_MODELCODE LIKE ? ]]></Parameter>
+      <Parameter name="Supplier" optional="true" after="AND 1=1"><![CDATA[ AND bp.name LIKE ? ]]></Parameter>
+      <Parameter name="NatureofProduct" optional="true" after="AND 1=1"><![CDATA[ AND np.cl_natureofproduct_id = ? ]]></Parameter>
+      <Parameter name="Department" optional="true" after="AND 1=1"><![CDATA[ AND d.cl_department_id = ? ]]></Parameter>
+      <Parameter name="Sport" optional="true" after="AND 1=1"><![CDATA[ AND s.cl_sport_id = ? ]]></Parameter>
+      <Parameter name="SportsCategory" optional="true" after="AND 1=1"><![CDATA[ AND m.sport_category LIKE ? ]]></Parameter>
+      <Parameter name="MerCategory" optional="true" after="AND 1=1"><![CDATA[ AND m.merchandise_category LIKE ? ]]></Parameter>
+      <Parameter name="Brand" optional="true" after="AND 1=1"><![CDATA[ AND b.cl_brand_id = ? ]]></Parameter>
+      <Parameter name="ComBrand" optional="true" after="AND 1=1"><![CDATA[ AND cb.cl_component_brand_id = ? ]]></Parameter>
+      <Parameter name="Blueproduct" optional="true" after="AND 1=1"><![CDATA[ AND m.blueproduct = ? ]]></Parameter>
+     <Parameter name="Lifestage" optional="true" after="AND 1=1"><![CDATA[ AND p.EM_cl_LIFESTAGE = ? ]]></Parameter>
+  </SqlMethod>
+
+
+
+ <SqlMethod name="selectBluproduct" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[select b.name as brand,lower(p.EM_cl_MODELNAME) as modelname,p.EM_cl_MODELCODE as modelcode, p.name as pdtname,p.m_Product_Id as m_Product_Id,
+            m.Cl_Model_Id as cl_Model_Id,p.em_cl_size as size,c.name as color, np.name as NatofPdt,d.name as dept,s.name as sport,m.SPORT_CATEGORY as sportscat,
+            cb.name as combrand, m.MERCHANDISE_CATEGORY as merchandisecat,m.BLUEPRODUCT,p.EM_cl_LIFESTAGE as lifestage,bp.name as supplier
+            from m_product p right join cl_model m on (m.cl_model_id=p.em_cl_model_id)
+            left join cl_natureofproduct np on(np.CL_NATUREOFPRODUCT_ID = m.CL_NATUREOFPRODUCT_ID)
+            left join cl_brand b on (b.cl_brand_id = m.cl_brand_id)
+            left join cl_color c on (c.cl_color_id = p.em_cl_color_id)
+            left join cl_department d on (d.cl_department_id=m.cl_department_id)
+            left join cl_sport s on (s.cl_sport_id=m.cl_sport_id)
+            left join cl_component_brand cb on (cb.cl_component_brand_id = m.cl_component_brand_id)
+            left join cl_purchasing pc on (pc.cl_model_id=m.cl_model_id)
+            left join c_bpartner bp on (bp.c_bpartner_id=pc.c_bpartner_id)
+            where p.isactive='Y'
+            AND p.AD_Client_ID IN ('1')
+            AND p.AD_Org_ID IN ('1')
+            AND 1=1
+            group by p.EM_cl_MODELNAME,b.name,p.EM_cl_MODELCODE,p.name,p.m_Product_Id,m.Cl_Model_Id,
+            p.em_cl_size,c.name, np.name,d.name,s.name,m.SPORT_CATEGORY,cb.name,
+            m.MERCHANDISE_CATEGORY,m.BLUEPRODUCT,p.EM_cl_LIFESTAGE,bp.name
+            order by p.EM_cl_MODELNAME
+     ]]></Sql>
+     <Field name="rownum" value="count"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="p.AD_Client_ID IN (" text="'1'"/>
+      <Parameter name="adUserOrg" type="replace" optional="true" after="p.AD_Org_ID IN (" text="'1'"/>
+     <Parameter name="pdtname" optional="true" after="AND 1=1"><![CDATA[ AND p.name LIKE ? ]]></Parameter>
+     <Parameter name="ModelName" optional="true" after="AND 1=1"><![CDATA[AND lower(p.EM_cl_MODELNAME) LIKE lower(?)]]></Parameter>
+     <Parameter name="ModelCode" optional="true" after="AND 1=1"><![CDATA[ AND p.EM_cl_MODELCODE LIKE ? ]]></Parameter>
+      <Parameter name="Supplier" optional="true" after="AND 1=1"><![CDATA[ AND bp.name LIKE ? ]]></Parameter>
+      <Parameter name="NatureofProduct" optional="true" after="AND 1=1"><![CDATA[ AND np.cl_natureofproduct_id = ? ]]></Parameter>
+      <Parameter name="Department" optional="true" after="AND 1=1"><![CDATA[ AND d.cl_department_id = ? ]]></Parameter>
+      <Parameter name="Sport" optional="true" after="AND 1=1"><![CDATA[ AND s.cl_sport_id = ? ]]></Parameter>
+      <Parameter name="SportsCategory" optional="true" after="AND 1=1"><![CDATA[ AND m.sport_category LIKE ? ]]></Parameter>
+      <Parameter name="MerCategory" optional="true" after="AND 1=1"><![CDATA[ AND m.merchandise_category LIKE ? ]]></Parameter>
+      <Parameter name="Brand" optional="true" after="AND 1=1"><![CDATA[ AND b.cl_brand_id = ? ]]></Parameter>
+      <Parameter name="ComBrand" optional="true" after="AND 1=1"><![CDATA[ AND cb.cl_component_brand_id = ? ]]></Parameter>
+     <Parameter name="Lifestage" optional="true" after="AND 1=1"><![CDATA[ AND p.EM_cl_LIFESTAGE = ? ]]></Parameter>
+  </SqlMethod>
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>
+

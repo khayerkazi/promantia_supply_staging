@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_INVOICE">
+    <table name="C_INVOICE" primaryKey="C_INVOICE_KEY">
+      <column name="EM_INGSTST_ORG_GSTMASTER_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_INGSTST_BP_GSTMASTER_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_INGSTST_SUPPLYLOCATION_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_INGSTST_ISREVERSECHARGE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_INGSTST_ISIMPEX" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_INGSTST_ETIN" primaryKey="false" required="false" type="VARCHAR" size="15" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="INGST_GSTIDENTIFIERMASTER" name="EM_INGSTST_CIN_ORG_GSTMASID">
+        <reference local="EM_INGSTST_ORG_GSTMASTER_ID" foreign="INGST_GSTIDENTIFIERMASTER_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="INGST_GSTIDENTIFIERMASTER" name="EM_INGSTST_CINV_BP_GSTMASTERID">
+        <reference local="EM_INGSTST_BP_GSTMASTER_ID" foreign="INGST_GSTIDENTIFIERMASTER_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_LOCATION" name="EM_INGSTST_SUPPLYLOC_CINV">
+        <reference local="EM_INGSTST_SUPPLYLOCATION_ID" foreign="C_LOCATION_ID"/>
+      </foreign-key>
+    </table>
+  </database>

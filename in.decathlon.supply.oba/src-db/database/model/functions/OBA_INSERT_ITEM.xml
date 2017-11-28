@@ -1,0 +1,322 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION OBA_INSERT_ITEM">
+    <function name="OBA_INSERT_ITEM" type="VARCHAR">
+      <parameter name="in_modelproduct_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="action_code" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[itemCursor RECORD;
+
+  ---Product Fields
+
+  v_color Varchar(50) :='';
+
+  v_color_id VARCHAR(32):='';
+
+  v_age Varchar(50) :='';
+
+  v_age_id VARCHAR(32):='';
+
+  v_gender Varchar(50) :='';
+
+  v_productType Varchar(50) :='';
+
+  v_productType_id VARCHAR(32):='';
+
+  v_taxCategory Varchar(50) :='';
+
+  v_taxCategory_id VARCHAR(32):='';
+
+  v_uom Varchar(50) :='';
+
+  v_uom_id VARCHAR(32):='';
+
+  v_productCategory Varchar(50) :='';
+
+  v_productCategory_id VARCHAR(32):='';
+
+  v_stocked VARCHAR(50):='';
+
+  v_sales VARCHAR(50):='';
+
+  v_typea VARCHAR(50):='';
+
+  v_typeb VARCHAR(50):='';
+
+  v_typec VARCHAR(50):='';
+
+  v_purchase VARCHAR(50) := '';
+
+  v_bPartner VARCHAR(50) := '';
+
+  v_sourcing VARCHAR(50) := '';
+
+  v_countryCode VARCHAR(50):='';
+
+  v_lifeStage VARCHAR(50):='';
+
+  v_modelCode VARCHAR(50):='';
+
+  v_bPLocation VARCHAR(32):='';
+
+  v_errorNotice VARCHAR(2000) := '';
+
+  v_validated NUMBER:=0;
+
+  v_updatedCounter NUMBER:=0;
+
+  v_insertedCounter NUMBER:=0; 
+
+  v_newIdentifier NUMBER:=0;
+
+  v_checker NUMBER:=0;
+
+BEGIN 
+
+	select * into itemCursor from oba_modelproduct where oba_modelproduct_id =in_modelproduct_id; 
+
+	  select cl_color_id into v_color_id from cl_color where lower(cl_color.name) = lower(itemCursor.color);
+
+      Select value INTO v_age from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('Age')) and lower(AD_REF_LIST.name) = lower(itemCursor.age);
+
+      Select value INTO v_gender from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('GenderCat')) and lower(AD_REF_LIST.name) = lower(itemCursor.gender);
+
+      IF (itemCursor.productType IS NULL OR itemCursor.productType = ' ') THEN --IF 1
+
+          Select value INTO v_productType from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('m_product_productType')) and lower(AD_REF_LIST.name) = lower('Item');
+
+      ELSE  --IF 1
+
+          Select value INTO v_productType from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('m_product_productType')) and lower(AD_REF_LIST.name) = lower(itemCursor.producttype);
+
+      END IF; --IF 1
+
+      Select value INTO v_lifeStage from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('LifeStage')) and lower(AD_REF_LIST.name) = lower(itemCursor.lifestage);
+
+      --TAX Category
+
+      v_taxCategory = itemCursor.taxcategory;
+
+      IF (v_taxCategory IS NULL OR v_taxCategory = '') THEN --IF 2
+
+           select c_taxcategory_id into v_taxCategory_id from c_taxcategory where lower(c_taxcategory.name) = lower('standard');
+
+      ELSE --IF 2
+
+         select c_taxcategory_id into v_taxCategory_id from c_taxcategory where lower(c_taxcategory.name) = lower(v_taxCategory);
+
+      END IF; --IF 2
+
+      --UOM
+
+      v_uom := itemCursor.uom;
+
+      IF (v_uom IS NULL OR v_uom = '') THEN --IF 3
+
+           select c_uom_id into v_uom_id from c_uom where lower(c_uom.name) = lower('Unit');
+
+      ELSE --IF 3
+
+           select  c_uom_id into v_uom_id from c_uom where lower(c_uom.name) = lower(v_uom);
+
+      END IF; --IF 3
+
+      v_productCategory := itemCursor.productcategory;
+
+      IF (v_productCategory IS NULL OR v_productCategory = '') THEN --IF 4
+
+           select m_product_category_id into v_productCategory_id from m_product_category where lower(m_product_category.name) = lower('Standard');
+
+      ELSE  --IF 4
+
+         select m_product_category_id into v_productCategory_id from m_product_category where lower(m_product_category.name) = lower(v_productCategory);
+
+      END IF; --IF 4
+
+      select c_bpartner_id INTO v_bPartner from c_bpartner where c_bpartner.em_cl_supplierno = itemCursor.suppliercode; 
+
+      select cl_sourcing_id INTO v_sourcing from cl_sourcing where cl_sourcing.name = itemCursor.sourcing; 
+
+      Select c_country_id INTO v_countryCode from c_country where c_country.countrycode=itemCursor.madein;
+
+      select cl_model_id INTO v_modelCode from cl_model where lower(cl_model.value) =lower(itemCursor.modelcode);
+
+      IF (itemCursor.stocked IS NULL OR itemCursor.stocked = '') THEN  --IF 5
+
+            v_stocked := 'Y';
+
+      ELSE --IF 5
+
+            v_stocked := itemCursor.stocked;
+
+      END IF;	--IF 5
+
+      IF (itemCursor.purchase IS NULL OR itemCursor.purchase = '') THEN --IF 6
+
+            v_purchase := 'Y'; 
+
+      ELSE --IF 6
+
+            v_purchase := itemCursor.purchase;
+
+      END IF; --IF 6
+
+      IF (itemCursor.sales IS NULL OR itemCursor.sales = '') THEN --IF 7
+
+            v_sales := 'Y';
+
+      ELSE --IF 7
+
+            v_sales := itemCursor.sales;
+
+      END IF;	--IF 7
+
+	v_typea :='N';
+
+	v_typeb :='N';
+
+	v_typec :='N';
+
+	IF (action_code='add') THEN	
+
+      Insert into m_product (m_product_id ,name,value,em_cl_modelname,em_cl_modelcode,
+
+      ad_client_id,ad_org_id,upc,createdby,updatedby,em_cl_color_id,em_cl_age,em_cl_size,em_cl_gender,em_cl_ue_qty,em_cl_pcb_qty,em_cl_grosswt_pcb,weight,em_cl_volume_pcb,
+
+      em_cl_lifestage,producttype, c_taxcategory_id,isstocked,ispurchased,issold,m_product_category_id,c_uom_id,isactive,em_cl_model_id,em_cl_typea,em_cl_typeb,em_cl_typec) 
+
+      values (get_uuid(),itemCursor.itemcode,get_uuid(),itemCursor.modelname,itemCursor.modelcode,
+
+      itemCursor.ad_client_id,itemCursor.ad_org_id,itemCursor.eancode,itemCursor.createdby,itemCursor.updatedby,v_color_id,v_age,
+
+      itemCursor.size,v_gender,itemCursor.ueqty,itemCursor.pcbqty,itemCursor.grossweight,itemCursor.netweight,itemCursor.volumeofpcb,
+
+      v_lifeStage, v_productType,v_taxCategory_id,v_stocked,v_purchase,v_sales,v_productCategory_id,v_uom_id,itemCursor.isactive,v_modelCode,v_typea,v_typeb,v_typec);
+
+	ELSE
+
+		--IF (substring(itemCursor.oba_logistic_class from 3 for 1) != 'P') THEN
+
+      			Update m_product SET name = itemCursor.itemcode,
+
+			 updated=now(),
+
+			 value = itemCursor.itemcode,
+
+    			 em_cl_modelname = itemCursor.modelname,
+
+                         em_cl_modelcode = itemCursor.modelcode,
+
+                         ad_client_id = itemCursor.ad_client_id,
+
+                         ad_org_id = itemCursor.ad_org_id,
+
+                         --upc = itemCursor.eancode,
+
+                         createdby = itemCursor.createdby,
+
+                         updatedby = itemCursor.updatedby,
+
+                         --em_cl_color_id = v_color_id,
+
+                         --em_cl_age = v_age,
+
+                         --em_cl_size = itemCursor.size,
+
+                         --em_cl_gender = v_gender,
+
+                         --em_cl_ue_qty = itemCursor.ueqty,
+
+                         --em_cl_pcb_qty = itemCursor.pcbqty,
+
+                        -- em_cl_grosswt_pcb = itemCursor.grossweight,
+
+                         --weight = itemCursor.netweight,
+
+                         --em_cl_volume_pcb = itemCursor.volumeofpcb,
+
+                         --em_cl_lifestage = v_lifeStage,
+
+                         --producttype = v_productType,
+
+                         --c_taxcategory_id = v_taxCategory_id,
+
+                         --isstocked = v_stocked,
+
+                          --ispurchased = v_purchase,
+
+                         --issold = v_sales,
+
+                         --m_product_category_id =v_productCategory_id,
+
+                         --c_uom_id =  v_uom_id,
+
+                         --isactive = itemCursor.isactive,
+
+                         em_cl_model_id = v_modelCode
+
+			 --em_cl_typea=v_typea,
+
+			 --em_cl_typeb=v_typeb,
+
+			 --em_cl_typec=v_typec
+
+    			WHERE m_product.name = itemCursor.itemcode;
+		
+		--END IF ;
+
+END IF ;   
+
+      select c_bpartner_location_id INTO v_bPLocation from c_bpartner_location where c_bpartner_id = v_bPartner;
+
+      Select count (*) as total INTO v_checker from cl_purchasing where cl_purchasing.cl_model_id = v_modelCode;
+
+      IF lower(itemCursor.productType) != lower('service') THEN  --IF 8
+
+        IF v_checker=0 then --IF 9
+
+		Insert INTO cl_purchasing (cl_purchasing_id, ad_client_id, ad_org_id, createdby,updatedby,
+
+		c_bpartner_id, c_bpartner_location_id,cl_model_id,cl_sourcing_id,supplierno,c_country_id,purchasingleadtime) VALUES
+
+		(get_uuid(),itemCursor.ad_client_id,itemCursor.ad_org_id,itemCursor.createdby,itemCursor.updatedby,
+
+		v_bPartner,v_bPLocation,v_modelCode,v_sourcing,itemCursor.suppliercode,v_countryCode,itemCursor.purchasingleadtime);
+
+        ELSE
+
+			UPDATE  cl_purchasing  SET ad_client_id =itemCreateCursor.ad_client_id,
+
+                             ad_org_id = itemCreateCursor.ad_org_id, 
+
+                             createdby = itemCreateCursor.createdby,
+
+                             updatedby = itemCreateCursor.updatedby,
+
+                             c_bpartner_id = v_bPartner,
+
+                             c_bpartner_location_id = v_bPLocation,
+
+                             cl_model_id = v_modelCode,
+
+                             cl_sourcing_id = v_sourcing,
+
+                             supplierno = itemCreateCursor.suppliercode,
+
+                             c_country_id=v_countryCode,
+
+                             purchasingleadtime = itemCreateCursor.purchasingleadtime
+
+			WHERE cl_purchasing.cl_model_id = v_modelCode;
+
+		END IF; --IF 9
+
+      END IF; --IF 8
+
+   RETURN 'Success' ;
+END OBA_INSERT_ITEM
+]]></body>
+    </function>
+  </database>

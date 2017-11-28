@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPORTGTD">
+    <function name="IM_IMPORTGTD" type="VARCHAR">
+      <parameter name="p_user" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[V_Count NUMBER:=0;
+V_Pcb NUMBER:=0;
+V_logisticsRecharge NUMBER:=0;
+importlot Record;
+importtemprecord Record;
+importdocumentno Record;
+V_Boxno VARCHAR(32):='';
+V_BoxnoID VARCHAR(32):='';
+V_msinid VARCHAR(32):=''; 
+V_minoutid VARCHAR(32):=''; 
+V_pinstanceId VARCHAR(32):=''; 
+v_flag boolean := FALSE;
+v_org_id VARCHAR(32):='';
+v_c_order_id VARCHAR(32):='';
+V_headerflag NUMBER:=0;
+v_c_orderline_id VARCHAR(32):='';
+v_received_qty NUMBER:=0;
+v_m_attributeset_id VARCHAR(32):='';
+v_asi_ad_org VARCHAR(32):='';
+v_c_docttype VARCHAR(32):='';
+
+BEGIN
+
+select count(*) INTO V_Count from im_gtd i where validated='Y' and processed='N' and createdby=p_user;
+
+-- Box number loop start
+FOR importlot IN (select boxno from im_gtd WHERE validated='Y' and createdby=p_user ) LOOP
+ V_Boxno:=importlot.boxno;
+
+ if(V_Boxno IS NULL OR TRIM(BOTH '' FROM V_Boxno)='') then
+	UPDATE im_gtd set m_attributesetinstance_id='0' where boxno=V_Boxno;
+	v_flag:=TRUE;
+ else
+	select m_attributesetinstance_id INTO V_BoxnoID from m_attributesetinstance where lot=V_Boxno;
+
+	if(V_BoxnoID IS NULL OR TRIM(BOTH '' FROM V_BoxnoID)='') THEN
+		V_msinid=get_uuid();
+		select m_attributeset_id into v_m_attributeset_id from m_attributeset where name='Lot';
+		select ad_org_id into v_asi_ad_org from ad_org where name='*';
+
+		-- INSERT INTO m_attributesetinstance TABLE AND UPDATE INTP TEMP TABLE
+		INSERT INTO m_attributesetinstance (m_attributesetinstance_id,ad_client_id,ad_org_id,isactive,
+		created,createdby,updated,updatedby,m_attributeset_id,serno,lot,guaranteedate,description,
+		islocked,lock_description) VALUES 
+		(V_msinid,'187D8FC945A5481CB41B3EE767F80DBB',v_asi_ad_org,'Y',
+		now(),p_user,now(),p_user,v_m_attributeset_id,'',V_Boxno,now(),'L'||V_Boxno,
+		'N','');
+	
+		--UPDATE m_attributesetinstance_id INTO TEMP TABLE 	
+		UPDATE im_gtd set m_attributesetinstance_id=V_msinid where boxno=V_Boxno;
+		v_flag:=TRUE;
+	ELSE 
+		--UPDATE m_attributesetinstance_id INTO TEMP TABLE 
+		UPDATE im_gtd set m_attributesetinstance_id=V_BoxnoID where boxno=V_Boxno;
+		v_flag:=TRUE;
+	END IF;
+ END IF;
+END LOOP;  -- Box number loop end 
+-- Selecting all validated rows for same user  from i_gtd table
+-- i need to add one more loop here for distinct document no
+
+FOR importdocumentno IN 
+(select distinct documentno from im_gtd where validated='Y' and createdby=p_user) LOOP
+ V_headerflag=0;
+
+ FOR importtemprecord IN 
+ (select im_gtd_id, documentno, ad_org_id,  itemcode, qty, warehouse, locator, boxno, m_attributesetinstance_id from im_gtd where documentno=importdocumentno.documentno) LOOP
+
+ select count(*) into V_Count from m_product where lower(em_cl_lifestage)=lower('NEW') and name=importtemprecord.itemcode;
+ IF (V_Count>0) THEN
+	update m_product set em_cl_lifestage='Active' where lower(em_cl_lifestage)=lower('NEW') and name=importtemprecord.itemcode;
+ END IF;
+     
+    SELECT c_order_id, ad_org_id into v_c_order_id, v_org_id from c_order where poreference = importtemprecord.documentno;
+    SELECT c_orderline_id into v_c_orderline_id from c_orderline where c_order_id=v_c_order_id 
+	and m_product_id in (select m_product_id from m_product where name = importtemprecord.itemcode);
+    select coalesce(to_number(em_sw_recqty),0) into v_received_qty from c_orderline  where c_orderline_id = v_c_orderline_id ;
+
+    if(V_headerflag=0) THEN
+	--insert into m_inout and m_inout line 
+	V_minoutid=get_uuid();
+	select c_doctype_id into v_c_docttype from c_doctype where name='MM Receipt (Decathlon)';
+	INSERT into m_inout (m_inout_id, ad_client_id,ad_org_id, isactive,
+	 created, createdby, updated, updatedby,issotrx, documentno, docaction,
+	 docstatus, posted, processing, processed, c_doctype_id, isprinted, movementtype,
+	 movementdate, dateacct, c_bpartner_id, c_bpartner_location_id, m_warehouse_id, 
+	 deliveryrule, freightcostrule, freightamt, deliveryviarule, chargeamt, priorityrule,
+	 createfrom, generateto, updatelines, islogistic, generatelines, calculate_freight,
+	 em_sw_movement, rm_receipt_pickedit, rm_shipment_pickedit, em_sw_shippedstatus,c_order_id) VALUES
+	 (V_minoutid,'187D8FC945A5481CB41B3EE767F80DBB', v_org_id, 'Y', 
+	 now(),p_user,now(),p_user,'N', importtemprecord.documentno, 'CO',
+	 'DR', 'N','N', 'N',v_c_docttype,'N','V+',now(), now(), 
+	(select c_bpartner_id from c_order where poreference=importtemprecord.documentno limit 1) ,
+	 (select c_bpartner_location_id from c_order where poreference=importtemprecord.documentno limit 1), 
+	 (SELECT m_warehouse_id from m_warehouse where name =importtemprecord.warehouse),
+	 'A','I','0.0', 'P', '0.0','5','N', 'N','N', 'N','N', 'N', 'DPP','N', 'N', 'NP',v_c_order_id);
+
+
+	insert into ad_pinstance (ad_pinstance_id, ad_process_id, record_id, isprocessing, created, ad_user_id, updated,
+	result, ad_client_id, ad_org_id, createdby, updatedby, isactive) VALUES
+	(get_uuid(),'109',V_minoutid,'N', now(), p_user, now(), '0', '187D8FC945A5481CB41B3EE767F80DBB','0', p_user, 
+	p_user, 'Y');
+
+	insert into m_inoutline (m_inoutline_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+	updated, updatedby, line, m_inout_id, m_locator_id, m_product_id, c_uom_id, movementqty, 
+	isinvoiced,isdescription, em_cl_size, em_cl_color_id, em_cl_modelname, m_attributesetinstance_id, c_orderline_id  ) 
+	values (get_uuid(), '187D8FC945A5481CB41B3EE767F80DBB', v_org_id, 'Y', now(), p_user,now(), p_user,
+	10, V_minoutid, (select m_locator_id from m_locator where m_warehouse_id=(select m_warehouse_id from m_warehouse where name=importtemprecord.warehouse)  
+	and value=importtemprecord.locator and isactive='Y'), (select m_product_id from m_product where name=importtemprecord.itemcode), 
+	'100', importtemprecord.qty, 'N', 'N', (select em_cl_size from m_product where name=importtemprecord.itemcode) 
+	,(select em_cl_color_id from m_product where name=importtemprecord.itemcode), 
+	(select name from cl_model where cl_model_id = (select em_cl_model_id from m_product where name=importtemprecord.itemcode)), importtemprecord.m_attributesetinstance_id,v_c_orderline_id) ;
+
+	--set the received qty in purchase order
+	--select coalesce(to_number(em_sw_recqty),0) into v_received_qty from c_orderline  where c_orderline_id = v_c_orderline_id ;
+	v_received_qty:=v_received_qty + to_number(importtemprecord.qty);
+	update c_orderline set em_sw_recqty=to_char(v_received_qty) where c_orderline_id = v_c_orderline_id ;
+	---added by yogas
+
+
+
+	V_headerflag=1;
+	v_flag:=TRUE;		
+    ELSE 
+	--insert into m_inout line 
+	insert into m_inoutline (m_inoutline_id, ad_client_id, ad_org_id, isactive, created, 
+	createdby, updated, updatedby, line, m_inout_id, m_locator_id, m_product_id, c_uom_id, 
+	movementqty, isinvoiced,isdescription, em_cl_size, em_cl_color_id, em_cl_modelname,
+	 m_attributesetinstance_id,c_orderline_id ) 
+	values (get_uuid(), '187D8FC945A5481CB41B3EE767F80DBB', v_org_id, 'Y', now(), p_user,now(), p_user,
+	10, V_minoutid, (select m_locator_id from m_locator where m_warehouse_id=(select m_warehouse_id from m_warehouse where name=importtemprecord.warehouse)  
+	and value=importtemprecord.locator and isactive='Y'), (select m_product_id from m_product where name=importtemprecord.itemcode), 
+	'100', importtemprecord.qty, 'N', 'N', (select em_cl_size from m_product where name=importtemprecord.itemcode) 
+	,(select em_cl_color_id from m_product where name=importtemprecord.itemcode), 
+	(select name from cl_model where cl_model_id = (select em_cl_model_id from m_product where name=importtemprecord.itemcode)), importtemprecord.m_attributesetinstance_id, v_c_orderline_id ) ;
+	
+
+	--set the received qty in purchase order
+	v_received_qty:=v_received_qty + to_number(importtemprecord.qty);
+	update c_orderline set em_sw_recqty=to_char(v_received_qty) where c_orderline_id = v_c_orderline_id ;
+	--update c_orderline set em_sw_recqty=importtemprecord.qty where c_orderline_id = v_c_orderline_id ;
+	---added by yogas
+
+	v_flag:=TRUE;
+     END IF;
+
+    select pcb_qty,log_rec INTO V_Pcb,V_logisticsRecharge from im_gtd where itemcode = importtemprecord.itemcode and validated='Y';
+    IF (V_Pcb IS NULL) THEN
+	ELSE
+	--update m_product SET em_cl_pcb_qty = V_Pcb where name=importtemprecord.itemcode;
+    END IF;
+
+    IF (V_logisticsRecharge IS NULL) THEN
+    ELSE
+	--update m_product SET em_cl_log_rec = V_logisticsRecharge where name=importtemprecord.itemcode;
+    END IF;
+
+END LOOP;
+select ad_pinstance_id INTO V_pinstanceId from ad_pinstance where record_id=(select m_inout_id from m_inout where documentno =importtemprecord.documentno order by created desc limit 1 );  M_INOUT_POST(V_pinstanceId,V_minoutid) ;
+UPDATE im_gtd SET processed='Y' where validated='Y' and createdby=p_user and documentno=importtemprecord.documentno;
+END LOOP;
+DELETE FROM im_gtd WHERE processed='Y' AND validated='Y' AND createdby=p_user;
+return v_flag;
+END IM_IMPORTGTD
+]]></body>
+    </function>
+  </database>

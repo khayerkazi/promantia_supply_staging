@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADSequence id="7700493D92F84608AA2B3479D9E39A30" identifier="MM Shipping">
+    <id>7700493D92F84608AA2B3479D9E39A30</id>
+    <active>true</active>
+    <creationDate transient="true">2014-07-08T13:02:51.166Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-07-08T13:03:02.421Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>MM Shipping</name>
+    <description xsi:nil="true"/>
+    <valueFormat xsi:nil="true"/>
+    <autoNumbering>true</autoNumbering>
+    <incrementBy>1</incrementBy>
+    <startingNo>1000000</startingNo>
+    <nextAssignedNumber>1000000</nextAssignedNumber>
+    <currentNextSystem>100</currentNextSystem>
+    <usedForRecordID>false</usedForRecordID>
+    <prefix xsi:nil="true"/>
+    <suffix xsi:nil="true"/>
+    <restartSequenceEveryYear>false</restartSequenceEveryYear>
+  </ADSequence>
+  <DocumentType id="B3A6BB1748334D3F96A5BB2EC1F4978F" identifier="MM Shipping">
+    <id>B3A6BB1748334D3F96A5BB2EC1F4978F</id>
+    <active>true</active>
+    <creationDate transient="true">2014-07-08T13:02:20.200Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-07-08T14:45:17.983Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>MM Shipping</name>
+    <printText>MM Shipping</printText>
+    <description xsi:nil="true"/>
+    <documentCategory>OBWSHIP_Shipping</documentCategory>
+    <salesTransaction>true</salesTransaction>
+    <sOSubType xsi:nil="true"/>
+    <documentTypeForShipment xsi:nil="true"/>
+    <documentTypeForInvoice xsi:nil="true"/>
+    <sequencedDocument>true</sequencedDocument>
+    <documentSequence id="7700493D92F84608AA2B3479D9E39A30" entity-name="ADSequence" identifier="MM Shipping"/>
+    <gLCategory id="0" entity-name="FinancialMgmtGLCategory" identifier="None"/>
+    <comments xsi:nil="true"/>
+    <default>false</default>
+    <numberOfCopies>1</numberOfCopies>
+    <table id="E8FE8377FFED4718810D800298193EC0" entity-name="ADTable" identifier="OBWSHIP_Shipping"/>
+    <filterByOrganization>false</filterByOrganization>
+    <documentCancelled xsi:nil="true"/>
+    <expense>false</expense>
+    <reversal>false</reversal>
+    <return>false</return>
+    <documentTypeForOrder xsi:nil="true"/>
+  </DocumentType>
+</ob:Openbravo>

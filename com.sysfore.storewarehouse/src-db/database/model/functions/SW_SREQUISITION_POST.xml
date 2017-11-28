@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_SREQUISITION_POST">
+    <function name="SW_SREQUISITION_POST" type="NULL">
+      <parameter name="p_pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SL
+* All portions are Copyright (C) 2001-2006 Openbravo SL
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  -- Logistice
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Result NUMBER:=1; -- 0=failure
+  v_Record_ID VARCHAR2(32);
+  v_User_ID VARCHAR2(32):='0';
+  v_DocAction VARCHAR2(60);
+  v_DocStatus VARCHAR2(60);
+  v_ReqStatus VARCHAR(60);
+  v_DocAction1 VARCHAR2(60);
+  v_DocStatus1 VARCHAR2(60);
+  v_ReqStatus1 VARCHAR(60);
+  v_MovementType VARCHAR(60);
+  v_Aux NUMBER;
+  v_Client_ID VARCHAR(32);
+  v_Org_ID VARCHAR(32);
+  v_locator_id VARCHAR(32);
+  v_locatorto_id VARCHAR(32);
+  v_whfrom_id VARCHAR(32);
+  v_whto_id VARCHAR(32);
+  v_MoveDate DATE;
+  NextNo VARCHAR(32);
+  v_srcqty NUMBER;
+  v_desqty NUMBER;
+  V_locatorid VARCHAR(32);
+  V_qtyonhand NUMBER;
+  V_qtyreqtopicklist NUMBER;
+  --  Parameter
+  TYPE RECORD IS REF CURSOR;
+    Cur_Parameter RECORD;
+    Cur_IrLine RECORD;
+    Cur_SLine RECORD;
+    Cur_MSD RECORD;	
+--
+v_modelname character varying(60);
+v_size character varying(60);
+v_color character varying(60);
+V_documentno VARCHAR(60);
+V_documentno1 VARCHAR(60);
+v_AQ NUMBER;
+v_BQ NUMBER;
+v_AQ1 NUMBER;
+v_BQ1 NUMBER;
+v_moved NUMBER;
+--v_movementtype character varying;
+
+
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Updating PInstance - Processing ' || p_PInstance_ID) ;
+  v_ResultStr:='PInstanceNotFound';
+  AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'Y', NULL, NULL) ;
+
+  BEGIN --BODY
+    -- Get Parameters
+    v_ResultStr:='ReadingParameters';
+    FOR Cur_Parameter IN
+      (SELECT i.Record_ID, i.AD_User_ID, i.AD_Client_ID, i.AD_Org_ID,
+        p.ParameterName, p.P_String, p.P_Number, p.P_Date
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=p_PInstance_ID
+      ORDER BY p.SeqNo) LOOP
+      v_Record_ID:=Cur_Parameter.Record_ID;
+      v_User_ID:=Cur_Parameter.AD_User_ID;
+    END LOOP; -- Get Parameter
+
+    SELECT DocAction, DocStatus, RequisitionStatus,MovementType, ReqDate INTO v_DocAction, v_DocStatus ,v_ReqStatus,v_MovementType, v_MoveDate 
+    FROM sw_srequisition
+    WHERE sw_srequisition_ID = v_Record_ID;
+
+    v_ResultStr := 'sw_srequisition ' || v_Record_ID || ', DocAction=' || v_DocAction || ', DocStatus=' || v_DocStatus||
+     ', ReqStatus=' || v_ReqStatus || ', MovementType=' || v_MovementType || ', ReqDate=' ||  v_MoveDate;
+
+    /**
+    * Check if requisition has lines
+    */
+    IF (v_DocAction = 'CO') THEN
+      SELECT COUNT(*)
+        INTO v_Aux
+      FROM sw_sreqline
+      WHERE sw_srequisition_ID = v_Record_ID;
+      IF v_Aux=0 THEN
+        RAISE_APPLICATION_ERROR(-20000, '@RequisitionWithoutLines@');
+      END IF;
+    END IF;
+
+    /**
+    * Order Closed, Voided or Reversed - No action possible
+    */
+    IF(v_DocStatus IN('CL', 'VO', 'RE')) THEN
+      RAISE_APPLICATION_ERROR(-20000, '@AlreadyPosted@') ;
+    ELSIF (v_DocStatus = 'DR') AND (v_MovementType = 'SRN')THEN
+      IF (v_DocAction = 'CO') THEN
+        v_ResultStr := 'Complete the requisition: ' || v_Record_ID;
+        UPDATE sw_srequisition
+        SET DocStatus = 'CO',
+            DocAction = 'CL',
+            RequisitionStatus = 'SH',
+            Processed = 'Y'
+        WHERE sw_srequisition_ID = v_Record_ID;
+
+select documentno into V_documentno from sw_srequisition where sw_srequisition_ID = v_Record_ID;
+
+FOR Cur_SLine IN
+          (SELECT *  FROM sw_sreqline WHERE sw_sreqline.sw_srequisition_id = v_Record_ID)
+          LOOP
+          
+	  SELECT m_locator.m_locator_id,m_locator.m_warehouse_id 
+          into v_locatorto_id,v_whto_id
+          from m_locator,m_warehouse 
+          where m_locator.m_warehouse_id = m_warehouse.m_warehouse_id
+            and m_locator.ad_org_id = Cur_SLine.ad_org_id
+            and lower(m_warehouse.name) LIKE lower('%Transit%');
+
+          SELECT m_locator.m_locator_id,m_locator.m_warehouse_id 
+          into v_locator_id,v_whfrom_id
+          from m_locator,m_warehouse 
+          where m_locator.m_warehouse_id = m_warehouse.m_warehouse_id
+            and m_locator.ad_org_id = Cur_SLine.ad_org_id
+            and lower(m_warehouse.name) LIKE lower('%Saleable%');
+
+
+
+
+      --RAISE EXCEPTION 'Cur_SLine.ad_org_id: %',Cur_SLine.ad_org_id ;
+	--calculating after, before qty based on locators 
+		
+	SELECT sum(movementqty) into v_BQ from m_transaction where m_product_id=Cur_SLine.M_Product_ID and m_locator_id=v_locator_id;
+	v_AQ = v_BQ+(Cur_SLine.qtyship * -1);
+            			
+          INSERT INTO M_Transaction
+            (
+              M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType, M_Locator_ID, M_Product_ID, 
+              MovementDate, MovementQty, C_UOM_ID,em_sw_sreqline_id,
+	      em_sw_locatorto_id,em_sw_beforeqty,em_sw_afterqty,em_sw_movementtype,em_sw_documentno
+            )
+            VALUES
+            (
+              get_uuid(), Cur_SLine.AD_Client_ID, Cur_SLine.AD_Org_ID, 'Y',
+              now(), Cur_SLine.createdby, now(), Cur_SLine.updatedby,
+              'M-', v_locator_id, Cur_SLine.M_Product_ID, 
+              v_MoveDate, (Cur_SLine.qtyship * -1),'100',Cur_SLine.sw_sreqline_id,
+	      v_locatorto_ID,v_BQ,v_AQ,'SRN',V_documentno
+            ); 
+	  --calculating after, before qty based on locators
+	 SELECT sum(movementqty) into v_BQ1 from m_transaction where m_product_id=Cur_SLine.M_Product_ID and m_locator_id=v_locatorto_ID;
+	 v_AQ1 = v_BQ1+Cur_SLine.qtyship;
+	 --
+          INSERT INTO M_Transaction
+            (
+              M_Transaction_ID, AD_Client_ID, AD_Org_ID, IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType, M_Locator_ID, M_Product_ID, 
+              MovementDate, MovementQty, C_UOM_ID,em_sw_sreqline_id,
+	      em_sw_locatorto_id,em_sw_beforeqty,em_sw_afterqty,em_sw_movementtype,em_sw_documentno
+            )
+            VALUES
+            (
+              get_uuid(), Cur_SLine.AD_Client_ID, Cur_SLine.AD_Org_ID, 'Y',
+              now(), Cur_SLine.createdby, now(), Cur_SLine.updatedby,
+              'M-', v_locatorto_id, Cur_SLine.M_Product_ID, 
+              v_MoveDate, Cur_SLine.qtyship,'100',Cur_SLine.sw_sreqline_id,
+	      v_locator_id,v_BQ1,v_AQ1,'SRN',V_documentno
+            ); 
+
+          END LOOP;
+     
+     END IF;
+      SELECT DocStatus,DocAction,RequisitionStatus INTO v_DocAction1, v_DocStatus1 ,v_ReqStatus1 FROM SW_SREQUISITION
+      WHERE sw_srequisition_ID = v_Record_ID;
+     
+
+    ELSIF (v_DocStatus = 'DR') AND (v_MovementType = 'SRQ') THEN
+	IF (v_DocAction = 'CO') THEN
+        v_ResultStr := 'Complete the requisition: ' || v_Record_ID;
+
+        select documentno into V_documentno from sw_srequisition where sw_srequisition_ID = v_Record_ID;
+	
+
+       UPDATE sw_srequisition
+        SET DocStatus = 'CO',
+            DocAction = 'CL',
+            RequisitionStatus = 'AD',
+            Processed = 'Y',
+            created=now(),
+            updated=now(),
+            reqdate=now()
+        WHERE sw_srequisition_ID = v_Record_ID;
+UPDATE sw_sreqline set qtyship=qtyreq where sw_srequisition_ID=v_Record_ID;
+
+--insert m_tra
+FOR Cur_SLine IN
+          (SELECT *  FROM sw_sreqline WHERE sw_sreqline.sw_srequisition_id = v_Record_ID)
+          LOOP
+
+           
+			
+PERFORM sw_inoutline_picklistcreate('603C6A266B4C40BCAD87C5C43DDF53EE', Cur_SLine.M_Product_ID,NULL,V_documentno,'SRQ',Cur_SLine.qtyreq,Cur_SLine.sw_sreqline_id);
+			
+
+          END LOOP;
+
+      ELSE      
+        RAISE_APPLICATION_ERROR(-20000, '@ActionNotAllowedHere@');
+      END IF;
+    ELSIF (v_DocStatus = 'CO') THEN
+    ELSIF (v_ReqStatus = 'AD') THEN
+      IF (v_DocAction = 'CL') THEN
+        v_ResultStr := 'Close requisition lines';
+      ELSIF (v_DocAction = 'RE' ) THEN
+        v_ResultStr := 'Reactivate the requisition: ' || v_Record_ID;
+        UPDATE sw_srequisition
+        SET DocStatus = 'DR',
+            RequisitionStatus = 'AD',
+            DocAction = 'CO'
+        WHERE sw_srequisition_ID = v_Record_ID;
+      ELSE
+        RAISE_APPLICATION_ERROR(-20000, '@ActionNotAllowedHere@');
+      END IF;
+    END IF;   
+  END; --BODY
+  AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', v_Result, v_Message) ;
+EXCEPTION
+WHEN OTHERS THEN
+  DBMS_OUTPUT.PUT_LINE('lp_irrequsition_Post error: ' || v_ResultStr);
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  ROLLBACK;
+  AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', 0, v_ResultStr);
+END SW_SREQUISITION_POST
+]]></body>
+    </function>
+  </database>

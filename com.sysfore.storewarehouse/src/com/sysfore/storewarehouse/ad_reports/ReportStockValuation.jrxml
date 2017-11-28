@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportValuation" pageWidth="1470" pageHeight="842" orientation="Landscape" columnWidth="1430" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[SELECT mp.NAME as Itemcode, mp.upc as EANCode, A.QTY as Quantity, cb.name as Brand, mp.em_cl_modelcode as modelcode,
+ mp.em_cl_modelname as modelname, mp.em_cl_size as size, cc.name as color, (mpp.em_cl_ccunitprice * A.QTY) as CCUnitPrice,
+cd.name as DMI_department, cs.name as Store_department, mpp.em_cl_cessionprice as CessionPricePerUnit, (mpp.em_cl_cessionprice * A.QTY) as CessionPrice
+FROM (SELECT mt.M_PRODUCT_ID, SUM(MOVEMENTQTY) as qty FROM M_TRANSACTION mt,  M_LOCATOR ml WHERE mt.M_LOCATOR_ID = ml.M_LOCATOR_ID
+AND mt.MOVEMENTDATE < to_date(?) AND ml.M_WAREHOUSE_ID = ? AND ml.ISACTIVE='Y' AND ml.em_obwhs_type= ?
+GROUP BY mt.M_PRODUCT_ID) A,M_PRODUCT mp
+ left join M_PRODUCTPRICE mpp on (mp.m_product_id = mpp.m_product_id)
+ inner join CL_MODEL cm on (cm.cl_model_id = mp.em_cl_model_id)
+ inner join CL_BRAND cb on (cb.cl_brand_id = cm.cl_brand_id)
+ inner join CL_DEPARTMENT cd on (cd.cl_department_id = cm.cl_department_id)
+ inner join CL_STOREDEPT cs on (cs.cl_storedept_id = cm.cl_storedept_id)
+ inner join M_PRICELIST_VERSION mpv on (mpv.m_pricelist_version_id = mpp.m_pricelist_version_id)
+ inner join CL_COLOR cc on (cc.cl_color_id = mp.em_cl_color_id)
+ where A.M_PRODUCT_ID = mp.M_PRODUCT_ID AND mp.isActive='Y' and mpv.name like '%DMI CATALOGUE%' AND 1=1
+ group by mp.name,mp.upc,mp.em_cl_modelcode,mp.em_cl_modelname,mp.em_cl_size,A.QTY,mp.name,cb.name,cc.name,mpp.em_cl_ccunitprice,
+ mpp.em_cl_cessionprice,cd.name,cs.name
+ order by mp.name]]>
+	</queryString>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="eancode" class="java.lang.String"/>
+	<field name="quantity" class="java.math.BigDecimal"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="modelcode" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="size" class="java.lang.String"/>
+	<field name="color" class="java.lang.String"/>
+	<field name="ccunitprice" class="java.math.BigDecimal"/>
+	<field name="dmi_department" class="java.lang.String"/>
+	<field name="store_department" class="java.lang.String"/>
+	<field name="cessionpriceperunit" class="java.math.BigDecimal"/>
+	<field name="cessionprice" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="58" splitType="Stretch">
+			<staticText>
+				<reportElement x="-21" y="23" width="1471" height="35"/>
+				<textElement textAlignment="Center">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[StockValuationReport]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="18" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="-21" y="0" width="93" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Itemcode]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="191" y="0" width="117" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="308" y="0" width="116" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DMI Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="424" y="0" width="83" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Quantity]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="507" y="0" width="128" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="635" y="0" width="128" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="763" y="0" width="77" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Size]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="840" y="0" width="92" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Color]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="932" y="0" width="144" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1076" y="0" width="133" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CessionPricePerUnit]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1320" y="0" width="130" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CCUnit Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1209" y="0" width="111" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cession Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="0" width="119" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[EAN Code]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="1076" y="0" width="133" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cessionpriceperunit}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="-21" y="0" width="93" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="191" y="0" width="117" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="308" y="0" width="116" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{dmi_department}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="424" y="0" width="83" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{quantity}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="507" y="0" width="128" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="635" y="0" width="128" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="763" y="0" width="77" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{size}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="840" y="0" width="92" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{color}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="932" y="0" width="144" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{store_department}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1320" y="0" width="130" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{ccunitprice}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1209" y="0" width="111" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cessionprice}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="72" y="0" width="119" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{eancode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="26" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

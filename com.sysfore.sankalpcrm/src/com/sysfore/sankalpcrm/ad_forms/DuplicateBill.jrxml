@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DuplicateBill" pageWidth="481" pageHeight="842" columnWidth="421" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="ORDERID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_ORDERID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{ORDERID} == null || $P{ORDERID}.equals("")) ? "" : " AND  c_order.c_order_id = '"+ $P{ORDERID}+"'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SR_LINES1" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="SR_LINES2" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="SR_LINES3" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT
+        c_order.c_order_id as id,
+        c_order.em_ds_receiptno as receiptid,
+	c_order.documentno as bill,
+	c_order.dateordered as date,
+	c_order.em_ds_grandtotalamt as total,
+	c_order.em_ds_totalitemqty as totalQuantity,
+	c_order.em_ds_totalpriceadj as totalpriceadjustment,
+        c_order.em_ds_posno as posno ,
+	ad_org.name as orgname,
+	ad_org.ad_org_id as ogid,
+	ad_org.em_ds_tinno as tin,
+	ad_org.em_ds_telno as telno,
+	(select c_location.postal from
+	c_location loc,ad_org org,ad_orginfo orginfo
+	where org.ad_org_id=orginfo.ad_org_id
+	and  orginfo.c_location_id=loc.c_location_id
+	and org.ad_org_id=ad_org.ad_org_id
+	) as pin,
+	(select c_location.city from
+	c_location loc,ad_org org,ad_orginfo orginfo
+	where org.ad_org_id=orginfo.ad_org_id
+	and  orginfo.c_location_id=loc.c_location_id
+	and org.ad_org_id=ad_org.ad_org_id
+	) as loc,
+        
+	ad_user.name as cashier ,
+        c_bpartner.name as cardholder,
+	COALESCE (c_bpartner.em_rc_licenseno,rc_company.licenseno )as lisenceno,
+	rc_company.companyname as companyname,
+	c_location.address1 as add1,
+	c_location.address2 as add2,
+        c_location.em_rc_address3 as add3,
+        c_location.em_rc_address4 as add4,
+	c_location.city as city,
+	c_country.name as country,
+	c_region.name as region,
+	c_city.name as city
+FROM   c_order 
+inner join c_bpartner  on c_order.c_bpartner_id = c_bpartner.c_bpartner_id 
+left outer join ad_org  on c_order.ad_org_id = ad_org.ad_org_id
+
+left outer join ad_user on c_order.ad_user_id = ad_user.ad_user_id
+left outer join rc_company on c_bpartner.em_rc_company_id = rc_company.rc_company_id
+left outer join c_location on rc_company.c_location_id = c_location.c_location_id
+left outer join  c_country on c_location.c_country_id = c_country.c_country_id
+left outer join  c_region  on c_location.c_region_id = c_region.c_region_id
+left outer join  c_city  on c_location.c_city_id = c_city.c_city_id
+where 1=1
+$P!{AUX_ORDERID}]]>
+	</queryString>
+	<field name="id" class="java.lang.String"/>
+	<field name="receiptid" class="java.lang.String"/>
+	<field name="bill" class="java.lang.String"/>
+	<field name="date" class="java.sql.Timestamp"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="totalquantity" class="java.math.BigDecimal"/>
+	<field name="totalpriceadjustment" class="java.math.BigDecimal"/>
+	<field name="posno" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="ogid" class="java.lang.String"/>
+	<field name="tin" class="java.lang.String"/>
+	<field name="telno" class="java.lang.String"/>
+	<field name="pin" class="java.lang.String"/>
+	<field name="loc" class="java.lang.String"/>
+	<field name="cashier" class="java.lang.String"/>
+	<field name="cardholder" class="java.lang.String"/>
+	<field name="lisenceno" class="java.lang.String"/>
+	<field name="companyname" class="java.lang.String"/>
+	<field name="add1" class="java.lang.String"/>
+	<field name="add2" class="java.lang.String"/>
+	<field name="add3" class="java.lang.String"/>
+	<field name="add4" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="country" class="java.lang.String"/>
+	<field name="region" class="java.lang.String"/>
+	<variable name="productcount" class="java.lang.Integer"/>
+	<variable name="Qtysum" class="java.math.BigDecimal" resetType="None"/>
+	<group name="ProductsLineGroup">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band height="18">
+				<staticText>
+					<reportElement key="staticText-17" x="131" y="0" width="137" height="10"/>
+					<box leftPadding="4"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Description-Item Code]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-18" x="133" y="8" width="35" height="10"/>
+					<box leftPadding="3"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Qty]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-19" x="221" y="8" width="48" height="10"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Rate]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-20" x="274" y="8" width="38" height="10"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Amount]]></text>
+				</staticText>
+				<line>
+					<reportElement key="line-14" x="120" y="17" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="23">
+				<subreport isUsingCache="true">
+					<reportElement key="subreport-3" x="0" y="2" width="421" height="21"/>
+					<subreportParameter name="RECEIPTID">
+						<subreportParameterExpression><![CDATA[$F{receiptid}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="Total">
+						<subreportParameterExpression><![CDATA[$F{total}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES3}]]></subreportExpression>
+				</subreport>
+				<line>
+					<reportElement key="line-17" x="120" y="2" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="TaxGroup">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band/>
+		</groupHeader>
+		<groupFooter>
+			<band height="21">
+				<subreport isUsingCache="true">
+					<reportElement key="subreport-2" x="0" y="0" width="421" height="21"/>
+					<subreportParameter name="ORDERID">
+						<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES2}]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="PAYEMNTGROUP">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupHeader>
+			<band/>
+		</groupHeader>
+		<groupFooter>
+			<band height="35">
+				<staticText>
+					<reportElement key="staticText-21" x="135" y="3" width="45" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Items/Qty:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-22" x="135" y="13" width="103" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<text><![CDATA[Total Price Adjustment:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-23" x="135" y="23" width="45" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[Total:]]></text>
+				</staticText>
+				<textField pattern="##0.00" isBlankWhenNull="true">
+					<reportElement key="textField" x="185" y="23" width="123" height="10"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{total}==null?"Rs.0.00":"Rs."+$F{total}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement key="textField" x="181" y="3" width="123" height="10"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$V{productcount}.toString()+"/"+$V{Qtysum}.toString()]]></textFieldExpression>
+				</textField>
+				<textField pattern="##0.00" isBlankWhenNull="false">
+					<reportElement key="textField" x="229" y="13" width="79" height="10"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{totalpriceadjustment}==null?"Rs.0.00":"Rs."+$F{totalpriceadjustment}.toString()]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement key="line-15" x="120" y="1" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement key="line-16" x="120" y="34" width="200" height="1"/>
+					<graphicElement fill="Solid">
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="800">
+			<rectangle>
+				<reportElement key="rectangle-1" positionType="Float" stretchType="RelativeToBandHeight" x="91" y="0" width="277" height="800" isPrintInFirstWholeBand="true"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</rectangle>
+		</band>
+	</background>
+	<title>
+		<band height="199">
+			<staticText>
+				<reportElement key="staticText-1" x="79" y="8" width="278" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DECATHLON SPORTS INDIA PVT. LTD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-2" x="79" y="17" width="278" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[PLAY MORE. PAY LESS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" x="79" y="25" width="278" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[INDIA'S SPORTS CASH AND CARRY]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-5" x="86" y="43" width="122" height="10"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[TIN NO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-6" x="86" y="53" width="122" height="10"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[TEL NO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-7" x="136" y="63" width="43" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Card holder]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-8" x="136" y="73" width="43" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Company]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-9" x="136" y="83" width="43" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Address]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-10" x="136" y="142" width="43" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Licence No]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="211" y="43" width="122" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{tin}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="211" y="53" width="122" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{telno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="63" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{cardholder}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="73" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{companyname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="83" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="93" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="122" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{city}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="132" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{country}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="142" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{lisenceno}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-11" x="135" y="157" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Cashier]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-12" x="135" y="167" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Store Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-13" x="135" y="177" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Bill]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-14" x="135" y="187" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" x="263" y="167" width="26" height="10"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Pos No :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="157" width="83" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{cashier}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="177" width="83" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{bill}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField" x="181" y="187" width="83" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd/MM/yyyy").format($F{date})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-26" x="263" y="177" width="26" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Time]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-1" x="291" y="177" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("HH:mm:ss").format($F{date})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-8" x="120" y="154" width="200" height="1"/>
+				<graphicElement fill="Solid">
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement key="staticText-27" x="79" y="0" width="278" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Duplicate Bill]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-28" x="177" y="63" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-29" x="177" y="73" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-30" x="177" y="83" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-31" x="177" y="142" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-32" x="177" y="157" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-33" x="177" y="167" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-34" x="177" y="177" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-35" x="177" y="187" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-36" x="288" y="167" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-37" x="288" y="177" width="3" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-38" x="209" y="43" width="3" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-39" x="209" y="53" width="3" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-13" x="120" y="198" width="200" height="1"/>
+				<graphicElement fill="Solid">
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="291" y="167" width="42" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{posno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="76" y="33" width="136" height="10"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{orgname}+","]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-3" x="181" y="167" width="83" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{orgname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-4" x="181" y="102" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-5" x="181" y="112" width="156" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{add4}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-40" x="216" y="33" width="30" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[560035]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-41" x="243" y="33" width="43" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Bangalore]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band/>
+	</pageHeader>
+	<columnHeader>
+		<band/>
+	</columnHeader>
+	<detail>
+		<band height="25">
+			<subreport isUsingCache="true">
+				<reportElement key="subreport-1" x="0" y="0" width="421" height="24"/>
+				<subreportParameter name="ORDERID">
+					<subreportParameterExpression><![CDATA[$P{ORDERID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="ProductCount" toVariable="productcount"/>
+				<returnValue subreportVariable="sum" toVariable="Qtysum"/>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{SR_LINES1}]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<pageFooter>
+		<band/>
+	</pageFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

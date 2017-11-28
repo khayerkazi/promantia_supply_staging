@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="sa1_subreport1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
+	<parameter name="Organization_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DATE" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select m_inout.documentno, split_part(m_inout.documentno, '-', 2) as brand from
+obwship_shipping_details
+left join obwship_shipping on obwship_shipping.obwship_shipping_id = obwship_shipping_details.obwship_shipping_id
+join c_bpartner bp on bp.c_bpartner_id=obwship_shipping.c_bpartner_id
+join ad_orginfo ainfo on ainfo.c_bpartner_id=bp.c_bpartner_id
+join ad_org aorg on aorg.ad_org_id = ainfo.ad_org_id
+left join m_inout on m_inout.m_inout_id = obwship_shipping_details.m_inout_id
+where aorg.ad_org_id=(select ad_org_id from ad_orginfo where c_bpartner_id=$P{Organization_ID}) and obwship_shipping.shipment_date=$P{DATE} order by brand]]>
+	</queryString>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="brand" class="java.lang.String"/>
+	<variable name="Slno" class="java.lang.Integer" calculation="Count">
+		<variableExpression><![CDATA[$V{Slno}]]></variableExpression>
+		<initialValueExpression><![CDATA[1]]></initialValueExpression>
+	</variable>
+	<columnHeader>
+		<band height="20">
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="89" y="0" width="182" height="20" forecolor="#FFFFFF" backcolor="#808080"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#030303"/>
+					<leftPen lineWidth="0.5" lineColor="#030303"/>
+					<bottomPen lineWidth="0.5" lineColor="#030303"/>
+					<rightPen lineWidth="0.5" lineColor="#030303"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="89" height="20" forecolor="#FFFFFF" backcolor="#808080"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#010101"/>
+					<leftPen lineWidth="1.0" lineColor="#010101"/>
+					<bottomPen lineWidth="0.5" lineColor="#010101"/>
+					<rightPen lineWidth="0.5" lineColor="#010101"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SL #]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="271" y="0" width="259" height="20" forecolor="#FFFFFF" backcolor="#808080"/>
+				<box leftPadding="5">
+					<topPen lineWidth="0.5" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Delivery Challan #]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="271" y="0" width="259" height="20"/>
+				<box leftPadding="5">
+					<topPen lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="89" height="20"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{Slno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="89" y="0" width="182" height="20"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER RC_COMPANYDELETE_TRG">
+    <trigger name="RC_COMPANYDELETE_TRG" table="RC_COMPANY" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+v_name character varying (32);
+
+ BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+IF DELETING  THEN
+ RAISE NO_DATA_FOUND ;
+END IF;
+
+IF UPDATING  THEN
+SELECT companyname into v_name from rc_company where companyname=:OLD.companyname;
+
+	IF v_name ilike 'Decathlon Default'  THEN
+	RAISE EXCEPTION 'You cannot update Decathlon Default';
+	END IF;
+END IF;
+
+
+
+END RC_COMPANYDELETE_TRG
+]]></body>
+    </trigger>
+  </database>

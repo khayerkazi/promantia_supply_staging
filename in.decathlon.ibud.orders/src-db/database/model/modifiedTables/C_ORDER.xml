@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<database name="MODIFIED TABLE C_ORDER">
+  <table name="C_ORDER" primaryKey="C_ORDER_KEY">
+    <column name="EM_IBDO_CREATESO" primaryKey="false" required="false" type="VARCHAR" size="60"
+      autoIncrement="false">
+      <default />
+      <onCreateDefault />
+    </column>
+    <column name="EM_IBDO_CREATINGSO" primaryKey="false" required="true" type="CHAR" size="1"
+      autoIncrement="false">
+      <default><![CDATA[N]]></default>
+      <onCreateDefault />
+    </column>
+    <column name="EM_IBDO_GR_REFERENCE" primaryKey="false" required="false" type="VARCHAR"
+      size="128" autoIncrement="false">
+      <default />
+      <onCreateDefault />
+    </column>
+    <column name="EM_IBDO_TOTALSO" primaryKey="false" required="false" type="DECIMAL"
+      autoIncrement="false">
+      <default />
+      <onCreateDefault />
+    </column>
+    <column name="EM_IBDO_TOTALSHIPPEDSO" primaryKey="false" required="false" type="VARCHAR"
+      size="30" autoIncrement="false">
+      <default />
+      <onCreateDefault />
+    </column>
+  </table>
+</database>

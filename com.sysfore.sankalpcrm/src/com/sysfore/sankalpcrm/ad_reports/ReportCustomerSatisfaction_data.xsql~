@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+TO_CHAR(o.dateordered,'HH:MM:SS')
+-->
+
+
+<SqlClass name="ReportCustomerSatisfactionData" package="com.sysfore.sankalpcrm.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[select distinct o.documentno,TO_CHAR(o.dateordered,'DD-MM-YYYY') as date, TO_CHAR(o.dateordered,'hh24:mi:ss') as times,o.em_ds_posno as POSNO,
+org.name as Store,b.em_rc_oxylane,b.name as membername,o.ad_org_id,
+      l.postal as postalcode,b.em_rc_email as emailaddress,b.em_rc_mobile as MobileNo,                
+     CASE
+     WHEN o.em_ds_ratesatisfaction='1' THEN 'Not Satisfied'     
+     WHEN o.em_ds_ratesatisfaction='2' THEN 'Satisfied'
+     WHEN o.em_ds_ratesatisfaction='3' THEN 'Very Satisfied'
+     ELSE 'no satisfaction rate'
+     END as CustomerSatisfaction,
+    c.companyname,n.name as natureofbusiness,sum(ol.qtyordered)as billqyt,
+                o.grandtotal,u.name
+                from c_order o 
+                left join c_orderline ol on (ol.c_order_id=o.c_order_id)
+                left join c_bpartner b on (o.c_bpartner_id=b.c_bpartner_id)
+                left join c_bpartner_location bl on (o.c_bpartner_location_id=bl.c_bpartner_location_id)
+                left join c_location l on (bl.c_location_id=l.c_location_id)
+                left join rc_company c on (c.rc_company_id=b.em_rc_company_id)
+                left join rc_natbusi n on (n.rc_natbusi_id=c.rc_natbusi_id)
+                left join ad_user u on (u.ad_user_id=o.ad_user_id)
+	        left join ad_org org on (org.AD_Org_ID=o.AD_Org_ID)
+                where o.issotrx='Y' and processed='Y'
+	AND o.AD_Client_ID IN ('1')
+        AND o.AD_Org_ID IN ('1')
+        AND 1=1
+     group by o.documentno, b.em_rc_oxylane,b.name,o.ad_org_id,u.name,o.dateordered,o.created,
+                l.postal,b.em_rc_email,b.em_rc_mobile,c.companyname,n.name,o.grandtotal,o.em_ds_posno,org.name,o.em_ds_ratesatisfaction
+                order by o.documentno
+
+     ]]></Sql>
+     <Parameter name="adUserClient" type="replace" optional="true" after="o.AD_Client_ID IN (" text="'1'"/>
+      <Parameter name="adUserOrg" type="replace" optional="true" after="o.AD_Org_ID IN (" text="'1'"/>
+      <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[AND o.dateordered >= to_date(?)]]></Parameter>
+    <Parameter name="dateTo" optional="true" after="AND 1=1"><![CDATA[AND o.dateordered < to_date(?)]]></Parameter>
+  </SqlMethod>
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>
+

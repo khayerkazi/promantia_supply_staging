@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_UPDATE_INVENTORY">
+    <function name="SW_UPDATE_INVENTORY" type="VARCHAR">
+      <parameter name="p_storeqty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_qtyonhand" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_whid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_orgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_productid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_userid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+  * The contents of this file are subject to the Compiere Public
+  * License 1.1 ("License"); You may not use this file except in
+  * compliance with the License. You may obtain a copy of the License in
+  * the legal folder of your Openbravo installation.
+  * Software distributed under the License is distributed on an
+  * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+  * implied. See the License for the specific language governing rights
+  * and limitations under the License.
+  * The Original Code is  Compiere  ERP &  Business Solution
+  * The Initial Developer of the Original Code is Jorg Janke and ComPiere, Inc.
+  * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke,
+  * parts created by ComPiere are Copyright (C) ComPiere, Inc.;
+  * All Rights Reserved.
+  * Contributor(s): Openbravo SLU
+  * Contributions are Copyright (C) 2001-2010 Openbravo, S.L.U.
+  *
+  * Specifically, this derivative work is based upon the following Compiere
+  * file and version.
+  *************************************************************************
+  * $Id: M_Inventory_Post.sql,v 1.4 2003/09/05 04:58:06 jjanke Exp $
+  ***
+  * Title: Physical Inventory Post
+  * Description:
+  * - Update Storage with correct QtyOnHand
+  * - Generate Transcation
+  ************************************************************************/
+  -- Logistice
+    --v_Record_ID character varying(32);
+    v_Client_ID character varying(32);
+    v_Org_ID character varying(32);
+    v_User_ID character varying(32); 
+
+    v_product_ID character varying(32);
+    v_Brand_ID character varying(32);
+    v_modelname character varying(60);
+    v_size character varying(60);
+    v_color character varying(60);
+    v_srcqty NUMBER;
+    v_desqty NUMBER;
+    v_qtysrc NUMBER;
+    v_qtydes NUMBER;
+    v_documentno character varying(60) :='';
+    v_after NUMBER;
+    v_before NUMBER;
+    v_moved NUMBER;
+
+  BEGIN
+          --v_Record_ID := p_id;
+     IF p_whid IS NOT NULL THEN
+     
+    SELECT CL_COLOR.NAME,M_PRODUCT.EM_CL_MODELNAME,M_PRODUCT.EM_CL_SIZE
+    INTO v_color,v_modelname,v_size
+    FROM M_PRODUCT,CL_COLOR
+    WHERE M_PRODUCT.EM_CL_COLOR_ID = CL_COLOR.CL_COLOR_ID
+    AND M_PRODUCT.M_PRODUCT_ID = p_productid;
+
+
+  IF (p_whid IS NOT NULL) THEN
+
+select afterqty
+INTO v_srcqty 
+from sw_stocktransaction 
+where sw_stocktransaction.m_warehouse_id = p_whid
+and sw_stocktransaction.itemcode_id = p_productid
+order by created desc limit 1;
+
+    v_after = TO_NUMBER(p_storeqty);
+    v_before = TO_NUMBER(p_qtyonhand);
+    --v_moved = TO_NUMBER(p_storeqty);
+    v_moved = v_after - v_before;
+    
+          INSERT
+          INTO SW_StockTransaction
+            (SW_StockTransaction_ID,AD_Client_ID,AD_Org_ID,IsActive,
+              Created, CreatedBy, Updated, UpdatedBy,
+              MovementType,MovementDate, MovementQty,BeforeQty,AfterQty,
+              itemcode_id,cl_brand_id,model,color,size,
+              m_warehouse_id,source_id,destination_id,documentno
+            )
+            VALUES
+            (get_UUID(), p_clientid, p_orgid, 'Y',
+             now(),p_userid,now(),p_userid,
+             'PI',now(),v_moved,v_before,v_after,
+              p_productid,v_Brand_ID,v_modelname,v_size,v_color,
+              p_whid,p_whid,p_whid,' '           
+            );
+
+       ELSE
+         RAISE NO_DATA_FOUND;
+     END IF;
+    
+ 
+   RETURN 'SUCCESS';
+   ELSE
+     RAISE EXCEPTION 'STOCK TRANSACTION NOT CREATED';
+   END IF;
+END SW_UPDATE_INVENTORY
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,766 @@
+diff --git a/src-db/database/model/functions/C_ORDER_POST1.xml b/src-db/database/model/functions/C_ORDER_POST1.xml
+--- a/src-db/database/model/functions/C_ORDER_POST1.xml
++++ b/src-db/database/model/functions/C_ORDER_POST1.xml
+@@ -1169,6 +1169,7 @@
+                       r.m_reservation_id IS NOT NULL
+                     )
+                   )
++		  order by ol.line
+             ) LOOP
+               SELECT count(*), max(m_reservation_id)
+                 INTO v_aux, v_reservation_id
+@@ -1348,8 +1349,8 @@
+      */
+       BEGIN
+         v_ResultStr:='OrderCompleteCheck';
+-        SELECT SUM(QtyOrdered*hex_to_int(C_OrderLine_ID)) -SUM(QtyDelivered*hex_to_int(C_OrderLine_ID)),
+-            SUM(QtyOrdered*hex_to_int(C_OrderLine_ID)) -SUM(QtyInvoiced*hex_to_int(C_OrderLine_ID))
++        SELECT SUM(QtyOrdered) -SUM(QtyDelivered),
++            SUM(QtyOrdered) -SUM(QtyInvoiced)
+           INTO ToDeliver,
+             ToInvoice
+         FROM C_ORDERLINE
+@@ -1498,8 +1499,8 @@
+      /**
+       * Final Completeness check
+       */
+-      SELECT SUM(QtyOrdered*hex_to_int(C_OrderLine_ID)) -SUM(QtyDelivered*hex_to_int(C_OrderLine_ID)),
+-          SUM(QtyOrdered*hex_to_int(C_OrderLine_ID)) -SUM(QtyInvoiced*hex_to_int(C_OrderLine_ID))
++      SELECT SUM(QtyOrdered) -SUM(QtyDelivered),
++          SUM(QtyOrdered) -SUM(QtyInvoiced)
+         INTO ToDeliver,
+           ToInvoice
+       FROM C_ORDERLINE
+diff --git a/src-db/database/model/functions/M_GET_STOCK.xml b/src-db/database/model/functions/M_GET_STOCK.xml
+--- a/src-db/database/model/functions/M_GET_STOCK.xml
++++ b/src-db/database/model/functions/M_GET_STOCK.xml
+@@ -359,12 +359,10 @@
+     FROM m_stock_proposed
+     WHERE ad_pinstance_id = pinstance_id;
+     IF (v_totalqty < v_quantity AND v_availableqty >= v_quantity) THEN
+-      IF (v_message IS NULL OR v_message = '') THEN
+         SELECT name INTO v_productname
+         FROM m_product
+         WHERE m_product_id = v_productid;
+-        v_message := '@NotEnoughStockedDueWHRule@';
+-      END IF;
++        v_message := '@NotEnoughStockedDueWHRule@ ' || '@Product@: ' || v_productname;
+       RAISE_APPLICATION_ERROR(-20000, v_message);
+     END IF;
+     IF (v_totalqty > v_finalqty) THEN
+diff --git a/src-db/database/model/functions/M_INOUT_POST.xml b/src-db/database/model/functions/M_INOUT_POST.xml
+--- a/src-db/database/model/functions/M_INOUT_POST.xml
++++ b/src-db/database/model/functions/M_INOUT_POST.xml
+@@ -703,15 +703,15 @@
+                   IsActive, Created, CreatedBy, Updated,
+                   UpdatedBy, MovementType, M_Locator_ID, M_Product_ID,
+                   M_AttributeSetInstance_ID, MovementDate, MovementQty, M_Product_UOM_ID,
+-                  QuantityOrder, C_UOM_ID
++                  QuantityOrder, C_UOM_ID, EM_Sw_Movementtype
+                 )
+                 VALUES
+                 (
+                   v_NextNo, Cur_InOutLine.M_InOutLine_ID, Cur_InOutLine.AD_Client_ID, Cur_InOutLine.AD_Org_ID,
+                    'Y', now(), v_User, now(),
+                   v_User, Cur_InOut.MovementType, Cur_InOutLine.M_Locator_ID, Cur_InOutLine.M_Product_ID,
+-                  COALESCE(Cur_InOutLine.M_AttributeSetInstance_ID, '0'), Cur_InOut.MovementDate, v_Qty, Cur_InOutLine.M_Product_UOM_ID,
+-                  v_QuantityOrder, Cur_InOutLine.C_UOM_ID
++                  COALESCE(Cur_InOutLine.M_AttributeSetInstance_ID, '0'), now(), v_Qty, Cur_InOutLine.M_Product_UOM_ID,
++                  v_QuantityOrder, Cur_InOutLine.C_UOM_ID, Cur_InOut.EM_Sw_Movement
+                 )
+                 ;
+             END IF;
+diff --git a/src-db/database/model/functions/M_PRICELIST_CREATE.xml b/src-db/database/model/functions/M_PRICELIST_CREATE.xml
+--- a/src-db/database/model/functions/M_PRICELIST_CREATE.xml
++++ b/src-db/database/model/functions/M_PRICELIST_CREATE.xml
+@@ -392,7 +392,7 @@
+               UpdatedBy,
+               PriceList,
+               PriceStd,
+-              PriceLimit
++              PriceLimit,em_cl_cessionprice, em_cl_mrpprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice, em_cl_followcatalog
+             )
+           SELECT  get_uuid(), v_PriceList_Version_ID,
+             pp.M_Product_ID, v_Client_ID, v_Org_ID, 'Y',
+@@ -402,7 +402,8 @@
+             -- Price Std
+             COALESCE(C_Currency_Convert(pp.PriceStd, pl.C_Currency_ID, v_Currency_ID, Cur_DiscountLine.ConversionDate, Cur_DiscountLine.ConversionRateType, v_Client_ID, v_Org_ID), 0),
+             -- Price Limit
+-            COALESCE(C_Currency_Convert(pp.PriceLimit, pl.C_Currency_ID, v_Currency_ID, Cur_DiscountLine.ConversionDate, Cur_DiscountLine.ConversionRateType, v_Client_ID, v_Org_ID), 0)
++            COALESCE(C_Currency_Convert(pp.PriceLimit, pl.C_Currency_ID, v_Currency_ID, Cur_DiscountLine.ConversionDate, Cur_DiscountLine.ConversionRateType, v_Client_ID, v_Org_ID), 0),
++            pp.em_cl_cessionprice, pp.em_cl_mrpprice, pp.em_cl_ccunitprice, pp.em_cl_ccueprice, pp.em_cl_ccpcbprice, 'Y'
+           FROM M_ProductPrice pp
+           INNER JOIN M_PriceList_Version plv
+             ON(pp.M_PriceList_Version_ID=plv.M_PriceList_Version_ID)
+diff --git a/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml b/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml
+--- a/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml
++++ b/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml
+@@ -34,7 +34,7 @@
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+-* All portions are Copyright (C) 2012-2013 Openbravo SLU
++* All portions are Copyright (C) 2012 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************/
+@@ -44,88 +44,275 @@
+   v_warehouse_id        VARCHAR2(32);
+   v_product_id          VARCHAR2(32);
+   v_uom_id              VARCHAR2(32);
++  v_res_stock_id        VARCHAR2(32);
++  v_storage_detail_id   VARCHAR2(32);
+   v_dim_warehouse_id    VARCHAR2(32);
+   v_dim_locator_id      VARCHAR2(32);
+   v_dim_asi_id          VARCHAR2(32);
+   v_res_status          M_RESERVATION.RES_STATUS%TYPE;
+-  v_this_pendingqty     NUMBER;
+-  v_this_sd_reserved    NUMBER;
++  v_this_notreserved    NUMBER;
++  v_this_reservedqty    NUMBER;
++  v_this_releasedqty    NUMBER;
++  v_this_allocated      NUMBER;
++  v_this_noalloc        NUMBER;
++  v_this_sd_alloc       NUMBER;
++  v_this_sd_noalloc     NUMBER;
++  v_stock_onhand        NUMBER;
++  v_stock_res           NUMBER;
++  v_stock_alloc         NUMBER;
+   v_qtytorelease        NUMBER;
+-  v_attr_description    VARCHAR2(255);
+-  v_product_value       VARCHAR2(40);
+-  v_locator_value       VARCHAR2(40);
+-  v_uom_value           VARCHAR2(3);
++  v_qtytounreserve      NUMBER;
++  v_qtytounreserve_aux  NUMBER;
++  v_qtytoreserve        NUMBER;
++  v_qtyfromother        NUMBER;
++  v_newreservedqty      NUMBER;
++  v_availablestock      NUMBER;
++  v_dummy               VARCHAR2(2000);
++  v_prd_name        VARCHAR2(32);
+ 
+   TYPE RECORD IS REF CURSOR;
+-  cur_reserved_stock    RECORD;
++  cur_reserved_stock       RECORD;
++  cur_not_allocated_stock  RECORD;
+ BEGIN
+-  SELECT r.m_product_id, r.c_uom_id, COALESCE(r.quantity, 0) - COALESCE(r.releasedqty, 0),
++  SELECT r.m_product_id, r.c_uom_id, COALESCE(r.reservedqty, 0), COALESCE(r.releasedqty, 0), r.quantity - COALESCE(r.reservedqty, 0),
++      COALESCE(SUM(alloc.quantity - COALESCE(alloc.releasedqty, 0)), 0),
+       r.m_warehouse_id, r.m_locator_id, r.m_attributesetinstance_id, r.res_status
+-    INTO v_product_id, v_uom_id, v_this_pendingqty, 
++    INTO v_product_id, v_uom_id, v_this_reservedqty, v_this_releasedqty, v_this_notreserved,
++      v_this_allocated,
+       v_dim_warehouse_id, v_dim_locator_id, v_dim_asi_id, v_res_status
+   FROM m_reservation r
+-      LEFT JOIN m_reservation_stock noalloc ON r.m_reservation_id = noalloc.m_reservation_id AND noalloc.isallocated = 'N'
++      LEFT JOIN m_reservation_stock alloc ON r.m_reservation_id = alloc.m_reservation_id AND alloc.isallocated = 'Y'
+   WHERE r.m_reservation_id = p_reservation_id
+   GROUP BY r.m_product_id, r.c_uom_id, r.reservedqty, COALESCE(r.releasedqty,0), r.quantity,
+       r.m_warehouse_id, r.m_locator_id, r.m_attributesetinstance_id, r.res_status;
+-  
+-  SELECT value
+-    INTO v_product_value
+-  FROM M_Product
+-  WHERE M_Product_ID = v_product_id;
++  v_this_noalloc := v_this_reservedqty - v_this_allocated;
+ 
+-  IF(p_attributesetinstance_id IS NOT NULL) THEN
+-    SELECT description
+-      INTO v_attr_description
+-    FROM M_AttributeSetInstance
+-    WHERE M_AttributeSetInstance_ID = p_attributesetinstance_id;
+-  END IF;
++  IF (v_res_status = 'HO') THEN
++    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeHoldReservation@');
++ END IF; 
+ 
+-  SELECT uomsymbol
+-    INTO v_uom_value
+-  FROM C_Uom
+-  WHERE C_Uom_ID = v_uom_id;
+-
+-  IF (p_locator_id IS NOT NULL) THEN
+-    SELECT value, m_warehouse_id 
+-      INTO v_locator_value, v_warehouse_id
+-    FROM M_Locator
+-    WHERE M_Locator_ID = p_locator_id;
+-  END IF;
++  SELECT sd.qtyonhand, sd.m_storage_detail_id, loc.m_warehouse_id
++    INTO v_stock_onhand, v_storage_detail_id, v_warehouse_id
++  FROM m_storage_detail sd
++    JOIN m_locator loc ON sd.m_locator_id = loc.m_locator_id
++  WHERE sd.m_product_id = v_product_id
++    AND sd.c_uom_id = v_uom_id
++    AND COALESCE(sd.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
++    AND sd.m_locator_id = p_locator_id;
+     
+-  IF (v_res_status = 'HO') THEN
+-    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeHoldReservation@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')||', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-'));
+-  END IF;
++  SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty, 0)), 0),
++      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0)
++    INTO v_stock_res, v_stock_alloc, v_this_sd_alloc, v_this_sd_noalloc
++  FROM m_reservation_stock rs
++    JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
++  WHERE r.m_product_id = v_product_id
++    AND r.res_status NOT IN ('CL', 'DR')
++    AND r.c_uom_id = v_uom_id
++    AND rs.m_locator_id = p_locator_id
++    AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0');
+ 
+   IF (COALESCE(v_dim_warehouse_id, v_warehouse_id) != v_warehouse_id
+-      OR COALESCE(v_dim_locator_id, p_locator_id) != p_locator_id
+-      OR COALESCE(v_dim_asi_id, p_attributesetinstance_id) != p_attributesetinstance_id) THEN
+-    RAISE_APPLICATION_ERROR(-20000, '@WrongStockDimensionMismatch@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')||', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-'));
++      --OR COALESCE(v_dim_locator_id, p_locator_id) != p_locator_id
++      --OR COALESCE(v_dim_asi_id, p_attributesetinstance_id) != p_attributesetinstance_id
++      ) THEN
++    RAISE_APPLICATION_ERROR(-20000, '@WrongStockDimensionMismatch@');
+   END IF;
+ 
+   v_pendingtorelease := p_qty;
+-  IF (v_pendingtorelease >v_this_pendingqty) THEN
+-    v_pendingtorelease := v_this_pendingqty;
++  IF (v_pendingtorelease > v_this_reservedqty - v_this_releasedqty) THEN
++    v_pendingtorelease := v_this_reservedqty - v_this_releasedqty;
+     p_result := 2;
+-    p_message := '@MoreQuantityToReleaseThanPending@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')|| ', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-');
++    p_message := '@MoreQuantityToReleaseThanPending@';
+   END IF;
+ 
+-  SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty,0)),0)
+-    INTO v_this_sd_reserved
+-  FROM m_reservation_stock rs
+-  WHERE rs.m_locator_id = p_locator_id
+-    AND rs.m_reservation_id = p_reservation_id
+-    AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0');
++  -- Check that quantity to release is lower than available quantity considering other reservations allocated stock.
++
++
++  IF (v_pendingtorelease > v_stock_onhand - (v_stock_alloc - v_this_sd_alloc)) THEN
++   select name into v_prd_name from m_product where m_product_id in (select m_product_id from m_reservation where m_reservation_id=p_reservation_id);
++    RAISE EXCEPTION 'pendingtorelease  %, stock_onhand  %, stock_alloc %,this_sd_alloc % ,reservation_id %, product_name %',
++ v_pendingtorelease, v_stock_onhand , v_stock_alloc ,v_this_sd_alloc,p_reservation_id,v_prd_name;
++    --RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeAllStock@');
++  END IF;
++
++  --IF (v_pendingtorelease > v_this_sd_alloc + v_this_noalloc) THEN
++    -- The quantity to release is higher than the currently allocated stock with given dimensions and the no allocated
++    -- reserved stock.
++ --   RAISE_APPLICATION_ERROR(-20000, '@CannotModifyAllocatedReserve@');
++  --END IF;
+   
+-  IF (v_pendingtorelease > v_this_sd_reserved) THEN
+-    -- The reservation does not have enough stock reserved on given locator and attributes, reallocation is needed.
+-    M_RESERVATION_REALLOCATE(p_reservation_id, p_locator_id, p_attributesetinstance_id, p_qty, p_user_id, p_result, p_message);
++  IF (v_pendingtorelease <= v_this_sd_alloc + v_this_sd_noalloc) THEN
++    -- All stock can be released by reservations own reserved stock
++    v_qtytoreserve := 0;
++    v_qtyfromother := 0;
++  ELSE 
++    -- There is not reserved stock available.
++
++
++    v_qtytoreserve := LEAST(v_stock_onhand - v_stock_res, v_pendingtorelease - (v_this_sd_alloc + v_this_sd_noalloc));
++    v_qtyfromother := v_pendingtorelease - v_qtytoreserve - (v_this_sd_alloc + v_this_sd_noalloc);
++  END IF;
++  
++  -- If exists not reserved stock reserve in current reservation.
++  v_ResultStr := 'Reserve and release available stock';
++  IF (v_qtytoreserve > 0) THEN
++    -- Reserve available stock
++    v_qtytounreserve := LEAST(v_qtytoreserve, v_this_noalloc - v_this_sd_noalloc);
++    IF (v_qtytounreserve > 0) THEN
++    
++
++      --If exists not allocated stock it has to be unreserved before reserving the new one.
++      FOR cur_reserved_stock IN (
++          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++          FROM m_reservation_stock
++          WHERE m_reservation_id = p_reservation_id
++            AND isallocated = 'N'
++            AND quantity != COALESCE(releasedqty,0)
++          ORDER BY quantity - COALESCE(releasedqty,0)
++      ) LOOP
++        v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
++        UPDATE m_reservation_stock
++        SET quantity = quantity - v_qtytounreserve_aux
++        WHERE m_reservation_stock_id = cur_reserved_stock.m_reservation_stock_id;
++        v_qtytounreserve := v_qtytounreserve - v_qtytounreserve_aux;
++
++        IF (v_qtytounreserve = 0) THEN
++          EXIT;
++        END IF;
++      END LOOP;
++    END IF;
++--RAISE EXCEPTION 'p_reservation_id  %, v_storage_detail_id  %, v_qtytoreserve %,p_user_id %',p_reservation_id, v_storage_detail_id , v_qtytoreserve ,p_user_id;
++    M_RESERVE_STOCK_MANUAL(p_reservation_id, 'SD', v_storage_detail_id, v_qtytoreserve, p_user_id, 'N', v_res_stock_id);
++--RAISE EXCEPTION 'v_res_stock_id %',v_res_stock_id;
++  END IF;
++  
++  IF (v_qtyfromother > 0) THEN
++    -- Finally take other reservation's not allocated stock.
++    v_ResultStr := 'Reserve other reservations stock';
++    FOR cur_not_allocated_stock IN (
++        SELECT r.m_reservation_id, rs.quantity, COALESCE(rs.releasedqty,0) as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
++               r.ad_client_id, r.ad_org_id, r.m_product_id, r.c_uom_id, r.m_attributesetinstance_id, r.m_locator_id, r.m_warehouse_id,
++               r.c_orderline_id
++        FROM m_reservation_stock rs
++            JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
++        WHERE r.m_reservation_id != p_reservation_id
++          AND r.m_product_id = v_product_id
++          AND r.c_uom_id = v_uom_id
++          AND rs.m_locator_id = p_locator_id
++          AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
++          AND rs.isallocated = 'N'
++          AND r.res_status NOT IN ('HO', 'CL', 'DR')
++          AND rs.quantity != COALESCE(rs.releasedqty,0)
++    ) LOOP
++      v_qtytorelease := LEAST(v_qtyfromother, cur_not_allocated_stock.quantity - cur_not_allocated_stock.releasedqty);
++      
++      IF (v_qtytorelease > COALESCE(v_this_notreserved, 0)) THEN
++        --The new reserved stock is higher than the pending quantity to reserve, other reserved stock must be unreserved.
++        v_qtytounreserve := v_qtytorelease - COALESCE(v_this_notreserved, 0);
++        FOR cur_reserved_stock IN (
++            SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++            FROM m_reservation_stock
++            WHERE m_reservation_id = p_reservation_id
++              AND isallocated = 'N'
++              AND quantity != COALESCE(releasedqty,0)
++        ) LOOP
++          v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
++          UPDATE m_reservation_stock
++          SET quantity = quantity - v_qtytounreserve_aux
++          WHERE m_reservation_stock_id = cur_reserved_stock.m_reservation_stock_id;
++          v_qtytounreserve := v_qtytounreserve - v_qtytounreserve_aux;
++  
++          IF (v_qtytounreserve = 0) THEN
++            EXIT;
++          END IF;
++        END LOOP;
++      END IF;
++      
++      UPDATE m_reservation_stock
++      SET quantity = quantity - v_qtytorelease
++      WHERE m_reservation_stock_id = cur_not_allocated_stock.m_reservation_stock_id;
++      DELETE FROM m_reservation_stock
++      WHERE quantity = 0
++        AND m_reservation_stock_id = cur_not_allocated_stock.m_reservation_stock_id;
++  
++      M_RESERVE_STOCK_MANUAL(p_reservation_id, 'SD', v_storage_detail_id, v_qtytorelease, p_user_id, 'N', v_res_stock_id);
++  
++      -- Call get stock to check availability
++      DECLARE
++        v_pinstance_result      AD_PInstance.result%TYPE;
++        v_pinstance_msg         AD_PInstance.errormsg%TYPE;
++        v_warehouse_rule_id     VARCHAR2(32);
++        v_pinstance_id          VARCHAR2(32) := get_uuid();
++      BEGIN
++        INSERT INTO ad_pinstance (
++            ad_pinstance_id, ad_process_id, record_id, isactive, 
++            ad_user_id, ad_client_id, ad_org_id, created, createdby,
++            updated, updatedby
++        ) VALUES (
++            v_pinstance_id, 'FF80818132C964E30132C9747257002E', p_reservation_id, 'Y',
++            p_User_ID, cur_not_allocated_stock.ad_client_id, cur_not_allocated_stock.ad_Org_ID, now(), p_user_ID,
++            now(), p_user_ID
++        );
++    
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '10', 'AD_Client_ID', cur_not_allocated_stock.ad_client_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '20', 'AD_Org_ID', cur_not_allocated_stock.ad_org_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '30', 'M_Product_ID', cur_not_allocated_stock.m_product_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '40', 'C_Uom_ID', cur_not_allocated_stock.c_uom_id, null, null, null, null, null);
++        --AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '50', 'M_Product_Uom_ID', v_Product_UOM_old, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'M_Warehouse_ID', cur_not_allocated_stock.m_warehouse_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '70', 'M_Locator_ID', cur_not_allocated_stock.m_locator_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '80', 'M_AttributesetInstance_ID', cur_not_allocated_stock.m_attributesetinstance_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'Quantity', null, null, cur_not_allocated_stock.quantitytoreserve, null, null, null);
++        /*
++        * ADD PROPER PROCESS ID!
++        */
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '100', 'ProcessID', '---', null, null, null, null, null);
++    
++        IF (cur_not_allocated_stock.c_orderline_id IS NOT NULL) THEN
++          SELECT m_warehouse_rule_id INTO v_warehouse_rule_id
++          FROM c_orderline
++          WHERE c_orderline_id = cur_not_allocated_stock.c_orderline_id;
++          AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '110', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
++        END IF;
++    
++        M_GET_STOCK(v_pinstance_ID, 'N');
++        -- Check result
++        SELECT result, errormsg
++          INTO v_pinstance_result, v_pinstance_msg
++        FROM ad_pinstance
++        WHERE ad_pinstance_id = v_pinstance_id;
++        IF (v_pinstance_result = 0) THEN
++          -- Error on m_get_stock
++          RAISE_APPLICATION_ERROR(-20000, v_pinstance_msg);
++        END IF;
++        SELECT sum(quantity) INTO v_availablestock
++        FROM m_stock_proposed
++        WHERE ad_pinstance_id = v_pinstance_id;
++      END; -- End Call M_GET_STOCK
++      
++      IF (v_availablestock >= v_qtytorelease) THEN
++        M_RESERVE_STOCK_AUTO(cur_not_allocated_stock.m_reservation_id, p_user_id, v_newreservedqty);
++      ELSE
++        --Not enough available stock has been able to reallocate using new stock, undo reallocation.
++        UPDATE m_reservation_stock
++        SET quantity = COALESCE(quantity,0) - v_qtytorelease,
++            updated = now(),
++            updatedby = p_user_id
++        WHERE m_reservation_stock_id = v_res_stock_id;
++  
++        UPDATE m_reservation_stock
++        SET quantity = quantity + v_qtytorelease
++        WHERE m_reservation_stock_id = cur_not_allocated_stock.m_reservation_stock_id;
++      END IF;
++    END LOOP;
+   END IF;
+   
+   -- Release stock reserved in the reservation.
+   v_ResultStr := 'Release reserved stock';
+   FOR cur_reserved_stock IN (
+-      SELECT quantity - COALESCE(releasedqty,0) AS reservedqty, m_reservation_stock_id
++      SELECT quantity - COALESCE(releasedqty,0) AS reservedqty, m_reservation_stock_id, isallocated
+       FROM m_reservation_stock
+       WHERE m_locator_id = p_locator_id
+         AND COALESCE(m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
+@@ -146,8 +333,17 @@
+     END IF;
+   END LOOP;
+   
++  -- Delete records with quantity 0 that might be left.
++  DELETE FROM m_reservation_stock
++  WHERE m_reservation_id = p_reservation_id
++    AND quantity = 0;
++
+   IF (v_pendingtorelease > 0) THEN
+-    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeAllStock@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')||', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-'));
++  select name into v_prd_name from m_product where m_product_id in (select m_product_id from m_reservation where m_reservation_id=p_reservation_id);
++    RAISE EXCEPTION 'pendingtorelease  %, stock_onhand  %, stock_alloc %,this_sd_alloc % ,reservation_id %, product_name %',
++ v_pendingtorelease, v_stock_onhand , v_stock_alloc ,v_this_sd_alloc,p_reservation_id,v_prd_name;
++
++--    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeAllStock@');
+   END IF;
+ EXCEPTION
+ WHEN OTHERS THEN
+diff --git a/src-db/database/model/functions/M_RESERVATION_POST.xml b/src-db/database/model/functions/M_RESERVATION_POST.xml
+--- a/src-db/database/model/functions/M_RESERVATION_POST.xml
++++ b/src-db/database/model/functions/M_RESERVATION_POST.xml
+@@ -25,7 +25,7 @@
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+-* All portions are Copyright (C) 2012-2013 Openbravo SLU
++* All portions are Copyright (C) 2012-2014 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************/
+@@ -232,6 +232,8 @@
+                       JOIN m_reservation r ON rs2.m_reservation_id = r.m_reservation_id
+                   WHERE rs2.c_orderline_id IS NOT NULL
+                     AND r.res_status NOT IN ('DR')
++                    AND r.m_product_id = v_product_id
++                    AND r.c_uom_id = v_uom_id
+                   GROUP BY rs2.c_orderline_id
+                 ) pre ON rs.c_orderline_id = pre.c_orderline_id
+           WHERE rs.m_reservation_id = v_reservation_id
+diff --git a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+--- a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
++++ b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+@@ -299,7 +299,7 @@
+       AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'M_Warehouse_ID', cur_not_allocated_stock.m_warehouse_id, null, null, null, null, null);
+       AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '70', 'M_Locator_ID', cur_not_allocated_stock.m_locator_id, null, null, null, null, null);
+       AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '80', 'M_AttributesetInstance_ID', cur_not_allocated_stock.m_attributesetinstance_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'Quantity', null, null, cur_not_allocated_stock.quantitytoreserve, null, null, null);
++      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'Quantity', null, null, v_qtytorelease, null, null, null);
+       /*
+       * ADD PROPER PROCESS ID!
+       */
+diff --git a/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml b/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
+--- a/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
++++ b/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
+@@ -99,7 +99,7 @@
+         FROM M_Locator
+         WHERE M_Locator_ID = v_reserve_locator_id;
+       END IF;
+-      RAISE_APPLICATION_ERROR(-20000, '@GivenStorageDetailDoesNotMatchReservationRequirements@' || ' @of@' || ' @Product@: ' || v_product_value || ', @AttributeSetInstance@: ' || COALESCE(v_attr_description, '-') || ', @UOM@: ' || v_uom_value || ' @And@'||' @StorageBin@: ' || COALESCE(v_locator_value, '-'));
++     -- RAISE_APPLICATION_ERROR(-20000, '@GivenStorageDetailDoesNotMatchReservationRequirements@' || ' @of@' || ' @Product@: ' || v_product_value || ', @AttributeSetInstance@: ' || COALESCE(v_attr_description, '-') || ', @UOM@: ' || v_uom_value || ' @And@'||' @StorageBin@: ' || COALESCE(v_locator_value, '-'));
+     END IF;
+ 
+     SELECT m_locator_id, m_attributesetinstance_id
+diff --git a/src-db/database/model/functions/M_UNIQUEATTRIBUTE_RULE.xml b/src-db/database/model/functions/M_UNIQUEATTRIBUTE_RULE.xml
+--- a/src-db/database/model/functions/M_UNIQUEATTRIBUTE_RULE.xml
++++ b/src-db/database/model/functions/M_UNIQUEATTRIBUTE_RULE.xml
+@@ -94,7 +94,7 @@
+     SELECT name INTO v_productname
+     FROM m_product
+     WHERE m_product_id = v_productid;
+-    v_Message := '@Product@: ' || v_productname ||'. @NotEnoughAttUniqueStock@';
++    v_Message := ' @NotEnoughAttUniqueStock@';
+     AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_Message, 'N');
+     RETURN;
+   END IF;
+diff --git a/src-db/database/model/tables/AD_ORG_WAREHOUSE.xml b/src-db/database/model/tables/AD_ORG_WAREHOUSE.xml
+--- a/src-db/database/model/tables/AD_ORG_WAREHOUSE.xml
++++ b/src-db/database/model/tables/AD_ORG_WAREHOUSE.xml
+@@ -53,6 +53,9 @@
+       <index name="AD_ORGWAREHOUSE_ORG_IDX" unique="false">
+         <index-column name="AD_ORG_ID"/>
+       </index>
++      <index name="AD_ORGWAREHOUSE_WH_IDX" unique="false">
++        <index-column name="M_WAREHOUSE_ID"/>
++      </index>
+       <check name="AD_ORG_WAREHOUSE_ACTIVE_CHK"><![CDATA[ISACTIVE IN ('Y', 'N')]]></check>
+     </table>
+   </database>
+diff --git a/src-db/database/model/tables/M_RESERVATION.xml b/src-db/database/model/tables/M_RESERVATION.xml
+--- a/src-db/database/model/tables/M_RESERVATION.xml
++++ b/src-db/database/model/tables/M_RESERVATION.xml
+@@ -123,6 +123,9 @@
+       <foreign-key foreignTable="M_WAREHOUSE" name="M_RESERVATION_WAREHOUSE">
+         <reference local="M_WAREHOUSE_ID" foreign="M_WAREHOUSE_ID"/>
+       </foreign-key>
++      <index name="M_RESERVATION_ORDERLINE_IDX" unique="false">
++        <index-column name="C_ORDERLINE_ID"/>
++      </index>
+       <index name="M_RESERVATION_PRODUCT_IDX" unique="false">
+         <index-column name="M_PRODUCT_ID"/>
+       </index>
+diff --git a/src-db/database/model/tables/M_STOCK_PROPOSED.xml b/src-db/database/model/tables/M_STOCK_PROPOSED.xml
+--- a/src-db/database/model/tables/M_STOCK_PROPOSED.xml
++++ b/src-db/database/model/tables/M_STOCK_PROPOSED.xml
+@@ -63,7 +63,7 @@
+       <foreign-key foreignTable="AD_ORG" name="AD_ORG_MSTOCKPROPOSED">
+         <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+       </foreign-key>
+-      <foreign-key foreignTable="AD_PINSTANCE" name="AD_PINSTANCE_MSTOCKPROPOSED">
++      <foreign-key foreignTable="AD_PINSTANCE" name="AD_PINSTANCE_MSTOCKPROPOSED" onDelete="cascade">
+         <reference local="AD_PINSTANCE_ID" foreign="AD_PINSTANCE_ID"/>
+       </foreign-key>
+       <foreign-key foreignTable="M_STORAGE_DETAIL" name="M_STORAGEDET_MSTOCKPROPOSED">
+diff --git a/src-db/database/model/triggers/C_ORDERLINETAX_TRG.xml b/src-db/database/model/triggers/C_ORDERLINETAX_TRG.xml
+--- a/src-db/database/model/triggers/C_ORDERLINETAX_TRG.xml
++++ b/src-db/database/model/triggers/C_ORDERLINETAX_TRG.xml
+@@ -17,7 +17,7 @@
+   * parts created by ComPiere are Copyright (C) ComPiere, Inc.;
+   * All Rights Reserved.
+   * Contributor(s): Openbravo SLU
+-  * Contributions are Copyright (C) 2010-2013 Openbravo, S.L.U.
++  * Contributions are Copyright (C) 2010-2014 Openbravo, S.L.U.
+   *
+   * Specifically, this derivative work is based upon the following Compiere
+   * file and version.
+@@ -70,7 +70,7 @@
+   END IF;
+     
+   IF (INSERTING OR UPDATING) THEN
+-    SELECT COUNT(C_TAX_ID) INTO v_Count
++    SELECT COUNT(1) INTO v_Count
+     FROM C_ORDERTAX
+     WHERE C_ORDER_ID = :NEW.C_Order_ID
+     AND C_TAX_ID = :NEW.C_TAX_ID;
+diff --git a/src-db/database/model/triggers/C_ORDERLINE_TRG2.xml b/src-db/database/model/triggers/C_ORDERLINE_TRG2.xml
+--- a/src-db/database/model/triggers/C_ORDERLINE_TRG2.xml
++++ b/src-db/database/model/triggers/C_ORDERLINE_TRG2.xml
+@@ -19,25 +19,12 @@
+     * under the License.
+     * The Original Code is Openbravo ERP.
+     * The Initial Developer of the Original Code is Openbravo SLU
+-    * All portions are Copyright (C) 2001-2012 Openbravo SLU
++    * All portions are Copyright (C) 2001-2014 Openbravo SLU
+     * All Rights Reserved.
+     * Contributor(s):  ______________________________________.
+     ************************************************************************/
+ 
+-   TYPE RECORD IS REF CURSOR;
+-   Cur_Offer RECORD;
+-
+-  v_OrderLine_Offer_ID VARCHAR2(32);
+-  v_lineno NUMBER:=0;
+-  v_Price NUMBER;
+-  v_PriceNew NUMBER;
+-  v_Amt NUMBER;
+-  v_BPartner_ID VARCHAR2(32);
+-  v_Order_ID VARCHAR2(32);
+-  v_Insert BOOLEAN :=FALSE;
+   v_istaxincluded CHAR(1) ;
+-  v_Precision NUMBER;
+-  v_PriceList_ID VARCHAR2(32);
+   v_Processed C_ORDER.PROCESSED%TYPE;
+   v_ID VARCHAR2(32);
+   v_oldLine NUMBER;
+@@ -49,8 +36,9 @@
+   v_grandtotal NUMBER:=0;
+   v_taxAmt NUMBER;
+   v_Prec C_CURRENCY.STDPRECISION%TYPE;
+-  v_BaseAmount C_TAX.BASEAMOUNT%TYPE;
+   v_AttrSetValueType M_Product.AttrSetValueType%TYPE;
++  v_oldLineAlternate NUMBER;
++  v_create CHAR(1):='Y';
+     
+ BEGIN
+     
+@@ -73,49 +61,61 @@
+         JOIN c_currency ON c_order.c_currency_id = c_currency.c_currency_id
+         JOIN m_pricelist ON c_order.m_pricelist_id = m_pricelist.m_pricelist_id
+  WHERE C_Order_ID=v_ID;
+- v_oldLine:=0;
+- v_newLineNetAmt:=0;
+- IF (v_istaxincluded = 'Y') THEN
+-  IF (DELETING) THEN
+-    v_oldgrossamt := :old.line_gross_amount;
+-  ELSIF (UPDATING) THEN
+-    v_oldgrossamt := :old.line_gross_amount;
+-    v_newgrossamt := :new.line_gross_amount;
+-  ELSE
+-    v_newgrossamt := :new.line_gross_amount;
+-  END IF;
+- END IF;
++
+ 
+  IF(v_Processed='N') THEN
++   v_oldLine:=0;
++   v_newLineNetAmt:=0;
++   IF (v_istaxincluded = 'Y') THEN
++    IF (DELETING) THEN
++      v_oldgrossamt := :old.line_gross_amount;
++    ELSIF (UPDATING) THEN
++      v_oldgrossamt := :old.line_gross_amount;
++      v_newgrossamt := :new.line_gross_amount;
++    ELSE
++      v_newgrossamt := :new.line_gross_amount;
++    END IF;
++   END IF;
++ 
+   -- Calculate taxes
+   IF(UPDATING OR DELETING) THEN
+     v_oldLine:= COALESCE(:old.LineNetAmt,0) + COALESCE(:old.FreightAmt,0) + COALESCE(:old.ChargeAmt,0);
+   END IF;  
+   IF (INSERTING OR UPDATING) THEN
+-    DELETE FROM C_ORDERLINETAX WHERE C_ORDERLINE_ID = :new.C_OrderLine_ID;
+     v_newLineNetAmt := COALESCE(:new.LineNetAmt,0) + COALESCE(:new.FreightAmt,0) + COALESCE(:new.ChargeAmt,0);
+     v_newLineAlternate := COALESCE(:new.TaxBaseAmt,0) + COALESCE(:new.FreightAmt,0) + COALESCE(:new.ChargeAmt,0);
+-    SELECT BaseAmount INTO v_BaseAmount
+-    FROM C_TAX
+-    WHERE C_TAX_ID = :new.C_Tax_ID;
+-    C_ORDERLINETAX_INSERT(:new.AD_Org_ID, :new.C_Order_ID, :new.C_OrderLine_ID, :new.UpdatedBy, :new.C_Tax_ID, :new.C_Tax_ID, v_newLineNetAmt, v_newLineAlternate, v_Prec);
+-    IF (v_istaxincluded = 'Y') THEN
+-      C_ORDERLINETAX_ROUNDING(:new.C_OrderLine_ID, :new.line_gross_amount, v_newLineNetAmt);
++
++    IF (UPDATING) THEN
++      v_oldLineAlternate := COALESCE(:old.TaxBaseAmt,0) + COALESCE(:old.FreightAmt,0) + COALESCE(:old.ChargeAmt,0);
++      IF (:new.AD_Org_ID <> :old.AD_Org_ID OR :new.C_Tax_ID <> :old.C_Tax_ID OR
++          v_newLineNetAmt <> v_oldLine OR v_newLineAlternate <> v_oldLineAlternate OR
++          :new.line_gross_amount <> :old.line_gross_amount) THEN
++        DELETE FROM C_ORDERLINETAX WHERE C_ORDERLINE_ID = :new.C_OrderLine_ID;
++        v_create := 'Y';
++      ELSE
++        v_create := 'N';
++      END IF;
+     END IF;
+-    -- Get Total Tax Amt
+-    SELECT SUM(TaxAmt) INTO v_taxAmt
+-    FROM C_OrderTax
+-    WHERE C_Order_ID=:new.C_Order_ID;
+-    -- DBMS_OUTPUT.PUT_LINE('TaxAmt = ' || v_taxAmt);
+-    -- Update Header
+-    UPDATE C_Order
+-    SET TotalLines = TotalLines - v_oldLine + v_newLineNetAmt,
+-        GrandTotal = CASE v_istaxincluded
++
++    IF (v_create = 'Y') THEN
++      C_ORDERLINETAX_INSERT(:new.AD_Org_ID, :new.C_Order_ID, :new.C_OrderLine_ID, :new.UpdatedBy, :new.C_Tax_ID, :new.C_Tax_ID, v_newLineNetAmt, v_newLineAlternate, v_Prec);
++      IF (v_istaxincluded = 'Y') THEN
++        C_ORDERLINETAX_ROUNDING(:new.C_OrderLine_ID, :new.line_gross_amount, v_newLineNetAmt);
++      END IF;
++      -- Get Total Tax Amt
++      SELECT SUM(TaxAmt) INTO v_taxAmt
++      FROM C_OrderTax
++      WHERE C_Order_ID=:new.C_Order_ID;
++      -- DBMS_OUTPUT.PUT_LINE('TaxAmt = ' || v_taxAmt);
++      -- Update Header
++      UPDATE C_Order
++      SET TotalLines = TotalLines - v_oldLine + v_newLineNetAmt,
++          GrandTotal = CASE v_istaxincluded
+                        WHEN 'Y' THEN grandtotal - v_oldgrossamt + v_newgrossamt
+                        ELSE TotalLines - v_oldLine + v_newLineNetAmt + COALESCE(v_taxAmt, 0)
+-                     END
+-    --  Updated = SysDate -- Don't update as otherwise it does not save changes
+-    WHERE C_Order_ID = :new.C_Order_ID;
++                       END
++      WHERE C_Order_ID = :new.C_Order_ID;
++    END IF;
+   ELSE -- DELETING
+     SELECT SUM(TaxAmt) INTO v_taxAmt
+     FROM C_OrderTax
+@@ -128,7 +128,6 @@
+                        WHEN 'Y' THEN grandtotal - v_oldgrossamt
+                        ELSE TotalLines - v_oldLine + v_newLineNetAmt + COALESCE(v_taxAmt, 0)
+                      END
+-    --  Updated = SysDate -- Don't update as otherwise it does not save changes
+     WHERE C_Order_ID=:old.C_Order_ID;
+   END IF;
+   IF (v_istaxincluded = 'Y') THEN
+diff --git a/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml b/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
+--- a/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
++++ b/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
+@@ -23,6 +23,8 @@
+   v_releasedqtydiff NUMBER:=0;
+   v_reservation_id      VARCHAR2(32);
+   v_resstatus       VARCHAR2(60);
++  v_prd_name       VARCHAR2(60);
++  
+ BEGIN
+   IF (AD_isTriggerEnabled()='N') THEN
+     RETURN;
+@@ -33,7 +35,8 @@
+     v_releasedqtydiff := COALESCE(:NEW.releasedqty, 0);
+     v_reservation_id := :NEW.m_reservation_id;
+     IF (:NEW.releasedqty > :NEW.quantity) THEN
+-      RAISE_APPLICATION_ERROR(-20000, '@CannotReleasedMoreReserved@');
++    Select name into v_prd_name from m_product where m_product_id in (select m_product_id from m_reservation where m_reservation_id=v_reservation_id);
++      RAISE NO_DATA_FOUND||v_prd_name;
+     END IF;
+   END IF;
+ 
+@@ -52,10 +55,10 @@
+     END IF;
+   END IF;
+ 
+-  UPDATE m_reservation
++  /*UPDATE m_reservation
+   SET reservedqty = COALESCE(reservedqty, 0) + v_reservedqtydiff,
+       releasedqty = COALESCE(releasedqty, 0) + v_releasedqtydiff
+-  WHERE m_reservation_id = v_reservation_id;
++  WHERE m_reservation_id = v_reservation_id;*/
+ END M_RESERVATION_STOCK_TRG
+ ]]></body>
+     </trigger>
+diff --git a/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml b/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml
+--- a/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml
++++ b/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml
+@@ -35,7 +35,7 @@
+   END IF;
+ 
+   IF (INSERTING) THEN
+-    IF (:NEW.movementqty < 0 AND :NEW.m_product_uom_id IS NULL) THEN
++    IF (:NEW.movementqty < 0 AND :NEW.m_product_uom_id IS NULL AND :NEW.m_inventoryline_id is null) THEN
+       -- Check reservations. Reserved stock must be released before inserting the transacion.
+       SELECT count(1) INTO v_count
+       FROM dual
+@@ -64,7 +64,7 @@
+           AND rs.m_locator_id = :NEW.m_locator_id
+         GROUP BY sd.qtyonhand, sd.m_storage_detail_id;
+         IF (v_onhand - v_reserved < ABS(:NEW.movementqty) AND v_reserved > 0) THEN
+-	  SELECT value
++	  SELECT name
+             INTO v_product_value
+           FROM M_Product
+           WHERE M_Product_ID = :NEW.m_product_id;

@@ -1,0 +1,102 @@
+
+# HG changeset patch
+# User Augusto Mauch <augusto.mauch@openbravo.com>
+# Date 1411125076 -7200
+# Node ID d93c32f374f9514feb6e985e8ce8bee8d210af54
+# Parent  c6301654f7cff8e8e23abb63c09b43df8c57779e
+Fixes issue 27621: Button works after having connectivity problems
+
+The problem was that there was in place a mechanism to prevent accidentally opening a process twice, that was not working properly if the button was clicked while having network conectivity problems. In that case a flag (button.opening) was being set to true when the button was clicked, but was never set to false, so the next time the button was clicked the mechanism thought that it was still being opened and canceled all subsequent openings.
+
+To fix this, a new parameter, errorCallback, has been added to the OB.RemoteCallManager.call function. This function, if defined, will be executed when the call returns with a status error.
+
+diff -r 1540a528428f -r 4fb0b16e03c5 modules/org.openbravo.client.application/web/org.openbravo.client.application/js/main/ob-standard-view.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/main/ob-standard-view.js	Mon Dec 01 12:00:07 2014 +0530
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/main/ob-standard-view.js	Mon Dec 01 12:10:52 2014 +0530
+@@ -2588,7 +2588,8 @@
+     return null;
+   },
+ 
+-  setContextInfo: function (sessionProperties, callbackFunction, forced) {
++  // if defined, the errorCallbackFunction will be executed if the FIC call returns with an error status (i.e. connectivity error)
++  setContextInfo: function (sessionProperties, callbackFunction, forced, errorCallbackFunction) {
+     var newCallback, me = this,
+         gridVisibleProperties = [],
+         len, i, originalID;
+@@ -2645,7 +2646,7 @@
+       TAB_ID: this.tabId,
+       PARENT_ID: this.getParentId(),
+       ROW_ID: this.viewGrid.getSelectedRecord() ? this.viewGrid.getSelectedRecord().id : this.getCurrentValues().id
+-    }, newCallback);
++    }, newCallback, null, errorCallbackFunction);
+ 
+   },
+ 
+diff -r 1540a528428f -r 4fb0b16e03c5 modules/org.openbravo.client.application/web/org.openbravo.client.application/js/toolbar/ob-action-button.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/toolbar/ob-action-button.js	Mon Dec 01 12:00:07 2014 +0530
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/toolbar/ob-action-button.js	Mon Dec 01 12:10:52 2014 +0530
+@@ -60,7 +60,7 @@
+         me = this,
+         standardWindow = this.view.standardWindow,
+         autosaveButton = this.autosave,
+-        param, allProperties, sessionProperties, callbackFunction, popupParams;
++        param, allProperties, sessionProperties, callbackFunction, popupParams, errorCallback;
+     //Modified check from 'rowNum to 'rowNum ! = null' to handle case where rowNum is 0.
+     if (rowNum !== null && !theView.viewGrid.getSelectedRecord()) {
+       // Current selection was lost, restore it
+@@ -102,7 +102,12 @@
+ 
+       if (!me.opening) {
+         me.opening = true; // To avoid button could be clicked twice
+-        theView.setContextInfo(sessionProperties, callbackFunction, true);
++        // prevent blocking the button by setting me.opening to false if there is a problem in the request done in theView.setContextInfo 
++        errorCallback = function () {
++          me.opening = false;
++        };
++        theView.setContextInfo(sessionProperties, callbackFunction, true, errorCallback);
++
+       }
+       return;
+     }
+diff -r 1540a528428f -r 4fb0b16e03c5 modules/org.openbravo.client.application/web/org.openbravo.client.application/js/utilities/ob-remote-call-manager.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/utilities/ob-remote-call-manager.js	Mon Dec 01 12:00:07 2014 +0530
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/utilities/ob-remote-call-manager.js	Mon Dec 01 12:10:52 2014 +0530
+@@ -57,8 +57,9 @@
+     // result.
+     // * {{{callerContext}}}: a context object which is available
+     // (as rpcRequest.clientContext) when the callback gets called
++    // * {{{errorCallback}}}: a function that is executed when the call returns with an error status
+     //
+-    call: function (actionName, data, requestParams, callback, callerContext) {
++    call: function (actionName, data, requestParams, callback, callerContext, errorCallback) {
+ 
+       var requestParameters = {};
+       ISC.addProperties(requestParameters, requestParams);
+@@ -72,6 +73,9 @@
+ 
+       rpcRequest.actionURL = OB.Application.contextUrl + 'org.openbravo.client.kernel';
+       rpcRequest.callback = callback;
++      if (isc.isA.Function(errorCallback)) {
++        rpcRequest.errorCallback = errorCallback;
++      }
+       if (data) {
+         rpcRequest.data = ISC.JSON.encode(data);
+         rpcRequest.httpMethod = 'POST';
+diff -r 1540a528428f -r 4fb0b16e03c5 modules/org.openbravo.userinterface.smartclient/web/org.openbravo.userinterface.smartclient/js/ob-smartclient.js
+--- a/modules/org.openbravo.userinterface.smartclient/web/org.openbravo.userinterface.smartclient/js/ob-smartclient.js	Mon Dec 01 12:00:07 2014 +0530
++++ b/modules/org.openbravo.userinterface.smartclient/web/org.openbravo.userinterface.smartclient/js/ob-smartclient.js	Mon Dec 01 12:10:52 2014 +0530
+@@ -768,6 +768,14 @@
+     if (!request.willHandleError) {
+       isc.RPCManager.handleError(response, request);
+     }
++  },
++  _originalEvalResult: isc.RPCManager.evalResult,
++  evalResult: function (request, response, results) {
++	// if the response contains an error status, call the errorCallback
++    if (response.status !== isc.RPCResponse.STATUS_SUCCESS && isc.isA.Function(request.errorCallback)) {
++      request.errorCallback(request, response);
++    }
++    return this._originalEvalResult(request, response, results);
+   }
+ });
+ 

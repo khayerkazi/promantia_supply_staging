@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ShipmentFIle" pageWidth="802" pageHeight="555" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.export.xls.one.page.per.sheet" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.max.rows.per.sheet" value="60000"/>
+	<parameter name="REPORT_TITLE" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="datefrom" class="java.util.Date"/>
+	<parameter name="dateto" class="java.util.Date"/>
+	<parameter name="adOrg" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_ORG" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{adOrg} == null || $P{adOrg}.equals("")) ? " AND  o.ad_org_id like '%'" : " AND  o.ad_org_id IN "+ $P{adOrg}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_DATEFROM" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{datefrom} == null || $P{datefrom}.equals("")) ? "" : "AND pl.documentdate >= TO_DATE('" + new java.sql.Date($P{datefrom}.getTime()).toString() + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_DATETO" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{dateto} == null || $P{dateto}.equals("")) ? "" : "AND pl.documentdate < TO_DATE('" + new java.sql.Date($P{dateto}.getTime()).toString() + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select o.documentno as docno,p.name as itemcode,CL_Storedept.name as Storedept,
+ 		ol.EM_Sw_Confirmedqty as qty_requested,
+ 		sum(inl.movementqty) as qty_shipped,ad_org.name as store
+
+	from obwpl_pickinglist pl
+    join ad_user on ad_user.ad_user_id = pl.updatedby
+    join m_inoutline inl on inl.em_obwpl_pickinglist_id = pl.obwpl_pickinglist_id
+    join c_orderline ol on ol.c_orderline_id = inl.c_orderline_id
+    join c_order on c_order.c_order_id = ol.c_order_id
+    join c_order o on o.documentno = c_order.documentno
+    join ad_org on ad_org.ad_org_id = o.ad_org_id
+    join CL_Storedept on CL_Storedept.CL_Storedept_id = o.EM_Cl_Storedept_ID
+    join m_product p on p.m_product_id = inl.m_product_id
+    where inl.updated > pl.documentdate
+    and o.issotrx='N'
+    and ad_org.em_sw_isstore='Y'
+    
+    $P!{AUX_DATEFROM}
+    $P!{AUX_DATETO}
+    $P!{AUX_ORG}
+
+
+	group by o.documentno,p.name,
+	pl.em_sw_status,ol.EM_Sw_Confirmedqty,CL_Storedept.name,ad_org.name
+
+	order by o.documentno,p.name,pl.em_sw_status,ol.EM_Sw_Confirmedqty,CL_Storedept.name,ad_org.name]]>
+	</queryString>
+	<field name="docno" class="java.lang.String"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="qty_requested" class="java.math.BigDecimal"/>
+	<field name="qty_shipped" class="java.math.BigDecimal"/>
+	<field name="storedept" class="java.lang.String"/>
+	<field name="store" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="30">
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Shipment File Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="70" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Document No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="70" y="0" width="60" height="25" isPrintInFirstWholeBand="true"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="210" y="0" width="80" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty Requested]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="290" y="0" width="80" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty Shipped]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="0" width="80" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="370" y="0" width="60" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store	]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="70" height="25"/>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{docno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="70" y="0" width="60" height="25"/>
+				<box leftPadding="0">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="290" y="0" width="80" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty_shipped}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="210" y="0" width="80" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty_requested}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="130" y="0" width="80" height="25"/>
+				<box leftPadding="0">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{storedept}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="370" y="0" width="60" height="25"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{store}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="30">
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="30">
+					<printWhenExpression><![CDATA[$V{COLUMN_COUNT}==0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[No Stock Found For Selected filters]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

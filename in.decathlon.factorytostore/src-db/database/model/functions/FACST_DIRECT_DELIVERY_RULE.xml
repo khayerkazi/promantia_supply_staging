@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION FACST_DIRECT_DELIVERY_RULE">
+    <function name="FACST_DIRECT_DELIVERY_RULE" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_warehouse_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* Proposes stock based on the following critiria:
+*  - Ordered using FIFO based on Attribute creation date
+*  - Grouped by Attibute (box)
+*  - Only propose those boxes that have the same or more quantity
+*    available than the PCB quantity
+************************************************************************/
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+
+  TYPE RECORD IS REF CURSOR;
+  Cur_Parameter RECORD;
+  Cur_MStock    RECORD;
+  Cur_Stock RECORD;
+
+  v_Count NUMBER:=1;
+  v_quantity NUMBER;
+  v_PCB NUMBER;
+  v_ProductID   VARCHAR2(32);
+  v_ProductName M_Product.NAME%TYPE;
+  v_Reservation_ID VARCHAR2(32);
+  v_Warehouse_ID VARCHAR2(32);
+  v_uomid VARCHAR2(32);
+  v_productuomid VARCHAR2(32);
+  v_attributesetinstanceid VARCHAR2(32);
+  v_locatorid VARCHAR2(32);
+  v_PriorityWarehouseID VARCHAR2(32);
+  v_ClientID VARCHAR2(32);
+  v_OrgID VARCHAR2(32);
+  v_AD_User_ID VARCHAR2(32);
+  v_has_reservation_parameter VARCHAR2(1);
+  
+BEGIN
+
+raise exception 'inside facst_direct_delivery_rule';
+  v_ResultStr:='ReadingParameters';
+  v_has_reservation_parameter:='N';
+  FOR Cur_Parameter IN (
+      SELECT i.record_id, p.parametername, p.p_string, p.p_number, p.p_date, i.createdby AS ad_user_id
+      FROM ad_pinstance i
+      LEFT JOIN ad_pinstance_para p ON i.ad_pinstance_id=p.ad_pinstance_id
+      WHERE i.ad_pinstance_id=pinstance_id
+      ORDER BY p.seqno
+  ) LOOP
+
+    IF (Cur_Parameter.ParameterName = 'Quantity') THEN
+      v_Quantity:=Cur_Parameter.P_Number;
+      DBMS_OUTPUT.PUT_LINE(' Quantity=' || v_Quantity);
+    ELSIF (Cur_Parameter.ParameterName = 'M_Product_ID') THEN
+      v_ProductID:=Cur_Parameter.P_String;
+      DBMS_OUTPUT.PUT_LINE(' M_Product_ID=' || v_ProductID);
+    ELSIF (Cur_Parameter.ParameterName = 'M_Reservation_ID') THEN
+      v_Reservation_ID:=Cur_Parameter.P_String;
+      DBMS_OUTPUT.PUT_LINE(' M_Reservation_ID=' || v_Reservation_ID);
+      v_has_reservation_parameter:='Y';
+    ELSIF (Cur_Parameter.ParameterName = 'M_Warehouse_ID') THEN
+      v_Warehouse_ID:=Cur_Parameter.P_String;
+      DBMS_OUTPUT.PUT_LINE(' M_Warehouse_ID=' || v_Warehouse_ID);
+    ELSIF (Cur_Parameter.ParameterName = 'AD_Org_ID') THEN
+      v_OrgID:=Cur_Parameter.P_String;
+      DBMS_OUTPUT.PUT_LINE(' AD_Org_ID=' || v_OrgID);
+    ELSIF (Cur_Parameter.ParameterName = 'AD_Client_ID') THEN
+      v_ClientID:=Cur_Parameter.P_String;
+      DBMS_OUTPUT.PUT_LINE(' AD_Client_ID=' || v_ClientID);
+    ELSE
+      DBMS_OUTPUT.PUT_LINE('*** Unknown Parameter=' || Cur_Parameter.ParameterName) ;
+    END IF;
+  END LOOP; -- Get Parameter
+  
+  SELECT em_cl_pcb_qty
+  INTO v_PCB
+  FROM m_product
+  WHERE m_product_id = v_ProductID;
+  
+  v_AD_User_ID := '0';
+  
+IF (v_Warehouse_ID IS NULL) THEN
+    IF (v_Reservation_ID IS NULL) THEN
+      SELECT record_id
+      INTO v_Reservation_ID
+      FROM ad_pinstance
+      WHERE ad_pinstance_id = pinstance_id;
+    END IF;
+  
+    SELECT o.m_warehouse_id, o.ad_org_id, o.ad_client_id, o.createdby
+    INTO v_Warehouse_ID, v_OrgID, v_ClientID, v_AD_User_ID
+    FROM m_reservation r
+    JOIN c_orderline ol ON (ol.c_orderline_id = r.c_orderline_id)
+    JOIN c_order o ON (ol.c_order_id = o.c_order_id)
+    WHERE m_reservation_id = v_Reservation_ID;
+    
+    IF v_Warehouse_ID IS NULL THEN
+      RAISE_APPLICATION_ERROR(-20000, '@DWHR_Parameters_Error@') ;
+    END IF;
+  END IF;
+
+  DELETE FROM m_stock_proposed ms
+  WHERE ad_pinstance_id = pinstance_id;
+
+  -- Insert Values from Storage Detail
+  FOR Cur_Stock  IN (
+    select availableStock.m_storage_detail_id, 
+          case when (sum(COALESCE(qty,0) - COALESCE(reservedqty,0)) > 0 )
+            then sum(COALESCE(qty,0) - COALESCE(reservedqty,0))
+            else 0
+          end as qty,
+          sum(QtyOrder) as QtyOrder,
+          sum(qty) as origqty,
+          sum(reservedqty) as reservedqty
+    from
+        (select sd.m_storage_detail_id, sd.created, sd.m_product_id, sd.m_locator_id, sd.m_attributesetinstance_id, sd.qtyonhand as qty, sd.qtyorderonhand as QtyOrder
+         from m_storage_detail sd
+         join m_locator l on (sd.m_locator_id = l.m_locator_id)
+         where sd.m_product_id = v_ProductID
+           and l.m_warehouse_id = v_Warehouse_ID
+           AND (l.em_obwhs_type IS NULL OR l.em_obwhs_type <> 'OUT')) availableStock
+    left join 
+        (select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, sum(rs.quantity - rs.releasedqty) as reservedqty
+         from m_reservation r
+         join m_reservation_stock rs on (r.m_reservation_id = rs.m_reservation_id)
+         join m_locator l on (rs.m_locator_id = l.m_locator_id)
+         where r.m_product_id = v_ProductID
+           and l.m_warehouse_id = v_Warehouse_ID
+           AND r.res_status NOT IN ('CL', 'DR')
+           AND ((v_has_reservation_parameter = 'Y' AND rs.isallocated = 'Y')
+                OR v_has_reservation_parameter = 'N')
+           AND (l.em_obwhs_type IS NULL OR l.em_obwhs_type <> 'OUT')
+         group by r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id) reservedStock 
+      on availableStock.m_product_id = reservedStock.m_product_id 
+      and availableStock.m_attributesetinstance_id=reservedStock.m_attributesetinstance_id
+      and availableStock.m_locator_id=reservedStock.m_locator_id
+    left join m_attributesetinstance asi on (availableStock.m_attributesetinstance_id = asi.m_attributesetinstance_id)
+    left join m_locator l on (availableStock.m_locator_id = l.m_locator_id)
+    group by availableStock.m_product_id, availableStock.m_locator_id, availableStock.m_attributesetinstance_id, 
+      asi.created, l.priorityno, availableStock.created, availableStock.m_storage_detail_id
+    order by asi.created, l.priorityno, availableStock.created  
+  ) LOOP
+    IF (cur_stock.qty > 0) THEN
+      INSERT INTO m_stock_proposed (
+          m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
+          created , createdby, updated, updatedby,
+          ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
+          isfinal
+      ) VALUES (
+          get_uuid(), v_ClientID, v_OrgID, 'Y',
+          now(), v_AD_User_ID, now(), v_AD_User_ID,
+          pinstance_id, v_Count, Cur_Stock.M_STORAGE_DETAIL_ID, Cur_Stock.Qty, Cur_Stock.QtyOrder,
+          'Y'
+      );
+      v_Count:=v_Count+1;
+    END IF;
+  END LOOP;
+
+EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERRROR=' || SQLERRM;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr, 'N');
+  RETURN;
+END FACST_DIRECT_DELIVERY_RULE
+]]></body>
+    </function>
+  </database>

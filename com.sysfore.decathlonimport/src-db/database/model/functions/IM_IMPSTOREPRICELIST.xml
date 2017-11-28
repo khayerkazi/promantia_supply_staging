@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPSTOREPRICELIST">
+    <function name="IM_IMPSTOREPRICELIST" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[storeUpdateCursor RECORD;
+ 
+ --catalogCreateCursor RECORD;
+
+  v_errorNotice VARCHAR(2000) := '';
+  v_validated NUMERIC:=0;
+  v_updatedCounter NUMERIC:=0;
+  v_insertedCounter NUMERIC:=0; 
+  v_count NUMERIC:=0;
+  v_itemcode_id VARCHAR(32):='';
+  v_pricelistversion_id VARCHAR(32):='';
+  v_productprice_id VARCHAR(32):=''; 
+  v_org_id CHARACTER(40) :=null;
+
+  --v_mrpPrice numeric:=0;
+  --v_cessionPrice numeric:=0;
+  v_unitPrice NUMERIC:=0;
+  v_unitQty NUMERIC:=0;
+  v_uePrice NUMERIC:=0;
+  v_boxQty NUMERIC:=0;
+  v_pcbPrice NUMERIC:=0;  
+  v_userID VARCHAR(32):='';
+   v_orgID VARCHAR(32):='';
+  v_box VARCHAR(60) ;
+  v_ue VARCHAR(60) ;
+  v_id VARCHAR(60) ;
+BEGIN
+v_userID=user_id;
+v_orgID=org_id;
+select lvlpr_range_id into v_box from lvlpr_range where name = 'BOX';
+select lvlpr_range_id into v_ue from lvlpr_range where name = 'LOT';
+
+ Select count(*) INTO v_validated from im_storeprice where validated='N' and createdby=v_userID and ad_org_id=v_orgID;
+ 
+ IF v_validated != 0 THEN
+  
+ 	RAISE EXCEPTION '%', 'Validation is not Completed' ; --OBTG:-20000--
+    
+ END IF;
+ 
+  
+  FOR storeUpdateCursor IN (SELECT im_storeprice_id, ad_client_id, ad_org_id, isactive, created, 
+       createdby, updated, updatedby, pricelistversion, itemcode, 
+       unitprice, ueprice,  pcbprice, im_errormsg, validateimport, 
+       validated, processing, boxqty, unitqty FROM im_storeprice where createdby=v_userID and ad_org_id=v_orgID)
+  LOOP 
+  
+	select m_product_id INTO v_itemcode_id from m_product where name = storeUpdateCursor.itemcode;
+
+	select m_pricelist_version_id INTO v_pricelistversion_id from m_pricelist_version where lower(name) = lower(storeUpdateCursor.pricelistversion);
+
+	SELECT COUNT(*) AS total INTO v_count FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+
+	SELECT ad_org_id INTO v_org_id FROM m_pricelist_version where name = storeUpdateCursor.pricelistversion;
+	IF v_org_id IS NULL THEN
+		v_org_id := storeUpdateCursor.ad_org_id;
+	END IF; 
+
+
+  IF (v_count = 0 ) THEN
+
+	IF(storeUpdateCursor.unitqty > 1) THEN
+	v_id=get_uuid();
+	INSERT INTO m_productprice(
+		m_productprice_id, m_pricelist_version_id, m_product_id, ad_client_id, 
+		ad_org_id, isactive, created, createdby, updated, updatedby, 
+		em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice, em_cl_followcatalog, em_cl_suqty,em_cl_sboxqty,pricestd,pricelist,algorithm  
+		)
+	VALUES (v_id, v_pricelistversion_id, v_itemcode_id, storeUpdateCursor.ad_client_id, 
+		v_org_id, storeUpdateCursor.isactive, storeUpdateCursor.created, storeUpdateCursor.createdby, storeUpdateCursor.updated, storeUpdateCursor.updatedby, 
+		coalesce(storeUpdateCursor.unitprice,0), coalesce(storeUpdateCursor.ueprice,0), 
+		coalesce(storeUpdateCursor.pcbprice,0),'N', coalesce(storeUpdateCursor.unitqty,0), coalesce(storeUpdateCursor.boxqty,0),coalesce(storeUpdateCursor.unitprice,0),coalesce(storeUpdateCursor.unitprice,0),'SLP_algorithm');
+
+	INSERT INTO lvlpr_levelproductprice (lvlpr_levelproductprice_id,ad_client_id,ad_org_id,created,createdby,updated,updatedby,price,qty,m_productprice_id,lvlpr_range_id) (select get_uuid(),storeUpdateCursor.ad_client_id,'0',now(),'100',now(),'100', em_cl_ccueprice,storeUpdateCursor.unitqty,v_id,v_ue);
+
+	ELSEIF(storeUpdateCursor.boxqty > 1) THEN
+	INSERT INTO m_productprice(
+		m_productprice_id, m_pricelist_version_id, m_product_id, ad_client_id, 
+		ad_org_id, isactive, created, createdby, updated, updatedby, 
+		em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice, em_cl_followcatalog, em_cl_suqty,em_cl_sboxqty,pricestd,pricelist,algorithm  
+		)
+	VALUES (get_uuid(), v_pricelistversion_id, v_itemcode_id, storeUpdateCursor.ad_client_id, 
+		v_org_id, storeUpdateCursor.isactive, storeUpdateCursor.created, storeUpdateCursor.createdby, storeUpdateCursor.updated, storeUpdateCursor.updatedby, 
+		coalesce(storeUpdateCursor.unitprice,0), coalesce(storeUpdateCursor.ueprice,0), 
+		coalesce(storeUpdateCursor.pcbprice,0),'N', coalesce(storeUpdateCursor.unitqty,0), coalesce(storeUpdateCursor.boxqty,0),coalesce(storeUpdateCursor.unitprice,0),coalesce(storeUpdateCursor.unitprice,0),'SLP_algorithm');
+
+	INSERT INTO lvlpr_levelproductprice (lvlpr_levelproductprice_id,ad_client_id,ad_org_id,created,createdby,updated,updatedby,price,qty,m_productprice_id,lvlpr_range_id) (select get_uuid(),storeUpdateCursor.ad_client_id,'0',now(),'100',now(),'100', em_cl_ccueprice,storeUpdateCursor.qty,v_id,v_box);
+
+
+	ELSE
+	INSERT INTO m_productprice(
+		m_productprice_id, m_pricelist_version_id, m_product_id, ad_client_id, 
+		ad_org_id, isactive, created, createdby, updated, updatedby, 
+		em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice, em_cl_followcatalog, em_cl_suqty,em_cl_sboxqty,pricestd,pricelist  
+		)
+	VALUES (get_uuid(), v_pricelistversion_id, v_itemcode_id, storeUpdateCursor.ad_client_id, 
+		v_org_id, storeUpdateCursor.isactive, storeUpdateCursor.created, storeUpdateCursor.createdby, storeUpdateCursor.updated, storeUpdateCursor.updatedby, 
+		coalesce(storeUpdateCursor.unitprice,0), coalesce(storeUpdateCursor.ueprice,0), 
+		coalesce(storeUpdateCursor.pcbprice,0),'N', coalesce(storeUpdateCursor.unitqty,0), coalesce(storeUpdateCursor.boxqty,0),coalesce(storeUpdateCursor.unitprice,0),coalesce(storeUpdateCursor.unitprice,0));
+	END IF;
+	
+	ELSE
+
+	SELECT m_productprice_id, em_cl_mrpprice, 
+		em_cl_cessionprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice, em_cl_suqty, em_cl_sboxqty INTO  
+		v_productprice_id,v_unitPrice,v_uePrice,v_pcbPrice,v_unitQty,v_boxQty      
+	FROM m_productprice WHERE m_product_id=v_itemcode_id and m_pricelist_version_id=v_pricelistversion_id;
+  
+	IF(storeUpdateCursor.unitprice != 0 ) THEN
+		v_unitPrice :=storeUpdateCursor.unitprice;
+	END IF;
+
+	IF(storeUpdateCursor.ueprice != 0 ) THEN
+		v_uePrice :=storeUpdateCursor.ueprice;
+	END IF;
+
+	IF(storeUpdateCursor.pcbprice != 0 ) THEN
+		v_pcbPrice :=storeUpdateCursor.pcbprice;
+	END IF;
+
+	IF(storeUpdateCursor.unitqty != 0 ) THEN
+		v_unitQty :=storeUpdateCursor.unitqty;
+	END IF;
+
+	IF(storeUpdateCursor.boxqty != 0 ) THEN
+		v_boxQty :=storeUpdateCursor.boxqty;
+	END IF;
+
+	IF(v_unitQty > 1) THEN
+	UPDATE m_productprice
+		SET updated=storeUpdateCursor.updated, updatedby=storeUpdateCursor.updatedby, 
+			em_cl_ccunitprice=v_unitPrice, 
+			em_cl_ccueprice=v_uePrice, em_cl_ccpcbprice=v_pcbPrice,em_cl_followcatalog='N', em_cl_suqty=v_unitQty, em_cl_sboxqty=v_boxQty,pricestd=v_unitPrice,pricelist=v_unitPrice,algorithm='SLP_algorithm'
+	WHERE m_productprice_id=v_productprice_id;
+
+	update lvlpr_levelproductprice set qty = v_unitQty, price = v_uePrice where m_productprice_id = v_productprice_id and lvlpr_range_id = v_ue;
+
+	ELSEIF(v_boxQty > 1) THEN
+	UPDATE m_productprice
+		SET updated=storeUpdateCursor.updated, updatedby=storeUpdateCursor.updatedby, 
+			em_cl_ccunitprice=v_unitPrice, 
+			em_cl_ccueprice=v_uePrice, em_cl_ccpcbprice=v_pcbPrice,em_cl_followcatalog='N', em_cl_suqty=v_unitQty, em_cl_sboxqty=v_boxQty,pricestd=v_unitPrice,pricelist=v_unitPrice,algorithm='SLP_algorithm'
+	WHERE m_productprice_id=v_productprice_id;
+
+	update lvlpr_levelproductprice set qty = v_boxQty, price = v_pcbPrice where m_productprice_id = v_productprice_id and lvlpr_range_id = v_box;
+	ELSE
+	UPDATE m_productprice
+		SET updated=storeUpdateCursor.updated, updatedby=storeUpdateCursor.updatedby, 
+			em_cl_ccunitprice=v_unitPrice, 
+			em_cl_ccueprice=v_uePrice, em_cl_ccpcbprice=v_pcbPrice,em_cl_followcatalog='N', em_cl_suqty=v_unitQty, em_cl_sboxqty=v_boxQty,pricestd=v_unitPrice,pricelist=v_unitPrice
+	WHERE m_productprice_id=v_productprice_id;
+	END IF;
+  END IF; 
+   
+	delete from im_storeprice where im_storeprice_id = storeUpdateCursor.im_storeprice_id and createdby=v_userID and ad_org_id=v_orgID;                               
+		v_updatedCounter := v_updatedCounter+1 ; 
+	
+	v_unitPrice :=0;
+	v_uePrice :=0;
+	v_pcbPrice :=0;
+	v_unitQty :=0;
+	v_boxQty :=0;
+   END LOOP;
+	v_updatedCounter := v_updatedCounter - v_insertedCounter;
+RETURN 'Successfully Inserted '||v_insertedCounter|| ' and Successfully updated ' || v_updatedCounter || ' items.' ;
+END IM_IMPSTOREPRICELIST
+]]></body>
+    </function>
+  </database>
+

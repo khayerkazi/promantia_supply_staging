@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION INGSTST_GST_RELATEDFIELDS">
+    <function name="INGSTST_GST_RELATEDFIELDS" type="NULL">
+      <parameter name="p_ep_instance" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_record_id C_ORDER.C_ORDER_ID%TYPE;
+p_invoice_id C_INVOICE.C_INVOICE_ID%TYPE;
+v_em_ingstst_bp_gstmaster_id VARCHAR(32);
+v_em_ingstst_org_gstmaster_id VARCHAR(32);
+v_em_ingstst_supplylocation_id VARCHAR(32);
+v_em_ingstr_etin VARCHAR(15);
+
+TYPE RECORD IS REF CURSOR;
+Cur_Params RECORD;
+Cur_Record  RECORD;
+CUR_COL RECORD;
+BEGIN
+FOR Cur_Params IN (
+    SELECT *
+    FROM ad_ep_instance_para
+    WHERE ad_ep_instance_id = p_ep_instance
+    ) LOOP
+    IF (cur_params.parametername LIKE 'Record_ID') THEN
+      p_record_id := cur_params.p_string;
+    END IF;
+  END LOOP;
+    select co.em_ingstst_org_gstmaster_id, co.em_ingstst_bp_gstmaster_id, co.em_ingstst_supplylocation_id, co.em_ingstst_etin 
+   into v_em_ingstst_org_gstmaster_id, v_em_ingstst_bp_gstmaster_id,v_em_ingstst_supplylocation_id, v_em_ingstr_etin 
+   from c_order co where co.c_order_id = p_record_id;
+    
+  IF (v_em_ingstst_org_gstmaster_id IS NOT NULL OR v_em_ingstst_bp_gstmaster_id IS NOT NULL OR v_em_ingstst_supplylocation_id IS 
+  NOT NULL OR v_em_ingstr_etin IS NOT NULL) 
+  THEN
+   update c_invoice set em_ingstst_org_gstmaster_id = v_em_ingstst_org_gstmaster_id,
+   em_ingstst_bp_gstmaster_id = v_em_ingstst_bp_gstmaster_id,
+   em_ingstst_supplylocation_id = v_em_ingstst_supplylocation_id,
+   em_ingstst_etin = v_em_ingstr_etin
+   where c_order_id = p_record_id;
+     
+   FOR CUR_COL IN
+    (   select col.c_orderline_id, col.em_ingstst_gstproductcode_id from c_orderline col where col.c_order_id = p_record_id
+    )
+  LOOP
+    -- Stocked Items "leaf node"
+    IF(CUR_COL.em_ingstst_gstproductcode_id IS NOT NULL) THEN
+      update c_invoiceline set em_ingstst_gstproductcode_id= CUR_COL.em_ingstst_gstproductcode_id
+      where c_invoiceline.c_orderline_id = CUR_COL.c_orderline_id;
+    END IF;
+  END LOOP; -- BOM
+  
+   
+  END IF;
+END INGSTST_GST_RELATEDFIELDS
+]]></body>
+    </function>
+  </database>

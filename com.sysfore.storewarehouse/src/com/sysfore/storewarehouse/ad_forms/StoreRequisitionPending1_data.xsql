@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2008 Openbravo SLU 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="StoreRequisitionPending1Data" package="com.sysfore.storewarehouse.ad_forms">
+  <SqlClassComment></SqlClassComment>
+ <SqlMethod name="selectline" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+ SELECT SW_SREQLINE.SW_SREQLINE_ID AS ID,SW_SREQUISITION.SW_SREQUISITION_ID,AD_ORG.AD_ORG_ID,AD_ORG.AD_ORG_ID AS ORG,
+ (SELECT M_WAREHOUSE.NAME FROM M_WAREHOUSE WHERE AD_ORG_ID = SW_SREQUISITION.AD_ORG_ID AND lower(NAME) LIKE lower('%Transit%')) AS WAREH, M_WAREHOUSE.NAME AS VALUE, (SW_SREQUISITION.DOCUMENTNO  ||' & ' ||CL_BRAND.NAME) AS DOCUMENTNO,SW_SREQUISITION.REQDATE AS REQDATE,SW_SREQUISITION.AD_CLIENT_ID AS AD_CLIENT_ID,M_WAREHOUSE.M_WAREHOUSE_ID AS WHID,CL_BRAND.NAME AS BRAND_NAME,AD_ORG.NAME AS STORE_NAME,SW_SREQLINE.QTYREQ AS REQ_QTY,M_WAREHOUSE.M_WAREHOUSE_ID, SW_SREQLINE.QTYREC AS QTY_REC,SW_SREQLINE.QTYSHIP AS SHIPPED_QTY, M_PRODUCT.NAME AS PRODUCT_NAME,SW_SREQLINE.CREATEDBY AS AD_USER_ID,M_PRODUCT.EM_CL_MODELNAME AS MODEL_NAME,SW_SREQLINE.QTYREQ AS QTYPHYSICAL,TO_DATE(NOW()) AS DATE,
+M_PRODUCT.EM_CL_SIZE AS SIZE, CL_COLOR.NAME AS COLOR ,M_WAREHOUSE.NAME AS WHNAME,'' AS WH, '' AS DATE_FORMAT
+      FROM SW_SREQUISITION, SW_SREQLINE,CL_BRAND,AD_ORG,M_PRODUCT,CL_COLOR,M_WAREHOUSE
+      WHERE 1=1 
+      AND SW_SREQUISITION.SW_SREQUISITION_ID = SW_SREQLINE.SW_SREQUISITION_ID 
+      AND SW_SREQLINE.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+      AND M_PRODUCT.EM_CL_COLOR_ID = CL_COLOR.CL_COLOR_ID
+      AND SW_SREQLINE.M_WAREHOUSE_ID = M_WAREHOUSE.M_WAREHOUSE_ID
+      AND SW_SREQUISITION.MOVEMENTTYPE = 'SRQ'
+      AND SW_SREQUISITION.DOCSTATUS = 'CO'
+      AND SW_SREQUISITION.REQUISITIONSTATUS = 'AD'
+      AND SW_SREQUISITION.AD_ORG_ID = AD_ORG.AD_ORG_ID
+      AND SW_SREQUISITION.CL_BRAND_ID = CL_BRAND.CL_BRAND_ID
+      ORDER BY DOCUMENTNO
+      ]]></Sql>
+   <Field name="rownum" value="count"/>
+    <!--<Parameter name="adClientId" optional="true" after="1=1">AND SW_SREQUISITION.AD_CLIENT_ID = ?</Parameter> -->
+    <Parameter name="paramBrand" optional="true" after="1=1"> AND CL_BRAND.CL_BRAND_ID = ?</Parameter>
+    <Parameter name="paramOrg" optional="true" after="1=1">AND AD_ORG.AD_ORG_ID = ?</Parameter>
+    <Parameter name="paramDateFrom" optional="true" after="1=1"><![CDATA[ AND SW_SREQUISITION.REQDATE >= TO_DATE(?)]]></Parameter>
+    <Parameter name="paramDateTo" optional="true" after="1=1"><![CDATA[ AND SW_SREQUISITION.REQDATE < TO_DATE(?)]]></Parameter>
+    <Parameter name="paramDocumentNo" optional="true" after="1=1"> AND SW_SREQUISITION.DOCUMENTNO LIKE ?</Parameter>
+
+  </SqlMethod> 
+
+
+ <SqlMethod name="selectline1" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+      SELECT SW_SREQLINE.SW_SREQLINE_ID AS ID,SW_SREQUISITION.SW_SREQUISITION_ID,AD_ORG.AD_ORG_ID,AD_ORG.AD_ORG_ID AS ORG,
+             M_WAREHOUSE.NAME AS VALUE, SW_SREQUISITION.DOCUMENTNO,SW_SREQUISITION.REQDATE AS REQDATE,
+             CL_BRAND.NAME AS BRAND_NAME,AD_ORG.NAME AS STORE_NAME,SW_SREQLINE.QTYREQ AS REQ_QTY, M_WAREHOUSE.M_WAREHOUSE_ID,M_WAREHOUSE.M_WAREHOUSE_ID AS WHID,SW_SREQLINE.QTYREC AS QTY_REC,SW_SREQLINE.QTYSHIP AS SHIPPED_QTY, M_PRODUCT.NAME AS PRODUCT_NAME,
+             M_PRODUCT.EM_CL_MODELNAME AS MODEL_NAME,SW_SREQLINE.QTYSHIP AS QTYPHYSICAL,TO_DATE(NOW()) AS DATE,
+             M_PRODUCT.EM_CL_SIZE AS SIZE, CL_COLOR.NAME AS COLOR ,'' AS WH,M_WAREHOUSE.NAME AS WHNAME
+      FROM SW_SREQUISITION, SW_SREQLINE,CL_BRAND,AD_ORG,M_PRODUCT,CL_COLOR,M_WAREHOUSE
+      WHERE 1=1 
+      AND SW_SREQLINE.SW_SREQUISITION_ID = SW_SREQUISITION.SW_SREQUISITION_ID
+      AND SW_SREQLINE.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+      AND M_PRODUCT.EM_CL_COLOR_ID = CL_COLOR.CL_COLOR_ID
+      AND SW_SREQLINE.M_WAREHOUSE_ID = M_WAREHOUSE.M_WAREHOUSE_ID
+      AND SW_SREQUISITION.MOVEMENTTYPE = 'SRQ'
+      AND SW_SREQUISITION.DOCSTATUS = 'CO'
+      AND SW_SREQUISITION.REQUISITIONSTATUS = 'AD'
+      AND SW_SREQUISITION.AD_ORG_ID = AD_ORG.AD_ORG_ID
+      AND SW_SREQUISITION.CL_BRAND_ID = CL_BRAND.CL_BRAND_ID
+      ORDER BY DOCUMENTNO
+      ]]></Sql>
+   <Field name="rownum" value="count"/>
+    <Parameter name="swSrequisitionId" optional="true" after="1=1"> AND SW_SREQUISITION.SW_SREQUISITION_ID = ?</Parameter>
+  </SqlMethod> 
+
+
+  <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+<SqlMethod name="selectBrand" type="preparedStatement" return="String" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    SELECT NAME FROM CL_BRAND
+    WHERE CL_BRAND_ID = ?
+    </Sql>
+    <Parameter name="brandID"/>
+  </SqlMethod>
+
+<SqlMethod name="selectWarehouse" type="preparedStatement" return="String" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    SELECT VALUE FROM M_WAREHOUSE
+    WHERE M_WAREHOUSE_ID = ?
+    </Sql>
+    <Parameter name="locatorID"/>
+  </SqlMethod>
+
+<!--<SqlMethod name="selectLocator" type="preparedStatement" return="multiple" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    SELECT M_WAREHOUSE_ID,M_WAREHOUSE_ID AS WHID FROM M_WAREHOUSE
+    WHERE lower(NAME) LIKE lower('%Transit%')
+    AND AD_ORG_ID = ?
+    </Sql>
+    <Parameter name="org"/>
+  </SqlMethod>-->
+
+<SqlMethod name="selectDate" type="preparedStatement" return="String" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    SELECT TO_CHAR(NOW(),'DD-MM-YYYY') AS DATE FROM M_LOCATOR
+    WHERE AD_CLIENT_ID = ?
+    </Sql>
+    <Parameter name="adClientId"/>
+  </SqlMethod>
+
+<SqlMethod name="selectOrg" type="preparedStatement" return="String" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    SELECT AD_ORG_ID FROM AD_ORG
+    WHERE AD_CLIENT_ID = ?
+    </Sql>
+    <Parameter name="adClientId"/>
+  </SqlMethod>
+
+  <SqlMethod name="processRequisition" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+       
+       SELECT SW_Srequisition_Post0(?) from Dual
+      ]]>
+    </Sql>
+    <Parameter name="swSrequisitionId"/>
+  </SqlMethod>
+  
+     <SqlMethod name="selectReqLine" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+       
+       SELECT SW_SREQLINE_ID AS ID, M_WAREHOUSE_ID AS WH FROM SW_SREQLINE
+       WHERE SW_SREQUISITION_ID = ?
+      ]]>
+    </Sql>
+    <Parameter name="sw_sreqline_id"/>
+  </SqlMethod>
+  
+  <SqlMethod name="updateLines" type="preparedStatement" return="String">
+        <SqlMethodComment></SqlMethodComment>
+        <Sql>
+            <![CDATA[
+                SELECT sw_sreqline_update2(?,?,?,?,?) from Dual
+            ]]>
+        </Sql>
+        <Parameter name="qtyphysical"/>
+        <Parameter name="whname"/>
+        <Parameter name="adOrgId"/>
+        <Parameter name="id"/>
+        <Parameter name="adUserId"/>
+  </SqlMethod>
+
+  <!--<SqlMethod name="createTransaction" type="preparedStatement" return="String">
+        <SqlMethodComment></SqlMethodComment>
+        <Sql>
+            <![CDATA[
+                SELECT sw_create_transaction(?,?,?,?,?) from Dual
+            ]]>
+        </Sql>
+        <Parameter name="qtyphysical"/>
+        <Parameter name="wh"/>
+        <Parameter name="whname"/>
+        <Parameter name="adOrgId"/>
+        <Parameter name="id"/>
+  </SqlMethod>-->
+
+</SqlClass>

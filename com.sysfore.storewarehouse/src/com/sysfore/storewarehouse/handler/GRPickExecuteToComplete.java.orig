@@ -1,0 +1,134 @@
+package com.sysfore.storewarehouse.handler;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.openbravo.base.exception.OBException;
+import org.openbravo.base.provider.OBProvider;
+import org.openbravo.client.application.process.BaseProcessActionHandler;
+import org.openbravo.dal.core.OBContext;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.erpCommon.utility.OBError;
+import org.openbravo.model.ad.process.ProcessInstance;
+import org.openbravo.model.ad.ui.Process;
+import org.openbravo.model.materialmgmt.transaction.ShipmentInOut;
+
+public class GRPickExecuteToComplete extends BaseProcessActionHandler {
+	Logger logger = Logger.getLogger(this.getClass());
+
+	@Override
+	protected JSONObject doExecute(Map<String, Object> parameters,
+			String content) {
+		JSONObject jsonRequest = new JSONObject();
+		ShipmentInOut receipt = null;
+		OBError result = new OBError();
+		System.out.println("inside pick and execute");
+		String msg = "Process Completed Successfully";
+		OBContext.setAdminMode();
+		try {
+			result.setType("info");
+			jsonRequest = new JSONObject(content);
+			logger.debug(jsonRequest);
+			JSONArray selectedLines = jsonRequest.getJSONArray("_selection");
+
+			if (selectedLines.length() == 0) {
+				throw new OBException("Please select records to complete GRN");
+			}
+			ArrayList<ShipmentInOut> shipmentInOuts = new ArrayList<ShipmentInOut>();
+			for (long i = 0; i < selectedLines.length(); i++) {
+				JSONObject selectedLine = selectedLines.getJSONObject((int) i);
+				final String receiptId = selectedLine.getString("id");
+				receipt = OBDal.getInstance().get(ShipmentInOut.class,
+						receiptId);
+				shipmentInOuts.add(receipt);
+			}
+			completeReceipts(shipmentInOuts);
+			jsonRequest.put("retryExecution", true);
+			JSONArray responseActions = new JSONArray();
+			JSONObject action = new JSONObject();
+			action.put("refreshTheGrid", new JSONObject());
+			responseActions.put(action);
+			jsonRequest.put("responseActions", responseActions);
+			
+			result.setType("Success");
+
+			JSONObject errorMessage = new JSONObject();
+			errorMessage.put("severity", "success");
+			errorMessage.put("text", msg);
+			jsonRequest.put("message", errorMessage);
+		} catch (Exception e) {
+			try {
+				logger.error(e.getMessage(), e);
+				e.printStackTrace();
+				result.setType("Error");
+				result.setMessage(e.getMessage());
+				OBDal.getInstance().rollbackAndClose();
+				e.printStackTrace();
+				JSONObject errorMessage = new JSONObject();
+				errorMessage.put("severity", "error");
+				errorMessage.put("text", e.getMessage());
+				jsonRequest.put("message", errorMessage);
+			} catch (Exception e2) {
+				logger.error(e.getMessage(), e2);
+			}
+		} finally {
+			OBContext.restorePreviousMode();
+			try {
+				jsonRequest.put("retryExecution", true);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		return jsonRequest;
+	}
+
+	private void completeReceipts(ArrayList<ShipmentInOut> shipmentInOuts)
+			throws Exception {
+		for (ShipmentInOut shipmentInOut : shipmentInOuts) {
+			logger.debug("Process going to complete GRN "
+					+ shipmentInOut.getDocumentNo());
+			if (shipmentInOut.getDocumentStatus().equals("DR"))
+				executeProcess(shipmentInOut.getId(), "109",
+						"SELECT * FROM M_InOut_Post0(?)");
+		}
+	}
+
+	public static boolean executeProcess(String currentObjId, String processId,
+			String strQry) throws Exception {
+		boolean flag = false;
+		OBContext.setAdminMode(true);
+		Process process = OBDal.getInstance().get(Process.class, processId);
+		final ProcessInstance pInstance = OBProvider.getInstance().get(
+				ProcessInstance.class);
+
+		pInstance.setProcess(process);
+		pInstance.setRecordID(currentObjId);
+		pInstance.setUserContact(OBContext.getOBContext().getUser());
+		OBDal.getInstance().save(pInstance);
+		try {
+			final Connection connection = OBDal.getInstance().getConnection();
+			final PreparedStatement ps = connection.prepareStatement(strQry);
+			ps.setString(1, pInstance.getId());
+
+			flag = ps.execute();
+			OBDal.getInstance().getSession().refresh(pInstance);
+			if (pInstance.getResult() == 0) {
+				throw new OBException(pInstance.getErrorMsg());
+				
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+		OBContext.setAdminMode(false);
+		return flag;
+	}
+
+}

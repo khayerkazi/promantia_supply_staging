@@ -1,0 +1,220 @@
+update pg_trigger set tgenabled='D' where tgenabled='O' and tgisinternal='f';
+
+--Tables to be Truncated:
+
+ truncate table AD_PINSTANCE cascade;
+ truncate table AD_PINSTANCE_PARA;
+ truncate table M_STOCK_PROPOSED;
+ truncate table AD_SESSION cascade;
+ truncate table AD_SESSION_USAGE_AUDIT;
+ truncate table OBDHVR_RETURN_BP;
+ truncate table AD_ALERT;
+
+
+--Update AD_* tables
+
+ update ad_role set ismanual = 'Y' where ismanual='N' and ad_client_id<>'0' and name not like '%DSI Admin%';
+
+ UPDATE ad_role set ad_org_id ='0' where ad_org_id <> '0';
+
+ UPDATE ad_alertrecipient set ad_org_id=ad_alertrule.ad_org_id from ad_alertrule 
+     where ad_alertrule.ad_alertrule_id = ad_alertrecipient.ad_alertrule_id and ad_alertrule.ad_org_id <> ad_alertrecipient.ad_org_id ;
+
+ update ad_alert set ad_org_id = ad_alertrule.ad_org_id from ad_alertrule where ad_alert.ad_alertrule_id=       		      		ad_alertrule.ad_alertrule_id and ad_alert.ad_org_id<>ad_alertrule.ad_org_id;
+
+ update ad_image  set ad_org_id = '0' where ad_org_id <> '0';
+
+ UPDATE AD_USER set ad_org_id = '0' where ad_org_id <> '0';
+
+ UPDATE AD_USER set ad_orgtrx_id = '0' where ad_orgtrx_id <> '0';
+
+ --update ad_user set default_m_warehouse_id  = null;
+
+ --update ad_user set default_ad_org_id = null;
+
+ update c_bpartner_location  set ad_org_id = '0' where ad_org_id <> '0';
+
+ update c_bpartner set ad_org_id = '0' where ad_org_id <> '0';
+
+ update c_location set ad_org_id='0' where ad_org_id <> '0';
+
+ update cl_branddepartment set ad_org_id='0';
+
+ update cl_color set ad_org_id='0' ;
+
+ --update cl_ fobprice set ad_org_id='0'  where ad_org_id<>'0' ? Or
+
+ --update cl_fobprice set ad_org_id = m_pricelist.ad_org_id from m_pricelist 
+ --where cl_fobprice.m_pricelist_id = m_pricelist.m_pricelist_id and cl_fobprice.ad_org_id <> m_pricelist.ad_org_id
+
+ update cl_universe set ad_org_id='0';
+
+ update cl_model set ad_org_id='0'  ;
+
+ update cl_natureofproduct  set ad_org_id='0' ;
+
+ update cl_purchasing set ad_org_id='0';
+
+ update cl_subdepartment set ad_org_id='0'  ;
+
+ update cl_implantation set ad_org_id='0'  ;
+
+ update m_attributeset set ad_org_id='0' ;
+
+ update m_attributesetinstance  set ad_org_id = '0';
+
+ update rc_company set ad_org_id = '0' where ad_org_id <> '0' ;
+
+ update rc_compcontact cc set ad_org_id=c.ad_org_id from rc_company c
+  where cc.rc_company_id=c.rc_company_id   and cc.ad_org_id<>c.ad_org_id;
+
+ update rc_oxylane set ad_org_id='0'  ;
+
+ update m_product set m_locator_id=null;
+
+ UPDATE M_PRODUCT SET VALUE = COALESCE( NAME , get_uuid() ) where VALUE is NULL ;
+
+ UPDATE C_BPARTNER SET VALUE = COALESCE( em_rc_oxylane , get_uuid() ) where VALUE is NULL ;
+
+ UPDATE C_BPARTNER SET NAME = COALESCE( em_rc_oxylane , get_uuid() ) where NAME is NULL ;
+
+ update ad_org_warehouse aw set ad_org_id = mw.ad_org_id from m_warehouse  mw where aw.m_warehouse_id = mw.m_warehouse_id
+   and aw.ad_org_id <> mw.ad_org_id;
+
+update c_order
+   set m_warehouse_id = ( select m_warehouse_id from m_warehouse where ad_org_id = c_order.ad_org_id  limit 1 )
+   from m_warehouse where m_warehouse.m_warehouse_id = c_order.m_warehouse_id 
+   and c_order.ad_org_id <> m_warehouse.ad_org_id ;
+
+ update c_order set m_pricelist_id = m_pricelist.m_pricelist_id from m_pricelist where c_order_id in ( select c_order_id from  c_order,        m_pricelist current  where current.m_pricelist_id = c_order.m_pricelist_id and current.ad_org_id not in ( '0', c_order.ad_org_id ) )and 
+( (m_pricelist.ad_org_id = c_order.ad_org_id and c_order.issotrx = 'Y' and m_pricelist.issopricelist = c_order.issotrx ) OR (m_pricelist.ad_org_id in ( c_order.ad_org_id , '0' ) and c_order.issotrx = 'N' and m_pricelist.issopricelist = c_order.issotrx) );
+
+ update c_orderline set ad_org_id = co.ad_org_id 
+   from c_order co where co.c_order_id = c_orderline.c_order_id
+   and c_orderline.ad_org_id <> co.ad_org_id;
+
+ update c_orderline set m_warehouse_id  = c_order.m_warehouse_id from c_order 
+   where c_order.c_order_id = c_orderline.c_order_id
+   and c_orderline.m_warehouse_id <> c_order.m_warehouse_id;
+
+ update c_orderline set m_inoutline_id=null where c_orderline_id in 
+   (select c_orderline.c_orderline_id from c_orderline join c_order on c_orderline.c_order_id =c_order.c_order_id 
+   join m_inoutline on c_orderline.m_inoutline_id = m_inoutline.m_inoutline_id 
+   join m_inout on m_inoutline.m_inout_id=m_inout.m_inout_id where c_order.issotrx='Y' and m_inout.issotrx='N');
+
+
+ update c_ordertax 
+   set ad_org_id = o.ad_org_id from c_order o 
+   where c_ordertax.c_order_id=o.c_order_id and c_ordertax.ad_org_id<>o.ad_org_id;
+
+ update c_orderlinetax set ad_org_id = o.ad_org_id 
+   from c_order o where c_orderlinetax.c_order_id=o.c_order_id 
+   and c_orderlinetax.ad_org_id<>o.ad_org_id;
+ 
+ update cl_pricehistory 
+   set ad_org_id = m_pricelist_version.ad_org_id 
+   from m_pricelist_version  where cl_pricehistory.m_pricelist_version_id = m_pricelist_version.m_pricelist_version_id 
+   and cl_pricehistory.ad_org_id <> m_pricelist_version.ad_org_id;
+
+ update m_locator set ad_org_id = m_warehouse.ad_org_id 
+   from m_warehouse where m_warehouse.m_warehouse_id = m_locator.m_warehouse_id 
+   and m_locator.ad_org_id <> m_warehouse.ad_org_id;
+
+ update m_matchpo set ad_org_id = c_orderline.ad_org_id from c_orderline
+   where m_matchpo.c_orderline_id = c_orderline.c_orderline_id
+   and m_matchpo.ad_org_id <> c_orderline.ad_org_id;
+--To be added m_matchpo with m_inoutline
+
+ update m_inout mi set ad_org_id = co.ad_org_id from c_order co 
+   where mi.c_order_id = co.c_order_id and mi.ad_org_id <> co.ad_org_id;
+
+update m_inout set c_order_id=null where c_order_id in (select c_order_id from m_inout join c_order on c_order.c_order_id = m_inout.c_order_id where  m_inout.issotrx <> c_order.issotrx)
+
+ update m_inout
+   set m_warehouse_id = ( select m_warehouse_id from m_warehouse where ad_org_id = m_inout.ad_org_id  limit 1 )
+   from m_warehouse where m_warehouse.m_warehouse_id = m_inout.m_warehouse_id 
+   and m_inout.ad_org_id <> m_warehouse.ad_org_id ;
+
+ update m_inout set ad_org_id = m_warehouse.ad_org_id from m_warehouse 
+   where m_inout.m_warehouse_id = m_warehouse.m_warehouse_id and 
+   m_inout.ad_org_id <> m_warehouse.ad_org_id;
+
+ update m_inoutline set ad_org_id = o.ad_org_id from m_inout o 
+   where m_inoutline.m_inout_id=o.m_inout_id 
+   and m_inoutline.ad_org_id<>o.ad_org_id;
+
+ update m_inoutline set c_uom_id=m_product.c_uom_id 
+   from m_product where m_inoutline.m_product_id=m_product.m_product_id 
+   and m_inoutline.c_uom_id<>m_product.c_uom_id;
+
+ update m_inventoryline set ad_org_id = m_locator.ad_org_id  from m_locator
+   where  m_inventoryline.m_locator_id = m_locator.m_locator_id 
+   and m_locator.ad_org_id <> m_inventoryline.ad_org_id;
+ 
+ update m_inventory  set ad_org_id = m_inventoryline.ad_org_id from m_inventoryline
+   where m_inventoryline.m_inventory_id = m_inventory.m_inventory_id 
+   and m_inventory.ad_org_id <> m_inventoryline.ad_org_id;
+
+ update m_inventory
+   set m_warehouse_id = ( select m_warehouse_id from m_warehouse where ad_org_id = m_inventory.ad_org_id  limit 1 )
+   from m_warehouse where m_warehouse.m_warehouse_id = m_inventory.m_warehouse_id 
+   and m_inventory.ad_org_id <> m_warehouse.ad_org_id ;
+
+ update m_movementline set ad_org_id =m_movement.ad_org_id from m_movement 
+   where m_movementline.m_movement_id=m_movement.m_movement_id 
+   and m_movementline.ad_org_id<>m_movement.ad_org_id;
+
+ update m_reservation set ad_org_id = c_orderline.ad_org_id from c_orderline
+   where c_orderline.ad_org_id <> m_reservation.ad_org_id 
+   and c_orderline.c_orderline_id = m_reservation.c_orderline_id;
+
+ update m_reservation_stock set ad_org_id = c_orderline.ad_org_id from c_orderline
+   where c_orderline.ad_org_id <> m_reservation_stock.ad_org_id 
+   and c_orderline.c_orderline_id = m_reservation_stock.c_orderline_id;
+ 
+ update m_storage_pending set ad_org_id = mw.ad_org_id from m_warehouse mw 
+   where m_storage_pending.m_warehouse_id=mw.m_warehouse_id 
+   and m_storage_pending.ad_org_id <> mw.ad_org_id;
+
+ update m_transaction set c_uom_id=m_product.c_uom_id from m_product 
+   where m_transaction.m_product_id=m_product.m_product_id 
+   and m_transaction.c_uom_id<>m_product.c_uom_id;
+
+ update m_transaction  set ad_org_id = m_inoutline.ad_org_id from m_inoutline 
+   where m_inoutline.m_inoutline_id = m_transaction.m_inoutline_id
+   and m_transaction.ad_org_id <> m_inoutline.ad_org_id;
+
+ update m_transaction  set ad_org_id = m_inventoryline.ad_org_id from m_inventoryline 
+   where m_inventoryline.m_inventoryline_id = m_transaction.m_inventoryline_id
+   and m_transaction.ad_org_id <> m_inventoryline.ad_org_id;
+
+ update m_transaction  set ad_org_id = m_movementline.ad_org_id 
+   from m_movementline where m_movementline.m_movementline_id = m_transaction.m_movementline_id
+   and m_transaction.ad_org_id <> m_movementline.ad_org_id;
+
+ update obuiapp_uipersonalization set visibleat_org_id = '83ACE25CB7684EF0937B01BB6969C6DE' 
+   where visibleat_org_id <>   '83ACE25CB7684EF0937B01BB6969C6DE';
+
+ update rc_creditnoteline set ad_org_id=rc_creditnote.ad_org_id 
+   from rc_creditnote  
+   where rc_creditnoteline.rc_creditnote_id=rc_creditnote.rc_creditnote_id 
+   and rc_creditnoteline.ad_org_id<>rc_creditnote.ad_org_id;
+
+ update m_storage_detail set ad_org_id = m_locator.ad_org_id from m_locator 
+   where m_storage_detail.m_locator_id = m_locator.m_locator_id 
+   and m_locator.ad_org_id <> m_storage_detail.ad_org_id;
+
+ update sw_stocktransaction set ad_org_id = m_warehouse.ad_org_id from m_warehouse 
+   where m_warehouse.m_warehouse_id = sw_stocktransaction.m_warehouse_id 
+   and sw_stocktransaction.ad_org_id <> m_warehouse.ad_org_id;
+
+ update sw_sreqline set ad_org_id=sw_srequisition.ad_org_id 
+   from sw_srequisition 
+   where sw_sreqline.sw_srequisition_id=sw_srequisition.sw_srequisition_id 
+   and sw_sreqline.ad_org_id<>sw_srequisition.ad_org_id;
+
+
+
+
+update pg_trigger set tgenabled='O' where tgenabled='D' and tgisinternal='f';
+

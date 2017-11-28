@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="ReportPickListData" package="com.sysfore.storewarehouse.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  
+<SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+	select s.documentno as DocumentNumber,s.itemcode as ItemCode, s.created, m.upc as EAN,m.em_cl_modelname as Description,
+
+	case when (substring(s.documentno from 2 for 4) like 'ECOM' OR substring(s.documentno from 2 for 3) like 'B2B') THEN
+
+	(select ar.name from m_inout io,ad_ref_list ar where 
+	io.c_order_id in (select c_order_id from c_order where documentno=s.documentno limit 1)
+	and ar.ad_reference_id='26079467305046648B7B2086D640A4FC' 
+	and io.em_sw_shippedstatus=ar.value limit 1)
+	ELSE 
+	COALESCE((Select ar.name from sw_srequisition sr,ad_ref_list ar where sr.documentno=s.documentno
+	and ar.ad_reference_id='42DA779DC672404EB3D19B2B78BE36E7' and sr.requisitionstatus=ar.value limit 1),'NA') 
+	END 
+	as status
+	,
+	b.name as Brand,sd.name as StoreDepartment,s.qty_req as QuantityRequested,ml.value as Location,au.name as username,
+	a.name as Store,s.boxno as BoxNumber 
+	from m_product m,m_locator ml,sw_picklist s,ad_org a,cl_brand b,cl_storedept sd,cl_model clm,ad_user au
+	where m.m_product_id=s.m_product_id and s.ad_org_id=a.ad_org_id
+	and s.m_locator_id=ml.m_locator_id and b.cl_brand_id = clm.cl_brand_id 
+	and sd.cl_storedept_id=clm.cl_storedept_id and m.em_cl_model_id=clm.cl_model_id 
+	and au.ad_user_id=s.createdby and s.m_locator_id=ml.m_locator_id and s.m_locator_id IN (select m_locator_id from m_locator where m_warehouse_id=? ) and 1=1  
+	group by s.itemcode,m.upc,ml.z,m.em_cl_modelname,b.name,sd.name,s.qty_req,s.documentno,ml.value,s.created,au.name,a.name,s.boxno order by ml.value
+
+
+
+
+]]>
+</Sql>
+     
+     <!--Parameter name="dateFrom"/>and s.created >= ? and s.created <= ?<Parameter name="dateTo"/-->
+     <Parameter name="mWarehouseId"/>
+     <Parameter name="dateFrom" optional="true" after="1=1"><![CDATA[AND s.created >= to_date(?)]]></Parameter>
+     <Parameter name="dateTo" optional="true" after="1=1"><![CDATA[AND s.created < to_date(?)]]></Parameter>     
+     <Parameter name="documentNo" optional="true" after="1=1"><![CDATA[AND s.documentno = ? ]]></Parameter> 
+     <!--Parameter name="documentNo" optional="true" after="AND 1=1"><![CDATA[AND s.documentno = ? ]]></Parameter>
+     <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[AND s.created >= to_date(?)]]></Parameter-->
+     
+
+    
+     </SqlMethod>
+  
+</SqlClass>

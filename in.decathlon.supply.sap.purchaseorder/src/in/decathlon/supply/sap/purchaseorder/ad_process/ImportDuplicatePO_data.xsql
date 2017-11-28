@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<SqlClass name="ImportDuplicatePOData" package="in.decathlon.supply.sap.purchaseorder.ad_process" >
+<SqlMethod name="importduplicatepo" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT imsap_importduplicatepo(?) from Dual          
+        ]]>
+    </Sql>
+    <Parameter name="user_id"/>
+</SqlMethod>
+
+<SqlMethod name="imsap_validateduplicatepo" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT imsap_validateduplicatepo(?) from Dual          
+        ]]>
+    </Sql>
+    <Parameter name="user_id"/>
+</SqlMethod>
+</SqlClass>

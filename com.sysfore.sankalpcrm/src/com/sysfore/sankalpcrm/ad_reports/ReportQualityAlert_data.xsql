@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved. SELECT CO.DOCUMENTNO,CO.DATEORDERED,COL.QTYORDERED
+      FROM C_ORDERLINE COL LEFT OUTER JOIN C_ORDER CO
+      ON COL.C_ORDER_ID = CO.C_ORDER_ID
+      WHERE CO.ISSOTRX='Y'
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+TO_CHAR(o.dateordered,'HH:MM:SS')
+-->
+
+
+<SqlClass name="ReportQualityAlertData" package="com.sysfore.sankalpcrm.ad_reports">
+  <SqlClassComment></SqlClassComment>
+
+
+ <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+	select c_order.dateordered as date, ad_org.name as store, 
+(c_bpartner.name||' '||c_bpartner.name2) AS name, coalesce(c_order.EM_RC_OXYLANENO, c_bpartner.EM_RC_OXYLANE) as decathalonid,
+c_order.documentno as billno, rc_company.companyname as organization
+ from c_order left join c_bpartner on C_Order.C_Bpartner_Id= c_bpartner.c_bpartner_id 
+ left join rc_company on rc_company.rc_company_id=c_bpartner.em_rc_company_id 
+ left join ad_org on c_order.ad_org_id=ad_org.ad_org_id 
+ left join c_orderline on c_order.c_order_Id=c_orderline.c_order_id 
+ left join m_product on c_orderline.m_product_id=m_product.m_product_id 
+ WHERE c_order.issotrx='Y' AND ad_org.name!='Whitefield Warehouse'
+ AND 1=1 and ? is not null 
+ group by c_order.dateordered, ad_org.name, c_bpartner.name, c_bpartner.name2, c_order.documentno,
+c_order.EM_RC_OXYLANENO, c_bpartner.EM_RC_OXYLANE,  
+rc_company.companyname, c_bpartner.em_rc_email, c_bpartner.em_rc_mobile 
+ order by c_order.dateordered
+     ]]></Sql>
+
+  <Field name="rownum" value="count"/>
+  <Parameter name="dateFrom" optional="true" after="AND 1=1"><![CDATA[AND c_orderline.dateordered >= to_date(?)]]>
+</Parameter>
+  <Parameter name="dateTo" optional="true" after="AND 1=1"><![CDATA[AND c_orderline.dateordered < to_date(?)]]> 
+</Parameter> 
+<Parameter name="Product" optional="true" after="AND 1=1"><![CDATA[ AND c_orderline.m_product_id =(select m_product_id from m_product where name= ?) ]]>
+</Parameter> 
+ <Parameter name="clientCheckNotNull"/> 
+</SqlMethod>
+
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+
+ <SqlMethod name="selectMproduct" type="preparedStatement" return="String" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+      SELECT M_PRODUCT.NAME
+      FROM M_PRODUCT
+      WHERE M_PRODUCT.M_PRODUCT_ID = ?
+     ]]></Sql>
+    <Parameter name="Product"/>
+  </SqlMethod>
+
+ </SqlClass>
+

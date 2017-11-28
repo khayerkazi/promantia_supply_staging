@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportSalesByCompany" pageWidth="1785" pageHeight="842" orientation="Landscape" columnWidth="1725" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="REPORT_SUBTITLE" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select rc_company.created as companycreated,
+			 rc_company.CompanyName as organame,
+			RC_Natbusi.name as natofbusi,
+			B.nomembers as noofmembers, rc_compcontact.email as email,
+			RC_CompContact.Firstname as firstname, RC_CompContact.Lastname as lastname,
+		       (coalesce(c_location.address1,'add1') ||'-'||coalesce(c_location.address2, 'add2') ||'-'||coalesce(c_location.em_rc_address3,'aadr3')
+                         ||'-'||coalesce(c_location.em_rc_address4,'aadr4')
+                        ||'-'||coalesce(c_location.city, 'bangalore')||'-'||coalesce(c_location.postal,'560067')) as Organizationaddress,
+                        coalesce(c_location.city, 'bangalore') as city,
+                        coalesce(c_region.name,'karnataka') as state,
+                        coalesce(c_location.postal,'560067') as postal,
+                         RC_CompContact.Mobile as phone,
+                        round(sum(c_order.grandtotal),2) as billamount,sum(A.bill_qty) as billqty,
+                        count(c_order.*)  as noofbills
+			from  c_bpartner inner join rc_company on C_Bpartner.em_rc_company_id= rc_company.rc_company_id
+			inner join C_Order on C_Order.C_Bpartner_Id= c_bpartner.c_bpartner_id
+			inner join RC_Natbusi on rc_company.RC_Natbusi_ID= RC_Natbusi.RC_Natbusi_ID
+			inner join c_location on rc_company.c_location_id = c_location.c_location_id
+			inner join c_region on c_region.c_region_id=c_location.C_region_id
+			inner join RC_CompContact on RC_CompContact.rc_company_id=rc_company.rc_company_id
+			inner join (select c_orderline.c_order_id,sum(c_orderline.qtyordered) as bill_qty from c_orderline inner join c_order
+			on c_orderline.c_order_id=c_order.c_order_id group by c_orderline.c_order_id) A on A.C_Order_Id = C_Order.C_Order_id
+			inner join (Select rc_company.rc_company_id,count(*) as nomembers from C_Bpartner inner join rc_company on C_Bpartner.em_rc_company_id= rc_company.rc_company_id
+
+			inner join RC_Natbusi on rc_company.RC_Natbusi_ID= RC_Natbusi.RC_Natbusi_ID
+			inner join c_location on rc_company.c_location_id = c_location.c_location_id
+			inner join c_region on c_region.c_region_id=c_location.C_region_id
+			inner join RC_CompContact on RC_CompContact.rc_company_id=rc_company.rc_company_id
+			Where C_Bpartner.EM_RC_Status = 'A' group by rc_company.rc_company_id
+			) B on B.rc_company_id = rc_company.rc_company_id
+			Where 1=1
+                        and C_Bpartner.EM_RC_Status = 'A'
+			and C_Order.issotrx='Y'
+			group by rc_company.created, rc_company.CompanyName, RC_Natbusi.name,
+			 c_location.address1, c_location.address2,
+			c_location.em_rc_address3, c_location.em_rc_address4, c_location.city,
+			c_location.postal, c_region.name, rc_compcontact.email,
+			RC_CompContact.Firstname,RC_CompContact.Lastname, RC_CompContact.Mobile, rc_company.rc_company_id, B.nomembers order by billamount DESC limit 2]]>
+	</queryString>
+	<field name="companycreated" class="java.util.Date"/>
+	<field name="organame" class="java.lang.String"/>
+	<field name="natofbusi" class="java.lang.String"/>
+	<field name="noofmembers" class="java.math.BigDecimal"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="firstname" class="java.lang.String"/>
+	<field name="lastname" class="java.lang.String"/>
+	<field name="organizationaddress" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="state" class="java.lang.String"/>
+	<field name="postal" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String"/>
+	<field name="billamount" class="java.math.BigDecimal"/>
+	<field name="billqty" class="java.math.BigDecimal"/>
+	<field name="noofbills" class="java.math.BigDecimal"/>
+	<background>
+		<band height="1" splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="32" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-6" x="-30" y="1" width="1755" height="31"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Serif" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[SALES REPORT BY COMPANY]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="60" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="-30" y="16" width="1755" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{REPORT_SUBTITLE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-1" x="275" y="0" width="139" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Nature of Business]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-2" x="414" y="0" width="63" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ No. of
+ Active
+Members]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" x="477" y="0" width="105" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ Contact
+First Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="688" y="0" width="368" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Organization Address]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-5" x="582" y="0" width="106" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Contact
+Last Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-7" x="-30" y="0" width="71" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Company Creation Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-8" x="41" y="0" width="234" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Organization Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-9" x="1305" y="0" width="112" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[State]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-10" x="1417" y="0" width="48" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Postal
+ Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-11" x="1465" y="0" width="79" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Phone]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-12" x="1544" y="0" width="34" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ No.
+ of
+Bills]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-13" x="1635" y="0" width="90" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[  Total
+   Bill
+   Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-14" x="1218" y="0" width="87" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[City]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-15" x="1578" y="0" width="57" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Bill Quantity]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-16" x="1056" y="0" width="162" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Email]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Prevent">
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-1" x="275" y="0" width="139" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{natofbusi}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-3" x="477" y="0" width="105" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{firstname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-4" x="582" y="0" width="106" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{lastname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-5" x="688" y="0" width="368" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{organizationaddress}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-9" x="1218" y="0" width="87" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{city}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-10" x="1305" y="0" width="112" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{state}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-11" x="1417" y="0" width="48" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{postal}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-12" x="1465" y="0" width="79" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{phone}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="1544" y="0" width="34" height="30"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{noofbills}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0" isBlankWhenNull="false">
+				<reportElement key="textField" x="1578" y="0" width="57" height="30"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{billqty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="false">
+				<reportElement key="textField" x="1635" y="0" width="90" height="30"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{billamount}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="41" y="0" width="234" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{organame}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0" isBlankWhenNull="false">
+				<reportElement key="textField" x="414" y="0" width="63" height="30"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{noofmembers}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField" x="-30" y="0" width="71" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{companycreated}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="1056" y="0" width="162" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{email}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

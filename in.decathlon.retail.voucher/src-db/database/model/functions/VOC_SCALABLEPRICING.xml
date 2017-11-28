@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION VOC_SCALABLEPRICING">
+    <function name="VOC_SCALABLEPRICING" type="VARCHAR">
+      <body><![CDATA[scalablePricing Record;
+v_box VARCHAR(60) ;
+v_ue VARCHAR(60) ;
+
+
+BEGIN
+select lvlpr_range_id into v_box from lvlpr_range where name = 'BOX';
+select lvlpr_range_id into v_ue from lvlpr_range where name = 'LOT';
+
+FOR scalablePricing IN (select m_productprice_id,em_cl_ccpcbprice,em_cl_sboxqty,em_cl_ccueprice,
+em_cl_suqty,em_cl_ccunitprice
+from m_productprice where 
+ad_org_id in ('83ACE25CB7684EF0937B01BB6969C6DE' ,'763822B8D9594A7BA0E8AC93006179FB','B8A24E7BF233470EA2E0F2545559F427')
+and m_product_id in (select m_product_id from m_productprice where updated between 
+(select coalesce (lastupdated,'01/01/2000') - interval'15 minutes' from 
+ibud_servertime where service_key = 'Scalable Pricing') and now())) 
+
+--and m_product_id not in (select _product_id from lvlpr_levelproductprice))
+
+LOOP
+
+
+--if( scalablePricing.em_cl_ccueprice != scalablePricing.em_cl_ccpcbprice OR 
+--scalablePricing.em_cl_ccunitprice != scalablePricing.em_cl_ccueprice ) then
+
+if ((scalablePricing.em_cl_suqty > '1' or scalablePricing.em_cl_sboxqty >'1') and ( scalablePricing.em_cl_ccunitprice != scalablePricing.em_cl_ccueprice or scalablePricing.em_cl_ccunitprice != scalablePricing.em_cl_ccpcbprice )) then
+
+	if( scalablePricing.em_cl_suqty != scalablePricing.em_cl_sboxqty) then
+
+		if(scalablePricing.em_cl_suqty > '1') then
+			if(scalablePricing.m_productprice_id not in (select m_productprice_id from lvlpr_levelproductprice)) then 
+
+				insert into lvlpr_levelproductprice (lvlpr_levelproductprice_id,ad_client_id,ad_org_id,
+				created,createdby,updated,updatedby,price,qty,m_productprice_id,lvlpr_range_id)
+				select get_uuid(),'187D8FC945A5481CB41B3EE767F80DBB','0',now(),'100',now(),'100',
+				em_cl_ccueprice,em_cl_suqty,scalablePricing.m_productprice_id,v_ue 
+				from m_productprice where m_productprice_id = scalablePricing.m_productprice_id;
+			else
+				if( scalablePricing.em_cl_suqty != (select qty from lvlpr_levelproductprice where m_productprice_id = 	scalablePricing.m_productprice_id and lvlpr_range_id = v_ue)  ) then
+
+					update lvlpr_levelproductprice set updated = now(), price = scalablePricing.em_cl_ccueprice, qty = 						scalablePricing.em_cl_suqty where m_productprice_id = scalablePricing.m_productprice_id and 						lvlpr_range_id = v_ue;
+				else
+					update lvlpr_levelproductprice set updated = now(), price = scalablePricing.em_cl_ccueprice where m_productprice_id = scalablePricing.m_productprice_id and lvlpr_range_id = v_ue;
+
+				end if;
+			end if;
+
+		end if;
+
+		if(scalablePricing.em_cl_sboxqty > '1') then
+			if(scalablePricing.m_productprice_id not in (select m_productprice_id from lvlpr_levelproductprice)) then 
+				insert into lvlpr_levelproductprice (lvlpr_levelproductprice_id,ad_client_id,ad_org_id,
+				created,createdby,updated,updatedby,price,qty,m_productprice_id,lvlpr_range_id)
+				select get_uuid(),'187D8FC945A5481CB41B3EE767F80DBB','0',now(),'100',now(),'100',
+				em_cl_ccpcbprice,em_cl_sboxqty,scalablePricing.m_productprice_id,v_box 
+				from m_productprice where m_productprice_id = scalablePricing.m_productprice_id;
+			else
+				if( scalablePricing.em_cl_sboxqty != (select qty from lvlpr_levelproductprice where m_productprice_id = 					scalablePricing.m_productprice_id and lvlpr_range_id = v_box) ) then
+
+					update lvlpr_levelproductprice set updated = now(), price = scalablePricing.em_cl_ccpcbprice, qty = 						scalablePricing.em_cl_suqty where m_productprice_id = scalablePricing.m_productprice_id and 						lvlpr_range_id = v_box;
+				else
+					update lvlpr_levelproductprice set updated = now(), price = scalablePricing.em_cl_ccpcbprice where m_productprice_id = scalablePricing.m_productprice_id and lvlpr_range_id = v_box;
+
+				end if;
+			
+			end if;
+		end if;
+
+		update m_productprice set algorithm = 'SLP_algorithm',pricestd = scalablePricing.em_cl_ccunitprice,
+		pricelist = scalablePricing.em_cl_ccunitprice, updated = now()
+		where m_productprice_id = scalablePricing.m_productprice_id;
+
+	else
+
+		if(scalablePricing.em_cl_suqty > '1') then
+			if(scalablePricing.m_productprice_id not in (select m_productprice_id from lvlpr_levelproductprice)) then 
+
+				insert into lvlpr_levelproductprice (lvlpr_levelproductprice_id,ad_client_id,ad_org_id,
+				created,createdby,updated,updatedby,price,qty,m_productprice_id,lvlpr_range_id)
+				select get_uuid(),'187D8FC945A5481CB41B3EE767F80DBB','0',now(),'100',now(),'100',
+				em_cl_ccpcbprice,em_cl_sboxqty,scalablePricing.m_productprice_id,v_ue 
+				from m_productprice where m_productprice_id = scalablePricing.m_productprice_id;
+			else
+				if( scalablePricing.em_cl_suqty != (select qty from lvlpr_levelproductprice where m_productprice_id = 					scalablePricing.m_productprice_id and lvlpr_range_id = v_ue) ) then
+
+					update lvlpr_levelproductprice set updated = now(), price = scalablePricing.em_cl_ccueprice, qty = 						scalablePricing.em_cl_suqty where m_productprice_id = scalablePricing.m_productprice_id and 						lvlpr_range_id = v_ue;
+				else
+					update lvlpr_levelproductprice set updated = now(), price = scalablePricing.em_cl_ccpcbprice where m_productprice_id = scalablePricing.m_productprice_id and lvlpr_range_id = v_box;
+
+				end if;
+			end if;
+
+		end if;
+
+		update m_productprice set algorithm = 'SLP_algorithm',pricestd = scalablePricing.em_cl_ccunitprice,
+		pricelist = scalablePricing.em_cl_ccunitprice, updated = now()
+		where m_productprice_id = scalablePricing.m_productprice_id;
+
+	end if;
+
+end if;
+
+update m_productprice set pricestd = scalablePricing.em_cl_ccunitprice,
+		pricelist = scalablePricing.em_cl_ccunitprice, updated = now()
+		where m_productprice_id = scalablePricing.m_productprice_id;
+
+update ibud_servertime set lastupdated = now() where service_key = 'Scalable Pricing';
+
+
+END LOOP;
+  	RETURN 'SUCCESS';
+END VOC_SCALABLEPRICING
+]]></body>
+    </function>
+  </database>

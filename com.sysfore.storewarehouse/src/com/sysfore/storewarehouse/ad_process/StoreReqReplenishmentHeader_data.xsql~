@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2009 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+ <SqlClass name="StoreReqReplenishmentHeaderData" package="com.sysfore.storewarehouse.ad_process">
+
+<SqlMethod name="select" type="preparedStatement" return="multiple">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			SELECT sw_srequisition_id, ad_client_id, ad_org_id, isactive, created, 
+       createdby, updated, updatedby, name, documentno, reqdate, ad_user_id, 
+       movementtype, requisitionstatus, docstatus, processing, processed, 
+       docaction, cl_storedept_id, c_doctypetarget_id, c_doctype_id, poreference
+  		FROM sw_srequisition WHERE 	ad_client_id = ?
+			]]>
+		</Sql>
+		<Parameter name="ad_client_id"/>
+	</SqlMethod>	
+	<SqlMethod name="insert" type="preparedStatement" connection="true" return="rowcount" static="false">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+			  INSERT INTO sw_srequisition(
+            sw_srequisition_id, ad_client_id, ad_org_id, isactive, created, 
+            createdby, updated, updatedby, documentno, reqdate, ad_user_id, 
+            movementtype, requisitionstatus, docstatus, processing, processed, 
+            docaction, cl_storedept_id, c_doctypetarget_id, c_doctype_id)
+    VALUES (?, ?, ?, 'Y', now(), 
+            ?, now(), ?, ?, now(), ?, 
+            'SRQ', 'DR', 'DR', 'N', 'N', 
+            'CO', ?, ?, ?)
+      ]]>
+    </Sql>
+     <Parameter name="swSrequisitionId"/>
+    <Parameter name="adClientId"/>
+    <Parameter name="adOrgId"/>
+    <Parameter name="createdby"/>
+    <Parameter name="updatedby"/>
+    <Parameter name="documentno"/>
+    <Parameter name="adUserId"/>
+    <Parameter name="clStoredeptId"/>   
+    <Parameter name="cDoctypetargetId"/>
+    <Parameter name="cDoctypeId"/> 
+</SqlMethod>
+	
+
+
+</SqlClass>

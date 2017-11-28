@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportItemNotSold" pageWidth="550" pageHeight="842" columnWidth="510" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="DateFrom" class="java.util.Date" isForPrompting="false"/>
+	<parameter name="aux_DateFrom" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("")) ? "" : "AND c_orderline.DATEORDERED  >= TO_DATE('" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "', 'YYYY-MM-DD')"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="USER_CLIENT" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="USER_ORG" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select p.name as ITEMCODE, em_cl_modelcode MODELCODE, p.em_cl_modelname MODELNAME, b.name AS BRAND, s.name as STOREDEPT
+ from m_product p, cl_model m, cl_brand b, cl_storedept s
+where p.em_cl_model_id=m.cl_model_id and m.cl_brand_id =b.cl_brand_id and
+m.cl_storedept_id=s.cl_storedept_id and p.producttype='I' and p.m_product_id NOT IN
+(select m_product_id from c_orderline where
+c_orderline.dateordered<=now()
+$P!{aux_DateFrom}
+AND C_ORDERLINE.AD_CLIENT_ID IN ($P!{USER_CLIENT})
+AND C_ORDERLINE.AD_ORG_ID IN ($P!{USER_ORG})
+) order by s.name]]>
+	</queryString>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="modelcode" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="storedept" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="18" splitType="Stretch">
+			<staticText>
+				<reportElement x="-19" y="0" width="550" height="18"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="15" isBold="true" isItalic="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[ITEM NOT SOLD REPORT]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="13" splitType="Stretch">
+			<staticText>
+				<reportElement x="-19" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[ITEM CODE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="81" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[MODEL CODE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="181" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[MODEL NAME]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="281" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[BRAND]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="381" y="0" width="150" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[STORE DEPT]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<textField>
+				<reportElement x="-19" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="81" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="181" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="281" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="381" y="0" width="150" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{storedept}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

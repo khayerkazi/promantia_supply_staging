@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DuplicateBill_subreport0" printOrder="Horizontal" pageWidth="481" pageHeight="802" whenNoDataType="AllSectionsNoDetail" columnWidth="481" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isFloatColumnFooter="true">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="3.0"/>
+	<property name="ireport.x" value="234"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="ORDERID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_ORDERID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[($P{ORDERID} == null || $P{ORDERID}.equals("")) ? "" : "AND c_orderline.c_order_id ='"+ $P{ORDERID}+"'"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+        c_orderline.gross_unit_price as Rate,
+        c_orderline.linenetamt as Amount,
+        c_orderline.em_ds_unitqty as qty,
+        c_orderline.qtyordered as qtyord,
+        m_product.name as productname,
+        m_product.em_cl_modelname as pdesc,
+        c_orderline.m_product_id as id
+
+
+FROM
+	 c_orderline,m_product
+WHERE
+	c_orderline.m_product_id = m_product.m_product_id
+        $P!{AUX_ORDERID}
+Order By m_product.name]]>
+	</queryString>
+	<field name="rate" class="java.math.BigDecimal"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="qtyord" class="java.math.BigDecimal"/>
+	<field name="productname" class="java.lang.String"/>
+	<field name="pdesc" class="java.lang.String"/>
+	<field name="id" class="java.lang.String"/>
+	<variable name="ProductCount" class="java.lang.Integer" calculation="DistinctCount">
+		<variableExpression><![CDATA[$F{id}]]></variableExpression>
+	</variable>
+	<variable name="sum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{qty}.equals(new BigDecimal(0))?$F{qtyord}:$F{qty}]]></variableExpression>
+	</variable>
+	<variable name="unitamount" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{qty}.equals(new BigDecimal(0))?$F{qtyord}.multiply($F{rate}):$F{qty}.multiply($F{rate})]]></variableExpression>
+		<initialValueExpression><![CDATA[BigDecimal.valueOf(0)]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="42" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToTallestObject" x="136" y="0" width="173" height="10" isRemoveLineWhenBlank="true" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{productname}+"-"+$F{pdesc}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToTallestObject" x="220" y="10" width="41" height="11" isRemoveLineWhenBlank="true" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{rate}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToTallestObject" x="143" y="10" width="31" height="11" isRemoveLineWhenBlank="true" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty}.equals(new BigDecimal(0))?$F{qtyord}:$F{qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="##0.00" isBlankWhenNull="true">
+				<reportElement key="textField" stretchType="RelativeToTallestObject" x="268" y="10" width="40" height="11" isRemoveLineWhenBlank="true" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{unitamount}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-1" stretchType="RelativeToTallestObject" x="177" y="10" width="41" height="11" isRemoveLineWhenBlank="true" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[(by unit)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" stretchType="RelativeToTallestObject" x="136" y="10" width="5" height="11" isRemoveLineWhenBlank="true" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[x]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

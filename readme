@@ -1,0 +1,75 @@
+******************This is a help file for Decathlon environment setup ************
+
+Workspace folders
+-----------------
+- rootfolder
+  - openbravo (clone of https://code.openbravo.com/erp/devel/pi/ using 3.0PR14Q3.2 revision)
+  - dsimodules
+
+1. Go to Openbravo folder
+    
+      cd rootfolder/openbravo
+    
+    ensure that you are using the proper version:
+    
+      hg id
+      6af26661c789+ 3.0PR14Q3.2
+
+2. Go to modules folder
+    cd rootfolder/openbravo/modules
+
+3. Configure Openbravo.properties. It will vary for a retail instace or supply one.
+
+4. From openbravo modules folder link every folders located in rootfolder/dsimodules
+
+    ln -s ../../dsimodules/* .
+
+    Bellow folders shouldn't be linked, so the links can be removed
+    -> changes_and_patches
+    -> dependantModules
+    -> scriptForDocSeqAndDocType
+
+    rm -rf changes_and_patches dependantModules scriptForDocSeqAndDocType
+
+5. From openbravo modules folder link every folders located in rootfolder/dsimodules/dependantModules
+
+    ln -s ../../dsimodules/dependantModules/* .
+
+6. Go back to openbravo root folder (rootfolder/openbravo)
+7. Apply core patches located in rootfolder/dsimodules/changes_and_patches/core/
+
+    patch -p1 < ../dsimodules/changes_and_patches/core/patch1.diff
+    patch -p1 < ../dsimodules/changes_and_patches/core/patch2.diff
+    ....
+    ....
+    patch -p1 < ../dsimodules/changes_and_patches/core/patchN.diff
+
+8. Apply patches for every module. These patches are located in rootfolder/dsimodules/changes_and_patches/modules/. There is a folder per each module with patches.
+    
+   Repeat the following steps for every module with patches (this is just an example)
+    -> Go to the module to be patched
+      cd rootfolder/dsimodules/dependantModules/org.openbravo.mobile.core
+    -> apply Patches
+      patch -p1 < ../../changes_and_patches/modules/org.openbravo.mobile.core/diff1.diff
+      patch -p1 < ../../changes_and_patches/modules/org.openbravo.mobile.core/diff2.diff
+      ....
+      ....
+      patch -p1 < ../../changes_and_patches/modules/org.openbravo.mobile.core/diffN.diff
+
+9. Go back to openbravo root folder (rootfolder/openbravo)
+
+10. Compile module scripts
+
+    ant compile.modulescript -Dmodule=org.openbravo
+
+11. Update the database
+    
+    ant update.database -Dforce=yes
+
+12.Compile the app
+
+    ant compile.complete
+
+13.Deploy
+
+    ant smartbuild

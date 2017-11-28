@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_SREQVAL_TRG">
+    <trigger name="SW_SREQVAL_TRG" table="SW_SREQLINE" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_qtyreq NUMBER;
+v_whqty NUMBER;
+v_product character varying;
+v_count NUMBER;
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF INSERTING OR UPDATING  THEN
+
+--IF ((select em_cl_ue_qty from m_product where m_product_id=NEW.m_product_id)=0) THEN
+
+--RAISE EXCEPTION 'UE of the product is zero. You cannot make a manual DC';
+
+--ELSE
+SELECT COALESCE(sum(qtyonhand),0)+COALESCE((select sum(qtyordered) from i_order where  (ad_org_id='B2D0E3B212614BA6989ADCA3074FC423' OR ad_org_id='076DD16AEA914588A919422D1C5FF037') and processed='N' and m_product_id=sd.m_product_id group by m_product_id),0) into v_whqty From m_storage_detail sd where 
+sd.m_product_id =:NEW.m_product_id and sd.qtyonhand>0 and sd.m_locator_id 
+in(select m_locator_id from m_locator where m_warehouse_id in 
+(select m_warehouse_id from m_warehouse where name ilike 'Saleable%'
+
+/*CASE WHEN ((select em_cl_log_rec from m_product where m_product_id=:NEW.m_product_id)='5' 
+OR (select em_cl_log_rec from m_product where m_product_id=:NEW.m_product_id)='9.7') THEN
+
+name ilike 'Saleable O%'
+
+WHEN ((select em_cl_log_rec from m_product where m_product_id=:NEW.m_product_id)='54' OR 
+(select em_cl_log_rec from m_product where m_product_id=:NEW.m_product_id)='145') THEN
+
+name ilike 'Saleable W%' 
+
+END*/
+
+and ad_org_id='603C6A266B4C40BCAD87C5C43DDF53EE') and value not like 'System' and isactive='Y') group by sd.m_product_id;
+
+
+IF (v_whqty is null) THEN 
+v_whqty:=0;
+END IF;
+
+	--checking duplicate itemcode 
+	Select count(m_product_id) into v_count from sw_sreqline 
+	where m_product_id=:NEW.m_product_id  and sw_srequisition_id=:NEW.sw_srequisition_id;
+	IF (v_count > 0)  THEN
+	RAISE EXCEPTION 'Same Itemcode already exists';
+	END IF;
+
+
+	--getting itemcode
+	Select name into v_product from m_product where m_product_id=:NEW.m_product_id;
+	IF(:NEW.qtyreq > v_whqty) THEN
+	RAISE EXCEPTION 'Requested Quantity cannot be more than Warehouse stock. Itemcode is: %,Warehouse Stock is: %',v_product, v_whqty;
+	END IF;
+	
+END IF;
+--END IF;
+
+END SW_SREQVAL_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_TRANSACTION">
+    <table name="M_TRANSACTION" primaryKey="M_TRANSACTION_KEY">
+      <index name="EM_DS_MOVTTRX" unique="false">
+        <index-column name="MOVEMENTDATE"/>
+        <index-column name="M_TRANSACTION_ID"/>
+      </index>
+    </table>
+  </database>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_LOCATION">
+    <table name="C_LOCATION" primaryKey="C_LOCATION_KEY">
+      <column name="EM_RC_ADDRESS3" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_RC_ADDRESS4" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <check name="EM_RC_ADD1_LOC_CHK"><![CDATA[ADDRESS1 IS NOT NULL]]></check>
+      <check name="EM_RC_CITY_LOC_CHK"><![CDATA[CITY IS NOT NULL]]></check>
+      <check name="EM_RC_POS_LOC_CHK"><![CDATA[POSTAL IS NOT NULL]]></check>
+      <check name="EM_RC_REG_LOC_CHK"><![CDATA[C_REGION_ID IS NOT NULL]]></check>
+    </table>
+  </database>

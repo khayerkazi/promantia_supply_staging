@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="DCReportData" package="com.sysfore.storewarehouse.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  
+<SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+	    <Sql>
+		    <![CDATA[SELECT h.documentno,p.name as itemcode,nof.name as natprod,ref.name as octroicls,ref.value as octroirate,l.qtyship, 
+			pr.em_cl_mrpprice as mrp From m_product p, cl_model m left join ad_ref_list ref on (m.octroi=ref.value) ,
+			sw_sreqline l,sw_srequisition h,m_productprice pr,cl_natureofproduct  nof
+			where p.m_product_id=l.m_product_id and m.cl_natureofproduct_id=nof.cl_natureofproduct_id
+			and p.em_cl_model_id=m.cl_model_id and h.sw_srequisition_id=l.sw_srequisition_id
+			and p.m_product_id=pr.m_product_id  and ref.ad_reference_id='5F413E3CE9C1494E9D70964113481671'
+			and pr.m_pricelist_version_id='07132FB4FF284442AB10E1F5895F293F'
+			and h.requisitionstatus='SH' and h.documentno in ('documentNo'); ]]>
+		</Sql>
+		<Parameter name="documentNo" optional="true" type="replace" after="h.documentno in (" text="'documentNo'" />
+     </SqlMethod>
+</SqlClass>

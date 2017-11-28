@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_TAX">
+    <table name="C_TAX" primaryKey="C_TAX_KEY">
+      <column name="EM_INGST_LINK_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_TAX" name="EM_INGST_LINK_TAXIDFK">
+        <reference local="EM_INGST_LINK_ID" foreign="C_TAX_ID"/>
+      </foreign-key>
+    </table>
+  </database>

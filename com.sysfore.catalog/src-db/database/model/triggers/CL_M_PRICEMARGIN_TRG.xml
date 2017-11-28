@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER CL_M_PRICEMARGIN_TRG">
+    <trigger name="CL_M_PRICEMARGIN_TRG" table="M_PRODUCTPRICE" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[/*************************************************************************
+    * The contents of this file are subject to the Compiere Public
+    * License 1.1 ("License"); You may not use this file except in
+    * compliance with the License. You may obtain a copy of the License in
+    * the legal folder of your Openbravo installation.
+    * Software distributed under the License is distributed on an
+    * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+    * implied. See the License for the specific language governing rights
+    * and limitations under the License.
+    * The Original Code is  Compiere  ERP &  Business Solution
+    * The Initial Developer of the Original Code is Jorg Janke and ComPiere, Inc.
+    * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke,
+    * parts created by ComPiere are Copyright (C) ComPiere, Inc.;
+    * All Rights Reserved.
+    * Contributor(s): Openbravo SLU
+    * Contributions are Copyright (C) 2001-2008 Openbravo, S.L.U.
+    *
+    * Specifically, this derivative work is based upon the following Compiere
+    * file and version.
+    *************************************************************************
+    * $Id: cl_m_pricemargin_trg.sql,v 1.2 2003/03/19 06:46:56 jjanke Exp $
+    ***
+    * Title: define price margin
+    * Description:
+    * Define price margin amt and percentage
+    ************************************************************************/
+v_unitMargin NUMBER:=0;
+v_unitMarginPer NUMBER:=0;
+v_ueMargin NUMBER:=0;
+v_ueMarginPer NUMBER:=0;
+v_pcbMargin NUMBER:=0;
+v_pcbMarginPer NUMBER:=0;
+v_taxrate NUMBER:=0;
+v_taxAmt NUMBER:=0;
+v_octroi NUMBER:=0;
+v_lbtrate NUMBER:=0;
+v_taxcategory CHARACTER(40);
+v_region CHARACTER(2);
+is_applylbt NUMBER:=0;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+IF INSERTING OR UPDATING  THEN
+        select c_taxcategory_id into v_taxcategory from m_product where m_product_id=:NEW.m_product_id;
+	IF v_taxcategory is null THEN
+		v_taxrate :=0;
+	ELSE
+		select rate into v_taxrate from c_tax where c_region_id in 
+		(select l.c_region_id from ad_orginfo oi, c_location l where oi.ad_org_id=:NEW.ad_org_id and oi.c_location_id=l.c_location_id)
+		and c_tax.c_taxcategory_id =v_taxcategory
+		union 
+		select rate from c_tax ,c_tax_zone where 
+		c_tax.c_tax_id = c_tax_zone.c_tax_id and c_tax_zone.from_region_id in 
+		(select l.c_region_id from ad_orginfo oi, c_location l where oi.ad_org_id=:NEW.ad_org_id and oi.c_location_id=l.c_location_id)
+		and c_tax.c_taxcategory_id =v_taxcategory;
+		IF v_taxrate is null THEN
+			v_taxrate :=0;
+		END IF;
+	END IF;
+	
+	select count(ad_org_id) into is_applylbt from ad_org where ad_org_id=:NEW.ad_org_id and em_dsidef_islbtapply='Y';
+        IF (is_applylbt >0 ) THEN
+		--select to_number(octroi) into v_octroi from cl_model where cl_model_id = (select em_cl_model_id from m_product where m_product_id = NEW.m_product_id);
+		select to_number(coalesce(:NEW.em_cl_lbtrate,'0')) from m_productprice into v_lbtrate where m_product_id = :NEW.m_product_id
+		and ad_org_id = :NEW.ad_org_id;
+		
+		IF v_taxrate !=  0 THEN
+		 v_taxAmt = (:NEW.em_cl_ccunitprice/(100+v_taxrate))*v_taxrate;
+		END IF;
+		--v_unitMargin := NEW.em_cl_ccunitprice - v_taxAmt - :NEW.em_cl_cessionprice - ((v_octroi/100)*:NEW.em_cl_cessionprice);
+		v_unitMargin := :NEW.em_cl_ccunitprice - v_taxAmt - :NEW.em_cl_cessionprice - ((v_lbtrate/100)*:NEW.em_cl_cessionprice);
+		IF :NEW.em_cl_ccunitprice !=  0 THEN
+		 v_unitMarginPer := (v_unitMargin/:NEW.em_cl_ccunitprice)*100;
+		END IF;   
+		v_taxAmt :=0;
+		IF v_taxrate !=  0 THEN
+		 v_taxAmt = (:NEW.em_cl_ccueprice/(100+v_taxrate))*v_taxrate;
+		END IF;
+		--v_ueMargin := NEW.em_cl_ccueprice - v_taxAmt - :NEW.em_cl_cessionprice - ((v_octroi/100)*:NEW.em_cl_cessionprice);
+		v_ueMargin := :NEW.em_cl_ccueprice - v_taxAmt - :NEW.em_cl_cessionprice - ((v_lbtrate/100)*:NEW.em_cl_cessionprice);
+		IF :NEW.em_cl_ccueprice !=  0 THEN
+		 v_ueMarginPer := (v_ueMargin/:NEW.em_cl_ccueprice)*100;
+		END IF;
+		v_taxAmt :=0;
+		IF v_taxrate !=  0 THEN
+		 v_taxAmt = (:NEW.em_cl_ccpcbprice/(100+v_taxrate))*v_taxrate;
+		END IF;
+		--v_pcbMargin := NEW.em_cl_ccpcbprice - v_taxAmt - :NEW.em_cl_cessionprice - ((v_octroi/100)*:NEW.em_cl_cessionprice);
+		v_pcbMargin := :NEW.em_cl_ccpcbprice - v_taxAmt - :NEW.em_cl_cessionprice - ((v_lbtrate/100)*:NEW.em_cl_cessionprice);
+		IF :NEW.em_cl_ccpcbprice !=  0 THEN
+		 v_pcbMarginPer := (v_pcbMargin/:NEW.em_cl_ccpcbprice)*100;
+		END IF;
+
+	ELSE
+		IF v_taxrate !=  0 THEN
+		 v_taxAmt = (:NEW.em_cl_ccunitprice/(100+v_taxrate))*v_taxrate;
+		END IF;
+		v_unitMargin := :NEW.em_cl_ccunitprice - v_taxAmt - :NEW.em_cl_cessionprice;
+		IF :NEW.em_cl_ccunitprice !=  0 THEN
+		 v_unitMarginPer := (v_unitMargin/:NEW.em_cl_ccunitprice)*100;
+		END IF;   
+		v_taxAmt :=0;
+		IF v_taxrate !=  0 THEN
+		 v_taxAmt = (:NEW.em_cl_ccueprice/(100+v_taxrate))*v_taxrate;
+		END IF;
+		v_ueMargin := :NEW.em_cl_ccueprice - v_taxAmt - :NEW.em_cl_cessionprice;
+		IF :NEW.em_cl_ccueprice !=  0 THEN
+		 v_ueMarginPer := (v_ueMargin/:NEW.em_cl_ccueprice)*100;
+		END IF;
+		v_taxAmt :=0;
+		IF v_taxrate !=  0 THEN
+		 v_taxAmt = (:NEW.em_cl_ccpcbprice/(100+v_taxrate))*v_taxrate;
+		END IF;
+		v_pcbMargin := :NEW.em_cl_ccpcbprice - v_taxAmt - :NEW.em_cl_cessionprice;
+		IF :NEW.em_cl_ccpcbprice !=  0 THEN
+		 v_pcbMarginPer := (v_pcbMargin/:NEW.em_cl_ccpcbprice)*100;
+		END IF;
+	END IF;
+	:NEW.em_cl_unitmarginamount := v_unitMargin;
+	:NEW.em_cl_unitmarginpercentage := v_unitMarginPer;
+	:NEW.em_cl_uemarginamount := v_ueMargin;
+	:NEW.em_cl_uemarginpercentage := v_ueMarginPer;
+	:NEW.em_cl_pcbmarginamount := v_pcbMargin;
+	:NEW.em_cl_pcbmarginpercentage := v_pcbMarginPer;
+END IF;
+IF DELETING THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END CL_M_PRICEMARGIN_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION OBA_INSERT_MODEL">
+    <function name="OBA_INSERT_MODEL" type="VARCHAR">
+      <parameter name="in_modelproduct_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="action_code" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[modelUpdateCursor RECORD;
+
+  modelCursor RECORD;
+
+  v_updatedCounter NUMBER:=0;
+
+  v_insertedCounter NUMBER:=0; 
+
+  v_sport VARCHAR(100):='';
+
+  v_brand VARCHAR(100):='';
+
+  v_department VARCHAR(100):='';
+
+  v_natureOfProduct VARCHAR(100):='';
+
+  v_componentBrand VARCHAR(100):='';
+
+  v_typea VARCHAR(1):='';
+
+  v_typeb VARCHAR(1):='';
+
+  v_typec VARCHAR(1):='';
+
+  v_branddept VARCHAR(100):='';
+
+  v_subdept VARCHAR(100):='';
+
+  v_sport_id VARCHAR(32):='';
+
+  v_brand_id VARCHAR(32):='';
+
+  v_client_id VARCHAR(32):='';
+
+  v_org_id VARCHAR(32):='';
+
+  v_department_id VARCHAR(32):='';
+
+  v_natureOfProduct_id VARCHAR(32):='';
+
+  v_componentBrand_id VARCHAR(32):='';
+
+  v_typology VARCHAR(32):='';
+
+  v_checker NUMBER:=0;
+
+  v_modelProduct_id VARCHAR(32):= '';
+
+  v_storedept_id VARCHAR(32):='';
+
+  v_universe_id VARCHAR(32):='';
+
+  v_storeuniverse_id VARCHAR(32):='';
+
+  v_branddept_id VARCHAR(32):='';
+
+  v_subdept_id VARCHAR(32):='';
+
+  ---Product Related activities
+
+  v_color Varchar(50) :='';
+
+  v_color_id VARCHAR(32):='';
+
+  v_age Varchar(50) :='';
+
+  v_age_id VARCHAR(32):='';
+
+  v_gender Varchar(50) :='';
+
+  v_productType Varchar(50) :='';
+
+  v_productType_id VARCHAR(32):='';
+
+  v_taxCategory Varchar(50) :='';
+
+  v_taxCategory_id VARCHAR(32):='';
+
+  v_uom Varchar(50) :='';
+
+  v_uom_id VARCHAR(32):='';
+
+  v_productCategory Varchar(50) :='';
+
+  v_productCategory_id VARCHAR(32):='';
+
+  v_stocked VARCHAR(50):='';
+
+  v_sales VARCHAR(50):='';
+
+  v_purchase VARCHAR(50) := '';
+
+  v_bPartner VARCHAR(50) := '';
+
+  v_sourcing VARCHAR(50) := '';
+
+  v_countryCode VARCHAR(50):='';
+
+  v_lifeStage VARCHAR(50):='';
+
+  v_modelCode VARCHAR(50):='';
+
+  v_bPLocation VARCHAR(32):='';
+
+  v_errorNotice VARCHAR(2000) := '';
+
+  v_validated NUMBER:=0;
+
+  v_newIdentifier NUMBER:=0;
+
+BEGIN 
+
+	select * into modelCursor from oba_modelproduct where modelcode =in_modelproduct_id limit 1; 
+
+    v_sport := modelCursor.sport;
+
+    v_brand := modelCursor.Brand;
+
+    v_department := modelCursor.department;
+
+    v_natureOfProduct := modelCursor.natureofproduct;
+
+    v_componentBrand := modelCursor.componentbrand;
+
+    v_client_id :=modelCursor.ad_client_id;
+
+    v_org_id := modelCursor.ad_org_id;
+
+	v_branddept :=modelCursor.branddepartment;
+
+	v_subdept :=modelCursor.subdepartment;
+
+    Select value INTO v_typology from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('TYPOLOGY')) and lower(AD_REF_LIST.name) = lower(modelCursor.typology);
+
+    select cl_sport.cl_sport_id INTO v_sport_id FROM cl_sport where lower(cl_sport.name)=lower(v_sport);
+
+    select cl_brand.cl_brand_id INTO v_brand_id FROM cl_brand where lower(cl_brand.name)=lower(v_brand);
+
+    select cl_department.cl_department_id INTO v_department_id FROM cl_department where lower(cl_department.name)=lower(v_department);
+
+    select cl_storedept.cl_storedept_id INTO v_storedept_id FROM cl_storedept where lower(cl_storedept.name)=lower(modelCursor.storedept);
+
+    select cl_universe.cl_universe_id INTO v_universe_id FROM cl_universe where lower(cl_universe.name)=lower(modelCursor.universe);
+
+    select cl_storeuniverse.cl_storeuniverse_id INTO v_storeuniverse_id FROM cl_storeuniverse where lower(cl_storeuniverse.name)=lower(modelCursor.storeuniverse);
+
+	select cl_natureofproduct.cl_natureofproduct_id INTO v_natureOfProduct_id FROM cl_natureofproduct where lower(cl_natureofproduct.name)=lower(v_natureOfProduct);
+
+    select cl_component_brand.cl_component_brand_id INTO v_componentBrand_id FROM cl_component_brand where lower(cl_component_brand.name)=lower(v_componentBrand);
+
+	select cl_branddepartment.cl_branddepartment_id INTO v_branddept_id FROM cl_branddepartment where lower(cl_branddepartment.name)=lower(v_branddept);
+
+	select cl_subdepartment.cl_subdepartment_id INTO v_subdept_id FROM cl_subdepartment where lower(cl_subdepartment.name)=lower(v_subdept);
+
+IF(	action_code='add') THEN --IF 1
+
+    insert into cl_model (cl_model_id, ad_client_id,ad_org_id, name,value,imancode,cl_department_id,
+
+    cl_sport_id, sport_category,cl_brand_id,cl_natureofproduct_id,typology,merchandise_category,commerchandisecategory,
+
+    cl_component_brand_id,blueproduct,createdby,updatedby,cl_storedept_id,cl_universe_id,cl_storeuniverse_id,cl_subdepartment_id,cl_branddepartment_id) values 
+
+    (get_uuid(), modelCursor.ad_client_id,modelCursor.ad_org_id,modelCursor.modelname,modelCursor.modelcode,modelCursor.imancode,v_department_id,v_sport_id,
+
+     modelCursor.sportcategory,v_brand_id,v_natureOfProduct_id,v_typology,modelCursor.merchandisecategory,modelCursor.componentmerchandisecat,
+
+     v_componentBrand_id,modelCursor.blueproduct,modelCursor.createdby,modelCursor.updatedby,v_storedept_id,v_universe_id,v_storeuniverse_id,v_subdept_id,v_branddept_id);  
+
+ELSE --IF 1
+
+Update cl_model set ad_client_id = modelCursor.ad_client_id,
+
+  				  ad_org_id = modelCursor.ad_org_id,
+
+		  updated=now(),
+
+                  value = modelCursor.modelcode,
+
+		  name = modelCursor.modelname,
+
+                  --imancode = modelCursor.imancode,
+
+                  cl_department_id = v_department_id,
+
+                  --cl_sport_id = v_sport_id,
+
+                  --sport_category = modelCursor.sportcategory,
+
+                  cl_brand_id = v_brand_id,
+
+                  --cl_natureofproduct_id = v_natureOfProduct_id,
+
+                  --typology = v_typology,
+
+                  merchandise_category = modelCursor.merchandisecategory,
+
+                  --commerchandisecategory  = modelCursor.componentmerchandisecat,
+
+                  --cl_component_brand_id = v_componentBrand_id,
+
+                  --blueproduct = modelCursor.blueproduct,
+
+                  createdby = modelCursor.createdby,
+
+                  updatedby = modelCursor.updatedby,
+
+                  cl_storedept_id = v_storedept_id,
+
+                  cl_universe_id = v_universe_id,
+
+                  cl_storeuniverse_id = v_storeuniverse_id
+
+				  --cl_branddepartment_id=v_branddept_id,
+
+				  --cl_subdepartment_id=v_subdept_id
+
+  where value = modelCursor.modelcode; 
+
+END IF; -- IF 1
+
+   RETURN 'Success' ;
+END OBA_INSERT_MODEL
+]]></body>
+    </function>
+  </database>

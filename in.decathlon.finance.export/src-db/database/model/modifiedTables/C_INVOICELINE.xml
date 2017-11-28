@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_INVOICELINE">
+    <table name="C_INVOICELINE" primaryKey="C_INVOICELINE_KEY">
+      <index name="EM_DFEX_PROD_ORG" unique="false">
+        <index-column name="M_PRODUCT_ID"/>
+        <index-column name="AD_ORG_ID"/>
+      </index>
+    </table>
+  </database>

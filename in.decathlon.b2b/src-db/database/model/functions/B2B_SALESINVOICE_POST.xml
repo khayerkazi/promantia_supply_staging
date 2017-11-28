@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION B2B_SALESINVOICE_POST">
+    <function name="B2B_SALESINVOICE_POST" type="VARCHAR">
+      <parameter name="p_order_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_message VARCHAR(2000);
+v_DocType_ID varchar(32);
+v_DocSubTypeSO VARCHAR(60);
+Invoice_ID VARCHAR(32);
+InOut_ID VARCHAR(32);
+v_DocumentNo VARCHAR(200) ;
+v_DocAction VARCHAR(60) ;
+v_DocStatus VARCHAR(60);
+Cur_Order RECORD;
+p_inout_id varchar(32);
+p_Invoice_ID varchar(32);
+Cur_Orderline RECORD;
+Cur_Minoutline RECORD;
+
+
+    v_isdeferredrevenue M_Product.IsDeferredRevenue%TYPE;
+    v_revplantype M_Product.RevPlanType%TYPE;
+    v_periodnumber M_Product.periodnumber%TYPE;
+    v_defaultperiod M_Product.defaultperiod%TYPE;
+ 
+    v_isdeferredexpense M_Product.IsDeferredExpense%TYPE;
+    v_expplantype M_Product.ExpPlanType%TYPE;
+    v_periodnumber_exp M_Product.periodnumber_exp%TYPE;
+    v_defaultperiod_exp M_Product.defaultperiod_exp%TYPE;
+
+    v_isdeferred_inv C_InvoiceLine.IsDeferred%TYPE;
+    v_defplantype_inv C_InvoiceLine.DefPlanType%TYPE;
+    v_periodnumber_inv C_InvoiceLine.periodnumber%TYPE;
+    v_period_inv C_InvoiceLine.c_period_id%TYPE;
+
+v_orgname varchar(32);
+v_taxbaseamt NUMBER:=0;
+v_invoiceqty NUMBER:=0;
+v_corderlinecount NUMBER:=0;
+v_minoutlinecount NUMBER:=0;
+
+  BEGIN
+  
+Select C_Doctype_id,docaction,DocStatus into v_DocType_ID,v_DocAction,v_DocStatus 
+from c_order where c_order_id=p_order_id;
+    SELECT DocSubTypeSO
+      INTO v_DocSubTypeSO
+    FROM C_DOCTYPE
+    WHERE C_DocType_ID=v_DocType_ID;
+
+
+    ----------------------------------------------------------------
+    --Create Invoice
+                    RAISE NOTICE 'Create Invoice';  
+FOR Cur_Order IN (select * from c_order where c_order_id=p_order_id) loop    
+    p_Invoice_ID:=get_uuid();
+  SELECT od.C_DocTypeInvoice_ID, od.DocSubTypeSO
+              INTO v_DocType_ID, v_DocSubTypeSO
+              FROM C_DOCTYPE od, C_DOCTYPE ID
+              WHERE od.C_DocType_ID='CB6EEA256BBC41109911215C5A14D39B'
+		--WHERE od.C_DocType_ID='4A5D4DD2604F49819FE9D56216489D72'
+		--WHERE od.C_DocType_ID='40EE9B1CD3B345FABEFDA62B407B407F'
+                AND od.C_DocTypeInvoice_ID=ID.C_DocType_ID
+                AND ID.IsActive='Y';
+
+SELECT name into v_orgname from ad_org ad, c_order c where ad.ad_org_id=c.ad_org_id and c.c_order_id=p_order_id;
+RAISE NOTICE 'Orgname is''%s',v_orgname;
+--SELECT * INTO  v_DocumentNo FROM Ad_Sequence_Doctype(v_DocType_ID, Cur_Order.AD_Client_ID, 'Y') ;
+            --  IF(v_DocumentNo IS NULL) THEN
+            if(v_orgname ='B2B') THEN
+                Ad_Sequence_Doc('B2B_Invoice', Cur_Order.AD_Client_ID, 'Y', v_DocumentNo) ;
+              END IF;
+
+--Invoice will not be created if there are no lines with >0 received quantities (EM_Sw_Recqty)
+--select count(c_orderline_id) into v_corderlinecount from c_orderline where c_order_id=p_order_id and EM_Sw_Recqty >'0';
+
+--Invoice will not be created if there are no lines with >0 movement quantities (movementqty in m_inoutline)
+select count(m_inoutline_id) into v_minoutlinecount from m_inoutline where c_orderline_id in (select c_orderline_id from c_orderline where c_order_id =p_order_id ) and m_inout_id in(select m_inout_id from m_inout where issotrx='N') and movementqty >0;
+
+RAISE NOTICE 'Count is''%s',v_minoutlinecount;
+IF (v_minoutlinecount > 0) THEN
+--IF (v_corderlinecount > 0) THEN
+    INSERT INTO C_INVOICE
+                (
+                  C_Invoice_ID, C_Order_ID, AD_Client_ID, AD_Org_ID,
+                  IsActive, Created, CreatedBy,Updated, UpdatedBy,
+                  IsSOTrx, DocumentNo, DocStatus, DocAction,
+                  Processing, Processed, C_DocType_ID, C_DocTypeTarget_ID,
+                  Description, SalesRep_ID,
+                  DateInvoiced,
+                  DatePrinted, IsPrinted, DateAcct, TaxDate, 
+                  C_PaymentTerm_ID,
+                  C_BPartner_ID, C_BPartner_Location_ID, AD_User_ID, 
+                  POReference,DateOrdered, IsDiscountPrinted, 
+                  C_Currency_ID, PaymentRule,
+                  C_Charge_ID, ChargeAmt, IsSelfService, 
+                  TotalLines,GrandTotal, 
+                  M_PriceList_ID, C_Campaign_ID, C_Project_ID,
+                  C_CostCenter_ID, A_Asset_ID,
+                  C_Activity_ID, AD_OrgTrx_ID, User1_ID, 
+                  User2_ID, fin_paymentmethod_id,em_ecom_order_receiptno
+                )
+                VALUES
+                (
+                  p_Invoice_ID, Cur_Order.C_Order_ID, Cur_Order.AD_Client_ID, Cur_Order.AD_Org_ID,
+                  'Y', now(), Cur_Order.createdby, now(), Cur_Order.createdby , 
+                  'Y', v_DocumentNo, 'DR', 'CO', 
+                  'N', 'N', v_DocType_ID, v_DocType_ID, 
+                  Cur_Order.em_ds_receiptno, Cur_Order.SalesRep_ID, 
+                  now(), 
+                  NULL, 'N', Cur_Order.dateordered, Cur_Order.dateordered,
+                  Cur_Order.C_PaymentTerm_ID, 
+                  Cur_Order.em_ds_bpartner_id, Cur_Order.BillTo_ID, Cur_Order.AD_User_ID,
+                  Cur_Order.POReference, Cur_Order.DateOrdered, Cur_Order.IsDiscountPrinted, 
+                  Cur_Order.C_Currency_ID,Cur_Order.PaymentRule, 
+                  Cur_Order.C_Charge_ID, Cur_Order.ChargeAmt, 
+                  Cur_Order.IsSelfService,
+                  0, 0, 
+                  Cur_Order.M_PriceList_ID, Cur_Order.C_Campaign_ID, Cur_Order.C_Project_ID,
+                  Cur_Order.C_CostCenter_ID, Cur_Order.A_Asset_ID, 
+                  Cur_Order.C_Activity_ID, Cur_Order.AD_OrgTrx_ID, Cur_Order.User1_ID,
+                  Cur_Order.User2_ID, Cur_Order.fin_paymentmethod_id,Cur_Order.em_ds_receiptno
+                );
+
+FOR Cur_Minoutline IN (select *  from m_inoutline where c_orderline_id in (select c_orderline_id from c_orderline where c_order_id =p_order_id ) and m_inout_id in(select m_inout_id from m_inout where issotrx='N') and movementqty >0) loop
+               
+--FOR Cur_Orderline IN (select * from c_orderline where c_order_id=p_order_id and EM_Sw_Recqty >'0') loop
+FOR Cur_Orderline IN (select * from c_orderline where c_order_id=p_order_id and m_product_id=Cur_Minoutline.m_product_id limit 1) loop
+IF(Cur_Orderline.M_Product_ID IS NOT NULL) THEN
+	SELECT REVPLANTYPE, ISDEFERREDREVENUE, PERIODNUMBER, DEFAULTPERIOD,EXPPLANTYPE, ISDEFERREDEXPENSE, PERIODNUMBER_EXP, DEFAULTPERIOD_EXP
+		INTO v_revplantype, v_isdeferredrevenue, v_periodnumber, v_defaultperiod,v_expplantype, v_isdeferredexpense, v_periodnumber_exp, v_defaultperiod_exp
+	FROM M_PRODUCT	WHERE M_PRODUCT_ID = Cur_Orderline.M_Product_ID;
+    IF(Cur_Order.IsSOTrx = 'Y') THEN
+	v_period_inv:= c_get_default_period(p_Invoice_ID, v_defaultperiod);
+    IF(v_period_inv IS NOT NULL AND v_isdeferredrevenue = 'Y') THEN
+	v_isdeferred_inv := v_isdeferredrevenue;
+	v_defplantype_inv := v_revplantype;
+	v_periodnumber_inv := v_periodnumber;
+     ELSE
+	v_period_inv := NULL;
+	v_isdeferred_inv := 'N';
+	v_defplantype_inv := NULL;
+	v_periodnumber_inv := NULL;
+     END IF;
+     ELSE
+	v_period_inv:= c_get_default_period(p_Invoice_ID, v_defaultperiod_exp);
+     IF(v_period_inv IS NOT NULL AND v_isdeferredexpense = 'Y') THEN
+	v_isdeferred_inv := v_isdeferredexpense;
+	v_defplantype_inv := v_expplantype;
+	v_periodnumber_inv := v_periodnumber_exp;
+     ELSE
+	v_period_inv := NULL;
+	v_isdeferred_inv := 'N';
+	v_defplantype_inv := NULL;
+	v_periodnumber_inv := NULL;
+     END IF;
+   END IF;
+ END IF;
+
+--v_invoiceqty=Cur_Orderline.EM_Sw_Recqty;
+v_invoiceqty=Cur_Minoutline.movementqty;
+                               
+INSERT INTO C_INVOICELINE
+                      (
+                        C_InvoiceLine_ID, AD_Client_ID, AD_Org_ID, IsActive,
+                        Created, CreatedBy, Updated, UpdatedBy,
+                        C_Invoice_ID, C_OrderLine_ID, M_InOutLine_ID, Line,
+                        Description, M_Product_ID, 
+                        QtyInvoiced, PriceList,
+                        PriceActual, PriceLimit, 
+                        LineNetAmt, 
+                        C_Charge_ID,
+                        ChargeAmt, C_UOM_ID,
+                        C_Tax_ID,  
+                        PriceStd,
+                        m_attributesetinstance_id, 
+                        taxbaseamt,
+                        gross_unit_price, 
+                        line_gross_amount,
+                        grosspricestd, grosspricelist,
+                        isdeferred, defplantype, periodnumber, c_period_id,
+                        explode, 
+                        bom_parent_id                        
+                      )
+                      VALUES
+                      (
+                        get_uuid(), Cur_Orderline.AD_Client_ID, Cur_Order.AD_Org_ID, 'Y',
+                        now(), Cur_Orderline.createdby, now(), Cur_Orderline.createdby,
+                        p_Invoice_ID, Cur_Orderline.C_OrderLine_ID, NULL, Cur_Orderline.line,
+                        Cur_Orderline.Description, Cur_Orderline.M_Product_ID, 
+                        v_invoiceqty, Cur_Orderline.PriceList,
+                        Cur_Orderline.PriceActual, Cur_Orderline.PriceLimit, 
+                        C_Currency_Round(v_invoiceqty*Cur_Orderline.PriceActual, Cur_Order.C_Currency_ID, NULL), 
+                        Cur_Orderline.C_Charge_ID,
+                        Cur_Orderline.ChargeAmt, Cur_Orderline.C_UOM_ID,
+                        Cur_Orderline.C_Tax_ID,  --MODIFIED BY F.IRIAZABAL
+                        Cur_Orderline.PriceStd,
+                        Cur_Orderline.m_attributesetinstance_id, 
+                        Cur_Orderline.taxbaseamt,
+                        Cur_Orderline.gross_unit_price, 
+                        C_Currency_Round(v_invoiceqty*Cur_Orderline.gross_unit_price, 
+                        Cur_Order.C_Currency_ID, NULL),
+                        COALESCE(Cur_Orderline.grosspricestd,0), COALESCE(Cur_Orderline.grosspricelist,0),
+                        v_isdeferred_inv, v_defplantype_inv, v_periodnumber_inv, v_period_inv,
+                        Cur_Orderline.explode, 
+                        (SELECT c_invoiceline_id 
+                           FROM c_invoiceline 
+                           WHERE c_invoice_id=p_Invoice_ID 
+                             and c_orderline_id = (SELECT BOM_parent_id FROM c_orderline 
+                                                   WHERE c_orderline_id = Cur_Orderline.c_orderline_id))
+                      )
+                      ;
+
+        End Loop;  
+     End Loop; 
+      C_INVOICE_POST(null,p_Invoice_ID);
+  END IF; 
+End Loop;
+
+
+    ----------------------------------------------------------------  
+    return '1';
+END B2B_SALESINVOICE_POST
+]]></body>
+    </function>
+  </database>

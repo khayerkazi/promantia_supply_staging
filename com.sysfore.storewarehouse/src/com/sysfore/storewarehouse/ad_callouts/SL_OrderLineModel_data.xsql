@@ -1,0 +1,14 @@
+
+<SqlClass name="SLOrderLineModelData" package="com.sysfore.storewarehouse.ad_callouts">
+ <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+       Select lower(EM_SW_ModelName) as model from c_order
+       Where c_order_id=?
+      ]]>
+    </Sql>
+    <Parameter name="cOrderId"/>
+  </SqlMethod>
+
+</SqlClass>

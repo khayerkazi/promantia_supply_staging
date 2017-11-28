@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="negativeitem" pageWidth="650" pageHeight="842" columnWidth="610" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="USER_CLIENT" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="USER_ORG" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[select p.name as ITEMCODE, em_cl_modelcode as MODELCODE, p.em_cl_modelname as MODELNAME, b.name AS BRAND, s.name as STOREDEPT, sum(t.movementqty)
+ from m_product p, cl_model m, cl_brand b, cl_storedept s, m_transaction t
+where p.em_cl_model_id=m.cl_model_id and m.cl_brand_id =b.cl_brand_id and m.cl_storedept_id=s.cl_storedept_id and p.m_product_id=t.m_product_id
+and t.m_locator_id=(select m_locator_id from m_locator where value like '%Saleable%' AND M_LOCATOR.AD_ORG_ID IN ($P!{USER_ORG}))
+AND T.AD_CLIENT_ID IN ($P!{USER_CLIENT})
+group by p.name , em_cl_modelcode , p.em_cl_modelname, b.name, s.name
+HAVING sum(t.movementqty) < 0
+order by s.name]]>
+	</queryString>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="modelcode" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="storedept" class="java.lang.String"/>
+	<field name="sum" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="18" splitType="Stretch">
+			<staticText>
+				<reportElement x="-20" y="0" width="650" height="18"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Negative Stock Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="13" splitType="Stretch">
+			<staticText>
+				<reportElement x="530" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Negative stock]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="380" y="0" width="150" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Dept]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[modelname]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="80" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[modelcode]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="-20" y="0" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[itemcode]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<textField>
+				<reportElement x="-20" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="280" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="380" y="0" width="150" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{storedept}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="530" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sum}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

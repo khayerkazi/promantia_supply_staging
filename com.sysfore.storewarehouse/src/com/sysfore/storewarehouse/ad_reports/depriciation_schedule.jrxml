@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="depriciation_schedule" pageWidth="842" pageHeight="595" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="842" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<parameter name="Month" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Year" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT item_code, model_code, model_name, dsi_stock_quantity, less_than_2_months, two_to_6_months, six_to_12_months, greater_than_12_months
+                 FROM sw_stock_depreciation
+                    where extract(month from report_date)::character varying(4) = $P{Month}
+                    and extract(year from report_date)::character varying(4) = $P{Year}]]>
+	</queryString>
+	<field name="item_code" class="java.lang.String"/>
+	<field name="model_code" class="java.lang.String"/>
+	<field name="model_name" class="java.lang.String"/>
+	<field name="dsi_stock_quantity" class="java.math.BigDecimal"/>
+	<field name="less_than_2_months" class="java.math.BigDecimal"/>
+	<field name="two_to_6_months" class="java.math.BigDecimal"/>
+	<field name="six_to_12_months" class="java.math.BigDecimal"/>
+	<field name="greater_than_12_months" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="193" y="10" width="267" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Stock Depreciation Report
+]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="1" width="80" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="80" y="1" width="113" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="193" y="1" width="151" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="344" y="1" width="116" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DSI Stock Qty Total ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="460" y="1" width="87" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[< 2 months]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="547" y="1" width="87" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[2-6 months]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="634" y="1" width="87" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[6-12 months]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="721" y="1" width="80" height="20"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[> 12months]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="80" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{item_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="0" width="113" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{model_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="193" y="0" width="151" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{model_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="344" y="0" width="116" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{dsi_stock_quantity}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="460" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{less_than_2_months}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="547" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{two_to_6_months}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="634" y="0" width="87" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{six_to_12_months}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="721" y="0" width="80" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{greater_than_12_months}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

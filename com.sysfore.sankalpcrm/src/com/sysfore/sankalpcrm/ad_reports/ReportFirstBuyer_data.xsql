@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="ReportFirstBuyerData" package="com.sysfore.sankalpcrm.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  
+
+  <SqlMethod name="selectOrg" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[ 
+      SELECT (o.em_rc_oxylaneno::numeric) as DecathlonID,
+      '' as MemberName, '' as Lastname,
+      'DECATHLON DEFAULT' as MemberOrg,
+      (o.em_ds_posno::numeric) as POS,
+      ad.name as Store,
+      (select name from ad_user where ad_user_id=o.ad_user_id) as CashierName,
+      o.created::date as Date,
+      to_char(o.created::timestamp, 'HH24:MI:SS') as Time,
+      '' as Email,  
+      '' as Mobile,
+      '' as Landline,
+      '' as PostalCode,
+      o.documentno as BillNo,
+      sum(ol.em_ds_lotqty + ol.em_ds_boxqty + ol.em_ds_unitqty) as BillQty,
+      sum(ol.em_ds_lotprice * ol.em_ds_lotqty + ol.em_ds_boxprice * ol.em_ds_boxqty + 
+     CASE WHEN (ol.gross_unit_price=0 OR ol.gross_unit_price is null) then round(ol.priceactual,2) else ol.gross_unit_price end
+      * ol.em_ds_unitqty) AS BillAmount,
+      o.em_ds_chargeamt as TransportCost,
+      (o.em_ds_ratesatisfaction::numeric) as Feedback
+
+      FROM  c_order o
+      join c_orderline ol on o.c_order_id = ol.c_order_id
+      join ad_org ad  on ad.ad_org_id = o.AD_ORG_ID
+      join 
+      (select min(created) as created from c_order
+    group by em_rc_oxylaneno, ad_org_id) fp on fp.created = o.created
+      WHERE
+      O.AD_ORG_ID IN (?)
+     AND 1=1
+      AND o.c_return_reason_id is null
+      AND o.created between ? and ?
+      AND o.issotrx='Y'
+      GROUP BY o.created, o.em_rc_oxylaneno,       
+      MemberName, Lastname, ad.name, o.em_ds_posno,
+      o.ad_user_id,
+      o.documentno, o.em_ds_chargeamt, 
+      o.em_ds_ratesatisfaction
+      ORDER BY Date desc, Time desc  ]]>
+    </Sql>
+     <Parameter name="AdOrg"/>
+     <Parameter name="parDateFrom"/>
+     <Parameter name="parDateTo"/>
+     
+  </SqlMethod>
+
+    
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+         SELECT (o.em_rc_oxylaneno::numeric) as DecathlonID,
+      '' as MemberName, '' as Lastname,
+      'DECATHLON DEFAULT' as MemberOrg,
+      (o.em_ds_posno::numeric) as POS,
+      ad.name as Store,
+      (select name from ad_user where ad_user_id=o.ad_user_id) as CashierName,
+      o.created::date as Date,
+      to_char(o.created::timestamp, 'HH24:MI:SS') as Time,
+      '' as Email,
+      '' as Mobile,
+      '' as Landline,
+      '' as PostalCode,
+      o.documentno as BillNo,
+      sum(ol.em_ds_lotqty + ol.em_ds_boxqty + ol.em_ds_unitqty) as BillQty,
+      sum(ol.em_ds_lotprice * ol.em_ds_lotqty + ol.em_ds_boxprice * ol.em_ds_boxqty + 
+     CASE WHEN (ol.gross_unit_price=0 OR ol.gross_unit_price is null) then round(ol.priceactual,2) else ol.gross_unit_price end
+      * ol.em_ds_unitqty) AS BillAmount,
+      o.em_ds_chargeamt as TransportCost,
+      (o.em_ds_ratesatisfaction::numeric) as Feedback
+
+      FROM  c_order o
+      join c_orderline ol on o.c_order_id = ol.c_order_id
+      join ad_org ad  on ad.ad_org_id = o.AD_ORG_ID
+      join 
+      (select min(created) as created from c_order
+    group by em_rc_oxylaneno, ad_org_id) fp on fp.created = o.created
+      WHERE
+      1=1
+      AND o.c_return_reason_id is null
+      AND o.created between ? and ?
+      AND o.issotrx='Y'
+      GROUP BY o.created, o.em_rc_oxylaneno,       
+      MemberName, Lastname, ad.name, o.em_ds_posno,
+      o.ad_user_id,
+      o.documentno, o.em_ds_chargeamt, 
+      o.em_ds_ratesatisfaction
+      ORDER BY Date desc, Time desc  ]]>
+    </Sql>
+     <Parameter name="parDateFrom"/>
+     <Parameter name="parDateTo"/>
+     
+  </SqlMethod>
+  
+  <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>

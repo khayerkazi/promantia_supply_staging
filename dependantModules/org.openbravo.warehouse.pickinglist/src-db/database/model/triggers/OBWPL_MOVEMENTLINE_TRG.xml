@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER OBWPL_MOVEMENTLINE_TRG">
+    <trigger name="OBWPL_MOVEMENTLINE_TRG" table="M_MOVEMENTLINE" fires="after" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+
+/************************************************************************************
+ * Copyright (C) 2013-2015 Openbravo S.L.U.
+ * Licensed under the Openbravo Commercial License version 1.0
+ * You may obtain a copy of the License at http://www.openbravo.com/legal/obcl.html
+ * or in the legal folder of this module distribution.
+ ************************************************************************************/
+    
+BEGIN
+
+  IF (AD_isTriggerEnabled() = 'N') THEN RETURN;
+  END IF;
+
+
+  IF (:OLD.EM_OBWPL_ALLOWDELETE = 'N') THEN
+    RAISE_APPLICATION_ERROR(-20000, '@OBWPL_MVMT_DELETE_ERROR@');
+  END IF;
+END OBWPL_MOVEMENTLINE_TRG
+]]></body>
+    </trigger>
+  </database>

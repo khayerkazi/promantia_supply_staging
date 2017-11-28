@@ -1,0 +1,224 @@
+package in.decathlon.scanner;
+
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.openbravo.base.exception.OBException;
+import org.openbravo.dal.core.OBContext;
+import org.openbravo.dal.service.OBCriteria;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.dal.service.OBQuery;
+import org.openbravo.model.common.enterprise.Locator;
+import org.openbravo.model.materialmgmt.onhandquantity.Reservation;
+import org.openbravo.model.materialmgmt.onhandquantity.ReservationStock;
+import org.openbravo.model.materialmgmt.onhandquantity.StorageDetail;
+import org.openbravo.service.web.WebService;
+
+public class ScannerWebservice implements WebService {
+  Logger log4j = Logger.getLogger(getClass());
+
+  @Override
+  public void doGet(String path, HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
+
+    log4j.debug("CMD: " + request.getParameter("cmd"));
+    String cmd = (String) request.getParameter("cmd");
+    if (cmd == null)
+      throw new OBException("Mandatory Parameter cmd not given");
+
+    JSONArray data = null;
+    if (cmd.equals("GETCAC")) {
+      // Read the In Transit bin
+      String fromBin = (String) request.getParameter("from");
+      // TODO - add mandatory check
+      data = GetCacStockForMovement(fromBin);
+    } else if (cmd.equals("GETSHIPMENT")) {
+      data = getShipments();
+    } else if (cmd.equals("GETCAR")) {
+      // Get the shipName to GETCAR
+      String shipName = (String) request.getParameter("ShipName");
+      data = GetCarStockAwaitingReceipt(shipName);
+    } else {
+      throw new OBException("Invalid cmd: " + cmd);
+    }
+    JSONObject obj = new JSONObject();
+    obj.put("Stock", data);
+
+    // write to the response
+    response.setContentType("application/json");
+    response.setCharacterEncoding("utf-8");
+
+    final Writer w = response.getWriter();
+    w.write(obj.toString());
+    w.close();
+
+  }
+
+  private JSONArray GetCacStockForMovement(String itrBin) throws JSONException {
+    JSONArray sdList = new JSONArray();
+
+    for (StorageDetail sd : getITRStorageDetail(itrBin)) {
+      JSONObject js = new JSONObject();
+      js.put("SDID", sd.getId());
+      js.put("ItemCode", sd.getProduct().getName());
+      /*
+       * Handled in OBcriteria if (sd.getQuantityOnHand().compareTo(new BigDecimal(0)) != 1)
+       * continue;
+       */
+      BigDecimal resQty = ScannerUtilities.getTotalResvdQty(sd);
+      BigDecimal remQty = sd.getQuantityOnHand().subtract(resQty);
+      if (remQty.compareTo(new BigDecimal(0)) != 1)
+        continue;
+
+      js.put("Qty", remQty);
+      js.put("PCB", sd.getProduct().getClPcbQty());
+      OBContext.setAdminMode();
+      String logRec = getLogisticsRecharge(sd.getProduct().getClLogRec());
+      OBContext.restorePreviousMode();
+      js.put("LogRec", logRec);
+      sdList.put(js);
+
+    }
+    log4j.debug("Storage Details: " + sdList);
+    return sdList;
+  }
+
+  private String getLogisticsRecharge(String logRec) {
+    if (logRec == null) {
+      return null;
+    }
+    OBCriteria<org.openbravo.model.ad.domain.List> adList = OBDal.getInstance().createCriteria(
+        org.openbravo.model.ad.domain.List.class);
+    adList.add(Restrictions.eq(org.openbravo.model.ad.domain.List.PROPERTY_SEARCHKEY, logRec));
+    adList.createAlias(org.openbravo.model.ad.domain.List.PROPERTY_REFERENCE, "ref").add(
+        Restrictions.eq("ref.name", "EM_Cl_Logistic_Recharge"));
+    if (adList.list().size() == 0) {
+      throw new OBException("Reference List " + logRec + " not found");
+    }
+    return adList.list().get(0).getName();
+  }
+
+  private List<StorageDetail> getITRStorageDetail(String itrBin) {
+
+    List<Locator> locList;
+    if (itrBin == null || itrBin == "") {
+      itrBin = "ITR";
+
+    }
+    locList = ScannerUtilities.getLocators(itrBin);
+
+    OBCriteria<StorageDetail> sdCriteria = OBDal.getInstance().createCriteria(StorageDetail.class);
+    sdCriteria.createAlias("product", "item");
+    // Add check for qty > 0
+    sdCriteria.add(Restrictions.gt("quantityOnHand", new BigDecimal(0)));
+
+    sdCriteria.add(Restrictions.in(StorageDetail.PROPERTY_STORAGEBIN, locList));
+    sdCriteria.addOrder(Order.asc("item.name"));
+    log4j.debug("Storage details retrieved: " + sdCriteria.list());
+    return sdCriteria.list();
+  }
+
+  private JSONArray getShipments() throws JSONException {
+    final StringBuilder whereClause = new StringBuilder();
+    whereClause.append("rESStatus='CO' order by dscShipmentname");
+    OBQuery<Reservation> resvCrit = OBDal.getInstance().createQuery(Reservation.class,
+        whereClause.toString());
+
+    JSONArray jArray = new JSONArray();
+    String prevShipName = null;
+    for (Reservation resv : resvCrit.list()) {
+      if (prevShipName == null || !resv.getDscShipmentname().equals(prevShipName)) {
+        JSONObject json = new JSONObject();
+        json.put("ShipName", resv.getDscShipmentname());
+        jArray.put(json);
+      }
+      prevShipName = resv.getDscShipmentname();
+    }
+    return jArray;
+  }
+
+  private JSONArray GetCarStockAwaitingReceipt(String shipName) throws JSONException {
+    JSONArray jsonList = new JSONArray();
+
+    // Get all the reservations
+    List<ReservationStock> resvList = ScannerUtilities.getReservations(null, shipName);
+    for (ReservationStock resv : resvList) {
+      BigDecimal resvdQty = resv.getQuantity();
+      if (resvdQty.compareTo(new BigDecimal(0)) == 1) {
+        // Get the reservations
+        JSONObject js = new JSONObject();
+        js.put("ResvID", resv.getId());
+        js.put("ItemCode", resv.getReservation().getProduct().getName());
+        js.put("Qty", resvdQty);
+        OBContext.setAdminMode();
+        String boxNo = resv.getAttributeSetValue().getLotName();
+        OBContext.restorePreviousMode();
+        js.put("BoxNo", boxNo);
+        jsonList.put(js);
+      }
+    }
+    log4j.debug("Reservation Details: " + jsonList);
+    return jsonList;
+  }
+
+  @Override
+  public void doPost(String path, HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
+
+    log4j.debug("CMD: " + request.getParameter("cmd"));
+    String cmd = (String) request.getParameter("cmd");
+
+    if (cmd == null)
+      throw new OBException("Mandatory Parameter cmd not given");
+    String data = ScannerUtilities.getBody(request);
+    if (data == null) {
+      throw new OBException("Cannot read the input data");
+    }
+    final JSONObject jsonData = new JSONObject(data);
+    try {
+      if (cmd.equals("PUTCAC")) {
+        // Get the CAC bin
+        String toBin = (String) request.getParameter("to");
+        // TODO: Make it mandatory
+        ProcessCacStock cacProcess = new ProcessCacStock();
+        cacProcess.ProcessCacStockForShipment(jsonData, toBin);
+        log4j.debug("Successfully processed CAC shipments");
+      } else if (cmd.equals("PUTCAR")) {
+        ProcessCarStock carProcess = new ProcessCarStock();
+        carProcess.ProcessCarReceipt(jsonData);
+        log4j.debug("Successfully processed CAR receipts");
+      } else {
+        throw new OBException(cmd + ": Unsupported cmd");
+      }
+    } catch (Exception e) {
+      log4j.debug("Caught exception " + e.getMessage());
+      throw new OBException(e.getMessage());
+    }
+
+  }
+
+  @Override
+  public void doDelete(String path, HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void doPut(String path, HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
+    // TODO Auto-generated method stub
+
+  }
+
+}

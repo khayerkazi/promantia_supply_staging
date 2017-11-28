@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SL 
+ * All portions are Copyright (C) 2008 Openbravo SL 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<REPORT>
+  <template file="PreMail.html"/>
+  <PARAMETER id="paramLanguage" name="language" default=""/>
+  <PARAMETER id="messageBoxID" name="messageType" attribute="class" replace="yy" default="HIDDEN"/>
+  <PARAMETER id="messageBoxIDTitle" name="messageTitle" default=""/>
+  <PARAMETER id="messageBoxIDMessage" name="messageMessage" default=""/>
+  <PARAMETER id="paramDirectory" name="directory" default=""/>
+  <PARAMETER id="paramCSS" name="theme" attribute="href" replace="Default"/>
+  <PARAMETER id="processHelp" name="help" replaceCharacters="htmlHelp" default=""/>
+  <PARAMETER id="inpcBpartnerId" name="inpcBpartnerId" attribute="value" default=""/>
+  <PARAMETER id="inpName" name="inpName" attribute="value" default=""/>
+  <PARAMETER id="inpOxylane" name="inpOxylane" attribute="value" default=""/>
+  <PARAMETER id="paramMailBody" name="mailBody"/>
+  <PARAMETER id="paramMobile" name="mobile" attribute="value"/>
+  <PARAMETER id="paramTo" name="email" attribute="value"/>
+  <PARAMETER id="paramSubject" name="subject" attribute="value"/>
+  <PARAMETER id="tab" name="tab" default="" attribute="value"/>
+  <PARAMETER id="paramFrom" name="from" attribute="value"/>
+  <PARAMETER id="inpStatus" name="inpStatus" attribute="value" default=""/>
+  <PARAMETER id="inpCreated" name="inpCreated" attribute="value" default=""/>
+  <PARAMETER id="inpUpdate" name="inpUpdate" attribute="value" default=""/>
+  <PARAMETER id="inpUpdateStatus" name="inpUpdateStatus" attribute="value" default=""/>
+  <PARAMETER id="inpSports" name="inpSports" attribute="value" default=""/>
+  <PARAMETER id="inpOpt" name="inpOpt" attribute="value" default=""/>
+  
+</REPORT>

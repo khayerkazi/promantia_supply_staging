@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2008 Openbravo SLU 
+ * All Rights Reserved.  (SW_SRECEIPT.DOCUMENTNO  ||' & ' ||CL_BRAND.NAME) AS DOCUMENTNO,
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<SqlClass name="CreditNote1Data" package="com.sysfore.sankalpcrm.ad_forms">
+  <SqlClassComment>Sql when member id and bill number</SqlClassComment>
+   <SqlMethod name="selectresult" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       select o.documentno as billno,  l.c_orderline_id as ID, o.dateordered as billdate, m.name as itemcode, m.em_cl_size as size, lc.name as color,
+	   l.qtyordered as qtyord, l.qtyordered as qtyneword,
+
+CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) then round(l.priceactual ,2) 
+else l.gross_unit_price end  as l1, 
+
+	l.em_ds_boxprice as l2, l.em_ds_lotprice as l3, 
+
+
+CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) then round(l.priceactual,2) 
+else l.gross_unit_price end  as l1new, 
+
+
+
+	   '' AS IDD, '' AS comment from c_order o, m_product m, cl_color lc, c_orderline l where o.c_order_id=l.c_order_id and m.m_product_id=l.m_product_id and 
+	   m.em_cl_color_id=lc.cl_color_id and o.documentno LIKE ? and o.c_bpartner_id=? ]]>
+    </Sql>
+	<Parameter name="documentno"/>
+	<Parameter name="cBpartnerId"/>
+	</SqlMethod>  
+	<SqlClassComment>Sql when member id and item code</SqlClassComment>
+   <SqlMethod name="selectresult2" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       select o.documentno as billno, o.dateordered as billdate, l.c_orderline_id as ID, m.name as itemcode,  
+	   m.em_cl_size as size, lc.name as color, l.qtyordered as qtyord, l.qtyordered as qtyneword, 
+	   CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) then round(l.priceactual ,2) 
+else l.gross_unit_price end  as l1,  
+
+l.em_ds_boxprice as l2, l.em_ds_lotprice as l3, 
+CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) then round(l.priceactual ,2) 
+else l.gross_unit_price end  as l1new , '' AS IDD, '' AS comment 
+	   from c_order o, m_product m, cl_color lc, c_orderline l where o.c_order_id=l.c_order_id and 
+	   m.m_product_id=l.m_product_id and m.em_cl_color_id=lc.cl_color_id and m.name=? and o.c_bpartner_id=? ]]>
+    </Sql>
+	<Parameter name="name"/>
+	<Parameter name="cBpartnerId"/>
+	</SqlMethod>  
+	<SqlClassComment>Sql when member id and item code</SqlClassComment>
+   <SqlMethod name="selectresult3" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       select o.documentno as billno,  l.c_orderline_id as ID, o.dateordered as billdate, m.name as itemcode,  
+	   m.em_cl_size as size, lc.name as color, l.qtyordered as qtyord, l.qtyordered as qtyneword, 
+CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) then round(l.priceactual ,2) 
+else l.gross_unit_price end  as l1 
+, l.em_ds_boxprice as l2, l.em_ds_lotprice as l3, 
+CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) then round(l.priceactual ,2) 
+else l.gross_unit_price end  as l1new, '' AS IDD, '' AS comment 
+	   from c_order o, m_product m, cl_color lc, c_orderline l where o.c_order_id=l.c_order_id and 
+	   m.m_product_id=l.m_product_id and m.em_cl_color_id=lc.cl_color_id and m.name=? and o.documentno LIKE ? and o.c_bpartner_id=? ]]>
+    </Sql>
+	<Parameter name="name"/>
+	<Parameter name="documentno"/>
+	<Parameter name="cBpartnerId"/>
+	</SqlMethod>  
+  <SqlMethod name="selectitem" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+	<Sql>
+	<![CDATA[
+     	select m.name as itemcode, l.qtyordered as qtyord, CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) 
+	  then round(l.priceactual ,2) else l.gross_unit_price end  as l1 
+	, l.em_ds_boxprice as l2, l.em_ds_lotprice as l3 from m_product m, c_orderline l where m.m_product_id=l.m_product_id 
+	and l.c_orderline_id=? 
+	]]>
+    </Sql>
+	<Parameter name="cOrderlineId"/>
+	</SqlMethod>
+	<SqlMethod name="insert" type="preparedStatement" return="rowCount">
+	<Sql>
+	INSERT INTO rc_creditnote(rc_creditnote_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby)
+	VALUES(get_uuid(),?,?,'Y',now(),?,now(),?)
+	</Sql>
+	<Parameter name="adClientId"/>
+    <Parameter name="adOrgId"/>
+    <Parameter name="createdby"/>
+    <Parameter name="updatedby"/>
+	</SqlMethod>
+	<SqlMethod name="insertLine" type="preparedStatement" return="rowCount">
+	<SqlMethodComment></SqlMethodComment>
+    <Sql>
+	INSERT INTO rc_creditnoteline(rc_creditnoteline_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, 
+    rc_creditnote_id, name, orignalqty, refundexchangeqty, pricelevel1, pricelevel2, pricelevel3, echangeredundprice, reason,
+	linetotal, docno) VALUES(get_uuid(),?,?,'Y',now(),?,now(),?,?,?,TO_NUMBER(?),TO_NUMBER(?),TO_NUMBER(?),TO_NUMBER(?),TO_NUMBER(?),TO_NUMBER(?),?,TO_NUMBER(?),?)
+      </Sql>
+      <Parameter name="adClientId"/>
+      <Parameter name="adOrgId"/>
+      <Parameter name="createdby"/>
+      <Parameter name="updatedby"/>
+      <Parameter name="swCreditnoteId"/>
+      <Parameter name="mName"/>
+      <Parameter name="orignalqty"/>
+      <Parameter name="refundexchangeqty"/>
+      <Parameter name="pricelevel1"/>
+	  <Parameter name="pricelevel2"/>
+	  <Parameter name="pricelevel3"/>
+	  <Parameter name="echangeredundprice"/>
+	  <Parameter name="reason"/>
+	  <Parameter name="linetotal"/>
+	  <Parameter name="cOrderDcno"/>
+	</SqlMethod>
+ 	<SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+  	<SqlMethod name="updateheader"  type="preparedStatement" return="rowCount">
+    <SqlMethodComment>for updating gand total in header table</SqlMethodComment>
+    <Sql>
+	update rc_creditnote set grandtotal=TO_NUMBER(?) where rc_creditnote_id=?
+	</Sql>
+      <Parameter name="eMdSgrandtotal"/>
+      <Parameter name="rcCreditnoteId"/>
+    </SqlMethod>	
+	<SqlMethod name="selectcorderID" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+	<Sql>
+	<![CDATA[
+	select c_order_id as coid from c_orderline where c_orderline_id=?
+	]]>
+    </Sql>
+	<Parameter name="cOrderlineId"/>
+	</SqlMethod>
+	<SqlClassComment>Sql when member id and bill dates are enter</SqlClassComment>
+   <SqlMethod name="selectresult4" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+        <Sql>
+      <![CDATA[
+       select o.documentno as billno,  l.c_orderline_id as ID, o.dateordered as billdate, m.name as itemcode, m.em_cl_size as size, 
+	 lc.name as color, l.qtyordered as qtyord, l.qtyordered as qtyneword,CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) 
+	  then round(l.priceactual,2)  else l.gross_unit_price end  as l1 
+	,  l.em_ds_boxprice as l2, l.em_ds_lotprice as l3, CASE WHEN (l.gross_unit_price=0 OR l.gross_unit_price is null) then round(l.priceactual  ,2) 
+	    else l.gross_unit_price end  as l1new, '' AS IDD, '' AS comment from c_order o, m_product m, cl_color lc, c_orderline l 
+	     where o.c_order_id=l.c_order_id and m.m_product_id=l.m_product_id and m.em_cl_color_id=lc.cl_color_id and o.c_bpartner_id=? and o.dateordered between ? and ? 
+ ]]>
+    </Sql>
+	<Parameter name="cBpartnerId"/>
+	<Parameter name="dateordered"/>
+	<Parameter name="dateordered1"/>
+	</SqlMethod>
+	 
+	</SqlClass>

@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD Xhtml 1.0 Transitional//EN" "http://www.w3.org/tr/xhtml1/Dtd/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Fast & slow Moving Report</title>
+    <link rel="shortcut icon" href="../../../../../web/images/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="../../../../../web/skins/Default/Openbravo_ERP_250.css" id="paramCSS" />
+     
+    <script language="JavaScript" type="text/javascript" id="paramDirectory">
+      var baseDirectory = "../../../../../web/";
+      </script>
+      <script language="JavaScript" type="text/javascript" id="paramLanguage">
+        var defaultLang = "en_US";
+      </script>
+      <script language="JavaScript" src="../../../../../web/js/shortcuts.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/utils.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/windowKeyboard.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/searchs.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/ajax.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/default/MessageBox.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/messages.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../utility/DynamicJS.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/jscalendar/calendar.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/jscalendar/lang/calendar-es.js" type="text/javascript" id="fieldCalendar"></script>
+      <script language="JavaScript" src="../../../../../web/js/default/DateTextBox.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/dojoConfig.js" type="text/javascript"></script>
+      <script language="JavaScript" src="../../../../../web/js/dojo/dojo.js" type="text/javascript"></script>
+      <script type="text/javascript">
+        dojo.hostenv.writeIncludes(); //makes debugging in Venkman possible
+      </script>
+<script language="JavaScript" type="text/javascript">
+</script>
+<script language="JavaScript" type="text/javascript">
+function validate()
+{
+	var frm = document.frmMain;
+	if (frm.inpDateFrom.value == null || frm.inpDateFrom.value == "") {
+		setWindowElementFocus(frm.inpDateFrom);
+		showJSMessage(7);
+		return false;
+	} else if (frm.inpDateTo.value == null || frm.inpDateTo.value == ""){
+		setWindowElementFocus(frm.inpDateTo);
+		showJSMessage(7);
+		return false;
+	}
+        markCheckedAllElements(frm.inpmProductId_IN);
+        markCheckedAllElements(frm.inpclBrand_IN);
+	markCheckedAllElements(frm.inpclDepartmentId_IN);
+        markCheckedAllElements(frm.inpclSportId_IN);
+        markCheckedAllElements(frm.inpclStoreDeptId_IN);
+        markCheckedAllElements(frm.inpclUniverseId_IN);
+  frm.inpDateFrom.disabled = false;
+  frm.inpDateTo.disabled = false;
+	return true;
+}
+
+function pulsadoInCourse()
+{
+	var frm = document.frmMain;
+	if (frm.inpInCourse.checked) {
+    frm.inpDateFrom.value = frm.inpToday.value;
+    frm.inpDateTo.value = frm.inpToday.value;
+    frm.inpDateFrom.disabled=true;
+    frm.inpDateTo.disabled=true;
+  }
+  else{
+    frm.inpDateFrom.disabled=false;
+    frm.inpDateTo.disabled=false;
+  }
+	return true;
+}
+</script>
+<script language="JavaScript" type="text/javascript">
+function callback(paramXMLParticular, XMLHttpRequestObj) {
+
+	var strText = "";
+	var id = "";
+	var imageId = "";
+
+  if (getReadyStateHandler(XMLHttpRequestObj)) {
+		try {
+			if (XMLHttpRequestObj.responseText) strText = XMLHttpRequestObj.responseText;
+		} catch (e) {
+		}
+    if (paramXMLParticular!=null && paramXMLParticular.length>0) {
+			id = paramXMLParticular[0];
+			imageId = paramXMLParticular[1];
+		}
+		layer(id, strText, true, false);
+		showHideLayer(id, imageId);
+	}
+	return true;
+}
+
+function showHideLayer(id, imageId) {
+	var obj = getReference(imageId);
+	var spanObj = getStyle(id);
+	if (obj!=null) {
+		if (obj.className == "datawarehouseopen") {
+			obj.className = "datawarehouseclose";
+			if (spanObj!=null) spanObj.display = "none";
+		} else {
+			obj.className = "datawarehouseopen";
+			if (spanObj!=null) spanObj.display = "";
+		}
+	}
+}
+
+
+function updateData(CommandValue, idOffer, idClient) {
+  var frm = document.frmMain;
+  frm.inpOfferAjax.value=idOffer;
+  var dataLayer = readLayer("returnText" + idOffer+":"+idClient, true);
+  if (dataLayer==null || dataLayer=="") {
+	  var paramXMLReq = new Array('returnText' + idOffer+":"+idClient, 'buttonTree' + idOffer+":"+idClient);
+	  return submitXmlHttpRequest(callback, frm, CommandValue, "ReportFastnSlowMoving.html", false, null, paramXMLReq);
+  } else {
+  	showHideLayer("returnText" + idOffer+":"+idClient, "buttonTree" + idOffer+":"+idClient);
+  }
+}
+</script>
+
+	<script language="JavaScript" type="text/javascript">
+	function onLoadDo(){
+		this.windowTables = new Array(
+		  new windowTableId('client', 'buttonHTML')
+		);
+		setWindowTableParentElement();
+		this.tabsTables = new Array(
+		  new tabTableId('tdtopTabs')
+		);
+		setTabTableParentElement();
+		enableShortcuts('edition');
+		setBrowserAutoComplete(false);
+		
+		resizeArea();
+		updateMenuIcon('buttonMenu');
+
+		setWindowElementFocus('firstElement');
+	}
+
+	function onResizeDo(){
+		resizeArea();
+	}
+	</script>
+</head>
+    <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="onLoadDo();" onresize="onResizeDo();">
+<form method="post" action="ReportFastnSlowMoving.html" name="frmMain" id="form">
+  <input type="hidden" name="Command"></input>
+  <input type="hidden" name="inpToday" id="paramToday" value=""></input>
+  <input type="hidden" name="inpOfferAjax" value=""></input>
+
+  <table height="100%" border="0" cellpadding="0" cellspacing="0" id="main">
+    <tr>
+      <td valign="top" id="tdleftTabs"></td>
+      <td valign="top">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="Main_ContentPane_Left">
+          <tr><td class="Main_NavBar_bg_left" id="tdleftSeparator"></td></tr>
+          <tr><td class="Main_ToolBar_bg_left" valign="top"></td></tr>
+          <tr><td class="Main_Client_bg_left"></td></tr>
+          <tr><td class="Main_Bottom_bg_left"></td></tr>
+        </table>
+      </td>
+      <td valign="top">
+        <div class="Main_ContentPane_NavBar" id="tdtopButtons"></div>
+        <div class="Main_ContentPane_ToolBar" id="paramToolBar"></div>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="Main_ContentPane_TabPane" id="tdtopTabs">
+          <tr id="paramParentTabContainer"></tr>
+          <tr id="paramMainTabContainer"></tr>
+          <tr id="paramChildTabContainer"></tr>
+        </table>
+        <div class="Main_ContentPane_Client" style="overflow: auto; display: none;" id="client">
+                <table class="dojoTabContainer" border="0" cellpadding="0" cellspacing="0" width="100%" summary="">
+                  <tr>
+                    <td>
+                      <table class="dojoTabPaneWrapper" border="0" cellpadding="0" cellspacing="0" width="100%" summary="">
+                        <tr>
+                          <td>
+                            <!-- MessageBox -->
+
+                            <table cellpadding="0" cellspacing="0" id="messageBoxID" class="MessageBoxyy">
+                              <tbody>
+                              <tr class="MessageBox_TopMargin">
+                                <td class="MessageBox_LeftMargin"></td>
+                                <td></td>
+                                <td class="MessageBox_RightMargin"></td>
+                              </tr>
+                              <tr>
+                                <td class="MessageBox_LeftMargin"></td>
+                                <td>
+
+                                  <table cellpadding="0" cellspacing="0" class="MessageBox_Container">
+                                    <tbody>
+                                    <tr>
+                                      <td class="MessageBox_LeftTrans">
+                                        <table style="width: 100%; height: 100%" cellpadding="0" cellspacing="0">
+                                          <tbody>
+                                          <tr>
+                                            <td class="MessageBox_TopLeft"></td>
+                                          </tr>
+                                          <tr>
+                                            <td class="MessageBox_Left"></td>
+                                          </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                      <td class="MessageBox_bg">
+
+                                        <table class="MessageBox_Top">
+                                        <tbody>
+                                          <tr>
+                                            <td>
+                                              <span>
+                                              <table cellpadding="0" cellspacing="0" class="MessageBox_Body_ContentCell">
+                                                <tbody>
+                                                <tr>
+                                                  <td class="MessageBox_Icon_ContentCell">
+                                                    <div class="MessageBox_Icon"></div>
+                                                  </td>
+                                                  <td style="vertical-align: top;" id="messageBoxIDContent">
+                                                    <span>
+                                                      <div class="MessageBox_TextTitle" id="messageBoxIDTitle">
+                                                        xxInfo: AccessTableWithNoView
+                                                      </div>
+                                                      <div class="MessageBox_TextDescription" id="messageBoxIDMessage">
+                                                        xxThe current information is empty.
+                                                      </div>
+                                                      <div class="MessageBox_TextSeparator"></div>
+                                                    </span>
+                                                  </td>
+                                                </tr>
+                                                </tbody>
+                                              </table>
+                                              </span>
+                                            </td>
+                                          </tr>
+                                          </tbody>
+                                        </table>
+
+                                      </td>
+                                      <td class="MessageBox_RightTrans">
+                                        <table style="width: 100%; height: 100%" cellpadding="0" cellspacing="0">
+                                          <tbody>
+                                          <tr>
+                                            <td class="MessageBox_TopRight"></td>
+                                          </tr>
+                                          <tr>
+                                            <td class="MessageBox_Right"></td>
+                                          </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td rowspan="2" class="MessageBox_BottomLeft">
+                                      </td>
+                                      <td class="MessageBox_BottomTrans MessageBox_bg">
+                                      </td>
+                                      <td rowspan="2" class="MessageBox_BottomRight">
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td class="MessageBox_Bottom">
+                                      </td>
+                                    </tr>
+                                    </tbody>
+                                  </table>
+
+                                </td>
+                                <td class="MessageBox_RightMargin"></td>
+                              </tr>
+                              <tr class="MessageBox_BottomMargin">
+                                <td class="MessageBox_LeftMargin"></td>
+                                <td></td>
+                                <td class="MessageBox_RightMargin"></td>
+                              </tr>
+                              </tbody>
+                            </table>
+                            <!-- USER CONTROLS -->
+              <table class="Main_Client_TableEdition">
+                <tr>
+                  <td class="TableEdition_OneCell_width"></td>
+                  <td class="TableEdition_OneCell_width"></td>
+                  <td class="TableEdition_OneCell_width"></td>
+                  <td class="TableEdition_OneCell_width"></td>
+                  <td class="TableEdition_OneCell_width"></td>
+                  <td class="TableEdition_OneCell_width"></td>
+                </tr>
+                <tr>
+                <td colspan="6">
+                  <table class="FieldGroup" cellspacing="0" cellpadding="0" border="0">
+                  <tbody>
+                    <tr class="FieldGroup_TopMargin"/>
+                    <tr>
+                      <td class="FieldGroupTitle_Left"><img class="FieldGroupTitle_Left_bg" border="0" src="../../../../../web/images/blank.gif"/></td>
+                      <td class="FieldGroupTitle">Primary Filters</td>
+                      <td class="FieldGroupTitle_Right"><img class="FieldGroupTitle_Right_bg" border="0" src="../../../../../web/images/blank.gif"/></td>
+                      <td class="FieldGroupContent"/>
+                    </tr>
+                    <tr class="FieldGroup_BottomMargin"/>
+                  </tbody>
+                  </table>
+                </td>
+                </tr>
+                <tr>
+                  <td class="TitleCell"><span class="LabelText">From Date</span></td>
+                  <td class="TextBox_btn_ContentCell">
+                    <table border="0" cellspacing="0" cellpadding="0" summary=""  style="padding-top: 0px;">
+                      <tr>
+                        <td class="TextBox_ContentCell">
+                          <input dojoType="openbravo:DateTextbox" lowerThan="paramDateTo" displayFormat="xx" saveFormat="yy"  class="TextBox_btn_OneCell_width required" required="true" type="text" name="inpDateFrom" id="paramDateFrom" size="10" maxlength="10" value="" onkeyup="autoCompleteDate(this.textbox, this.displayFormat);return true;"></input><script>djConfig.searchIds.push("paramDateFrom");</script>
+                        </td>
+                        <td class="FieldButton_ContentCell">
+                          <a class="FieldButtonLink" href="#" onfocus="setWindowElementFocus(this); window.status='Calendar'; return true;" onblur="window.status=''; return true;" onkeypress="this.className='FieldButtonLink_active'; return true;" onkeyup="this.className='FieldButtonLink_focus'; return true;"  onclick="showCalendar('frmMain.inpDateFrom', document.frmMain.inpDateFrom.value, false);return false;" >
+                          <table class="FieldButton"onmouseout="this.className='FieldButton';window.status='';return true;" onmouseover="this.className='FieldButton_hover';window.status='Show calendar';return true;" onmousedown="this.className='FieldButton_active';return true;" onmouseup="this.className='FieldButton';return true;">
+                            <tr>
+                              <td class="FieldButton_bg">
+                                <img alt="Calendar" class="FieldButton_Icon FieldButton_Icon_Calendar" title="Calendar" src="../../../../../web/images/blank.gif" border="0"></img>
+                              </td>
+                            </tr>
+                          </table>
+                          </a>
+                        </td>                                              
+                      </tr>
+                    </table>
+                 </td>
+                  <td class="TitleCell"><span class="LabelText">To Date</span></td>
+                  <td class="TextBox_btn_ContentCell">
+                    <table border="0" cellspacing="0" cellpadding="0" summary=""  style="padding-top: 0px;">
+                      <tr>
+                        <td class="TextBox_ContentCell">
+                          <input dojoType="openbravo:DateTextbox" greaterThan="paramDateFrom" displayFormat="xx" saveFormat="yy"  class="TextBox_btn_OneCell_width required" required="true" type="text" name="inpDateTo" id="paramDateTo" size="10" maxlength="10" value="" onkeyup="autoCompleteDate(this.textbox, this.displayFormat);return true;"></input><script>djConfig.searchIds.push("paramDateTo");</script>
+                        </td>
+                        <td class="FieldButton_ContentCell">
+                          <a class="FieldButtonLink" href="#" onfocus="setWindowElementFocus(this); window.status='Calendar'; return true;" onblur="window.status=''; return true;" onkeypress="this.className='FieldButtonLink_active'; return true;" onkeyup="this.className='FieldButtonLink_focus'; return true;"  onclick="showCalendar('frmMain.inpDateTo', document.frmMain.inpDateTo.value, false);return false;">
+                          <table class="FieldButton" onmouseout="this.className='FieldButton';window.status='';return true;" onmouseover="this.className='FieldButton_hover';window.status='Show calendar';return true;" onmousedown="this.className='FieldButton_active';return true;" onmouseup="this.className='FieldButton';return true;">
+                            <tr>
+                              <td class="FieldButton_bg">
+                                <img alt="Calendar" class="FieldButton_Icon FieldButton_Icon_Calendar" title="Calendar" src="../../../../../web/images/blank.gif" border="0"></img>
+                              </td>
+                            </tr>
+                          </table>
+                          </a>
+                        </td>
+                      </tr> 
+                    </table>
+                  </td>
+                 <!-- <td class="TitleCell"><span class="LabelText">In course</span></td>
+                  <td class="Radio_Check_ContentCell"><span class="Checkbox_container_NOT_Focused"><input type="checkbox" name="inpInCourse" value="Y" onclick="pulsadoInCourse();"></input></span></td> -->
+                </tr>
+      
+
+       <!-- Brand selector -->
+
+         <tr>
+              <td class="TitleCell"><span class="LabelText">Brand</span></td>
+              <td class="List_ContentCell" colspan="2">
+
+                <table border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td>
+                      <select class="List_width List_height" name="inpclBrand_IN" multiple="" id="reportClBrandId_IN"></select>
+                    </td>
+                    <td class="List_Button_ContentCell">
+                      <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td>
+                            <a class="List_Button_TopLink" href="#"
+                              onclick="openMultiSearch(null, null, '../com.sysfore.fastnslowmovingrpt.info/BrandMultiple.html', 'SELECTOR_BRAND', false, 'frmMain', 'inpclBrand_IN');return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Add'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_TopLink_active'; return true;"
+                              onkeyup="this.className='List_Button_TopLink_focus'; return true;">
+                              <table class="List_Button_Top"
+                                onmousedown="this.className='List_Button_Top_active'; return true;"
+                                onmouseup="this.className='List_Button_Top'; return true;"
+                                onmouseover="this.className='List_Button_Top_hover'; window.status='Add'; return true;"
+                                onmouseout="this.className='List_Button_Top'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Top_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Add" src="../../../../../web/images/blank.gif" alt="Add" title="Add"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_MiddleLink" href="#"
+                              onclick="clearSelectedElements(document.frmMain.inpclBrand_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete selected elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_MiddleLink_active'; return true;"
+                              onkeyup="this.className='List_Button_MiddleLink_focus'; return true;">
+                              <table class="List_Button_Middle"
+                                onmousedown="this.className='List_Button_Middle_active'; return true;"
+                                onmouseup="this.className='List_Button_Middle'; return true;"
+                                onmouseover="this.className='List_Button_Middle_hover'; window.status='Delete selected elements'; return true;"
+                                onmouseout="this.className='List_Button_Middle'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Middle_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Delete" src="../../../../../web/images/blank.gif" alt="Delete selected elements" title="Delete selected elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_BottomLink" href="#"
+                              onclick="clearList(document.frmMain.inpclBrand_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete all elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_BottomLink_active'; return true;"
+                              onkeyup="this.className='List_Button_BottomLink_focus'; return true;">
+                              <table class="List_Button_Bottom"
+                                onmousedown="this.className='List_Button_Bottom_active'; return true;"
+                                onmouseup="this.className='List_Button_Bottom'; return true;"
+                                onmouseover="this.className='List_Button_Bottom_hover'; window.status='Delete all elements'; return true;"
+                                onmouseout="this.className='List_Button_Bottom'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Bottom_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_DeleteAll" src="../../../../../web/images/blank.gif" alt="Delete all elements" title="Delete all elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+              <!--  Store Department Selector    -->
+              <td class="TitleCell"><span class="LabelText">Store Department</span></td>
+              <td class="List_ContentCell" colspan="2">
+
+                <table border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td>
+                      <select class="List_width List_height" name="inpclStoreDeptId_IN" multiple="" id="reportClStoreDeptId_IN"></select>
+                    </td>
+                    <td class="List_Button_ContentCell">
+                      <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td>
+                            <a class="List_Button_TopLink" href="#"
+                      onclick="openMultiSearch(null, null, '../com.sysfore.fastnslowmovingrpt.info/StoreDepartmentMultiple.html', 'SELECTOR_STORE', false, 'frmMain', 'inpclStoreDeptId_IN');return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Add'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_TopLink_active'; return true;"
+                              onkeyup="this.className='List_Button_TopLink_focus'; return true;">
+                              <table class="List_Button_Top"
+                                onmousedown="this.className='List_Button_Top_active'; return true;"
+                                onmouseup="this.className='List_Button_Top'; return true;"
+                                onmouseover="this.className='List_Button_Top_hover'; window.status='Add'; return true;"
+                                onmouseout="this.className='List_Button_Top'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Top_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Add" src="../../../../../web/images/blank.gif" alt="Add" title="Add"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_MiddleLink" href="#"
+                              onclick="clearSelectedElements(document.frmMain.inpclStoreDeptId_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete selected elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_MiddleLink_active'; return true;"
+                              onkeyup="this.className='List_Button_MiddleLink_focus'; return true;">
+                              <table class="List_Button_Middle"
+                                onmousedown="this.className='List_Button_Middle_active'; return true;"
+                                onmouseup="this.className='List_Button_Middle'; return true;"
+                                onmouseover="this.className='List_Button_Middle_hover'; window.status='Delete selected elements'; return true;"
+                                onmouseout="this.className='List_Button_Middle'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Middle_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Delete" src="../../../../../web/images/blank.gif" alt="Delete selected elements" title="Delete selected elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_BottomLink" href="#"
+                              onclick="clearList(document.frmMain.inpclStoreDeptId_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete all elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_BottomLink_active'; return true;"
+                              onkeyup="this.className='List_Button_BottomLink_focus'; return true;">
+                              <table class="List_Button_Bottom"
+                                onmousedown="this.className='List_Button_Bottom_active'; return true;"
+                                onmouseup="this.className='List_Button_Bottom'; return true;"
+                                onmouseover="this.className='List_Button_Bottom_hover'; window.status='Delete all elements'; return true;"
+                                onmouseout="this.className='List_Button_Bottom'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Bottom_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_DeleteAll" src="../../../../../web/images/blank.gif" alt="Delete all elements" title="Delete all elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+                 <!--  End of Store Department Selector  -->
+              <td class="ContentCell"></td>
+         </tr>
+              
+               <!-- End of brand selector -->
+
+              
+            
+
+               <!-- Universe Selector    -->
+
+     <!--   <tr>
+              <td class="TitleCell"><span class="LabelText">Universe</span></td>
+              <td class="List_ContentCell" colspan="2">
+
+                <table border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td>
+                      <select class="List_width List_height" name="inpclUniverseId_IN" multiple="" id="reportClUniverseId_IN"></select>
+                    </td>
+                    <td class="List_Button_ContentCell">
+                      <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td>
+                            <a class="List_Button_TopLink" href="#"
+                    onclick="openMultiSearch(null, null, '../com.sysfore.fastnslowmovingrpt.info/UniverseMultiple.html', 'SELECTOR_UNIVERSE', false, 'frmMain', 'inpclUniverseId_IN');return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Add'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_TopLink_active'; return true;"
+                              onkeyup="this.className='List_Button_TopLink_focus'; return true;">
+                              <table class="List_Button_Top"
+                                onmousedown="this.className='List_Button_Top_active'; return true;"
+                                onmouseup="this.className='List_Button_Top'; return true;"
+                                onmouseover="this.className='List_Button_Top_hover'; window.status='Add'; return true;"
+                                onmouseout="this.className='List_Button_Top'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Top_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Add" src="../../../../../web/images/blank.gif" alt="Add" title="Add"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_MiddleLink" href="#"
+                              onclick="clearSelectedElements(document.frmMain.inpclUniverseId_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete selected elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_MiddleLink_active'; return true;"
+                              onkeyup="this.className='List_Button_MiddleLink_focus'; return true;">
+                              <table class="List_Button_Middle"
+                                onmousedown="this.className='List_Button_Middle_active'; return true;"
+                                onmouseup="this.className='List_Button_Middle'; return true;"
+                                onmouseover="this.className='List_Button_Middle_hover'; window.status='Delete selected elements'; return true;"
+                                onmouseout="this.className='List_Button_Middle'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Middle_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Delete" src="../../../../../web/images/blank.gif" alt="Delete selected elements" title="Delete selected elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_BottomLink" href="#"
+                              onclick="clearList(document.frmMain.inpclUniverseId_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete all elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_BottomLink_active'; return true;"
+                              onkeyup="this.className='List_Button_BottomLink_focus'; return true;">
+                              <table class="List_Button_Bottom"
+                                onmousedown="this.className='List_Button_Bottom_active'; return true;"
+                                onmouseup="this.className='List_Button_Bottom'; return true;"
+                                onmouseover="this.className='List_Button_Bottom_hover'; window.status='Delete all elements'; return true;"
+                                onmouseout="this.className='List_Button_Bottom'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Bottom_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_DeleteAll" src="../../../../../web/images/blank.gif" alt="Delete all elements" title="Delete all elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+              <td class="ContentCell"></td>
+              <td class="ContentCell"></td>
+              <td class="ContentCell"></td>
+            </tr>  -->
+
+        <!-- End of Universe Selector  -->
+		   
+
+        <!-- Department Selector    -->
+ <tr>
+              <td class="TitleCell"><span class="LabelText">DMI Department</span></td>
+              <td class="List_ContentCell" colspan="2">
+
+                <table border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td>
+                      <select class="List_width List_height" name="inpclDepartmentId_IN" multiple="" id="reportClDepartmentId_IN"></select>
+                    </td>
+                    <td class="List_Button_ContentCell">
+                      <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td>
+                            <a class="List_Button_TopLink" href="#"
+                              onclick="openMultiSearch(null, null, '../com.sysfore.fastnslowmovingrpt.info/DepartmentMultiple.html', 'SELECTOR_DEPARTMENT', false, 'frmMain', 'inpclDepartmentId_IN');return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Add'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_TopLink_active'; return true;"
+                              onkeyup="this.className='List_Button_TopLink_focus'; return true;">
+                              <table class="List_Button_Top"
+                                onmousedown="this.className='List_Button_Top_active'; return true;"
+                                onmouseup="this.className='List_Button_Top'; return true;"
+                                onmouseover="this.className='List_Button_Top_hover'; window.status='Add'; return true;"
+                                onmouseout="this.className='List_Button_Top'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Top_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Add" src="../../../../../web/images/blank.gif" alt="Add" title="Add"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_MiddleLink" href="#"
+                              onclick="clearSelectedElements(document.frmMain.inpclDepartmentId_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete selected elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_MiddleLink_active'; return true;"
+                              onkeyup="this.className='List_Button_MiddleLink_focus'; return true;">
+                              <table class="List_Button_Middle"
+                                onmousedown="this.className='List_Button_Middle_active'; return true;"
+                                onmouseup="this.className='List_Button_Middle'; return true;"
+                                onmouseover="this.className='List_Button_Middle_hover'; window.status='Delete selected elements'; return true;"
+                                onmouseout="this.className='List_Button_Middle'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Middle_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_Delete" src="../../../../../web/images/blank.gif" alt="Delete selected elements" title="Delete selected elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <a class="List_Button_BottomLink" href="#"
+                              onclick="clearList(document.frmMain.inpclDepartmentId_IN);return false;"
+                              onfocus="setWindowElementFocus(this); window.status='Delete all elements'; return true;"
+                              onblur="window.status=''; return true;"
+                              onkeypress="this.className='List_Button_BottomLink_active'; return true;"
+                              onkeyup="this.className='List_Button_BottomLink_focus'; return true;">
+                              <table class="List_Button_Bottom"
+                                onmousedown="this.className='List_Button_Bottom_active'; return true;"
+                                onmouseup="this.className='List_Button_Bottom'; return true;"
+                                onmouseover="this.className='List_Button_Bottom_hover'; window.status='Delete all elements'; return true;"
+                                onmouseout="this.className='List_Button_Bottom'; window.status=''; return true;">
+                                <tr>
+                                  <td class="List_Button_Bottom_bg">
+                                    <img class="List_Button_Icon List_Button_Icon_DeleteAll" src="../../../../../web/images/blank.gif" alt="Delete all elements" title="Delete all elements"/>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+        
+
+        <!-- End of Department Selector  -->
+
+
+
+
+
+        
+
+        <!--   Family or   Merchandise category, Nature of Product       -->
+
+         <tr>
+	              <td class="TitleCell"><span class="LabelText">Family</span></td>
+	              <td class="TextBox_ContentCell"> <input dojoType="openbravo:Textbox"  class="dojoValidateValid TextBox_OneCell_width" type="text" name="inpmerchandiseCategory" id="parammerchandiseCategory" size="20" maxlength="50" value=""></input><script>djConfig.searchIds.push("parammerchandiseCategory");</script>
+	              </td>
+	                <td class="ContentCell"></td>
+
+
+                        <td class="TitleCell"><span class="LabelText">Nature of Product</span></td>
+                  <td class="Combo_ContentCell">
+                  	 <select name="inpclNatureOfProductId" id="inpclNatureOfProductId" class="ComboKey Combo_OneCell_width" required="true">
+                    <option value=""><div id="reportcl_NatureOfProduct_Id"></div></option>
+                    </select> 
+
+                  <!--  <td class="TitleCell"><span class="LabelText">Currency</span></td>
+                  <td class="Combo_ContentCell">
+                  	<select name="inpCurrencyId" id="inpCurrencyId" class="ComboKey Combo_OneCell_width" required="true">
+                    <option value=""><div id="reportC_Currency_ID"></div></option>
+                    </select>  -->
+                  </td>    
+            </tr>
+            
+        <!--   End of Family or Merchandise category        -->
+           <!--  Life stage   Blue Product  -->
+        <tr>
+
+            <td class="TitleCell"><span class="LabelText">Lifestage</span></td>
+              <td class="Combo_ContentCell" colspan="2">
+                  <select name="inpemclLifestage" id="inpemclLifestage" class="Combo Combo_OneCell_width">
+                  <option value=""></option><div id="reportEM_cl_LIFESTAGE"></div>
+                  </select>
+              </td>
+            </tr>
+
+  <!-- End of Lifestage & Blue Product -->
+
+
+  <!--         product Selectoe    -->
+
+           <!--  <tr>
+                    <td class="TitleCell"><span class="LabelText">Product</span></td>
+                    <td class="List_ContentCell" colspan="2">
+                      <table border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                        <td>
+                          <select class="List_width List_height" name="inpmProductId_IN" multiple="" id="reportMProductId_IN"></select>
+                        </td>
+                        <td class="List_Button_ContentCell">
+                          <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                          <td>
+                                <a class="List_Button_TopLink" href="#"
+                                  onclick="openMultiSearch(null, null, '../info/ProductMultiple.html', 'SELECTOR_PRODUCT', false, 'frmMain', 'inpmProductId_IN');return false;"
+                                  onfocus="setWindowElementFocus(this); window.status='Add'; return true;"
+                                  onblur="window.status=''; return true;"
+                                  onkeypress="this.className='List_Button_TopLink_active'; return true;"
+                                  onkeyup="this.className='List_Button_TopLink_focus'; return true;">
+                                  <table class="List_Button_Top"
+                                    onmousedown="this.className='List_Button_Top_active'; return true;"
+                                    onmouseup="this.className='List_Button_Top'; return true;"
+                                    onmouseover="this.className='List_Button_Top_hover'; window.status='Add'; return true;"
+                                    onmouseout="this.className='List_Button_Top'; window.status=''; return true;">
+                                    <tr>
+                                      <td class="List_Button_Top_bg">
+                                        <img class="List_Button_Icon List_Button_Icon_Add" src="../../../../../web/images/blank.gif" alt="Add" title="Add"/>
+                                      </td>
+                                    </tr>
+                                  </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                                <a class="List_Button_MiddleLink" href="#"
+                                  onclick="clearSelectedElements(document.frmMain.inpmProductId_IN);return false;"
+                                  onfocus="setWindowElementFocus(this); window.status='Delete selected elements'; return true;"
+                                  onblur="window.status=''; return true;"
+                                  onkeypress="this.className='List_Button_MiddleLink_active'; return true;"
+                                  onkeyup="this.className='List_Button_MiddleLink_focus'; return true;">
+                                  <table class="List_Button_Middle"
+                                    onmousedown="this.className='List_Button_Middle_active'; return true;"
+                                    onmouseup="this.className='List_Button_Middle'; return true;"
+                                    onmouseover="this.className='List_Button_Middle_hover'; window.status='Delete selected elements'; return true;"
+                                    onmouseout="this.className='List_Button_Middle'; window.status=''; return true;">
+                                    <tr>
+                                      <td class="List_Button_Middle_bg">
+                                        <img class="List_Button_Icon List_Button_Icon_Delete" src="../../../../../web/images/blank.gif" alt="Delete selected elements" title="Delete selected elements"/>
+                                      </td>
+                                    </tr>
+                                  </table>
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="List_Button_Separator">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                                <a class="List_Button_BottomLink" href="#"
+                                  onclick="clearList(document.frmMain.inpmProductId_IN);return false;"
+                                  onfocus="setWindowElementFocus(this); window.status='Delete all elements'; return true;"
+                                  onblur="window.status=''; return true;"
+                                  onkeypress="this.className='List_Button_BottomLink_active'; return true;"
+                                  onkeyup="this.className='List_Button_BottomLink_focus'; return true;">
+                                  <table class="List_Button_Bottom"
+                                    onmousedown="this.className='List_Button_Bottom_active'; return true;"
+                                    onmouseup="this.className='List_Button_Bottom'; return true;"
+                                    onmouseover="this.className='List_Button_Bottom_hover'; window.status='Delete all elements'; return true;"
+                                    onmouseout="this.className='List_Button_Bottom'; window.status=''; return true;">
+                                    <tr>
+                                      <td class="List_Button_Bottom_bg">
+                                        <img class="List_Button_Icon List_Button_Icon_DeleteAll" src="../../../../../web/images/blank.gif" alt="Delete all elements" title="Delete all elements"/>
+                                      </td>
+                                    </tr>
+                                  </table>
+                           </a>
+                          </td>
+                        </tr>
+                      </table>
+                        </td>
+                      </tr>
+                    </table>
+                    </td>
+                  </tr>    -->
+         <!-- End of Product Selector   -->
+                  <tr>
+                    <td colspan="6">
+                      <table class="FieldGroup" cellspacing="0" cellpadding="0" border="0">
+                      <tbody>
+                        <tr class="FieldGroup_TopMargin"/>
+                        <tr>
+                          <td class="FieldGroupTitle_Left"><img class="FieldGroupTitle_Left_bg" border="0" src="../../../../../web/images/blank.gif"/></td>
+                          <td class="FieldGroupTitle">View Results</td>
+                          <td class="FieldGroupTitle_Right"><img class="FieldGroupTitle_Right_bg" border="0" src="../../../../../web/images/blank.gif"/></td>
+                          <td class="FieldGroupContent"/>
+                        </tr>
+                        <tr class="FieldGroup_BottomMargin"/>
+                      </tbody>
+                      </table>
+                    </td>
+                  </tr>
+
+               <!--   <tr>  -->
+
+
+           <!--   Code Commented By Subrata    -->
+                  <!--  <td class="TitleCell"></td>
+                    <td class="Button_CenterAlign_ContentCell">
+                      <div>
+                        <button type="button" 
+                          id="buttonHTML" 
+                          class="ButtonLink" 
+                          onclick="submitCommandForm('FIND', true, null, null,'_self');return false;" 
+                          onfocus="buttonEvent('onfocus', this); window.status='View Results in a New Window'; return true;" 
+                          onblur="buttonEvent('onblur', this);" 
+                          onkeyup="buttonEvent('onkeyup', this);" 
+                          onkeydown="buttonEvent('onkeydown', this);" 
+                          onkeypress="buttonEvent('onkeypress', this);" 
+                          onmouseup="buttonEvent('onmouseup', this);" 
+                          onmousedown="buttonEvent('onmousedown', this);" 
+                          onmouseover="buttonEvent('onmouseover', this); window.status='View Results in a New Window'; return true;" 
+                          onmouseout="buttonEvent('onmouseout', this);">
+                          <table class="Button">
+                            <tr>
+                              <td class="Button_left"><img class="Button_Icon Button_Icon_html" alt="View Results in a New Window" title="View Results in a New Window" src="../../../../../web/images/blank.gif" border="0" /></td>
+                              <td class="Button_text">Excel Format</td>
+                              <td class="Button_right"></td>
+                            </tr>
+                          </table>
+                        </button>
+                      </div>
+                    </td>
+                    <td class="ContentCell"></input>
+                    </td>
+                    <td class="TitleCell"></td>
+                    <td class="ContentCell"></td>
+                    <td class="ContentCell"></td>  -->
+
+                    <!-- Code Commented By Subrata  -->
+                   <tr>
+                        <td class="TitleCell"></td>
+                      <td class="Button_CenterAlign_ContentCell">
+                      <div>
+                        <button type="button"
+                          class="ButtonLink"
+                          onclick="submitCommandForm('XLS', true);return false;"
+                          onfocus="buttonEvent('onfocus', this); window.status='Export Results to XLS Format'; return true;"
+                          onblur="buttonEvent('onblur', this);"
+                          onkeyup="buttonEvent('onkeyup', this);"
+                          onkeydown="buttonEvent('onkeydown', this);"
+                          onkeypress="buttonEvent('onkeypress', this);"
+                          onmouseup="buttonEvent('onmouseup', this);"
+                          onmousedown="buttonEvent('onmousedown', this);"
+                          onmouseover="buttonEvent('onmouseover', this); window.status='Export Results to XLS Format'; return true;"
+                          onmouseout="buttonEvent('onmouseout', this);">
+                          <table class="Button">
+                            <tr>
+                              <td class="Button_left">
+                                  <img class="Button_Icon Button_Icon_xls" alt="Export Results to XLS Format" title="Export Results to XLS Format" src="../../../../../web/images/blank.gif" border="0" /></td>
+                              <td class="Button_text">Excel Format</td>
+                              <td class="Button_right"></td>
+                            </tr>                    
+                          </table>
+                          </button>
+                      </div>
+                    </td>
+                    
+                 <!-- Code  for Import html  -->
+                <td class="Button_CenterAlign_ContentCell">
+                      <div>
+                       <button onmouseout="buttonEvent('onmouseout', this);" onmouseover="buttonEvent('onmouseover', this); window.status='View Results in a New Window'; return true;" onmousedown="buttonEvent('onmousedown', this);" onmouseup="buttonEvent('onmouseup', this);" onkeypress="buttonEvent('onkeypress', this);" onkeydown="buttonEvent('onkeydown', this);" onkeyup="buttonEvent('onkeyup', this);" onblur="buttonEvent('onblur', this);" onfocus="buttonEvent('onfocus', this); window.status='View Results in a New Window'; return true;" onclick="submitCommandForm('FIND',true);return false;" class="ButtonLink_default" id="buttonHTML" type="button">
+                          <table class="Button">
+                            <tbody><tr>
+                              <td class="Button_left"><img border="0" src="../web/images/blank.gif" title="View Results in a New Window" alt="View Results in a New Window" class="Button_Icon Button_Icon_html"></td>
+                              <td class="Button_text">HTML Format</td>
+                              <td class="Button_right"></td>
+                            </tr>
+                          </tbody>
+                          </table>
+                        </button>                        
+                      </div>
+                    </td>                                     
+                  </tr>
+              </table>                  
+                <br/>
+ <table cellspacing="0" cellpadding="0" width="100%" class="DataGrid_Header_Table DataGrid_Body_Table" style="table-layout: auto;">
+      
+      <tr class="DataGrid_Body_Row"> 
+        <th class="DataGrid_Header_Cell" width="10%">Organisation</th>
+        <th class="DataGrid_Header_Cell" width="10%">Store Department</th>
+        <th class="DataGrid_Header_Cell" width="10%">DMI Department</th>
+        <th class="DataGrid_Header_Cell" width="11%" >Brand</th>
+        <th class="DataGrid_Header_Cell" width="11%" >ModelName</th>
+        <th class="DataGrid_Header_Cell" width="8%" >Modelcode</th>        
+        <th class="DataGrid_Header_Cell" width="10%">Itemcode</th>
+        <th class="DataGrid_Header_Cell" width="8%" >Size</th>
+        <th class="DataGrid_Header_Cell" width="8%" >Color</th>
+        <th class="DataGrid_Header_Cell" width="11%" >Turnover</th>
+        <th class="DataGrid_Header_Cell" width="11%" >Quantity</th>
+        <th class="DataGrid_Header_Cell" width="6%" >Margin</th>
+        <th class="DataGrid_Header_Cell" width="6%" >Margin %</th>
+        <th class="DataGrid_Header_Cell" width="8%" >Taxcat</th>  
+      </tr>
+       <div id="sectionFastAndSlow">
+        <tr class="Border TableDetailRowEven"> 
+          <td class="DataGrid_Body_Cell" id="fieldOrganisation">xxOrganisation</td>
+          <td class="DataGrid_Body_Cell" id="fieldStoreDept">xxStoreDept</td>
+          <td class="DataGrid_Body_Cell" id="fieldDMIDepartment">xxDMIDepartment</td>
+          <td class="DataGrid_Body_Cell" id="fieldBrand">xxBrand</td>
+          <td class="DataGrid_Body_Cell" id="fieldModelName">xxModelName</td>
+          <td class="DataGrid_Body_Cell" id="fieldModelcode">xxModelcode</td>
+          <td class="DataGrid_Body_Cell" id="fieldItemcode">xxItemcode</td>
+          <td class="DataGrid_Body_Cell" id="fieldSize">xxSize</td>
+          <td class="DataGrid_Body_Cell" id="fieldColor">xxColor</td>
+          <td class="DataGrid_Body_Cell" id="fieldTurnover">xxTurnover</td>
+          <td class="DataGrid_Body_Cell" id="fieldQuantity">xxQuantity</td>
+          <td class="DataGrid_Body_Cell" id="fieldMargin">xxMargin</td>
+          <td class="DataGrid_Body_Cell" id="fieldMarginPercentage">xxMarginPercentage</td>
+          <td class="DataGrid_Body_Cell" id="fieldTaxcat">xxTaxcat</td>                           
+        </tr>   
+      </div>
+    </table> 
+                 <!-- USER CONTROLS -->
+                </td>
+              </tr>
+              </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="Menu_ContentPane_Bottom" id="tdbottomSeparator">
+          <tr>
+            <td class="Main_Bottom_bg"><img src="../../../../../web/images/blank.gif" border="0"></td>
+          </tr>
+        </table></td>
+      <td valign="top">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="Main_ContentPane_Right" id="tdrightSeparator">
+          <tr><td class="Main_NavBar_bg_right"></td></tr>
+          <tr><td class="Main_ToolBar_bg_right" valign="top"></td></tr>
+          <tr><td class="Main_Client_bg_right"></td></tr>
+          <tr><td class="Main_Bottom_bg_right"></td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>

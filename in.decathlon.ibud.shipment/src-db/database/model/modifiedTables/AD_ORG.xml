@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE AD_ORG">
+    <table name="AD_ORG" primaryKey="AD_ORG_KEY">
+      <column name="EM_IBUDS_POSTATUS_PRIORITY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

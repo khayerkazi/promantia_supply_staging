@@ -1,0 +1,6 @@
+Order close flow module is used to close the purchase orders automatically.
+Also multiple selection of items in Purchase Order window is enabled to Send/Update/Delete Order.
+Hence to enable multi selection we have added new buttons in order close flow module and disabled them in
+storewarehouse module.
+
+Hence the buttons are disabled in AD_FIELD.xml file in storewarehouse module. 

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+  <vector>
+<!--
+    <excludedFunction name="FS_TAXCALC"/>
+    <excludedFunction name="FS_REFERENCE"/>
+    <excludedFunction name="FS_STOCKQTY"/>
+    <excludedFunction name="FS_MARGINAMT1"/>
+-->
+    <excludedTable name="L_STEPS"/>
+    <excludedTable name="L_TRANS"/>
+    <excludedTable name="V_COUNT"/>
+    <excludedTable name="V_VALIDATED"/>
+  </vector>

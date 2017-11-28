@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_BPARTNER">
+    <table name="C_BPARTNER" primaryKey="C_BPARTNER_KEY">
+      <index name="EM_DS_BPMOBILE" unique="false">
+        <index-column name="EM_RC_MOBILE"/>
+        <index-column name="EM_RC_LANDLINE"/>
+        <index-column name="EM_RC_EMAIL"/>
+      </index>
+    </table>
+  </database>

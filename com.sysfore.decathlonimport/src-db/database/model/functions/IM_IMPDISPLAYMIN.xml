@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_IMPDISPLAYMIN">
+    <function name="IM_IMPDISPLAYMIN" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[displayminCursor RECORD;
+  
+  v_validated NUMBER:=0;
+  v_updatedCounter NUMBER:=0;
+  v_insertedCounter NUMBER:=0; 
+  v_count NUMBER:=0;
+  v_itemcode_id VARCHAR(32):='';
+  v_minmax_id VARCHAR(32):='';
+  v_org_id CHARACTER(40) :='';
+  v_displaymin NUMBER:=0;
+  v_userID VARCHAR(32):='';
+  v_orgID VARCHAR(32):='';
+  
+BEGIN
+v_userID=user_id;
+v_orgID=org_id;
+
+ Select count(*) INTO v_validated from im_displaymin where validated='N' and createdby=v_userID;
+-- and ad_org_id=v_orgID;
+ 
+ IF v_validated != 0 THEN
+  
+ 	RAISE EXCEPTION 'Validation is not Completed';
+    
+ END IF;
+  
+  FOR displayminCursor IN (SELECT im_displaymin_id, ad_client_id, ad_org_id, created, 
+       createdby, updated, updatedby, itemcode, im_errormsg, 
+       validated, processing, displaymin  FROM im_displaymin where createdby=v_userID)
+-- and ad_org_id=v_orgID)
+  LOOP 
+  
+	select m_product_id INTO v_itemcode_id from m_product where name = displayminCursor.itemcode;
+
+	v_org_id := displayminCursor.ad_org_id;
+
+	SELECT COUNT(*) AS total INTO v_count FROM cl_minmax WHERE m_product_id=v_itemcode_id and ad_org_id=v_org_id and ad_client_id = displayminCursor.ad_client_id;
+
+
+  IF (v_count = 0 ) THEN
+	
+	INSERT INTO cl_minmax(
+            cl_minmax_id, ad_client_id, ad_org_id, created, createdby, 
+            updated, updatedby, m_product_id, displaymin)
+	VALUES (get_uuid(), displayminCursor.ad_client_id, v_org_id, displayminCursor.created, displayminCursor.createdby, displayminCursor.updated, displayminCursor.updatedby, v_itemcode_id, coalesce(displayminCursor.displaymin,0));
+	
+  ELSE
+  
+	SELECT cl_minmax_id
+	INTO v_minmax_id
+	FROM cl_minmax WHERE m_product_id=v_itemcode_id and ad_org_id=v_org_id and ad_client_id = displayminCursor.ad_client_id;
+  
+	v_displaymin :=displayminCursor.displaymin;
+	
+	UPDATE cl_minmax
+	SET updated=displayminCursor.updated, updatedby=displayminCursor.updatedby, displaymin=v_displaymin
+	WHERE cl_minmax_id=v_minmax_id;
+ 
+  END IF; 
+   
+	delete from im_displaymin where im_displaymin_id = displayminCursor.im_displaymin_id and createdby=v_userID;
+-- and ad_org_id=v_orgID;                               
+		v_updatedCounter := v_updatedCounter+1 ; 
+	
+	v_displaymin :=0;
+	
+   END LOOP;
+	v_updatedCounter := v_updatedCounter - v_insertedCounter;
+RETURN 'Successfully Inserted '||v_insertedCounter|| ' and Successfully updated ' || v_updatedCounter || ' items.' ;
+END IM_IMPDISPLAYMIN
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPCATALOGPRICELIST">
+    <function name="IM_VALIDATEIMPCATALOGPRICELIST" type="VARCHAR">
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateCatalogPricelist Record;
+  v_count NUMBER:=0;
+  v_countItem NUMBER:=0;
+  v_countDupItem NUMBER:=0;
+  v_itemcode_id VARCHAR(32):='';
+  v_pricelistversion_id VARCHAR(32):='';
+  v_productprice_id VARCHAR(32):='';
+  v_mrpprice NUMBER:=0; 
+
+  
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_catalogpriceErrorNotice VARCHAR(2000) := '';
+--  v_formatErrorNotice  VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  
+  
+BEGIN
+
+  FOR validateCatalogPricelist IN (SELECT distinct im_catalogprice_id, ad_client_id, ad_org_id, pricelistversion, itemcode, mrpprice, 
+       cessionprice, unitprice, ueprice, pcbprice
+  FROM im_catalogprice)
+  LOOP
+  IF (validateCatalogPricelist.pricelistversion IS NULL OR TRIM(BOTH ' ' FROM validateCatalogPricelist.pricelistversion) = '') THEN
+  	v_missingErrorNotice := 'Pricelist Version Name, ';
+  END IF;
+  
+  IF (validateCatalogPricelist.itemcode IS NULL OR TRIM(BOTH ' ' FROM validateCatalogPricelist.itemcode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Item Code, ';
+  END IF;
+  
+  --IF (validateCatalogPricelist.mrpprice IS NULL) THEN
+  --	v_missingErrorNotice := 'MRP Price, ';
+ -- END IF;
+
+ -- IF (validateCatalogPricelist.cessionprice IS NULL) THEN
+  --	v_missingErrorNotice := 'Cession Price, ';
+ -- END IF;
+
+ -- IF (validateCatalogPricelist.unitprice IS NULL) THEN
+ -- 	v_missingErrorNotice := 'Unit Price, ';
+ -- END IF;
+
+ -- IF (validateCatalogPricelist.ueprice IS NULL) THEN
+  --	v_missingErrorNotice := 'UE Price, ';
+  --END IF;
+
+  --IF (validateCatalogPricelist.pcbprice IS NULL) THEN
+  --	v_missingErrorNotice := 'PCB Price, ';
+  --END IF;
+
+
+  ----check department is existed
+  
+  SELECT COUNT(*) AS total INTO v_count FROM m_pricelist_version WHERE lower(m_pricelist_version.name)=lower(validateCatalogPricelist.pricelistversion);
+  IF (v_count = 0 ) THEN
+  	v_catalogpriceErrorNotice := 'Pricelist, ';
+  END IF; 
+
+  SELECT COUNT(*) AS total INTO v_countItem FROM m_product WHERE lower(m_product.name)=lower(validateCatalogPricelist.itemcode);
+  IF (v_countItem = 0 ) THEN
+  	v_catalogpriceErrorNotice := v_catalogpriceErrorNotice ||'ItemCode, ';
+  END IF;
+
+    SELECT COUNT(*) AS total INTO v_countDupItem FROM im_catalogprice WHERE im_catalogprice.itemcode = validateCatalogPricelist.itemcode;
+
+  IF (v_countDupItem > 1 ) THEN
+v_catalogpriceErrorNotice := v_catalogpriceErrorNotice ||'Duplicate ItemCode, ';
+  END IF; 
+  
+  IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice || 'is Mandatory ';
+  END IF;
+  
+  IF (v_catalogpriceErrorNotice != '') THEN
+  	  v_messageImport := v_catalogpriceErrorNotice || 'is Not Defined';
+  END IF;
+
+
+-- Changes for MRP Price Freeze
+
+select m_product_id INTO v_itemcode_id from m_product where name = validateCatalogPricelist.itemcode;
+
+select m_pricelist_version_id INTO v_pricelistversion_id from m_pricelist_version where name = validateCatalogPricelist.pricelistversion;
+
+SELECT em_cl_mrpprice INTO v_mrpprice FROM M_PRODUCTPRICE WHERE M_PRODUCT_ID=v_itemcode_id AND M_PRICELIST_VERSION_ID=v_pricelistversion_id;
+
+  IF (validateCatalogPricelist.mrpprice < v_mrpprice) THEN
+  	  v_messageImport := 'MRP Price cannnot be reduced';
+  END IF;
+  
+-- ENDD Changes for MRP Price Freeze
+
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE im_catalogprice SET im_errormsg = v_messageImport, validated = 'Y' where im_catalogprice.im_catalogprice_id=validateCatalogPricelist.im_catalogprice_id;
+  ELSE 
+    UPDATE im_catalogprice SET im_errormsg = v_messageImport, validated = 'N' where im_catalogprice.im_catalogprice_id=validateCatalogPricelist.im_catalogprice_id;
+    v_flag :=FALSE;
+  END IF;
+  v_missingErrorNotice := '';
+  v_catalogpriceErrorNotice := '';
+ -- v_formatErrorNotice  := '';
+  v_messageImport := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPCATALOGPRICELIST
+]]></body>
+    </function>
+  </database>

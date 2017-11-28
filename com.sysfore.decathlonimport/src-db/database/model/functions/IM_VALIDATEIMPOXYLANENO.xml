@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPOXYLANENO">
+    <function name="IM_VALIDATEIMPOXYLANENO" type="VARCHAR">
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateOxylaneno Record;
+  v_count NUMBER:=0;
+  v_countduplicate NUMBER:=0;
+  v_length NUMBER:=0;
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_oxylanenoErrorNotice VARCHAR(2000) := '';
+  v_oxylanenoLengthErrorNotice VARCHAR(2000) := '';
+  v_formatErrorNotice  VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_oxylanenoCharNotice VARCHAR(2000) := '';
+  v_oxylanenoErrorExcelNotice VARCHAR(2000) := '';
+   
+  
+BEGIN
+
+  FOR validateOxylaneno IN (select i.oxylaneno, i.im_oxylane_id from im_oxylane i)
+  LOOP
+    IF (validateOxylaneno.oxylaneno IS NULL OR TRIM(BOTH ' ' FROM validateOxylaneno.oxylaneno) = '') THEN
+  	v_missingErrorNotice :=  v_missingErrorNotice ||'Oxylaneno, ';
+  END IF; 
+   ----check oxylaneno is existing in the intermediate table
+  SELECT COUNT(*) AS total INTO v_countduplicate FROM im_oxylane WHERE lower(im_oxylane.oxylaneno)=lower(validateOxylaneno.oxylaneno);
+  IF (v_countduplicate > 1) THEN
+  	v_oxylanenoErrorExcelNotice := 'Oxylane no duplicate in excel, ';
+
+  END IF;
+  
+  ----check oxylaneno is existing in the orginal table
+  SELECT COUNT(*) AS total INTO v_count FROM rc_oxylane WHERE lower(rc_oxylane.oxylaneno)=lower(validateOxylaneno.oxylaneno);
+  IF (v_count != 0) THEN
+  	v_oxylanenoErrorNotice := 'Duplicate Oxylane no ';
+
+  END IF;
+
+--Add aditional function here
+  IF NOT validateOxylaneno.oxylaneno SIMILAR TO '[0-9]+' THEN
+	v_oxylanenoCharNotice := 'Oxylaneno ';  
+END IF;
+    
+     select length(oxylaneno) as oxylength INTO v_length from im_oxylane 
+     where lower(im_oxylane.oxylaneno)=lower(validateOxylaneno.oxylaneno);
+  IF (v_length != 13) THEN
+  	v_oxylanenoLengthErrorNotice := 'Oxylaneno ';
+
+  END IF;
+  
+ -----Completed validating length of OxylaneID  
+ 
+  IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice || 'is Mandatory ';
+  END IF;
+  
+  IF (v_oxylanenoErrorNotice != '') THEN
+  	  v_messageImport := v_oxylanenoErrorNotice;
+  END IF;
+IF (v_oxylanenoErrorExcelNotice != '') THEN
+  	  v_messageImport := v_oxylanenoErrorExcelNotice;
+  END IF;
+  
+
+IF (v_oxylanenoLengthErrorNotice != '') THEN
+  	  v_messageImport := v_oxylanenoLengthErrorNotice || 'length should be 13';
+  END IF;
+  IF (v_oxylanenoCharNotice != '') THEN
+  	  v_messageImport := v_oxylanenoCharNotice || 'only numeric allowed';
+  END IF;
+
+  
+  -----Enter the errors
+ IF v_messageImport = '' THEN
+    UPDATE im_oxylane SET im_errormsg = v_messageImport, validated = 'Y' where im_oxylane.im_oxylane_id=validateOxylaneno.im_oxylane_id;   
+  ELSE 
+    UPDATE im_oxylane SET im_errormsg = v_messageImport, validated = 'N' where im_oxylane.im_oxylane_id=validateOxylaneno.im_oxylane_id;
+    v_flag :=FALSE;
+  END IF;
+  v_missingErrorNotice := '';
+  v_oxylanenoErrorNotice := '';
+  v_oxylanenoLengthErrorNotice := '';
+  v_formatErrorNotice  := '';
+  v_oxylanenoCharNotice := '';
+  v_messageImport := '';
+  v_oxylanenoErrorExcelNotice := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPOXYLANENO
+]]></body>
+    </function>
+  </database>

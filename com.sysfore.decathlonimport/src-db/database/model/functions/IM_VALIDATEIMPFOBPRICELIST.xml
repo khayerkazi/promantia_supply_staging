@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPFOBPRICELIST">
+    <function name="IM_VALIDATEIMPFOBPRICELIST" type="VARCHAR">
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateFobPricelist Record;
+  v_count NUMBER:=0;
+  v_countItem NUMBER:=0; 
+  v_countDupItem NUMBER:=0; 
+  
+  v_flag boolean := TRUE;
+  v_itemcode_id VARCHAR(32):='';
+  v_pricelistversion_id VARCHAR(32):='';
+  
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_fobpriceErrorNotice VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  
+  
+BEGIN
+
+  FOR validateFobPricelist IN (SELECT distinct im_fobprice_id, ad_client_id, ad_org_id, pricelistversion, itemcode, fobprice
+  FROM im_fobprice)
+  LOOP
+  IF (validateFobPricelist.pricelistversion IS NULL OR TRIM(BOTH ' ' FROM validateFobPricelist.pricelistversion) = '') THEN
+  	v_missingErrorNotice := 'Pricelist Version Name, ';
+  END IF;
+  
+  IF (validateFobPricelist.itemcode IS NULL OR TRIM(BOTH ' ' FROM validateFobPricelist.itemcode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Item Code, ';
+  END IF;
+  
+      
+  SELECT COUNT(*) AS total INTO v_count FROM m_pricelist_version WHERE lower(m_pricelist_version.name)=lower(validateFobPricelist.pricelistversion);
+  IF (v_count = 0 ) THEN
+  	v_fobpriceErrorNotice := 'Pricelist, ';
+  END IF; 
+
+  SELECT COUNT(*) AS total INTO v_countItem FROM m_product WHERE lower(m_product.name)=lower(validateFobPricelist.itemcode);
+  IF (v_countItem = 0 ) THEN
+  	v_fobpriceErrorNotice := v_fobpriceErrorNotice ||'ItemCode, ';
+  END IF;
+
+  --select m_product_id INTO v_itemcode_id from m_product where name = validateFobPricelist.itemcode;
+
+  --select m_pricelist_version_id INTO v_pricelistversion_id from m_pricelist_version where name = validateFobPricelist.pricelistversion;
+
+  SELECT COUNT(*) AS total INTO v_countDupItem FROM im_fobprice WHERE im_fobprice.itemcode = validateFobPricelist.itemcode;
+IF (v_countDupItem > 1 ) THEN
+v_fobpriceErrorNotice := v_fobpriceErrorNotice ||'Duplicate ItemCode, ';
+END IF; 
+  
+  IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice || 'is Mandatory ';
+  END IF;
+  
+  IF (v_fobpriceErrorNotice != '') THEN
+  	  v_messageImport := v_fobpriceErrorNotice || 'is Not Defined';
+  END IF;
+  
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE im_fobprice SET im_errormsg = v_messageImport, validated = 'Y' where im_fobprice.im_fobprice_id=validateFobPricelist.im_fobprice_id;
+  ELSE 
+    UPDATE im_fobprice SET im_errormsg = v_messageImport, validated = 'N' where im_fobprice.im_fobprice_id=validateFobPricelist.im_fobprice_id;
+    v_flag :=FALSE;
+  END IF;
+  v_missingErrorNotice := '';
+  v_fobpriceErrorNotice := '';
+ -- v_formatErrorNotice  := '';
+  v_messageImport := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPFOBPRICELIST
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DocumentType id="ECD3F1EF3808443883C782AB5A689892" identifier="Contra Entry">
+    <id>ECD3F1EF3808443883C782AB5A689892</id>
+    <active>true</active>
+    <creationDate transient="true">2016-09-29T12:08:38.644Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-09-29T12:30:40.993Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Contra Entry</name>
+    <printText>Contra Entry</printText>
+    <description xsi:nil="true"/>
+    <documentCategory>obinutl_Contra_Entry</documentCategory>
+    <salesTransaction>false</salesTransaction>
+    <sOSubType xsi:nil="true"/>
+    <documentTypeForShipment xsi:nil="true"/>
+    <documentTypeForInvoice xsi:nil="true"/>
+    <sequencedDocument>true</sequencedDocument>
+    <documentSequence id="1C7A60E3E9AB4387864DCE07A6CF5C8E" entity-name="ADSequence" identifier="DocumentNo_obinutl_Conentry"/>
+    <gLCategory id="FC670B83E59C4E7CBD6B999D3F28B251" entity-name="FinancialMgmtGLCategory" identifier="Standard"/>
+    <comments xsi:nil="true"/>
+    <default>false</default>
+    <numberOfCopies>1</numberOfCopies>
+    <table id="0AE72D9A9AB7407FB0B0A0788425D072" entity-name="ADTable" identifier="obinutl_conentry"/>
+    <filterByOrganization>false</filterByOrganization>
+    <documentCancelled xsi:nil="true"/>
+    <expense>false</expense>
+    <reversal>false</reversal>
+    <return>false</return>
+    <documentTypeForOrder xsi:nil="true"/>
+    <ilkvatMappedDocument xsi:nil="true"/>
+    <ilkvatCatOfTrans xsi:nil="true"/>
+    <ilkvatJavaClass xsi:nil="true"/>
+  </DocumentType>
+  <FinancialMgmtGLItem id="B6059DEA73A443D28A5F04B2122A193C" identifier="In Transit account (Contra Entry)">
+    <id>B6059DEA73A443D28A5F04B2122A193C</id>
+    <active>true</active>
+    <creationDate transient="true">2016-09-29T12:03:28.113Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-09-29T12:03:28.113Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>In Transit account (Contra Entry)</name>
+    <description xsi:nil="true"/>
+    <enableInCash>false</enableInCash>
+    <enableInFinancialInvoices>false</enableInFinancialInvoices>
+    <taxCategory xsi:nil="true"/>
+    <tax xsi:nil="true"/>
+    <withholding xsi:nil="true"/>
+  </FinancialMgmtGLItem>
+  <ADSequence id="1C7A60E3E9AB4387864DCE07A6CF5C8E" identifier="DocumentNo_obinutl_Conentry">
+    <id>1C7A60E3E9AB4387864DCE07A6CF5C8E</id>
+    <active>true</active>
+    <creationDate transient="true">2016-09-29T12:07:28.81Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-09-29T12:07:54.313Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>DocumentNo_obinutl_Conentry</name>
+    <description>DocumentNo/Value for Table obinutl_Conentry</description>
+    <valueFormat xsi:nil="true"/>
+    <autoNumbering>true</autoNumbering>
+    <incrementBy>1</incrementBy>
+    <startingNo>1000000</startingNo>
+    <nextAssignedNumber>1000000</nextAssignedNumber>
+    <currentNextSystem>100</currentNextSystem>
+    <usedForRecordID>false</usedForRecordID>
+    <prefix>CON -</prefix>
+    <suffix xsi:nil="true"/>
+    <restartSequenceEveryYear>false</restartSequenceEveryYear>
+  </ADSequence>
+</ob:Openbravo>

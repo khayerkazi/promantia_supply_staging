@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+<SqlClass name="ReportStockValuationData" package="com.sysfore.storewarehouse.ad_reports">
+	<SqlClassComment></SqlClassComment>
+	<SqlMethod name="select" type="preparedStatement" return="multiple">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql><![CDATA[SELECT mp.NAME as Itemcode, mp.upc as EANCode, A.QTY as Quantity, cb.name as Brand, mp.em_cl_modelcode as modelcode, mp.em_cl_modelname as modelname, mp.em_cl_size as size, cc.name as color, (mpp.em_cl_ccunitprice * A.QTY) as CCUnitPrice, cd.name as DMI_department, cs.name as Store_department, mpp.em_cl_cessionprice as CessionPricePerUnit, (mpp.em_cl_cessionprice * A.QTY) as CessionPrice 
+FROM (SELECT M_TRANSACTION.M_PRODUCT_ID, SUM(MOVEMENTQTY) as qty FROM M_TRANSACTION, M_LOCATOR WHERE M_TRANSACTION.M_LOCATOR_ID = M_LOCATOR.M_LOCATOR_ID AND M_TRANSACTION.MOVEMENTDATE < to_date(?) AND M_LOCATOR.M_WAREHOUSE_ID = ? AND M_LOCATOR.ISACTIVE='Y' AND M_LOCATOR.EM_OBWHS_TYPE= ? GROUP BY M_TRANSACTION.M_PRODUCT_ID) A, M_PRODUCT mp
+ left join M_PRODUCTPRICE mpp on (mp.m_product_id = mpp.m_product_id)
+ inner join CL_MODEL cm on (cm.cl_model_id = mp.em_cl_model_id)
+ inner join CL_BRAND cb on (cb.cl_brand_id = cm.cl_brand_id)
+ inner join CL_DEPARTMENT cd on (cd.cl_department_id = cm.cl_department_id)
+ inner join CL_STOREDEPT cs on (cs.cl_storedept_id = cm.cl_storedept_id)
+ inner join M_PRICELIST_VERSION mpv on (mpv.m_pricelist_version_id = mpp.m_pricelist_version_id)
+ inner join CL_COLOR cc on (cc.cl_color_id = mp.em_cl_color_id)
+ where A.M_PRODUCT_ID = mp.M_PRODUCT_ID AND mp.isActive='Y' and mpv.name like '%DMI CATALOGUE%' AND 1=1
+ group by mp.name,mp.upc,mp.em_cl_modelcode,mp.em_cl_modelname,mp.em_cl_size,A.QTY,mp.name,cb.name,cc.name,mpp.em_cl_ccunitprice,
+ mpp.em_cl_cessionprice,cd.name,cs.name
+ order by mp.name]]></Sql>
+		<Field name="rownum" value="count"/>
+		<Parameter name="date"/>
+		<Parameter name="warehouse"/>
+		<Parameter name="LocatorType"/>
+		<Parameter name="Product" optional="true" after="AND 1=1"><![CDATA[ AND mp.m_product_id =(select m_product_id from m_product where name=?) ]]></Parameter>
+	     	<Parameter name="Model" optional="true" after="AND 1=1"><![CDATA[ AND cm.cl_model_id = ? ]]></Parameter>
+		<Parameter name="Brand" optional="true" after="AND 1=1"><![CDATA[ AND cb.cl_brand_id = ? ]]></Parameter>
+        </SqlMethod>
+	<SqlMethod name="set" type="constant" return="multiple">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql></Sql>
+	</SqlMethod>
+	<SqlMethod name="selectMproduct" type="preparedStatement" return="String" default="">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql><![CDATA[SELECT M_PRODUCT.NAME FROM M_PRODUCT WHERE M_PRODUCT.M_PRODUCT_ID = ? ]]></Sql>
+		<Parameter name="Product"/>
+	</SqlMethod>
+	<SqlMethod name="selectCLmodel" type="preparedStatement" return="String" default="">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql><![CDATA[ SELECT CL_MODEL.NAME FROM CL_MODEL WHERE CL_MODEL.CL_MODEL_ID = ? ]]></Sql>
+		<Parameter name="Model"/>
+	</SqlMethod>
+</SqlClass>

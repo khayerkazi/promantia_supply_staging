@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DJE_PRODUCT_TAX">
+    <function name="DJE_PRODUCT_TAX" type="NULL">
+      <parameter name="copy_path" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Cur_Product RECORD;
+v_prod_name character varying (60);
+v_tax_category_name character varying (60);
+prod_id character varying (32);
+prod_tax_id character varying (32);
+temp_tax_id character varying (32);
+v_taxcategory_id character varying (32);
+v_old_category character varying (60) ;
+declare sql text;
+BEGIN
+
+CREATE TEMP TABLE temp6(item_code VARCHAR(60),category VARCHAR(60) )
+ON COMMIT PRESERVE ROWS;
+sql := 'COPY temp6 FROM ' || quote_literal(copy_path) || ' using delimiters '','' csv header';
+DBMS_OUTPUT.PUT_LINE( sql);
+execute sql;
+
+--copy temp4 from '/home/promantia/VAT-AuditTool.csv' using delimiters ',' csv header;
+
+v_old_category := '' ;
+FOR Cur_Product IN (select * from temp6 order by category )
+LOOP
+
+v_prod_name :=Cur_Product.item_code;
+v_tax_category_name := Cur_Product.category;
+
+if v_old_category != v_tax_category_name then
+   select c_taxcategory_id into v_taxcategory_id from c_taxcategory where name = v_tax_category_name;
+   v_old_category := v_tax_category_name ;
+end if;
+
+select p.m_product_id,p.c_taxcategory_id
+into prod_id,prod_tax_id
+from m_product p 
+where p.name like v_prod_name;
+
+
+if (prod_tax_id <> v_taxcategory_id  ) then
+
+UPDATE m_product SET c_taxcategory_id = tax_id where m_product_id  = prod_id ;
+end if;
+END LOOP;
+END DJE_PRODUCT_TAX
+]]></body>
+    </function>
+  </database>

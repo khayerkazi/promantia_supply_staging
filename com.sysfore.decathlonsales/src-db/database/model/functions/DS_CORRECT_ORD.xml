@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DS_CORRECT_ORD">
+    <function name="DS_CORRECT_ORD" type="NULL">
+      <parameter name="p_ordereddate" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[-- Logistice
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Result NUMBER:=1; -- 0=failure
+  v_Order_ID VARCHAR2(32);
+  v_enddate timestamp without time zone ;
+  
+  
+  TYPE RECORD IS REF CURSOR;
+    Cur_OrderData RECORD;
+ 
+  BEGIN
+  v_enddate = p_ordereddate + Interval '1 day' ;
+  
+
+  
+
+FOR Cur_OrderData IN 
+(SELECT c_order_id , documentno From c_order where dateordered between p_ordereddate and v_enddate and ad_org_id=p_org_id)
+ LOOP
+   raise notice ' Documentno %' , Cur_OrderData.documentno;
+
+--update order to draft
+update c_order set processed='N',docaction='CO',docstatus='DR'   where c_order_id =Cur_OrderData.C_Order_ID;
+
+ DS_UPDGROSS_ORD(Cur_OrderData.C_Order_ID);
+
+--book order 
+update c_order set processed='Y',docaction='--',docstatus='CO' , isinvoiced = 'N'  where c_order_id =Cur_OrderData.C_Order_ID;
+END LOOP;
+END DS_CORRECT_ORD
+]]></body>
+    </function>
+  </database>

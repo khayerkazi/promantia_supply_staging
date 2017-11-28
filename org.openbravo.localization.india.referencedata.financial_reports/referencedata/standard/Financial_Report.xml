@@ -1,0 +1,953 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FinancialMgmtAccountingReport id="0ABABA367DD24A0B8BD84C3E39B39A72" identifier="Schedule 14: Inventories">
+    <id>0ABABA367DD24A0B8BD84C3E39B39A72</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.505Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.505Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 14: Inventories</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="F92EC7B75AA0464291E7C18F28E917BF" identifier="Inventories">
+        <id>F92EC7B75AA0464291E7C18F28E917BF</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="0ABABA367DD24A0B8BD84C3E39B39A72" identifier="Schedule 14: Inventories"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.507Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.507Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Inventories</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="323BDDE2031D4D19AC8DEF4741A547EA" identifier="Inventories">
+            <id>323BDDE2031D4D19AC8DEF4741A547EA</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="F92EC7B75AA0464291E7C18F28E917BF" identifier="Inventories"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.568Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.568Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Inventories</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="D8383A22AD564D8BB6ED902A257EAF2E" identifier="A0202 - Inventories"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="0D040209FE514A65B54027B0C3367AD1" identifier="STATEMENT OF PROFIT AND LOSS">
+    <id>0D040209FE514A65B54027B0C3367AD1</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.499Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.499Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>STATEMENT OF PROFIT AND LOSS</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>false</balanced>
+    <reportType>N</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="FF9F58CCB9774C8E85D50B1C2C4914B6" identifier="STATEMENT OF PROFIT AND LOSS">
+        <id>FF9F58CCB9774C8E85D50B1C2C4914B6</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="0D040209FE514A65B54027B0C3367AD1" identifier="STATEMENT OF PROFIT AND LOSS"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.499Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.499Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>STATEMENT OF PROFIT AND LOSS</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="8DFE6462E12E4DDFAA86389A07B389B1" identifier="STATEMENT OF PROFIT AND LOSS">
+            <id>8DFE6462E12E4DDFAA86389A07B389B1</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="FF9F58CCB9774C8E85D50B1C2C4914B6" identifier="STATEMENT OF PROFIT AND LOSS"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.560Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.560Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>STATEMENT OF PROFIT AND LOSS</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="1B44DA7DBF9048B19D7F5B67C994E798" identifier="PL - STATEMENT OF PROFIT AND LOSS"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="1576F5FCB2DD4B2394DA2ED272C6C668" identifier="Schedule 15: Trade Receivables">
+    <id>1576F5FCB2DD4B2394DA2ED272C6C668</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.531Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.531Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 15: Trade Receivables</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="1C639A91861E4F5BBEFCD96E1F026465" identifier="Trade Receivables">
+        <id>1C639A91861E4F5BBEFCD96E1F026465</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="1576F5FCB2DD4B2394DA2ED272C6C668" identifier="Schedule 15: Trade Receivables"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.532Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.532Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Trade Receivables</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="107545E3E109426AADD342A79958D833" identifier="Trade Receivables">
+            <id>107545E3E109426AADD342A79958D833</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="1C639A91861E4F5BBEFCD96E1F026465" identifier="Trade Receivables"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.577Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.577Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Trade Receivables</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="0C123C43D479416099B6778F09E396CE" identifier="A0203 - Trade receivables"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="21C22455C4F04F3B895A56AFF1BB192A" identifier="Schedule 18: Other current assets">
+    <id>21C22455C4F04F3B895A56AFF1BB192A</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.518Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.518Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 18: Other current assets</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="ADD326EB1CD14EE0A93B82D01DA25516" identifier="Other current assets">
+        <id>ADD326EB1CD14EE0A93B82D01DA25516</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="21C22455C4F04F3B895A56AFF1BB192A" identifier="Schedule 18: Other current assets"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.519Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.519Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Other current assets</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="2D6D6B3659B3475093CADE4A45B77D0F" identifier="Other current assets">
+            <id>2D6D6B3659B3475093CADE4A45B77D0F</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="ADD326EB1CD14EE0A93B82D01DA25516" identifier="Other current assets"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.570Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.570Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Other current assets</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="CF9899073AE3438F8371B77ED9E5A88B" identifier="A0206 - Other current assets"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="266BE7C876234419A750D75073A68D62" identifier="Schedule 5: Long Term Provisions">
+    <id>266BE7C876234419A750D75073A68D62</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.513Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.513Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 5: Long Term Provisions</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="D8494FF199144BFBA6C16D55B92EA37D" identifier="Long Term Provisions">
+        <id>D8494FF199144BFBA6C16D55B92EA37D</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="266BE7C876234419A750D75073A68D62" identifier="Schedule 5: Long Term Provisions"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.514Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.514Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Long Term Provisions</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="238B3562AE62404E9179457FA7190E34" identifier="Long Term Provisions">
+            <id>238B3562AE62404E9179457FA7190E34</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="D8494FF199144BFBA6C16D55B92EA37D" identifier="Long Term Provisions"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.573Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.573Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Long Term Provisions</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="D96D742B7A6D4185BF5F0DB1CAAACBF6" identifier="L0304 - Longterm Provisions"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="2B20E1CEF0B64AD98B2C4E70635784AB" identifier="Schedule 2: Reserves &amp; Surplus">
+    <id>2B20E1CEF0B64AD98B2C4E70635784AB</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.523Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.523Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 2: Reserves &amp; Surplus</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="59A72AE6B21C4CE5B44F950196AFB3A1" identifier="Reserves &amp; Surplus">
+        <id>59A72AE6B21C4CE5B44F950196AFB3A1</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="2B20E1CEF0B64AD98B2C4E70635784AB" identifier="Schedule 2: Reserves &amp; Surplus"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.524Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.524Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Reserves &amp; Surplus</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="AFC775D6783A45CE9BC145C952B08475" identifier="Reserves &amp; Surplus">
+            <id>AFC775D6783A45CE9BC145C952B08475</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="59A72AE6B21C4CE5B44F950196AFB3A1" identifier="Reserves &amp; Surplus"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.556Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.556Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Reserves &amp; Surplus</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="155E8399787941C28681223FD5F0B5E4" identifier="L010201 - Reserves &amp; Surplus A/c"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="30B3A6B695FE4F109809384EEBB43311" identifier="Schedule 22: Finance costs">
+    <id>30B3A6B695FE4F109809384EEBB43311</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.529Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.529Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 22: Finance costs</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>false</balanced>
+    <reportType>N</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="1FAA7A3A28A74F0193CCAD6ABB34DCF6" identifier="Finance costs">
+        <id>1FAA7A3A28A74F0193CCAD6ABB34DCF6</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="30B3A6B695FE4F109809384EEBB43311" identifier="Schedule 22: Finance costs"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.530Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.530Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Finance costs</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="A5E4BBAE5A4B433FB169F66B61450ABA" identifier="Finance costs">
+            <id>A5E4BBAE5A4B433FB169F66B61450ABA</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="1FAA7A3A28A74F0193CCAD6ABB34DCF6" identifier="Finance costs"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.557Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.557Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Finance costs</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="0602BB6D9E2D403499C496DB7262E820" identifier="E05 - Financial Expenses"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="4E68380B6A884C74B97BD7F7FD41E931" identifier="Schedule 17: Short-term loans and advances">
+    <id>4E68380B6A884C74B97BD7F7FD41E931</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.536Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.536Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 17: Short-term loans and advances</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="08DA92A37D9045218AEF44BEBBE326E7" identifier="Short-term loans and advances">
+        <id>08DA92A37D9045218AEF44BEBBE326E7</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="4E68380B6A884C74B97BD7F7FD41E931" identifier="Schedule 17: Short-term loans and advances"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.537Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.537Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Short-term loans and advances</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="6F463ED814CB41AD8A27AFA711BCB6F5" identifier="Short-term loans and advances">
+            <id>6F463ED814CB41AD8A27AFA711BCB6F5</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="08DA92A37D9045218AEF44BEBBE326E7" identifier="Short-term loans and advances"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.564Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.564Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Short-term loans and advances</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="AC02C2BFCB13494AA0611650DF50DAD1" identifier="A0205 - Short Term Loans and Advances"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="516892FDB0234D1888461072A4375FDC" identifier="Schedule 23: Other expenses">
+    <id>516892FDB0234D1888461072A4375FDC</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.501Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.501Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 23: Other expenses</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>false</balanced>
+    <reportType>N</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="FE7F7538AD554706B0DA236510133690" identifier="Other Expenses">
+        <id>FE7F7538AD554706B0DA236510133690</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="516892FDB0234D1888461072A4375FDC" identifier="Schedule 23: Other expenses"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.502Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.502Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Other Expenses</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="9D775B3B3AED4712AAE80C639EDAFF09" identifier="Other Expenses">
+            <id>9D775B3B3AED4712AAE80C639EDAFF09</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="FE7F7538AD554706B0DA236510133690" identifier="Other Expenses"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.559Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.559Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Other Expenses</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="03944316E8C04F01B2D54180C0324A9E" identifier="E07 - Other Expenses"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="5BC33B8507CA4D438A95B5478B42AB82" identifier="Schedule 8: Short Term Provisions">
+    <id>5BC33B8507CA4D438A95B5478B42AB82</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.528Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.528Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 8: Short Term Provisions</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="21AE1B255D864BAEA1DDC0784CB3817E" identifier="Short Term Provisions">
+        <id>21AE1B255D864BAEA1DDC0784CB3817E</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="5BC33B8507CA4D438A95B5478B42AB82" identifier="Schedule 8: Short Term Provisions"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.528Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.528Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Short Term Provisions</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="FB63A333419D4DBD93093E9C402C8E80" identifier="Short Term Provisions">
+            <id>FB63A333419D4DBD93093E9C402C8E80</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="21AE1B255D864BAEA1DDC0784CB3817E" identifier="Short Term Provisions"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.546Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.546Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Short Term Provisions</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="4E0A9E3199544CAD99034DE7B5374944" identifier="L0404 - Short-term provisions"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="5FE6B33A62BC4C499F7BC716523C0865" identifier="Schedule 19: Revenue from operations">
+    <id>5FE6B33A62BC4C499F7BC716523C0865</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.510Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.510Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 19: Revenue from operations</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>false</balanced>
+    <reportType>N</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="F63EB94E39D24C31AD6D2145D6116CA8" identifier="Revenue from operations">
+        <id>F63EB94E39D24C31AD6D2145D6116CA8</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="5FE6B33A62BC4C499F7BC716523C0865" identifier="Schedule 19: Revenue from operations"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.511Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.511Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Revenue from operations</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="6178B1225FAA4BBF85784332B5DCF3DB" identifier="Revenue from operations">
+            <id>6178B1225FAA4BBF85784332B5DCF3DB</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="F63EB94E39D24C31AD6D2145D6116CA8" identifier="Revenue from operations"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.565Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.565Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Revenue from operations</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="8733662DB1F4480B8E0771D44D7A2073" identifier="R01 - Revenue from operations"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="698F7859E1CF47B4A026328BA9F47976" identifier="Schedule 1: Share Capital">
+    <id>698F7859E1CF47B4A026328BA9F47976</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.512Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.512Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 1: Share Capital</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="E0C05E2008B046599BAFD9DBBEC5A532" identifier="Share Capital">
+        <id>E0C05E2008B046599BAFD9DBBEC5A532</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="698F7859E1CF47B4A026328BA9F47976" identifier="Schedule 1: Share Capital"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.513Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.513Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Share Capital</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="F9D3A36723D241E1AFD18231CAA69A4B" identifier="Share Capital">
+            <id>F9D3A36723D241E1AFD18231CAA69A4B</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="E0C05E2008B046599BAFD9DBBEC5A532" identifier="Share Capital"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.548Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.548Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Share Capital</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="D315490F4E9840E980604F016254B95B" identifier="L0101 - Share Capital"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="88B12BCBC90A4B53B92C68C0D932B54B" identifier="Schedule 4: Other Long Term Liabilities">
+    <id>88B12BCBC90A4B53B92C68C0D932B54B</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.515Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.515Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 4: Other Long Term Liabilities</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="D65291A347AA45D4A0924513D4389914" identifier="Other Long Term Liabilities">
+        <id>D65291A347AA45D4A0924513D4389914</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="88B12BCBC90A4B53B92C68C0D932B54B" identifier="Schedule 4: Other Long Term Liabilities"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.516Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.516Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Other Long Term Liabilities</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="02E65EA4D65C4878A64AFDBD11C2E103" identifier="Other Long Term Liabilities">
+            <id>02E65EA4D65C4878A64AFDBD11C2E103</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="D65291A347AA45D4A0924513D4389914" identifier="Other Long Term Liabilities"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.579Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.579Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Other Long Term Liabilities</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="0647D51EA5394E6AAD88CDED8B872CC6" identifier="L0303 - Other Longterm Liabilities"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="9B6B856203D2428AA658621E0F51D0B2" identifier="Schedule 6: Short Term Borrowings">
+    <id>9B6B856203D2428AA658621E0F51D0B2</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.517Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.517Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 6: Short Term Borrowings</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="C90B6B771D5046848E76843AF3BE1BC4" identifier="Short Term Borrowings">
+        <id>C90B6B771D5046848E76843AF3BE1BC4</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="9B6B856203D2428AA658621E0F51D0B2" identifier="Schedule 6: Short Term Borrowings"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.518Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.518Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Short Term Borrowings</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="FFE710D0004F4551BBB276DCB85FA591" identifier="Short Term Borrowings">
+            <id>FFE710D0004F4551BBB276DCB85FA591</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="C90B6B771D5046848E76843AF3BE1BC4" identifier="Short Term Borrowings"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.543Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.543Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Short Term Borrowings</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="A16B446AD7EA4613BB8BA923806C8772" identifier="L0401 - Short-term borrowings"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="9BBB704D56534D5A913A4AC3D0D5A809" identifier="Schedule 11: Long Term Loans and Advances">
+    <id>9BBB704D56534D5A913A4AC3D0D5A809</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.533Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.533Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 11: Long Term Loans and Advances</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="0DAD45F0E01C4BF986CC25203242D55A" identifier="Long Term Loans and Advances">
+        <id>0DAD45F0E01C4BF986CC25203242D55A</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="9BBB704D56534D5A913A4AC3D0D5A809" identifier="Schedule 11: Long Term Loans and Advances"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.534Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.534Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Long Term Loans and Advances</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="F267A7E65B834C64A3117AED129BB5FF" identifier="Long Term Loans and Advances">
+            <id>F267A7E65B834C64A3117AED129BB5FF</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="0DAD45F0E01C4BF986CC25203242D55A" identifier="Long Term Loans and Advances"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.549Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.549Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Long Term Loans and Advances</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="DE4E8747113348018A4A910A41C3FB27" identifier="A0104 - Longterm Loans and advances"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="C25FDB85108C4749AD0CFD07E08803D9" identifier="Schedule 12: Other Non Current Asset">
+    <id>C25FDB85108C4749AD0CFD07E08803D9</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.508Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.508Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 12: Other Non Current Asset</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="F81BC90063FD44A78C8194E6816991A4" identifier="Other Non Current Asset">
+        <id>F81BC90063FD44A78C8194E6816991A4</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="C25FDB85108C4749AD0CFD07E08803D9" identifier="Schedule 12: Other Non Current Asset"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.509Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.509Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Other Non Current Asset</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="15409CD0540F44A3ADB45DBDC9AEBBF8" identifier="Other Non Current Asset">
+            <id>15409CD0540F44A3ADB45DBDC9AEBBF8</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="F81BC90063FD44A78C8194E6816991A4" identifier="Other Non Current Asset"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.575Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.575Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Other Non Current Asset</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="06A5FF55500545E9BAB2F2C3D889E3B8" identifier="A0105 - Other Non Current asset"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="C5DF5092C1C045F29E3B734D25DF3AAE" identifier="BALANCE SHEET">
+    <id>C5DF5092C1C045F29E3B734D25DF3AAE</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.503Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.503Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>BALANCE SHEET</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="2AD8C3EB696544D18F7368D1332F9F90" identifier="EQUITY AND LIABILITIES">
+        <id>2AD8C3EB696544D18F7368D1332F9F90</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="C5DF5092C1C045F29E3B734D25DF3AAE" identifier="BALANCE SHEET"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.525Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.525Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>EQUITY AND LIABILITIES</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="27421A98621846C0A0E055396341DFA5" identifier="EQUITY AND LIABILITIES">
+            <id>27421A98621846C0A0E055396341DFA5</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="2AD8C3EB696544D18F7368D1332F9F90" identifier="EQUITY AND LIABILITIES"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.572Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.572Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>EQUITY AND LIABILITIES</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="41293C667D104F0C94824B5BEC4B9709" identifier="L - EQUITY AND LIABILITIES"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+      <FinancialMgmtAcctRptGroup id="FCC45683040E49FABF70012AD97DF0F0" identifier="ASSETS">
+        <id>FCC45683040E49FABF70012AD97DF0F0</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="C5DF5092C1C045F29E3B734D25DF3AAE" identifier="BALANCE SHEET"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.504Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.504Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>ASSETS</name>
+        <description xsi:nil="true"/>
+        <lineNo>20</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="770F2FBB38894C6FB98BFCDCAABFC17C" identifier="ASSETS">
+            <id>770F2FBB38894C6FB98BFCDCAABFC17C</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="FCC45683040E49FABF70012AD97DF0F0" identifier="ASSETS"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.562Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.562Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>ASSETS</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="56B3C56CFAB744DCA1E9FFF197D3D312" identifier="A - ASSETS"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="C8C0EDA6EF324FA6AF434CC9AF45087A" identifier="Schedule 20: Other income">
+    <id>C8C0EDA6EF324FA6AF434CC9AF45087A</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.535Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.535Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 20: Other income</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>false</balanced>
+    <reportType>N</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="0916622775764BD9855F668158B295F7" identifier="Other income">
+        <id>0916622775764BD9855F668158B295F7</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="C8C0EDA6EF324FA6AF434CC9AF45087A" identifier="Schedule 20: Other income"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.536Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.536Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Other income</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="FB66EAA51EC8481C989D6606F2E2243D" identifier="Other income">
+            <id>FB66EAA51EC8481C989D6606F2E2243D</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="0916622775764BD9855F668158B295F7" identifier="Other income"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.544Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.544Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Other income</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="20337B7A0C664278AA57E2F312E685F3" identifier="R02 - Other Income"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="CAF6ED72D23544F0B4C578EA6A6DEB8C" identifier="Schedule 21: Employee benefits expense">
+    <id>CAF6ED72D23544F0B4C578EA6A6DEB8C</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.520Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.520Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 21: Employee benefits expense</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>false</balanced>
+    <reportType>N</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="6CA4AEE383BD44A1AB5222A6223BA368" identifier="Employee benefits expense">
+        <id>6CA4AEE383BD44A1AB5222A6223BA368</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="CAF6ED72D23544F0B4C578EA6A6DEB8C" identifier="Schedule 21: Employee benefits expense"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.521Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.521Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Employee benefits expense</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="ED1DDB23E72B46D092BE460149CB1842" identifier="Employee benefits expense">
+            <id>ED1DDB23E72B46D092BE460149CB1842</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="6CA4AEE383BD44A1AB5222A6223BA368" identifier="Employee benefits expense"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.551Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.551Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Employee benefits expense</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="F8CAEF13C9E24148BF0581CDD8CA376B" identifier="E04 - Employee Benefit Expenses"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="D1DCA73056E046F283E52B29F8AC5639" identifier="Schedule 3: Long Term Borrowing">
+    <id>D1DCA73056E046F283E52B29F8AC5639</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.538Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.538Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 3: Long Term Borrowing</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="0405D4409EC84BB1BDC5FCE4D060B93E" identifier="Long Term Borrowing">
+        <id>0405D4409EC84BB1BDC5FCE4D060B93E</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="D1DCA73056E046F283E52B29F8AC5639" identifier="Schedule 3: Long Term Borrowing"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.539Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.539Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Long Term Borrowing</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="E1FDFD8ADEF442E1B8643F65FC98911A" identifier="Long Term Borrowing">
+            <id>E1FDFD8ADEF442E1B8643F65FC98911A</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="0405D4409EC84BB1BDC5FCE4D060B93E" identifier="Long Term Borrowing"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.552Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.552Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Long Term Borrowing</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="D7F2C5A6A5434B27A182695236C0DEF4" identifier="L0301 - Longterm Borrowings"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="E012199FFAB74F48A703150EE7B6F126" identifier="Schedule 7: Other Current Liabilities">
+    <id>E012199FFAB74F48A703150EE7B6F126</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.526Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.526Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 7: Other Current Liabilities</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="27E2043F80AF4CC3BFF9C112777B58AF" identifier="Other Current Liabilities">
+        <id>27E2043F80AF4CC3BFF9C112777B58AF</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="E012199FFAB74F48A703150EE7B6F126" identifier="Schedule 7: Other Current Liabilities"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.527Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.527Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Other Current Liabilities</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="50520B7FAC864CA2912DDD2EB4ABC95C" identifier="Other Current Liabilities">
+            <id>50520B7FAC864CA2912DDD2EB4ABC95C</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="27E2043F80AF4CC3BFF9C112777B58AF" identifier="Other Current Liabilities"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.567Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.567Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Other Current Liabilities</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="BB2617EFD2DA41DA88E337A6221627EB" identifier="L0403 - Other current liabilities"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+  <FinancialMgmtAccountingReport id="E2D919B936174ADDA74B48889462132A" identifier="Schedule 16: Cash and cash equivalents">
+    <id>E2D919B936174ADDA74B48889462132A</id>
+    <active>true</active>
+    <creationDate transient="true">2013-03-26T22:09:57.522Z</creationDate>
+    <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <updated transient="true">2013-03-26T22:09:57.522Z</updated>
+    <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+    <name>Schedule 16: Cash and cash equivalents</name>
+    <description xsi:nil="true"/>
+    <accountingSchema entity-name="FinancialMgmtAcctSchema" id="5B16C61311DE46F9A7C5FF87A0E2F585" identifier="professional"/>
+    <balanced>true</balanced>
+    <reportType>Y</reportType>
+    <financialMgmtAcctRptGroupList>
+      <FinancialMgmtAcctRptGroup id="5ADB1E019B8348FEB985A5C290521CE0" identifier="Cash and cash equivalents">
+        <id>5ADB1E019B8348FEB985A5C290521CE0</id>
+        <generalAccountingReport entity-name="FinancialMgmtAccountingReport" id="E2D919B936174ADDA74B48889462132A" identifier="Schedule 16: Cash and cash equivalents"/>
+        <active>true</active>
+        <creationDate transient="true">2013-03-26T22:09:57.522Z</creationDate>
+        <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <updated transient="true">2013-03-26T22:09:57.522Z</updated>
+        <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+        <name>Cash and cash equivalents</name>
+        <description xsi:nil="true"/>
+        <lineNo>10</lineNo>
+        <financialMgmtAcctRptNodeList>
+          <FinancialMgmtAcctRptNode id="DD03C26245A041FFBB213DB02DDE6C8B" identifier="Cash and cash equivalents">
+            <id>DD03C26245A041FFBB213DB02DDE6C8B</id>
+            <group entity-name="FinancialMgmtAcctRptGroup" id="5ADB1E019B8348FEB985A5C290521CE0" identifier="Cash and cash equivalents"/>
+            <active>true</active>
+            <creationDate transient="true">2013-03-26T22:09:57.554Z</creationDate>
+            <createdBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <updated transient="true">2013-03-26T22:09:57.554Z</updated>
+            <updatedBy entity-name="ADUser" id="100" identifier="Openbravo" transient="true"/>
+            <name>Cash and cash equivalents</name>
+            <description xsi:nil="true"/>
+            <accountElement entity-name="FinancialMgmtElementValue" id="7461838BB8264606A890DB8B7B852CA3" identifier="A0204 - Cash and cash equivalents"/>
+            <lineNo>10</lineNo>
+          </FinancialMgmtAcctRptNode>
+        </financialMgmtAcctRptNodeList>
+      </FinancialMgmtAcctRptGroup>
+    </financialMgmtAcctRptGroupList>
+  </FinancialMgmtAccountingReport>
+</ob:Openbravo>

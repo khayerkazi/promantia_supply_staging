@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW DTR_TRUCK_PICK_EDIT">
+    <view name="DTR_TRUCK_PICK_EDIT"><![CDATA[SELECT i.m_inout_id AS dtr_truck_pick_edit_id, i.ad_client_id, i.ad_org_id, i.isactive, i.created, i.createdby, i.updated, i.updatedby, i.m_inout_id, i.c_bpartner_id, i.movementdate, i.trackingno, CASE WHEN d.dtr_truck_details_id IS NULL THEN 'N' ELSE 'Y' END AS ob_selected, d.dtr_truck_details_id, d.dtr_truck_reception_id, i.m_warehouse_id, i.docstatus FROM m_inout i LEFT JOIN dtr_truck_details d ON i.m_inout_id = d.m_inout_id WHERE NOT (EXISTS (SELECT 1 FROM dtr_truck_details d2 WHERE d2.dtr_truck_reception_id <> d.dtr_truck_reception_id AND d2.m_inout_id = i.m_inout_id)) AND i.isactive = 'Y' AND i.issotrx = 'N']]></view>
+  </database>

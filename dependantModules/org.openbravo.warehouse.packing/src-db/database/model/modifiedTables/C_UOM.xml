@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_UOM">
+    <table name="C_UOM" primaryKey="C_UOM_KEY">
+      <column name="EM_OBWPACK_ISWEIGHT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <check name="EM_OBWPACK_C_UOM_ISWEIGHT"><![CDATA[EM_OBWPACK_ISWEIGHT IN ('Y', 'N')]]></check>
+    </table>
+  </database>

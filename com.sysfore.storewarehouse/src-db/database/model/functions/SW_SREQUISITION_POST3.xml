@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_SREQUISITION_POST3">
+    <function name="SW_SREQUISITION_POST3" type="NULL">
+      <parameter name="p_storerequisition" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SL
+* All portions are Copyright (C) 2001-2006 Openbravo SL
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  v_ResultStr VARCHAR2(2000):='';
+  v_Client_ID VARCHAR(32);
+  v_WH_ID VARCHAR(32);  	  
+  v_Org_ID VARCHAR(32);
+  v_SOrg_ID VARCHAR(32);
+  v_docno_No VARCHAR(32);
+  v_mlocator_ID VARCHAR(32);
+  v_user VARCHAR(32);
+  v_reline_ID VARCHAR(32);
+  v_Record_ID VARCHAR(32);	
+  v_User_ID VARCHAR(32);	
+  v_MoveDate VARCHAR(32);
+  v_reqstatus VARCHAR(32);
+  v_srcqty VARCHAR(32);
+  v_scc NUMBER;
+  v_mtcount NUMBER;
+ --
+ TYPE RECORD IS REF CURSOR;
+    Cur_Parameter RECORD;
+    Cur_IrLine RECORD;
+    Cur_SLine RECORD;
+
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Updating p_storerequisition - Processing ' || p_storerequisition) ;
+  v_ResultStr:='PInstanceNotFound';
+  AD_UPDATE_PINSTANCE(p_storerequisition, NULL, 'Y', NULL, NULL) ;
+ 
+  BEGIN --BODY
+ -- Get Parameters
+    v_ResultStr:='ReadingParameters';
+    FOR Cur_Parameter IN
+      (SELECT i.Record_ID, i.AD_User_ID, i.AD_Client_ID, i.AD_Org_ID,
+        p.ParameterName, p.P_String, p.P_Number, p.P_Date
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=p_storerequisition
+      ORDER BY p.SeqNo) LOOP
+      v_Record_ID:=Cur_Parameter.Record_ID;
+      v_User_ID:=Cur_Parameter.AD_User_ID;
+      END LOOP; -- Get Parameter
+          
+SELECT ad_org_id, documentno INTO v_SOrg_ID, v_docno_No  FROM sw_srequisition where sw_srequisition_id=v_Record_ID;
+      SELECT m_locator_id INTO v_mlocator_ID FROM m_locator where ad_org_id=v_SOrg_ID and value ilike 'Saleable %' ;
+
+      select count(*) INTO v_mtcount from m_transaction where em_sw_movementtype='SRQ' and m_locator_id=v_mlocator_ID and em_sw_documentno=v_docno_No;   
+
+	
+     IF(v_mtcount > 0) THEN 
+		RAISE_APPLICATION_ERROR(-20000, '@Requisition Already Closed@');
+      ELSE    
+      
+      
+      select m_warehouse_id INTO v_WH_ID from m_warehouse 
+      where ad_org_id =v_SOrg_ID and name LIKE '%Saleable%'; 
+
+  FOR Cur_IrLine IN 
+   (select updated,updatedby, sw_sreqline_id, ad_org_id, qtyship 
+   from sw_sreqline 
+   where sw_srequisition_id=v_Record_ID ) LOOP 
+   
+   v_MoveDate:=Cur_IrLine.updated;
+   v_reline_ID:=Cur_IrLine.sw_sreqline_id;	
+   v_srcqty:=Cur_IrLine.qtyship; 
+   
+   PERFORM SW_SREQLINE_UPDATE1 (v_srcqty,v_WH_ID,v_MoveDate,v_reline_ID, v_User_ID);
+   
+   END LOOP;
+   END IF; 
+    UPDATE sw_srequisition SET requisitionstatus='CD', docstatus='CL',
+    processing='N',processed='Y', docaction='CL' WHERE sw_srequisition_id = v_Record_ID;
+    v_ResultStr:= 'Done' ;
+      --    RAISE NOTICE '%','Done' || v_ResultStr;
+      AD_UPDATE_PINSTANCE(p_storerequisition, NULL, 'N', 1, v_ResultStr);
+  END ;
+END SW_SREQUISITION_POST3
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <provider>
+   <bean>
+       <name>whstock</name>
+       <class>in.decathlon.supply.inventorycorrectiontool.ad_webservices.WarehouseStockWebService</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>
+

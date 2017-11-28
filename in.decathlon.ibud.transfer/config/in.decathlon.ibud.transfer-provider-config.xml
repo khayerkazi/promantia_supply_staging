@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+   
+   
+   <bean>
+       <name>TransferWS</name>
+       <class>in.decathlon.ibud.transfer.service.TransferWebservice</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>ReturnsTransferWS</name>
+       <class>in.decathlon.ibud.transfer.service.ReturnsManuallWS</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   
+</provider>
+
+

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE AD_ORG">
+    <table name="AD_ORG" primaryKey="AD_ORG_KEY">
+      <column name="EM_OBWPACK_UOM_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_UOM" name="EM_OBWPACK_AD_ORG_UOM">
+        <reference local="EM_OBWPACK_UOM_ID" foreign="C_UOM_ID"/>
+      </foreign-key>
+    </table>
+  </database>

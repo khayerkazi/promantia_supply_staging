@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reportproductionsearch" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select b.name as brand,lower(p.EM_cl_MODELNAME) as modelname,p.EM_cl_MODELCODE as modelcode,m.Cl_Model_Id as cl_Model_Id,p.em_cl_size as size,p.name as pdtname,
+np.name as NatofPdt,c.name as color,d.name as dept,p.EM_cl_LIFESTAGE as lifestage,
+pp.name as Process,pp.value as ProcessCode,pcl.name as ComponentLabel,pcl.value as ComponentLabelCode,(prmi_searchsubcontractor(m.cl_model_id)) as Supplier,
+(prmi_searchsubcontractorvalue(m.cl_model_id)) as suppliercode
+	  from m_product p right join cl_model m on (m.cl_model_id=p.em_cl_model_id)
+                 left join cl_natureofproduct np on(np.CL_NATUREOFPRODUCT_ID = m.CL_NATUREOFPRODUCT_ID)
+                 left join cl_brand b on (b.cl_brand_id = m.cl_brand_id)
+                 left join cl_color c on (c.cl_color_id = p.em_cl_color_id)
+                 left join cl_department d on (d.cl_department_id=m.cl_department_id)
+                 left join prmi_process pp on(pp.prmi_process_id = m.EM_prmi_process_id)
+                 left join prmi_componentlabel pcl on(pcl.prmi_componentlabel_id = m.EM_prmi_componentlabel_id)
+                 left join prmi_subcontractor sb on(sb.cl_model_id =m.cl_model_id)
+
+
+
+
+                 where
+                    m.value='100000009' and
+                  p.isactive='Y'
+
+
+
+                 AND 1=1
+
+
+
+                 group by p.EM_cl_MODELNAME,b.name,p.EM_cl_MODELCODE,p.name,p.m_Product_Id,m.Cl_Model_Id,
+                p.em_cl_size,c.name, np.name,d.name,p.EM_cl_LIFESTAGE,pp.prmi_process_id,pp.value,pcl.prmi_componentlabel_id,pcl.value order by p.EM_cl_MODELNAME limit 5]]>
+	</queryString>
+	<field name="brand" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="modelcode" class="java.lang.String"/>
+	<field name="cl_model_id" class="java.lang.String"/>
+	<field name="size" class="java.lang.String"/>
+	<field name="pdtname" class="java.lang.String"/>
+	<field name="natofpdt" class="java.lang.String"/>
+	<field name="color" class="java.lang.String"/>
+	<field name="dept" class="java.lang.String"/>
+	<field name="lifestage" class="java.lang.String"/>
+	<field name="process" class="java.lang.String"/>
+	<field name="processcode" class="java.lang.String"/>
+	<field name="componentlabel" class="java.lang.String"/>
+	<field name="componentlabelcode" class="java.lang.String"/>
+	<field name="supplier" class="java.lang.String"/>
+	<field name="suppliercode" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="62" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement x="223" y="59" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Static text]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="323" y="59" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Static text]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="423" y="59" width="72" height="20"/>
+				<textElement/>
+				<text><![CDATA[Static text]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="223" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{suppliercode}.split(",").length > 0?$F{suppliercode}.split(",")[0]:""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="317" y="2" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{suppliercode}.split(",").length >1?$F{suppliercode}.split(",")[1]:""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="417" y="2" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{suppliercode}.split(",").length >2?$F{suppliercode}.split(",")[2]:""]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

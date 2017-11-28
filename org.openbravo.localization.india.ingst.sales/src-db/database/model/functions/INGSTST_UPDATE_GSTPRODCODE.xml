@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION INGSTST_UPDATE_GSTPRODCODE">
+    <function name="INGSTST_UPDATE_GSTPRODCODE" type="NULL">
+      <parameter name="p_ep_instance" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_record_id C_INVOICE.C_INVOICE_ID%TYPE;
+v_order_id C_ORDER.C_ORDER_ID%TYPE;
+v_em_ingstst_org_gstmaster_id VARCHAR(32);
+
+
+TYPE RECORD IS REF CURSOR;
+Cur_Params RECORD;
+Cur_Record  RECORD;
+CUR_COL RECORD;
+BEGIN
+FOR Cur_Params IN (
+    SELECT *
+    FROM ad_ep_instance_para
+    WHERE ad_ep_instance_id = p_ep_instance
+    ) LOOP
+    IF (cur_params.parametername LIKE 'Record_ID') THEN
+      p_record_id := cur_params.p_string;
+    END IF;
+  END LOOP;
+
+   select ci.c_order_id into v_order_id from c_invoice ci where ci.c_invoice_id = p_record_id;
+  IF (v_order_id IS NOT NULL) 
+  THEN
+   FOR CUR_COL IN
+    (   select cil.c_invoiceline_id, cil.c_orderline_id, cil.em_ingstst_gstproductcode_id from c_invoiceline cil where cil.c_invoice_id = p_record_id
+    )
+  LOOP
+    IF(CUR_COL.c_orderline_id IS NOT NULL AND CUR_COL.em_ingstst_gstproductcode_id IS NULL) THEN
+      update c_invoiceline set em_ingstst_gstproductcode_id=(select col.em_ingstst_gstproductcode_id from c_orderline col where col.c_orderline_id = CUR_COL.c_orderline_id)
+      where c_invoiceline.c_invoiceline_id = CUR_COL.c_invoiceline_id;
+    END IF;
+  END LOOP; -- BOM
+  
+   
+  END IF;
+END INGSTST_UPDATE_GSTPRODCODE
+]]></body>
+    </function>
+  </database>

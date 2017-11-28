@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+
+
+<SqlClass name="ImportPurchaseOrderLine2Data" package="com.sysfore.decathlonimport.ad_process" >
+   <SqlMethod name="insertlines" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+	 <![CDATA[ insert into c_orderline(c_orderline_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, c_order_id, line, c_bpartner_id, c_bpartner_location_id, dateordered, datepromised, dateinvoiced, m_product_id, m_warehouse_id, directship, c_uom_id, qtyordered, qtyreserved, qtydelivered, qtyinvoiced, c_currency_id, pricelist, priceactual, pricelimit, linenetamt, freightamt, chargeamt, c_tax_id, isdescription, pricestd, cancelpricead, iseditlinenetamt, taxbaseamt, em_ds_taxamount, em_ds_unitqty, em_ds_cessionprice, em_sw_orderqty, em_sw_suppliercode, em_sw_volpcb, em_sw_ntwtpcb, em_sw_grwtpcb, em_sw_noofparcel, em_sw_itemcode, em_sw_modelname, em_sw_color, em_sw_size, em_ds_ccunitprice, em_ds_mrpprice  ) VALUES(get_uuid(), ?, ?, 'Y' ,now(), ?,now(), ?, ?,TO_NUMBER(?), ?, ?, '2011-08-16 00:00:00', '2011-08-20 00:00:00', '2011-08-16 00:00:00', ?, ?, 'N', '100', TO_NUMBER(?), 0, 0, TO_NUMBER(?), '304', TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), TO_NUMBER(?), 0.0, 0.0, ?, 'N', TO_NUMBER(?),'N', 'N', 0, TO_NUMBER(?), 0, TO_NUMBER(?), TO_NUMBER(?), ?, TO_NUMBER(?), TO_NUMBER(?),TO_NUMBER(?), TO_NUMBER(?), ?, ?, ?, ?, TO_NUMBER(?), TO_NUMBER(?))]]>
+    </Sql>
+	<Parameter name="ad_client_id"/><Parameter name="ad_org_id"/><Parameter name="createdby"/><Parameter name="updatedby"/><Parameter name="cOrderId"/><Parameter name="line"/><Parameter name="cBpartnerId"/><Parameter name="cBpartnerLocationId"/><Parameter name="mProductId"/><Parameter name="mWarehouseId"/><Parameter name="qtyordered"/><Parameter name="qtyinvoiced"/>	<Parameter name="pricelist"/><Parameter name="priceactual"/><Parameter name="pricelimit"/><Parameter name="linenetamt"/><Parameter name="cTaxId"/><Parameter name="pricestd"/><Parameter name="emDsTaxamount"/><Parameter name="emDsCessionprice"/><Parameter name="emSwOrderqty"/><Parameter name="emSwSuppliercode"/><Parameter name="emSwVolpcb"/><Parameter name="emSwNtwtpcb"/><Parameter name="emSwGrwtpcb"/><Parameter name="emSwNoofparcel"/><Parameter name="emSwItemcode"/><Parameter name="emSwModelname"/><Parameter name="emSwColor"/><Parameter name="emSwSize"/><Parameter name="emDsCcunitprice"/><Parameter name="emDsMrpprice"/>
+    </SqlMethod>
+
+</SqlClass>

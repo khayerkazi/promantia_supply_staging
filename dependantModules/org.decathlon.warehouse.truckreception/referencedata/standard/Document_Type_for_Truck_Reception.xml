@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADSequence id="8F7D93AC2A8C4D9E850C66324E4033EB" identifier="MM Truck Reception">
+    <id>8F7D93AC2A8C4D9E850C66324E4033EB</id>
+    <active>true</active>
+    <creationDate transient="true">2015-03-25T11:09:26.379Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2015-03-25T11:09:26.379Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>MM Truck Reception</name>
+    <description xsi:nil="true"/>
+    <valueFormat xsi:nil="true"/>
+    <autoNumbering>true</autoNumbering>
+    <incrementBy>1</incrementBy>
+    <startingNo>1000000</startingNo>
+    <nextAssignedNumber>1000001</nextAssignedNumber>
+    <currentNextSystem>100</currentNextSystem>
+    <usedForRecordID>false</usedForRecordID>
+    <prefix xsi:nil="true"/>
+    <suffix xsi:nil="true"/>
+    <restartSequenceEveryYear>false</restartSequenceEveryYear>
+  </ADSequence>
+  <DocumentType id="365EF46FCAC649228D90ABE62EC7E7A1" identifier="MM Truck Reception">
+    <id>365EF46FCAC649228D90ABE62EC7E7A1</id>
+    <active>true</active>
+    <creationDate transient="true">2015-03-25T11:22:47.204Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2015-03-25T11:22:47.204Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>MM Truck Reception</name>
+    <printText>MM Truck Reception</printText>
+    <description xsi:nil="true"/>
+    <documentCategory>DTR_TR</documentCategory>
+    <salesTransaction>true</salesTransaction>
+    <sOSubType xsi:nil="true"/>
+    <documentTypeForShipment xsi:nil="true"/>
+    <documentTypeForInvoice xsi:nil="true"/>
+    <sequencedDocument>true</sequencedDocument>
+    <documentSequence id="8F7D93AC2A8C4D9E850C66324E4033EB" entity-name="ADSequence" identifier="MM Truck Reception"/>
+    <gLCategory id="745A2B441A2644DF934D1B1E462292E9" entity-name="FinancialMgmtGLCategory" identifier="None"/>
+    <comments xsi:nil="true"/>
+    <default>false</default>
+    <numberOfCopies>1</numberOfCopies>
+    <table id="BDF1E0C0391F4111A57D417C20C25E11" entity-name="ADTable" identifier="DTR_Truck_Reception"/>
+    <filterByOrganization>false</filterByOrganization>
+    <documentCancelled xsi:nil="true"/>
+    <expense>false</expense>
+    <reversal>false</reversal>
+    <return>false</return>
+    <documentTypeForOrder xsi:nil="true"/>
+    <oBWPLUseOutbound>false</oBWPLUseOutbound>
+    <oBWPLIsGroup>false</oBWPLIsGroup>
+    <oBWPLGenerateShipment>false</oBWPLGenerateShipment>
+    <oBWPLShipmentDocumentType xsi:nil="true"/>
+  </DocumentType>
+</ob:Openbravo>

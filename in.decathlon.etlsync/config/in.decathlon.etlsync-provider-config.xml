@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+	<bean>
+		<name>importorder</name>
+		<class>in.decathlon.etlsync.ImportDataFromIOrder</class>
+		<singleton>true</singleton>
+	</bean>
+	<bean>
+		<name>order</name>
+		<class>in.decathlon.etlsync.CreateCOrderLines</class>
+		<singleton>false</singleton>
+	</bean>
+	<bean>
+		<name>importorder2</name>
+		<class>in.decathlon.etlsync.ImportDataFromIOrder2</class>
+		<singleton>true</singleton>
+	</bean>
+	<bean>
+		<name>order2</name>
+		<class>in.decathlon.etlsync.CreateCOrderLines2</class>
+		<singleton>false</singleton>
+	</bean>
+	
+	<bean>
+		<name>posinvoiceup</name>
+		<class>in.decathlon.etlsync.CreatePosInvoiceWS</class>
+		<singleton>true</singleton>
+	</bean>
+	
+	<bean>
+        <name>updatecustomers</name>
+        <class>in.decathlon.etlsync.UpdateCustomerDetails</class>
+        <singleton>true</singleton>
+    </bean>
+</provider>

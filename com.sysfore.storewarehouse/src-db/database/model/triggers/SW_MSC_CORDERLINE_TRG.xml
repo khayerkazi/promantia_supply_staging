@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_MSC_CORDERLINE_TRG">
+    <trigger name="SW_MSC_CORDERLINE_TRG" table="C_ORDERLINE" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+vsize varchar(32);
+vcolor varchar(32);
+vmodel varchar(60);
+vcount NUMBER;
+vrange varchar(1);
+vdirectdelivery varchar(1);
+vcreatedby varchar(60);
+visroundoff varchar(1);
+vthresholdid varchar(60) := '';
+visstore varchar(32);
+vue NUMBER;
+vpcb NUMBER;
+vcaluereqty NUMBER;
+visImplanted varchar(1);
+visAutoDC varchar(1);
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF INSERTING OR UPDATING THEN
+
+select count(c_order_id),createdby,coalesce(em_sw_isimplantation,'N'),em_idsd_isautodc into vcount,vcreatedby,visImplanted,visAutoDC from c_order where c_doctypetarget_id in  
+(select c_doctype_id from c_doctype where ad_table_id  = '259' and docbasetype = 'POO'  and isreturn = 'N') and docstatus='DR' and c_order_id=:NEW.c_order_id group by createdby,em_sw_isimplantation,em_idsd_isautodc;
+
+SELECT em_cl_size, em_cl_color_id, em_cl_modelname, round(em_cl_ue_qty,0), round(em_cl_pcb_qty,0) into vsize, vcolor, vmodel, vue, vpcb  from m_product where   m_product_id = :NEW.m_product_id;
+
+ :NEW.em_cl_size=vsize;
+ :NEW.em_cl_color_id=vcolor;
+ :NEW.em_cl_modelname=vmodel;
+
+select isinrange,em_facst_is_direct_delivery, em_idsd_pcb_threshold_id into vrange, vdirectdelivery, vthresholdid from cl_minmax where ad_org_id=:NEW.ad_org_id and  m_product_id = :NEW.m_product_id;
+
+IF (vcount > 0 ) AND (visImplanted != 'Y') AND (visAutoDC != 'Y') AND (vrange != 'N') THEN
+
+select em_sw_isstore,em_sw_isroundoff into visstore,visroundoff from ad_org where ad_org_id=:NEW.ad_org_id;
+
+  --ROUNDING UP REQTY TO PCB
+  --NEW.createdby <> '100' => to take only manual DC
+
+IF ((vthresholdid is not null OR vthresholdid != '') AND (visroundoff != 'N')) OR ((visroundoff != 'N') AND (vdirectdelivery = 'Y')) THEN
+	IF ((visstore = 'Y') AND (vpcb > 0)) THEN
+	vcaluereqty = CEIL(:NEW.qtyordered/vpcb);
+ 	:NEW.qtyordered = vcaluereqty * vpcb;
+	END IF;
+
+ELSE
+
+  --ROUNDING UP REQTY TO UE
+  --NEW.createdby <> '100' => to take only manual DC
+
+  	IF ((visstore = 'Y') AND (vue > 0)) THEN
+  	 vcaluereqty = CEIL(:NEW.qtyordered/vue);
+   	 :NEW.qtyordered = vcaluereqty * vue;
+ 	END IF;
+END IF;
+
+END IF;
+END IF;
+--UPDATING RECIEVED QTY TO ZERO
+IF INSERTING THEN
+ IF (vcount > 0) THEN
+  :NEW.em_sw_recqty='0';
+ END IF;
+END IF;
+
+END SW_MSC_CORDERLINE_TRG
+]]></body>
+    </trigger>
+  </database>

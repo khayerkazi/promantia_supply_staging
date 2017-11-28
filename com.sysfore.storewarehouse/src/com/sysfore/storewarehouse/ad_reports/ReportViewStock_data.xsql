@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+<SqlClass name="ReportViewStockData" package="com.sysfore.storewarehouse.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+  <SqlClassComment></SqlClassComment>
+    <Sql>
+    <![CDATA[select MO.VALUE AS Model_Code, MO.NAME AS Model_Name,P.EM_CL_Size as Size,COL.NAME AS COLOR,
+        BR.NAME AS Brand,DT.NAME AS DMI_DEPT,
+        SD.NAME as StoreDept,U.NAME AS Universe,p.NAME as Item_Code,
+       coalesce(A.qty,0) as SS_Qty,coalesce(B.qty,0) as SW_Qty,
+       coalesce(C.confirmed_qty,0) as confirmed_qty,(coalesce(C.confirmed_qty,0) +coalesce(A.qty,0) + coalesce(B.qty,0)) as Total_Stock,
+   PP.EM_CL_CCUnitPrice as Valuation_CndC_Unit_Price_From_Catalog,
+   PP.EM_CL_CessionPrice as Valuation_Cession_Price_From_Catalog
+       FROM m_product p
+       left join m_productprice pp on (p.m_product_id=pp.m_product_id)
+       left join (select p.m_product_id, sum(mt.movementqty) as qty  
+   from m_transaction mt,m_product p,m_locator l,m_warehouse w,ad_org o
+   where mt.m_product_id=p.m_product_id
+   and mt.m_locator_id = l.m_locator_id
+   and l.m_warehouse_id = w.m_warehouse_id
+   and upper(w.name) like upper('%saleable%')
+   and w.ad_org_id = o.ad_org_id
+   and o.em_sw_isstore='Y'
+   and mt.movementdate < to_date(?)
+   group by p.m_product_id) A on p.m_product_id = A.m_product_id
+   left join 
+   (select p.m_product_id, sum(mt.movementqty) as qty  
+   from m_transaction mt,m_product p,m_locator l,m_warehouse w,ad_org o
+   where mt.m_product_id=p.m_product_id
+   and mt.m_locator_id = l.m_locator_id
+   and l.m_warehouse_id = w.m_warehouse_id
+   and upper(w.name) like upper('%saleable%')
+   and w.ad_org_id = o.ad_org_id
+   and o.em_sw_isstore='N'
+   and mt.movementdate < to_date(?)
+   group by p.m_product_id) B  on p.m_product_id = B.m_product_id
+
+   left join (select p.m_product_id,sum(c_orderline.qtyordered) as confirmed_qty  
+   from m_product p,c_orderline,c_order
+   where c_orderline.c_order_id = c_order.c_order_id
+   and c_orderline.m_product_id=p.m_product_id
+   and c_order.issotrx='N'
+   and c_order.dateordered < to_date(?)
+   group by p.m_product_id
+ ) C on p.m_product_id = C.m_product_id
+   
+            left join cl_model mo on (mo.cl_model_id=p.em_cl_model_id)
+            left join cl_color col on (col.cl_color_id=p.em_cl_color_id)
+            left join cl_storedept sd on (sd.cl_storedept_id=mo.cl_storedept_id)
+            left join cl_universe u on (u.cl_universe_id=mo.cl_universe_id)
+            left join cl_department dt on (dt.cl_department_id=mo.cl_department_id)
+            left join cl_brand br on (br.cl_brand_id=mo.cl_brand_id)
+            inner join m_pricelist_version plv on (plv.m_pricelist_version_id=pp.m_pricelist_version_id)            
+            AND p.isActive='Y' 
+            AND plv.name like '%DMI CATALOGUE%'
+            AND 1=1
+
+            group by p.name, p.name,br.name,A.qty,B.qty,C.confirmed_qty,MO.VALUE,MO.NAME,P.EM_CL_Size,COL.NAME,
+            DT.NAME,SD.NAME,U.NAME,PP.EM_CL_CCUnitPrice,PP.EM_CL_CessionPrice
+            order by p.name
+     ]]></Sql>
+  <Parameter name="date1"/>
+  <Parameter name="date2"/>
+  <Parameter name="date3"/>
+<Parameter name="Product" optional="true" type="argument" after="AND 1=1"><![CDATA[ AND P.m_product_id IN]]></Parameter>
+<Parameter name="Brand" optional="true" type="argument" after="AND 1=1"><![CDATA[ AND BR.cl_brand_id IN]]></Parameter>
+  <!--<Parameter name="Product"/>
+  <Parameter name="Brand"/>-->
+  </SqlMethod>
+      <!--<Parameter name="adUserClient" type="replace" optional="true" after="O.AD_Client_ID IN (" text="'1'"/>
+      <Parameter name="adUserOrg" type="replace" optional="true" after="O.AD_Org_ID IN (" text="'1'"/>
+    AND OL.M_Product_ID IN(?) 
+    AND ML.CL_Brand_ID IN(?)
+-->
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+
+  <SqlMethod name="selectMproduct" type="preparedStatement" return="String" default="">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+      SELECT M_PRODUCT.NAME
+      FROM M_PRODUCT
+      WHERE M_PRODUCT.M_PRODUCT_ID = ?
+     ]]></Sql>
+    <Parameter name="mProductId"/>
+  </SqlMethod>
+</SqlClass>
+

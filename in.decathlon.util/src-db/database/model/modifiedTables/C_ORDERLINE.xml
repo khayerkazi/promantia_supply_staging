@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ORDERLINE">
+    <table name="C_ORDERLINE" primaryKey="C_ORDERLINE_KEY">
+      <index name="EM_UT_OLINE_DEL_IDX1" unique="false">
+        <index-column name="REF_ORDERLINE_ID"/>
+      </index>
+      <index name="EM_UT_OLINE_DEL_IDX2" unique="false">
+        <index-column name="BOM_PARENT_ID"/>
+      </index>
+      <index name="EM_UT_OLINE_DEL_IDX3" unique="false">
+        <index-column name="QUOTATIONLINE_ID"/>
+      </index>
+    </table>
+  </database>

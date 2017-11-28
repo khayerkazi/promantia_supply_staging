@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+
+<SqlClass name="MaterialReceiptPending1Data" package="com.sysfore.storewarehouse.ad_forms">
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+       Select c_order_id from c_orderline
+       Where c_orderline_id= ?
+      ]]>
+    </Sql>
+    <Parameter name="cOrderLineId"/>
+  </SqlMethod>
+
+ <SqlMethod name="update" type="preparedStatement" return="rowCount">
+    <Sql>
+        Update C_Order
+        Set docstatus='CL'
+        Where C_Order_Id=?
+    </Sql>
+    <Parameter name="cOrderId"/>
+  </SqlMethod>
+
+ <SqlMethod name="update1" type="preparedStatement" return="rowCount">
+    <Sql>
+        Update C_Orderline
+        Set EM_SW_RecQty=?
+        Where C_Orderline_Id=?
+    </Sql>
+     <Parameter name="receivedQty"/>
+    <Parameter name="cOrderlineId"/>
+  </SqlMethod>
+
+</SqlClass>

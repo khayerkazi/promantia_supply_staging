@@ -1,0 +1,517 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEIMPCATALOG">
+    <function name="IM_VALIDATEIMPCATALOG" type="VARCHAR">
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateProduct Record;
+  v_count NUMBER:=0;
+  v_flag boolean := TRUE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_productErrorNotice VARCHAR(2000) := '';
+  v_formatErrorNotice  VARCHAR(2000) := '';
+  v_serviceErrorNotice  VARCHAR(2000) := '';
+  v_duplicateNotice VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_duplicateModelCode VARCHAR(255) :='';
+
+
+  v_duplicateModelName VARCHAR(255) :='';
+  v_duplicateModelCount NUMBER:=0;
+  v_duplicateModelNameCount NUMBER:=0;
+  v_duplicateModelCodeCount NUMBER:=0;
+  v_chara VARCHAR(1) :='';
+  
+  
+  
+BEGIN
+
+
+  FOR validateProduct IN (SELECT distinct i.im_modelproduct_id,i.ad_client_id, i.ad_org_id,i.imancode,i.modelcode,i.modelname,i.blueproduct,i.sport, i.brand, i.department,i.natureofproduct,
+  i.componentbrand,i.typology,i.eancode, i.createdby, i.updatedby,i.merchandisecategory,i.componentmerchandisecat,i.sportcategory,i.color,i.age,i.size,i.gender,i.ueqty,i.pcbqty,i.grossweight,i.netweight,i.volumeofpcb,i.lifestage,
+  i.madein,i.sourcing,i.purchasingleadtime,i.producttype,i.taxcategory,i.stocked,i.purchase,i.sales,productcategory,
+  i.uom, i.suppliercode, i.itemcode,i.storedept,i.universe,i.branddepartment,i.subdepartment,i.a,i.b,i.c
+  FROM im_modelproduct i)
+  LOOP
+  IF (validateProduct.modelname IS NULL OR TRIM(BOTH ' ' FROM validateProduct.modelname) = '') THEN
+  	v_missingErrorNotice := 'Model Name, ';
+  END IF;
+  
+  IF (validateProduct.modelcode IS NULL OR TRIM(BOTH ' ' FROM validateProduct.modelcode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Model Code, ';
+  END IF;
+  
+  IF (validateProduct.imancode IS NULL OR TRIM(BOTH ' 'FROM validateProduct.imancode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'IMAN Code, ';
+  END IF;
+  
+  /*IF (validateProduct.sportcategory IS NULL OR TRIM(BOTH ' ' FROM validateProduct.sportcategory) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Sport Category, ';
+  END IF;*/
+  
+  IF (validateProduct.merchandisecategory IS NULL OR TRIM(BOTH ' ' FROM validateProduct.merchandisecategory) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Merchandise Category, ';
+  END IF;
+  
+  /*IF (validateProduct.componentmerchandisecat IS NULL OR TRIM(BOTH ' ' FROM validateProduct.componentmerchandisecat) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Com Merchandise Category, ';
+  END IF;*/
+  
+  IF (validateProduct.eancode IS NULL OR TRIM(BOTH ' ' FROM validateProduct.eancode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'EAN Code, ';
+  END IF;
+  
+  /*IF (validateProduct.producttype IS NULL OR TRIM(BOTH ' ' FROM validateProduct.producttype) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Product Type, ';
+  END IF;*/
+
+ --new code
+  IF (validateProduct.storedept IS NULL OR TRIM(BOTH ' ' FROM validateProduct.storedept) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Store Dept, ';
+  END IF;
+
+  IF (validateProduct.universe IS NULL OR TRIM(BOTH ' ' FROM validateProduct.universe) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Universe, ';
+  END IF;
+
+  ---end
+  
+  --IF (length(validateProduct.eancode) != 13) THEN
+  	--v_missingErrorNotice := v_missingErrorNotice || 'EAN Code must 13 digits, ';
+  --END IF;
+
+  IF (length(validateProduct.eancode) < 8 OR length(validateProduct.eancode) > 13) THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'EAN Code must be 8 to 13 digits, ';
+  END IF;
+
+  IF NOT validateProduct.eancode SIMILAR TO '[0-9]+' THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'EAN Code must be Numeric, ';
+  END IF;
+  
+---ADDED VALIDATION FOR DEPARTMENT AND SU DEPARTMENT
+        
+  ----check brand department is existed
+  SELECT COUNT(*) AS total INTO v_count FROM cl_branddepartment WHERE lower(cl_branddepartment.name)=lower(validateProduct.branddepartment);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := 'Brand Department, ';
+  END IF;
+
+  --check sub department is existed      
+  SELECT COUNT(*) AS total INTO v_count FROM cl_subdepartment WHERE lower(cl_subdepartment.name)=lower(validateProduct.subdepartment);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := 'Sub Department, ';
+  END IF;
+/*v_chara=validateProduct.a;
+ IF ((v_chara<> 'Y' )) THEN
+   --v_productErrorNotice := 'Type A, ';
+    raise exception 'exception here%',validateProduct.a ;
+  END IF;
+  --check Type A is existed      
+  SELECT COUNT(*) AS total INTO v_count FROM cl_model WHERE lower(cl_model.typea)='N';
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := 'Type A, ';
+  END IF;
+
+  --check Type B is existed      
+  SELECT COUNT(*) AS total INTO v_count FROM cl_model WHERE lower(cl_model.typeb)='N';
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := 'Type B, ';
+  END IF;
+
+--check Type C is existed      
+  SELECT COUNT(*) AS total INTO v_count FROM cl_model WHERE lower(cl_model.typec)='N';
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := 'Type C, ';
+  END IF;*/
+  
+
+----------------
+
+
+
+
+
+
+
+  ----check department is existed
+  
+  SELECT COUNT(*) AS total INTO v_count FROM cl_department WHERE lower(cl_department.name)=lower(validateProduct.department);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := 'Department, ';
+  END IF;
+  
+  ------check sports is existed
+  /*
+  SELECT COUNT(*) AS total INTO v_count FROM cl_sport WHERE lower(cl_sport.name)=lower(validateProduct.sport);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Sports, ';
+  END IF;
+  */
+ ------check brand is existed
+  
+  SELECT COUNT(*) AS total INTO v_count FROM cl_brand WHERE lower(cl_brand.name)=lower(validateProduct.brand);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Brand, ';
+  END IF;
+  
+  -------Nature of product
+  
+  SELECT COUNT(*) AS total INTO v_count FROM cl_natureofproduct WHERE lower(cl_natureofproduct.name)=lower(validateProduct.natureofproduct);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Nature of Product, ';
+  END IF;
+
+
+  ------Store Dept
+
+  SELECT COUNT(*) AS total INTO v_count FROM cl_storedept WHERE lower(cl_storedept.name)=lower(validateProduct.storedept);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Store Dept, ';
+  END IF;
+
+
+  ----Universe
+
+  SELECT COUNT(*) AS total INTO v_count FROM cl_universe WHERE lower(cl_universe.name)=lower(validateProduct.universe);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Universe, ';
+  END IF;
+  
+  -------typology
+  
+  Select COUNT(*) AS total INTO v_count from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('TYPOLOGY')) and lower(AD_REF_LIST.name) = lower(validateProduct.typology);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Typology, ';
+  END IF;
+  
+  ----component brand
+  /*
+  SELECT COUNT(*) AS total INTO v_count FROM cl_component_brand WHERE lower(cl_component_brand.name)=lower(validateProduct.componentbrand);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Component Brand, ';
+  END IF;
+  */
+  ----Completed the validation of Model and begins Item Validation
+  
+  -----Item Code
+  
+  IF (validateProduct.itemcode IS NULL OR TRIM(BOTH ' ' FROM validateProduct.itemcode) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Item Code, ';
+  END IF;
+  
+  -----Size
+  
+  IF (validateProduct.size IS NULL OR TRIM(BOTH ' ' FROM validateProduct.size) = '') THEN
+  	v_missingErrorNotice := v_missingErrorNotice || 'Size, ';
+  END IF;
+  
+  -----Color Check
+  
+  SELECT COUNT(*) AS total INTO v_count FROM cl_color where lower(cl_color.name) = lower(validateProduct.color);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Color, ';
+  END IF; 
+       
+  -----Age Check
+   
+  Select COUNT(*) AS total INTO v_count from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('Age')) and lower(AD_REF_LIST.name) = lower(validateProduct.age);
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Age, ';
+  END IF; 
+    
+  ----- Gender Check
+    
+  Select COUNT(*) AS total INTO v_count from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('GenderCat')) and lower(AD_REF_LIST.name) = lower(validateProduct.gender);
+    
+  IF (v_count = 0 ) THEN
+  	v_productErrorNotice := v_productErrorNotice || 'Gender, ';
+  END IF; 
+    
+  -----ProductType Check
+  
+  IF (validateProduct.producttype IS NOT NULL) THEN 
+  	Select COUNT(*) AS total INTO v_count from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('m_product_productType')) and lower(AD_REF_LIST.name) = lower(validateProduct.producttype);
+    IF (v_count = 0 ) THEN
+  		v_productErrorNotice := v_productErrorNotice || 'Product Type, ';
+  	END IF;
+  END IF;
+  
+  -----Life Stage
+  
+  IF (validateProduct.producttype IS NOT NULL) THEN 
+  	Select COUNT(*) AS total INTO v_count from AD_REF_LIST where AD_REF_LIST.AD_REFERENCE_ID = (select AD_REFERENCE_ID from AD_Reference where lower(name) = lower('LifeStage')) and lower(AD_REF_LIST.name) = lower(validateProduct.lifestage);
+    IF (v_count = 0 ) THEN
+  		v_productErrorNotice := v_productErrorNotice || 'Life Stage, ';
+  	END IF;
+  END IF;
+  
+  ------Tax Category 
+    
+  IF (validateProduct.taxcategory IS NOT NULL) THEN 
+       select COUNT(*) AS total INTO v_count from c_taxcategory where lower(c_taxcategory.name) = lower(validateProduct.taxcategory) and c_taxcategory.isactive = 'Y';
+       IF (v_count = 0 ) THEN
+  			v_productErrorNotice := v_productErrorNotice || 'Tax Category, ';
+  	   END IF;
+  END IF;
+    
+  -------UOM
+  
+  
+  IF (validateProduct.uom IS NOT NULL) THEN 
+       select COUNT(*) AS total INTO v_count from c_uom where lower(c_uom.name) = lower(validateProduct.uom);
+       IF (v_count = 0 ) THEN
+  			v_productErrorNotice := v_productErrorNotice || 'UOM, ';
+  	   END IF;
+  END IF;
+   
+  -------Product Category 
+    
+  IF (validateProduct.productcategory IS NOT NULL) THEN 
+       select COUNT(*) AS total INTO v_count from m_product_category where lower(m_product_category.name) = lower(validateProduct.productcategory);
+       IF (v_count = 0 ) THEN
+  			v_productErrorNotice := v_productErrorNotice || 'Product Category, ';
+  	   END IF;
+  END IF;
+  
+  -------Business Partner
+  
+   IF (validateProduct.producttype IS NOT NULL) THEN
+  
+        IF (lower(validateProduct.producttype) != lower('service')) THEN
+        
+          select COUNT(*) AS total INTO v_count from c_bpartner where c_bpartner.em_cl_supplierno = validateProduct.suppliercode; 
+          IF (v_count = 0 ) THEN
+            v_productErrorNotice := v_productErrorNotice || 'Business Partner, ';
+          END IF;
+        
+        END IF;
+        -------Sourcing
+        
+        IF (lower(validateProduct.producttype) != lower('service')) THEN
+        
+          select COUNT(*) AS total INTO v_count from cl_sourcing where cl_sourcing.name = validateProduct.sourcing;
+          IF (v_count = 0 ) THEN
+            v_productErrorNotice := v_productErrorNotice || 'Sourcing, ';
+          END IF;
+          
+        END IF;
+        
+        -------Madein
+        
+        IF (lower(validateProduct.producttype) != lower('service')) THEN
+        
+          select COUNT(*) AS total INTO v_count from c_country where c_country.countrycode=validateProduct.madein;
+          IF (v_count = 0 ) THEN
+            v_productErrorNotice := v_productErrorNotice || 'Country, ';
+          END IF;
+       
+        END IF;
+   END IF;
+  
+  ------Service Item Checking Conditions
+  
+  IF (lower(validateProduct.producttype) = lower('service') AND (validateProduct.suppliercode IS NOT NULL OR validateProduct.sourcing IS NOT NULL OR validateProduct.madein IS NOT NULL)  ) THEN 
+  		
+     v_serviceErrorNotice := 'Service Item not allowed you to enter Supplier, Madein, Sourcing';
+  END IF;
+  -----------
+  
+  select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and modelcode not in (validateProduct.modelcode);
+  IF v_count = 0 then
+  	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and imancode not in (validateProduct.imancode);
+    IF v_count = 0 then
+  		select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and sport not in (validateProduct.sport);
+        IF v_count = 0 then
+        	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and brand not in (validateProduct.brand);
+        	IF v_count = 0 then
+        		select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and natureofproduct not in (validateProduct.natureofproduct);
+        		IF v_count = 0 then
+                	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and componentbrand not in (validateProduct.componentbrand);
+                    IF v_count = 0 then
+                    	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and typology not in (validateProduct.typology);
+                    	IF v_count = 0 then
+                        	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and merchandisecategory not in (validateProduct.merchandisecategory);
+                    		IF v_count = 0 then
+                            	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and componentmerchandisecat not in (validateProduct.componentmerchandisecat);
+                    			IF v_count = 0 then
+                                	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and sportcategory not in (validateProduct.sportcategory);
+                    				IF v_count = 0 then
+                                    	select count(*) INTO v_count from im_modelproduct where modelname=validateProduct.modelname and blueproduct not in (validateProduct.blueproduct);
+                    					IF v_count = 0 then
+                                        ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                                        END IF;
+                                    ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                                    END IF;
+                                ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                                END IF;
+                            ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                            END IF;
+                         ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                         END IF;
+                      ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                      END IF;
+                   ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                   END IF;
+                ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+                END IF;
+             ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+             END IF;
+          ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+          END IF;
+       ELSE
+                                        	v_formatErrorNotice := 'Same Model exists with duplicate Property in Excel';
+       END IF;
+
+
+    select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and modelname not in (validateProduct.modelname);
+  IF v_count = 0 then
+  	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and imancode not in (validateProduct.imancode);
+    IF v_count = 0 then
+  		select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and sport not in (validateProduct.sport);
+        IF v_count = 0 then
+        	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and brand not in (validateProduct.brand);
+        	IF v_count = 0 then
+        		select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and natureofproduct not in (validateProduct.natureofproduct);
+        		IF v_count = 0 then
+                	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and componentbrand not in (validateProduct.componentbrand);
+                    IF v_count = 0 then
+                    	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and typology not in (validateProduct.typology);
+                    	IF v_count = 0 then
+                        	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and merchandisecategory not in (validateProduct.merchandisecategory);
+                    		IF v_count = 0 then
+                            	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and componentmerchandisecat not in (validateProduct.componentmerchandisecat);
+                    			IF v_count = 0 then
+                                	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and sportcategory not in (validateProduct.sportcategory);
+                    				IF v_count = 0 then
+                                    	select count(*) INTO v_count from im_modelproduct where modelcode=validateProduct.modelcode and blueproduct not in (validateProduct.blueproduct);
+                    					IF v_count = 0 then
+                                        ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                                        END IF;
+                                    ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                                    END IF;
+                                ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                                END IF;
+                            ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                            END IF;
+                         ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                         END IF;
+                      ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                      END IF;
+                   ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                   END IF;
+                ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+                END IF;
+             ELSE
+                                        	v_formatErrorNotice := 'Same Model codel exists with duplicate Property in Excel';
+             END IF;
+          ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+          END IF;
+       ELSE
+                                        	v_formatErrorNotice := 'Same Model code exists with duplicate Property in Excel';
+       END IF;
+       
+       
+       
+    --select name INTO v_duplicateModelCode from cl_model where lower(cl_model.name) NOT IN (validateProduct.modelname) and cl_model.value=validateProduct.modelcode;
+       
+      -- IF v_duplicateModelCode IS NOT NULL THEN 
+      --  	v_formatErrorNotice := ' Duplicate Model Code Exist in  ' || v_duplicateModelCode;
+     --  END IF;
+select count(*) INTO v_duplicateModelCount from cl_model where lower(cl_model.name) = lower(validateProduct.modelname)  and cl_model.value=validateProduct.modelcode;       
+       IF v_duplicateModelCount = 0 THEN        
+select count(*) INTO v_duplicateModelNameCount from cl_model where lower(cl_model.name) = lower(validateProduct.modelname);
+IF v_duplicateModelNameCount > 0 THEN
+        	v_formatErrorNotice := ' Model Code not  matching  ' || v_duplicateModelCode;
+        	--RAISE EXCEPTION 'Variable changed. % Transaction aborted.',validateProduct.modelcode ;
+       ELSE
+       select count(*) INTO v_duplicateModelCodeCount from cl_model where lower(cl_model.value)=lower(validateProduct.modelcode);
+IF v_duplicateModelCodeCount > 0 THEN
+v_formatErrorNotice := ' Model Name not  matching  ' || v_duplicateModelCode;
+END IF;
+END IF;
+        END IF;
+     
+ --RAISE EXCEPTION 'Variable changed. % Transaction aborted.',validateProduct.modelcode ;
+    
+       
+    SELECT COUNT(*) AS total INTO v_count FROM im_modelproduct WHERE im_modelproduct.itemcode = lower(validateProduct.itemcode);
+  	IF (v_count > 1 ) THEN
+  		v_formatErrorNotice := v_formatErrorNotice ||' Duplicate Item';
+   END IF;   
+   
+   --EAN
+   SELECT COUNT(*) AS total INTO v_count FROM im_modelproduct WHERE lower(im_modelproduct.eancode) = lower(validateProduct.eancode);
+  	IF (v_count > 1 ) THEN
+  		v_formatErrorNotice := v_formatErrorNotice || ' Duplicate EAN in Excel';
+   END IF;
+   
+  
+  select count(*) AS total INTO v_count from m_product where name NOT IN(validateProduct.itemcode) and upc = validateProduct.eancode;
+  
+  IF (v_count > 0 ) THEN
+  		v_formatErrorNotice := v_formatErrorNotice || ' EAN Already assigned';
+   END IF;
+       
+   IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice || 'is Mandatory ';
+  END IF;
+  
+  IF (v_productErrorNotice != '') THEN
+  	  v_messageImport := v_messageImport || v_productErrorNotice || 'is Not Defined';
+  END IF;
+  
+  IF (v_formatErrorNotice != '') THEN
+  	  v_messageImport := v_messageImport || v_formatErrorNotice;
+  END IF;
+  
+  IF (v_serviceErrorNotice != '') THEN
+  	  v_messageImport := v_messageImport || v_serviceErrorNotice;
+  END IF;
+                        
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE im_modelproduct SET im_errormsg = v_messageImport, validated = 'Y' where im_modelproduct.im_modelproduct_id=validateProduct.im_modelproduct_id;
+  	
+  ELSE 
+    UPDATE im_modelproduct SET im_errormsg = v_messageImport, validated = 'N' where im_modelproduct.im_modelproduct_id=validateProduct.im_modelproduct_id;
+   
+   v_flag :=FALSE;
+  
+  END IF;
+  v_missingErrorNotice := '';
+  v_productErrorNotice := '';
+  v_formatErrorNotice  := '';
+  v_messageImport := '';
+  v_serviceErrorNotice := '';
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEIMPCATALOG
+]]></body>
+    </function>
+  </database>

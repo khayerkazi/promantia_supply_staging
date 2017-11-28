@@ -1,0 +1,386 @@
+/*
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2012-2015 Openbravo SLU 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+ */
+package org.openbravo.warehouse.pickinglist;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.Bean;
+import javax.inject.Inject;
+
+import org.apache.axis.utils.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.criterion.Restrictions;
+import org.openbravo.base.exception.OBException;
+import org.openbravo.base.secureApp.VariablesSecureApp;
+import org.openbravo.base.weld.WeldUtils;
+import org.openbravo.client.kernel.BaseActionHandler;
+import org.openbravo.client.kernel.RequestContext;
+import org.openbravo.dal.core.DalUtil;
+import org.openbravo.dal.core.OBContext;
+import org.openbravo.dal.service.OBCriteria;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.data.FieldProvider;
+import org.openbravo.erpCommon.businessUtility.Preferences;
+import org.openbravo.erpCommon.utility.ComboTableData;
+import org.openbravo.erpCommon.utility.OBMessageUtils;
+import org.openbravo.erpCommon.utility.PropertyException;
+import org.openbravo.erpCommon.utility.PropertyNotFoundException;
+import org.openbravo.erpCommon.utility.Utility;
+import org.openbravo.model.common.enterprise.Locator;
+import org.openbravo.model.common.enterprise.Warehouse;
+import org.openbravo.model.common.order.Order;
+import org.openbravo.service.db.DalConnectionProvider;
+import org.openbravo.service.db.DbUtility;
+import org.openbravo.warehouse.pickinglist.hooks.CreatePLHook;
+import org.openbravo.warehouse.pickinglist.hooks.GroupingPLHook;
+import org.openbravo.warehouse.pickinglist.hooks.PLGenerationCompletedHook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class CreateActionHandler extends BaseActionHandler {
+  final private static Logger log = LoggerFactory.getLogger(CreateActionHandler.class);
+  long lineNo;
+
+  @Inject
+  @Any
+  private Instance<CreatePLHook> createPLHooks;
+
+  @Inject
+  @Any
+  private Instance<GroupingPLHook> groupingPLHooks;
+
+  @Inject
+  @Any
+  private Instance<PLGenerationCompletedHook> PLGenerationCompletedHooks;
+
+  @Override
+  protected JSONObject execute(Map<String, Object> parameters, String content) {
+    JSONObject jsonResponse = new JSONObject();
+    OBContext.setAdminMode(true);
+    try {
+      final JSONObject jsonRequest = new JSONObject(content);
+      final String strAction = jsonRequest.getString("action");
+
+      if ("getGroupingCriteria".equals(strAction)) {
+        VariablesSecureApp vars = RequestContext.get().getVariablesSecureApp();
+        jsonResponse = getActionComboBox(vars);
+        return jsonResponse;
+      } else if ("getOutboundLocatorLists".equals(strAction)) {
+        jsonResponse = getLocatorCombos(jsonRequest);
+        return jsonResponse;
+      } else if ("create".equals(strAction)) {
+        return jsonResponse = doCreate(jsonRequest);
+      }
+
+    } catch (Exception e) {
+      log.error("Error in CreateActionHandler", e);
+      OBDal.getInstance().rollbackAndClose();
+
+      try {
+        jsonResponse = new JSONObject();
+        Throwable ex = DbUtility.getUnderlyingSQLException(e);
+        String message = OBMessageUtils.translateError(ex.getMessage()).getMessage();
+        JSONObject errorMessage = new JSONObject();
+        errorMessage.put("severity", "error");
+        errorMessage.put("text", "".equals(message) ? e : message);
+        jsonResponse.put("message", errorMessage);
+      } catch (Exception e2) {
+        log.error("Error generating the error message", e2);
+      }
+    } finally {
+      OBContext.restorePreviousMode();
+    }
+
+    return jsonResponse;
+  }
+
+  private JSONObject getActionComboBox(VariablesSecureApp vars) throws Exception {
+    final String SO_WINDOW_ID = "143";
+    final String PICK_OPTIONS = "C13AD141699C45168090496CF88FEED9";
+    JSONObject response = new JSONObject();
+    DalConnectionProvider conn = new DalConnectionProvider(false);
+    ComboTableData comboTableData = new ComboTableData(vars, conn, "LIST", "", PICK_OPTIONS, "",
+        Utility.getContext(conn, vars, "#AccessibleOrgTree", SO_WINDOW_ID), Utility.getContext(
+            conn, vars, "#User_Client", SO_WINDOW_ID), 0);
+    Utility.fillSQLParameters(conn, vars, null, comboTableData, SO_WINDOW_ID, "");
+    FieldProvider[] fpArray = comboTableData.select(false);
+    JSONObject valueMap = new JSONObject();
+    for (FieldProvider fp : fpArray) {
+      String key = fp.getField("id");
+      String value = fp.getField("name");
+      valueMap.put(key, value);
+    }
+    response.put("valueMap", valueMap);
+    String val = "NG";
+    try {
+      val = Preferences.getPreferenceValue("OBWPL_GroupPL", true, OBContext.getOBContext()
+          .getCurrentClient(), OBContext.getOBContext().getCurrentOrganization(), OBContext
+          .getOBContext().getUser(), OBContext.getOBContext().getRole(), null);
+    } catch (PropertyNotFoundException e) {
+      // Do nothing
+    } catch (PropertyException e) {
+      log.error("Error retrieving preference", e);
+    }
+    response.put("defaultValue", val);
+    return response;
+  }
+
+  private JSONObject getLocatorCombos(JSONObject jsonRequest) throws JSONException {
+    JSONArray orders = jsonRequest.getJSONArray("orders");
+    JSONArray returnWhs = new JSONArray();
+    List<Warehouse> whs = new ArrayList<Warehouse>();
+    for (int i = 0; i < orders.length(); i++) {
+      String strOrderId = orders.getString(i);
+      Order order = OBDal.getInstance().get(Order.class, strOrderId);
+      Warehouse wh = order.getWarehouse();
+      if (whs.contains(wh)) {
+        continue;
+      }
+      whs.add(wh);
+
+      OBCriteria<Locator> critSB = OBDal.getInstance().createCriteria(Locator.class);
+      critSB.add(Restrictions.eq(Locator.PROPERTY_OBWHSTYPE, "OUT"));
+      critSB.add(Restrictions.eq(Locator.PROPERTY_WAREHOUSE, wh));
+      critSB.addOrderBy(Locator.PROPERTY_SEARCHKEY, false);
+      List<Locator> outbounds = critSB.list();
+      JSONObject locators = new JSONObject();
+      for (Locator outbound : outbounds) {
+        locators.put(outbound.getId(), outbound.getIdentifier());
+      }
+      JSONObject whValueMap = new JSONObject();
+      whValueMap.put("valueMap", locators);
+      whValueMap.put("warehouseId", wh.getId());
+      whValueMap.put("warehouseName", wh.getName());
+      returnWhs.put(whValueMap);
+    }
+    JSONObject response = new JSONObject();
+    response.put("warehouses", returnWhs);
+    return response;
+  }
+
+  private JSONObject doCreate(JSONObject jsonRequest) throws JSONException {
+    long init = System.currentTimeMillis();
+    JSONObject jsonResponse = new JSONObject();
+    final JSONArray orderIds = jsonRequest.getJSONArray("orders");
+    final String groupPL = jsonRequest.getString("groupingCrit");
+    final Boolean isOutbound = "OUT".equals(jsonRequest.getString("plType"));
+    Locator outbound = null;
+    final JSONObject locatorIds = jsonRequest.getJSONObject("locators");
+    Boolean errorRaised = false;
+    OBException exceptionRaised = null;
+    // Get orders
+    HashMap<String, PickingList> createdPLs = new HashMap<String, PickingList>();
+    HashSet<String> notCompletedPL = new HashSet<String>();
+    List<String> resultPickingLists = new ArrayList<String>();
+    String strResultMsg = "";
+    String strIgnoredOrders = "";
+
+    for (int i = 0; i < orderIds.length(); i++) {
+      Order order = OBDal.getInstance().get(Order.class, orderIds.getString(i));
+
+      if (order.isProcessNow()) {
+        strIgnoredOrders += order.getDocumentNo() + ", ";
+        continue;
+      }
+
+      try {
+        PreparedStatement ps = OBDal.getInstance().getConnection()
+            .prepareStatement("update c_order set processing = 'Y' " + " where c_order_id = ?");
+        ps.setString(1, order.getId());
+        ps.execute();
+        OBDal.getInstance().getConnection().commit();
+      } catch (Exception e) {
+        throw new OBException(e);
+      }
+      try {
+
+        if (isOutbound) {
+          String strLocatorId = locatorIds.getString(order.getWarehouse().getId());
+          if (StringUtils.isEmpty(strLocatorId)) {
+            String[] params = { order.getWarehouse().getIdentifier(), order.getIdentifier() };
+            throw new OBException(OBMessageUtils.getI18NMessage("OBWPL_OutboundLocatorNotDefined",
+                params));
+          } else {
+            outbound = OBDal.getInstance().get(Locator.class, strLocatorId);
+          }
+        }
+        PickingList pickingList = null;
+        String strDesc = "";
+        if ("NG".equals(groupPL)) {
+          pickingList = Utilities.createPL(order, outbound);
+          createdPLs.put(pickingList.getId(), pickingList);
+          resultPickingLists.add(pickingList.getId());
+          // strResultMsg += pickingList.getDocumentNo() + ", ";
+        } else {
+          String strKey = order.getOrganization().getId();
+          if ("GBP".equals(groupPL)) {
+            strKey += "-" + (String) DalUtil.getId(order.getBusinessPartner());
+          } else {
+            try {
+              strKey += executeGroupingPLHooks(groupPL, order);
+            } catch (Exception e) {
+              log.error("An error happened when groupingPLHook was executed.", e.getMessage(),
+                  e.getStackTrace());
+            }
+          }
+          pickingList = createdPLs.get(strKey);
+          if (pickingList == null) {
+            // Create Picking List
+            pickingList = Utilities.createPL(order, outbound);
+            createdPLs.put(strKey, pickingList);
+            resultPickingLists.add(pickingList.getId());
+            // strResultMsg += pickingList.getDocumentNo() + ", ";
+          } else {
+            strDesc = pickingList.getDescription() + ", \n";
+          }
+        }
+        strDesc += OBMessageUtils.messageBD("OBWPL_OrderNo", false) + " " + order.getDocumentNo()
+            + " " + OBMessageUtils.messageBD("OBWPL_BPartner", false)
+            + order.getBusinessPartner().getName();
+        if (strDesc.length() > 2000) {
+          strDesc = strDesc.substring(0, 1997) + "...";
+        }
+        pickingList.setDescription(strDesc);
+        OBDal.getInstance().save(pickingList);
+
+        if (isOutbound) {
+          long initProcessOrderOutbound = System.currentTimeMillis();
+          String strMessage = Utilities.processOrderOutbound(pickingList, order, notCompletedPL);
+          log.info("Process Orders for outbound picking result: ", strMessage);
+          long elapsedProcessOrderOutbound = (System.currentTimeMillis() - initProcessOrderOutbound);
+          log.debug("Total time to process order using outbound (" + order.getDocumentNo() + "): "
+              + elapsedProcessOrderOutbound);
+        } else {
+          long initProcessOrder = System.currentTimeMillis();
+          Utilities.processOrder(order, pickingList, notCompletedPL);
+          long elapsedProcessOrder = (System.currentTimeMillis() - initProcessOrder);
+          log.debug("Total time to process order (" + order.getDocumentNo() + "): "
+              + elapsedProcessOrder);
+        }
+        long startCreatePLHook = System.currentTimeMillis();
+        try {
+          executeCreatePLHooks(pickingList, order);
+        } catch (Exception e) {
+          log.error("An error happened when createPLHook was executed.", e.getMessage(),
+              e.getStackTrace());
+        }
+        long elapsedCreatePlHook = (System.currentTimeMillis() - startCreatePLHook);
+        log.debug("total time create PL Hook: " + elapsedCreatePlHook);
+      } catch (Exception e) {
+        errorRaised = true;
+        exceptionRaised = new OBException(e.getMessage());
+        throw exceptionRaised;
+      } finally {
+        try {
+          Connection con = OBDal.getInstance().getConnection(false);
+          if (errorRaised) {
+            con.rollback();
+          }
+          PreparedStatement ps = con.prepareStatement("update c_order set processing = 'N' "
+              + " where c_order_id = ?");
+          ps.setString(1, order.getId());
+          ps.execute();
+          OBDal.getInstance().getConnection().commit();
+        } catch (Exception e) {
+          String exceptionMessage = "An error happened while updating processing='N' for order: "
+              + order.getId();
+          if (errorRaised && exceptionRaised != null) {
+            exceptionMessage += ". Root Cause: " + exceptionRaised.getMessage();
+            throw new OBException(exceptionMessage, exceptionRaised);
+          } else {
+            throw new OBException(exceptionMessage, e);
+          }
+
+        }
+      }
+    }
+
+    try {
+      executePLGenerationCompletedHooks(createdPLs);
+    } catch (Exception e) {
+      log.error("An error happened when PLGenerationCompletedHook was executed: " + e.getMessage(),
+          e);
+    }
+    for (String resultPickingList : resultPickingLists) {
+      PickingList pickingList = OBDal.getInstance().get(PickingList.class, resultPickingList);
+      strResultMsg += pickingList.getDocumentNo() + ", ";
+    }
+
+    if (strResultMsg.length() > 0) {
+      strResultMsg = strResultMsg.substring(0, strResultMsg.lastIndexOf(","));
+    }
+
+    if (notCompletedPL.size() > 0) {
+      strResultMsg += "</br>" + OBMessageUtils.messageBD("OBWPL_PartiallyReserved", false) + ": "
+          + notCompletedPL;
+    }
+
+    if (strIgnoredOrders.length() > 0) {
+      strResultMsg += OBMessageUtils.messageBD("OBWPL_IgnoredProcessing", false) + ": "
+          + strIgnoredOrders.substring(0, strIgnoredOrders.lastIndexOf(","));
+    }
+
+    JSONObject errorMessage = new JSONObject();
+    errorMessage.put("severity", "success");
+    errorMessage.put("title", OBMessageUtils.messageBD("OBWPL_PickingList_Created", false));
+    errorMessage.put("text", strResultMsg);
+    jsonResponse.put("message", errorMessage);
+    long elapsed = (System.currentTimeMillis() - init);
+    log.debug("Total time to generate picking: " + elapsed);
+    return jsonResponse;
+  }
+
+  protected String executeGroupingPLHooks(String groupingOption, Order order) throws Exception {
+    String newGroupingClause = "";
+    for (GroupingPLHook hook : groupingPLHooks) {
+      newGroupingClause += "-" + hook.exec(groupingOption, order);
+    }
+    return newGroupingClause;
+  }
+
+  private static void executeCreatePLHooks(PickingList pickingList, Order order) throws Exception {
+    Set<Bean<?>> beansSet = WeldUtils.getStaticInstanceBeanManager().getBeans(CreatePLHook.class);
+    List<Bean<?>> beansList = new ArrayList<Bean<?>>();
+    beansList.addAll(beansSet);
+    for (Bean<?> abstractBean : beansList) {
+      CreatePLHook hook = (CreatePLHook) WeldUtils.getStaticInstanceBeanManager().getReference(
+          abstractBean, CreatePLHook.class,
+          WeldUtils.getStaticInstanceBeanManager().createCreationalContext(abstractBean));
+      hook.exec(pickingList, order);
+    }
+  }
+
+  private void executePLGenerationCompletedHooks(HashMap<String, PickingList> createdPLs)
+      throws Exception {
+    for (PLGenerationCompletedHook hook : PLGenerationCompletedHooks) {
+      hook.exec(createdPLs);
+    }
+  }
+}

@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportExportCatalog" pageWidth="3108" pageHeight="842" columnWidth="3068" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select u.name as universe,d.name as DMIdepartment,sd.name as store_dept,b.name as brand,
+clb.name as Department,cls.name as SubDepartment,
+n.name as natureofProduct,s.name as sports,ml.name as modelname,ml.imancode as imancode,ml.value as modelcode,p.name as itemcode,p.upc as eancode,
+CASE WHEN ml.typology='1' then 'Permanent' else 'Collection' END as typology,
+CASE WHEN p.em_cl_gender='1' THEN 'Boy' WHEN p.em_cl_gender='2' THEN 'Girl' WHEN  p.em_cl_gender='3' THEN 'Men' WHEN  p.em_cl_gender='4' THEN 'Women' ELSE 'Unisex' END as Gender,
+CASE WHEN p.em_cl_age='1' THEN 'Junior' WHEN p.em_cl_age='2' THEN 'Adult' ELSE 'All' END as age,
+p.em_cl_size as size,cl.name as color,p.em_cl_lifestage as LifeStage,
+CASE WHEN ml.typea='1' THEN 'A' WHEN ml.typeb='2' THEN 'B' WHEN ml.typec='3' THEN 'C'
+WHEN ml.typea='1' and ml.typeb='2' THEN 'AB'
+WHEN ml.typea='1' and ml.typec='3' THEN 'AC'
+WHEN ml.typeb='2' and ml.typec='3' THEN 'BC'
+ELSE 'ABC' END as ABCClassification,
+p.em_cl_ue_qty as UeQty,p.em_cl_pcb_qty as PcbQty,pp.em_cl_cessionprice as cession,pp.em_cl_ccunitprice as cashandcarry,
+(select name from c_taxcategory where c_taxcategory_id=p.c_taxcategory_id) as taxCategory,pp.em_cl_mrpprice as MRP
+ from m_product p inner join cl_model ml on p.em_cl_model_id=ml.cl_model_id
+ inner join cl_brand b on ml.cl_brand_id=b.cl_brand_id
+ left join cl_storedept sd on ml.cl_storedept_id=sd.cl_storedept_id
+ left join cl_universe u on ml.cl_universe_id=u.cl_universe_id
+ left join cl_department d on ml.cl_department_id=d.cl_department_id
+ left join cl_sport s on ml.cl_sport_id=s.cl_sport_id
+ left join cl_natureofproduct n on ml.cl_natureofproduct_id=n.cl_natureofproduct_id
+ left join cl_component_brand c on ml.cl_component_brand_id=c.cl_component_brand_id
+ left join cl_color cl on p.em_cl_color_id=cl.cl_color_id
+ left join m_productprice pp on p.m_product_id=pp.m_product_id
+ left join cl_branddepartment clb on ml.cl_branddepartment_id=clb.cl_branddepartment_id
+ left join cl_subdepartment cls on ml.cl_subdepartment_id=cls.cl_subdepartment_id
+ left join c_taxcategory tc on tc.c_taxcategory_id=p.c_taxcategory_id
+ where 1=1
+ AND pp.m_pricelist_version_id='0F39C05C15EE4E5BB50BD5FEC1645DA1'
+ order by d.name]]>
+	</queryString>
+	<field name="universe" class="java.lang.String"/>
+	<field name="dmidepartment" class="java.lang.String"/>
+	<field name="store_dept" class="java.lang.String"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="department" class="java.lang.String"/>
+	<field name="subdepartment" class="java.lang.String"/>
+	<field name="natureofproduct" class="java.lang.String"/>
+	<field name="sports" class="java.lang.String"/>
+	<field name="modelname" class="java.lang.String"/>
+	<field name="imancode" class="java.lang.String"/>
+	<field name="modelcode" class="java.lang.String"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="eancode" class="java.lang.String"/>
+	<field name="typology" class="java.lang.String"/>
+	<field name="gender" class="java.lang.String"/>
+	<field name="age" class="java.lang.String"/>
+	<field name="size" class="java.lang.String"/>
+	<field name="color" class="java.lang.String"/>
+	<field name="lifestage" class="java.lang.String"/>
+	<field name="abcclassification" class="java.lang.String"/>
+	<field name="ueqty" class="java.math.BigDecimal"/>
+	<field name="pcbqty" class="java.math.BigDecimal"/>
+	<field name="cession" class="java.math.BigDecimal"/>
+	<field name="cashandcarry" class="java.math.BigDecimal"/>
+	<field name="taxcategory" class="java.lang.String"/>
+	<field name="mrp" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="618" y="0" width="404" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Export Catalog Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="1" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Universe]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="101" y="0" width="121" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DMI-Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="222" y="0" width="147" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="369" y="0" width="122" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Brand]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="491" y="0" width="127" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="618" y="0" width="129" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sub-Department]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="747" y="0" width="142" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[NatureOfProduct]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="889" y="0" width="133" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Family]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1022" y="0" width="135" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1157" y="0" width="138" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IMAN code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1295" y="0" width="123" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1418" y="0" width="116" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1534" y="0" width="129" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[EAN Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1663" y="0" width="139" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Typology]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1802" y="0" width="97" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Gender]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1899" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Age]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1999" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Size]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2099" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Color]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2199" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Lifestage]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2299" y="0" width="113" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[ABCclassification]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2412" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[UEqty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2512" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[PCBqty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2612" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cession Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2712" y="0" width="156" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Recommended C&C price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2868" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[VAT % Age]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2968" y="0" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[MRP]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{universe}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="222" y="0" width="147" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{store_dept}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="369" y="0" width="122" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="747" y="0" width="142" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{natureofproduct}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1022" y="0" width="135" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1157" y="0" width="138" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{imancode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1295" y="0" width="123" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelcode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1418" y="0" width="116" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1534" y="0" width="129" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{eancode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1663" y="0" width="139" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{typology}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1802" y="0" width="97" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{gender}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1899" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{age}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1999" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{size}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2099" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{color}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2199" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{lifestage}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2299" y="0" width="113" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{abcclassification}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2412" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{ueqty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2512" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{pcbqty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2612" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cession}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2712" y="0" width="156" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cashandcarry}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2868" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxcategory}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2968" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{mrp}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="889" y="0" width="133" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{sports}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="101" y="0" width="121" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{dmidepartment}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="491" y="0" width="127" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{department}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="618" y="0" width="129" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{subdepartment}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

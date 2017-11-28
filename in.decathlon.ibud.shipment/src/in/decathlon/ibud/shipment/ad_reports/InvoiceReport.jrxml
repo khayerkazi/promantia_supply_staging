@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="com" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="583" leftMargin="0" rightMargin="12" topMargin="66" bottomMargin="17">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="123"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/promantia/Documents/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DOCUMENT_ID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Organization_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DATE" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select aorg.em_ds_tinno,ship.shipment_date,ibuds_get_docno((select ad_org_id from ad_orginfo where c_bpartner_id=$P{Organization_ID}),$P{DATE}) as documentno
+  from obwship_shipping ship
+ left join c_bpartner bp on bp.c_bpartner_id=ship.c_bpartner_id
+ left join ad_orginfo ainfo on ainfo.c_bpartner_id=bp.c_bpartner_id
+  left join ad_org aorg on aorg.ad_org_id = ainfo.ad_org_id
+where aorg.ad_org_id=(select ad_org_id from ad_orginfo where c_bpartner_id=$P{Organization_ID}) and ship.shipment_date=($P{DATE})
+group by aorg.em_ds_tinno,ship.shipment_date,documentno order by documentno]]>
+	</queryString>
+	<field name="em_ds_tinno" class="java.lang.String"/>
+	<field name="shipment_date" class="java.sql.Timestamp"/>
+	<field name="documentno" class="java.lang.String"/>
+	<group name="Shipping" keepTogether="true">
+		<groupHeader>
+			<band height="227">
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="141" width="110" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="false"/>
+					</textElement>
+					<text><![CDATA[  L.R/R.R. No:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="57" width="110" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="false"/>
+					</textElement>
+					<text><![CDATA[  Mode Of Dispatch :]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="198" width="110" height="28"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[  Seal No:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="113" width="110" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="false"/>
+					</textElement>
+					<text><![CDATA[  Vehicle Number:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="85" width="110" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="false"/>
+					</textElement>
+					<text><![CDATA[  Transporter's Name:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="30" width="110" height="27"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="false"/>
+					</textElement>
+					<text><![CDATA[  Date :]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="169" width="110" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="false"/>
+					</textElement>
+					<text><![CDATA[  Date :]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="395" y="30" width="118" height="27"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{shipment_date}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="395" y="169" width="118" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{shipment_date}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="395" y="0" width="118" height="30"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="285" y="0" width="110" height="30"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="false"/>
+					</textElement>
+					<text><![CDATA[  STN No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="2" y="30" width="255" height="83"/>
+					<box topPadding="7" leftPadding="7" bottomPadding="7" rightPadding="5">
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="395" y="57" width="118" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement/>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="395" y="85" width="118" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement/>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="395" y="113" width="118" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement/>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="395" y="141" width="118" height="28"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement/>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="395" y="197" width="118" height="29"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement/>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="2" y="125" width="186" height="16"/>
+					<box leftPadding="4">
+						<topPen lineWidth="0.0"/>
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9" isBold="true" isItalic="false" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Tranferee Name and Address :]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" x="2" y="141" width="255" height="85"/>
+					<box topPadding="7" leftPadding="7" bottomPadding="7" rightPadding="5">
+						<leftPen lineWidth="0.0"/>
+						<bottomPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="2" y="11" width="231" height="19"/>
+					<box leftPadding="4">
+						<topPen lineWidth="0.0"/>
+						<leftPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9" isBold="true" isItalic="false" isUnderline="true"/>
+					</textElement>
+					<text><![CDATA[Transferor Name and Address :]]></text>
+				</staticText>
+				<frame>
+					<reportElement x="0" y="0" width="285" height="113"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+				</frame>
+				<frame>
+					<reportElement x="0" y="113" width="285" height="113"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="47" splitType="Stretch">
+				<subreport>
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="514" height="47"/>
+					<subreportParameter name="DATE">
+						<subreportParameterExpression><![CDATA[$P{DATE}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="Organization_ID">
+						<subreportParameterExpression><![CDATA[$P{Organization_ID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="BASE_DESIGN">
+						<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression class="java.lang.String"><![CDATA[$P{BASE_DESIGN}+"/in/decathlon/ibud/shipment/ad_reports/COIMReport_subreport1.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+			<band height="179" splitType="Stretch">
+				<staticText>
+					<reportElement x="0" y="0" width="513" height="16"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[DECLARATION]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="0" y="16" width="513" height="27"/>
+					<box topPadding="3" leftPadding="4" bottomPadding="2" rightPadding="2">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+					<text><![CDATA[Goods moving out against this stock transfer note is only a inter company transfer not a sale. Hence the goods are not liable to any form of CST or VAT. ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="43" width="513" height="16" forecolor="#FFFFFF" backcolor="#808080"/>
+					<box>
+						<topPen lineWidth="0.75" lineColor="#0A0303"/>
+						<leftPen lineWidth="1.0" lineColor="#0A0303"/>
+						<bottomPen lineWidth="0.75" lineColor="#0A0303"/>
+						<rightPen lineWidth="1.0" lineColor="#0A0303"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[FOR DECATHLON SPORTS INDIA PRIVATE LIMITED]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="59" width="281" height="116"/>
+					<box topPadding="8">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TRANSFEROR]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="281" y="59" width="232" height="116"/>
+					<box topPadding="8">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TRANSFEREE (Date and Acknowledgement)]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="56" splitType="Stretch">
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="25" width="513" height="31"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DECATHLON SPORTS INDIA PRIVATE LIMITED]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="69">
+			<staticText>
+				<reportElement x="81" y="23" width="86" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[INVOICE]]></text>
+			</staticText>
+			<line>
+				<reportElement x="285" y="2" width="1" height="66"/>
+			</line>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="353" y="45" width="135" height="20"/>
+				<box leftPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Original Copy]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="326" y="9" width="56" height="18"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ TIN No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="327" y="27" width="56" height="18"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ CST No]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="382" y="9" width="117" height="18"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{em_ds_tinno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="383" y="27" width="116" height="18"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{em_ds_tinno}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="0" width="1" height="67"/>
+			</line>
+			<line>
+				<reportElement x="0" y="68" width="514" height="1"/>
+			</line>
+			<line>
+				<reportElement x="513" y="1" width="1" height="66"/>
+			</line>
+			<line>
+				<reportElement x="2" y="0" width="512" height="1"/>
+			</line>
+		</band>
+	</pageHeader>
+	<detail>
+		<band splitType="Stretch"/>
+		<band/>
+	</detail>
+</jasperReport>

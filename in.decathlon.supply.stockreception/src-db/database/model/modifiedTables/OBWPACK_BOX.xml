@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE OBWPACK_BOX">
+    <table name="OBWPACK_BOX" primaryKey="OBWPACK_BOX_KEY">
+      <column name="EM_SRA_BOXSTATUS" primaryKey="false" required="false" type="VARCHAR" size="6" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

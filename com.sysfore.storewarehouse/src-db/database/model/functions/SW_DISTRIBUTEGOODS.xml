@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_DISTRIBUTEGOODS">
+    <function name="SW_DISTRIBUTEGOODS" type="NULL">
+      <parameter name="porgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pmproductid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pmovementqty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="porderline" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pbusiness_partner" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="c_uom_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pismanual_order" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_purchase_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Vorgid       VARCHAR(32);
+Vmproductid  VARCHAR(32);
+Vmovementqty NUMBER;
+V_locatorid VARCHAR(32);
+V_qtyonhand NUMBER;
+Vwarehouseid VARCHAR(32);
+VminoutID VARCHAR(32);
+VsreqID VARCHAR(32);
+Vdocumentno VARCHAR(32); 
+Vmovementtype VARCHAR(32);
+Vuser VARCHAR(32);
+Vboxno VARCHAR(32);
+Vreqorgid VARCHAR(32);
+Vattributsetinstanceid VARCHAR(32);
+VclientID VARCHAR(32):='187D8FC945A5481CB41B3EE767F80DBB'; 
+--Cur_Picklist RECORD:='';
+Vshuttleqty NUMBER:=0;
+vBoxType NUMBER:=0;
+v_stock NUMBER:=0;
+v_ResultStr VARCHAR2(2000):='';
+v_pcb NUMBER:=0;
+v_toBeOrdered NUMBER:=0;
+v_remainingQty NUMBER:=0;
+v_model VARCHAR(200);
+v_pcbcheck NUMBER:=0;
+Cur_Box RECORD;
+v_reservedQty NUMBER:=0;
+V_BOX NUMBER:=0;
+v_count NUMBER:=0;
+v_reservation_id VARCHAR(32):='';
+v_idsd_isautodc VARCHAR(1);
+BEGIN
+
+Vorgid=porgid;
+Vmproductid=pmproductid;
+Vmovementqty=pmovementqty;
+
+select coalesce(em_cl_log_rec::numeric,-1::numeric) into vBoxType from m_product where m_product_id=Vmproductid;
+select coalesce(em_cl_pcb_qty::numeric,-1::numeric) into v_pcb from m_product where m_product_id=Vmproductid;
+select em_idsd_isautodc into v_idsd_isautodc from c_order where c_order_id = (select c_order_id from c_orderline where c_orderline_id=porderline);
+
+IF (v_pcb > 0) THEN
+select count(*) into V_BOX from (SELECT floor((msd.qtyonhand-coalesce(round((sum(mrs.quantity)-sum(mrs.releasedqty)),0),'0'))/mp.em_cl_pcb_qty) 
+FROM m_product mp
+LEFT JOIN m_storage_detail msd ON mp.m_product_id=msd.m_product_id
+LEFT JOIN m_attributesetinstance ma ON ma.m_attributesetinstance_id=msd.m_attributesetinstance_id
+LEFT JOIN m_locator ml ON msd.m_locator_id=ml.m_locator_id
+LEFT JOIN m_reservation mr ON mp.m_product_id=mr.m_product_id
+LEFT JOIN m_reservation_stock mrs ON (mr.m_reservation_id=mrs.m_reservation_id and mrs.m_attributesetinstance_id=msd.m_attributesetinstance_id and mrs.m_locator_id=msd.m_locator_id)
+WHERE msd.m_locator_id IN
+(select m_locator_id from m_locator where m_warehouse_id in
+(select m_warehouse_id from m_warehouse where em_sw_iscar = 'Y' or em_sw_iscac = 'Y' ) and isactive='Y')
+and mp.m_product_id=pmproductid
+and msd.qtyonhand>'0' and Vmovementqty>=mp.em_cl_pcb_qty
+and ml.isactive='Y' 
+group by mp.m_product_id,ml.m_locator_id,ma.m_attributesetinstance_id,msd.qtyonhand,mp.em_cl_pcb_qty
+having mp.em_cl_pcb_qty<=(msd.qtyonhand-coalesce(round((sum(mrs.quantity)-sum(mrs.releasedqty)),0),'0')) order by ma.lot)aname;
+
+IF V_BOX >= 1 THEN
+v_reservation_id=get_uuid();
+for Cur_Box In(
+SELECT  mp.m_product_id,ml.m_locator_id,ma.m_attributesetinstance_id,
+floor((msd.qtyonhand-coalesce(round((sum(mrs.quantity)-sum(mrs.releasedqty)),0),'0'))/mp.em_cl_pcb_qty) as No_of_box
+FROM m_product mp
+LEFT JOIN m_storage_detail msd ON mp.m_product_id=msd.m_product_id
+LEFT JOIN m_attributesetinstance ma ON ma.m_attributesetinstance_id=msd.m_attributesetinstance_id
+LEFT JOIN m_locator ml ON msd.m_locator_id=ml.m_locator_id
+LEFT JOIN m_reservation mr ON mp.m_product_id=mr.m_product_id
+LEFT JOIN m_reservation_stock mrs ON (mr.m_reservation_id=mrs.m_reservation_id and mrs.m_attributesetinstance_id=msd.m_attributesetinstance_id and mrs.m_locator_id=msd.m_locator_id)
+WHERE msd.m_locator_id IN
+(select m_locator_id from m_locator where m_warehouse_id in
+(select m_warehouse_id from m_warehouse where em_sw_iscar = 'Y' or em_sw_iscac = 'Y' ) and isactive='Y')
+and mp.m_product_id=pmproductid
+and msd.qtyonhand>'0' and Vmovementqty>=mp.em_cl_pcb_qty
+and ml.isactive='Y' 
+group by mp.m_product_id,ml.m_locator_id,ma.m_attributesetinstance_id,msd.qtyonhand,mp.em_cl_pcb_qty
+having mp.em_cl_pcb_qty<=(msd.qtyonhand-coalesce(round((sum(mrs.quantity)-sum(mrs.releasedqty)),0),'0'))
+order by ma.lot) loop
+v_count:=v_count+1;
+
+if Cur_Box.No_of_box >= 1 and Vmovementqty>=v_pcb then
+
+select * From idsd_reserve_box(v_reservation_id,Cur_Box.m_locator_id,Cur_Box.m_attributesetinstance_id,Vmproductid,Vorgid,porderline,pbusiness_partner,c_uom_id,v_pcb) into v_reservedQty;
+Vmovementqty:=Vmovementqty-v_reservedQty;
+
+END IF;
+
+End Loop;
+End if;
+
+END IF;
+
+--IF NSD, THEN CAC
+IF(Vmovementqty>0) THEN
+	--CAR
+	select * From sw_distribute_goods_new(Vorgid,Vmproductid,Vmovementqty,porderline,pbusiness_partner,c_uom_id,'Y','N') into v_remainingQty;		
+	--IF no stock then CAC
+	--RAISE EXCEPTION 'sw_distributegoods STOP  %   %     %',v_remainingQty,pismanual_order,Vmovementqty;
+	IF(v_remainingQty  > 0) THEN
+	     --Don't do CAC picking only for Standard Boxes(9.7 and 5) if it is auto DC
+	IF(v_idsd_isautodc = 'Y') THEN
+		IF(vBoxType =145 OR vBoxType=54 OR vBoxType=-1 OR vBoxType=0) THEN
+				select * From sw_distribute_goods_new(Vorgid,Vmproductid,v_remainingQty,porderline,pbusiness_partner,c_uom_id,'N','Y') into v_remainingQty;		
+		END IF;
+	ELSE 
+		select * From sw_distribute_goods_new(Vorgid,Vmproductid,v_remainingQty,porderline,pbusiness_partner,c_uom_id,'N','Y') into v_remainingQty;		
+        END IF;
+        END IF;
+
+if V_BOX >= 1 then
+update m_reservation_stock set m_reservation_id=v_reservation_id where c_orderline_id=porderline;
+
+update m_reservation set c_orderline_id=null where c_orderline_id=porderline and m_reservation_id<>v_reservation_id;
+end if;
+
+IF(v_remainingQty = Vmovementqty) THEN
+       	--RAISE NOTICE 'No Quantity available for % or all have been Booked',v_model;
+	update c_orderline
+	set qtyreserved = 0,isactive='N'
+	where c_orderline_id = porderline; 
+	
+END IF;
+END IF;
+END SW_DISTRIBUTEGOODS
+]]></body>
+    </function>
+  </database>

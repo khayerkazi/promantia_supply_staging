@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEDC">
+    <function name="IM_VALIDATEDC" type="VARCHAR">
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[validateDC Record;
+  --validateB2BDC RECORD;
+  itemCursor RECORD;
+  v_count NUMBER:=0;
+  v_flag boolean := TRUE;
+  v_btobflag boolean := FALSE;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_productErrorNotice VARCHAR(2000) := '';
+  v_formatErrorNotice  VARCHAR(2000) := '';
+  v_btobErrorNotice VARCHAR(2000) := '';
+  v_serviceErrorNotice  VARCHAR(2000) := '';
+  v_duplicateNotice VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+ 
+  v_chara VARCHAR(1) :='';
+  
+v_org_id VARCHAR(32):='';
+v_client_id VARCHAR(32):='';
+v_user_id VARCHAR(32):='';  
+  
+BEGIN
+
+v_org_id :=org_id;
+v_client_id :=client_id;
+v_user_id :=user_id; 
+
+--get all records from im_importbulk_dc which was inserted by user
+  FOR validateDC IN ( select distinct i.im_importbulk_dc_id,i.ad_client_id,i.ad_org_id,i.isactive,i.created,
+  i.createdby,i.updated,i.updatedby,i.store,i.itemcode,i.qty,i.btobcustomer,i.comments,i.validated,i.processing,
+  i.processed,i.validateimport,i.errormsg from im_importbulk_dc i where i.createdby=v_user_id)
+  LOOP
+--not null validation
+  IF (validateDC.itemcode IS NULL OR TRIM(BOTH ' ' FROM validateDC.itemcode) = '') THEN
+  	v_missingErrorNotice := 'Item Code, ';
+  END IF;
+     
+  IF (validateDC.store IS NULL OR TRIM(BOTH ' ' FROM validateDC.store) = '') THEN
+  	v_missingErrorNotice := 'Store, ';
+  END IF;
+
+  IF (TRIM(BOTH ' ' FROM validateDC.store) = 'B2B') THEN
+	IF (validateDC.btobcustomer IS NULL OR TRIM(BOTH ' ' FROM validateDC.btobcustomer) = '') THEN
+		v_missingErrorNotice := 'B2B ID, ';
+	END IF;
+  END IF;
+
+  IF (v_missingErrorNotice != '') THEN
+  	  v_messageImport := v_missingErrorNotice || 'is Mandatory ';
+  END IF;
+
+  -- Reference validation
+  SELECT COUNT(*) AS total INTO v_count FROM m_product WHERE m_product.name = lower(validateDC.itemcode);
+  	IF (v_count < 1 ) THEN
+  		v_formatErrorNotice := v_formatErrorNotice ||' Invalid Item, ';
+	END IF;
+
+  SELECT COUNT(*) AS total INTO v_count FROM ad_org WHERE ad_org.name = validateDC.store;
+  	IF (v_count < 1 ) THEN
+  		v_formatErrorNotice := v_formatErrorNotice ||' Invalid Store, ';
+	END IF;
+  IF (TRIM(BOTH ' ' FROM validateDC.store) = 'B2B') THEN
+    --SELECT COUNT(*) AS total INTO v_count FROM c_bpartner WHERE c_bpartner.name2 = validateDC.btobcustomer;
+    SELECT COUNT(*) AS total INTO v_count FROM rc_company WHERE rc_company.value = validateDC.btobcustomer;
+  	IF (v_count < 1 ) THEN
+  		v_formatErrorNotice := v_formatErrorNotice ||' Invalid B2B ID, ';
+	END IF;
+  ELSE 
+	IF (validateDC.btobcustomer IS NULL OR TRIM(BOTH ' ' FROM validateDC.btobcustomer) != '0000') THEN
+		v_formatErrorNotice := v_formatErrorNotice ||' Invalid B2B ID for store, ';
+	END IF;
+  END IF;
+
+ IF (TRIM(BOTH ' ' FROM validateDC.store) = 'B2B') THEN
+    SELECT COUNT(*) AS total INTO v_count FROM im_importbulk_dc i WHERE i.itemcode = lower(validateDC.itemcode) and i.store='B2B' and i.btobcustomer=validateDC.btobcustomer and i.createdby=v_user_id;
+  	IF (v_count > 1 ) THEN
+		v_btobErrorNotice := v_btobErrorNotice ||' Duplicate Item, ';
+	END IF;
+  ELSE
+   SELECT COUNT(*) AS total INTO v_count FROM im_importbulk_dc i WHERE i.itemcode = lower(validateDC.itemcode) and i.store=validateDC.store and i.createdby=v_user_id;
+  	IF (v_count > 1 ) THEN
+  		v_formatErrorNotice := v_formatErrorNotice ||' Duplicate Item, ';
+	END IF; 
+  END IF;
+ 
+  --QUANTITY VALIDATION
+  IF (validateDC.qty < 1) THEN
+  	v_formatErrorNotice := v_formatErrorNotice || 'Quantity should be greater than 0, ';
+  END IF;
+   
+  IF (v_formatErrorNotice != '') THEN
+  	  v_messageImport := v_messageImport || v_formatErrorNotice;
+  END IF;
+  
+  IF (v_btobErrorNotice != '') THEN
+  	  v_messageImport := v_messageImport || v_btobErrorNotice;
+  END IF;
+                        
+  -----Enter the errors
+  IF v_messageImport = '' THEN
+    UPDATE im_importbulk_dc SET errormsg = v_messageImport, validated = 'Y' where im_importbulk_dc_id=validateDC.im_importbulk_dc_id and validateDC.createdby= v_user_id;
+  	
+  ELSE 
+    UPDATE im_importbulk_dc SET errormsg = v_messageImport, validated = 'N' where im_importbulk_dc_id=validateDC.im_importbulk_dc_id and validateDC.createdby= v_user_id;
+    v_flag :=FALSE;
+  
+  END IF;
+  v_missingErrorNotice := '';
+  v_productErrorNotice := '';
+  v_formatErrorNotice  := '';
+  v_messageImport := '';
+  v_serviceErrorNotice := '';
+  v_btobErrorNotice :='';
+  v_btobflag = FALSE;
+  
+  END LOOP;
+  
+   
+  IF v_flag = TRUE THEN
+  	RETURN 'SUCCESS';
+  ELSE
+  	RETURN 'FAILURE';
+  END IF;
+END IM_VALIDATEDC
+]]></body>
+    </function>
+  </database>

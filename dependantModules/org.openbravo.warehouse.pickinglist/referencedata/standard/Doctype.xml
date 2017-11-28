@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <OBWPL_pickinglistincidence id="2BD81F8D36664702B8B5E7C2FCD03F12" identifier="Standard">
+    <id>2BD81F8D36664702B8B5E7C2FCD03F12</id>
+    <active>true</active>
+    <creationDate transient="true">2014-11-05T17:00:06.664Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2014-11-05T17:00:06.664Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <incidencetype>OBWPL_StandardIncidence</incidencetype>
+    <name>Standard</name>
+    <description>Standard Incidence</description>
+  </OBWPL_pickinglistincidence>
+  <ADSequence id="04AEC0549AB942BFA5A4CB4A7ECEEE9F" identifier="Group PL">
+    <id>04AEC0549AB942BFA5A4CB4A7ECEEE9F</id>
+    <active>true</active>
+    <creationDate transient="true">2013-10-10T12:45:06.0Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-11-13T18:46:57.0Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Group PL</name>
+    <description>Grouping Picking List sequence</description>
+    <valueFormat xsi:nil="true"/>
+    <autoNumbering>true</autoNumbering>
+    <incrementBy>1</incrementBy>
+    <startingNo>100</startingNo>
+    <nextAssignedNumber>112</nextAssignedNumber>
+    <currentNextSystem>100</currentNextSystem>
+    <usedForRecordID>false</usedForRecordID>
+    <prefix>GPL</prefix>
+    <suffix xsi:nil="true"/>
+    <restartSequenceEveryYear>false</restartSequenceEveryYear>
+  </ADSequence>
+  <ADSequence id="6BAE46B1FC324BF1862388B82F5E6756" identifier="Outbound Picking List">
+    <id>6BAE46B1FC324BF1862388B82F5E6756</id>
+    <active>true</active>
+    <creationDate transient="true">2013-11-18T10:12:27.0Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-11-18T13:02:17.0Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Outbound Picking List</name>
+    <description xsi:nil="true"/>
+    <valueFormat xsi:nil="true"/>
+    <autoNumbering>true</autoNumbering>
+    <incrementBy>1</incrementBy>
+    <startingNo>1000000</startingNo>
+    <nextAssignedNumber>1010</nextAssignedNumber>
+    <currentNextSystem>100</currentNextSystem>
+    <usedForRecordID>false</usedForRecordID>
+    <prefix>OPL</prefix>
+    <suffix xsi:nil="true"/>
+    <restartSequenceEveryYear>false</restartSequenceEveryYear>
+  </ADSequence>
+  <ADSequence id="D3798BF012EE41C19D5F0AFABD4E2CB1" identifier="Picking List">
+    <id>D3798BF012EE41C19D5F0AFABD4E2CB1</id>
+    <active>true</active>
+    <creationDate transient="true">2013-11-18T17:33:58.0Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-11-18T17:33:58.0Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Picking List</name>
+    <description xsi:nil="true"/>
+    <valueFormat xsi:nil="true"/>
+    <autoNumbering>true</autoNumbering>
+    <incrementBy>1</incrementBy>
+    <startingNo>1000000</startingNo>
+    <nextAssignedNumber>300</nextAssignedNumber>
+    <currentNextSystem>100</currentNextSystem>
+    <usedForRecordID>false</usedForRecordID>
+    <prefix>PL</prefix>
+    <suffix xsi:nil="true"/>
+    <restartSequenceEveryYear>false</restartSequenceEveryYear>
+  </ADSequence>
+  <DocumentType id="26B49CC5564E485DAB644315F1EA763A" identifier="Grouping Picking List">
+    <id>26B49CC5564E485DAB644315F1EA763A</id>
+    <active>true</active>
+    <creationDate transient="true">2013-10-10T12:43:00.0Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-10-23T17:24:02.0Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Grouping Picking List</name>
+    <printText>Grouping Picking List</printText>
+    <description xsi:nil="true"/>
+    <documentCategory>OBWPL_doctype</documentCategory>
+    <salesTransaction>false</salesTransaction>
+    <sOSubType xsi:nil="true"/>
+    <documentTypeForShipment xsi:nil="true"/>
+    <documentTypeForInvoice xsi:nil="true"/>
+    <sequencedDocument>true</sequencedDocument>
+    <documentSequence id="04AEC0549AB942BFA5A4CB4A7ECEEE9F" entity-name="ADSequence" identifier="Group PL"/>
+    <gLCategory id="0" entity-name="FinancialMgmtGLCategory" identifier="None of System"/>
+    <comments xsi:nil="true"/>
+    <default>false</default>
+    <numberOfCopies>1</numberOfCopies>
+    <table xsi:nil="true"/>
+    <filterByOrganization>false</filterByOrganization>
+    <documentCancelled xsi:nil="true"/>
+    <expense>false</expense>
+    <reversal>false</reversal>
+    <return>false</return>
+    <documentTypeForOrder xsi:nil="true"/>
+    <oBWPLUseOutbound>true</oBWPLUseOutbound>
+    <oBWPLIsGroup>true</oBWPLIsGroup>
+    <oBWPLGenerateShipment>false</oBWPLGenerateShipment>
+    <oBWPLShipmentDocumentType xsi:nil="true"/>
+  </DocumentType>
+  <DocumentType id="4317DE079EE54B23AE19D7251C8FEEC3" identifier="Picking List outbound">
+    <id>4317DE079EE54B23AE19D7251C8FEEC3</id>
+    <active>true</active>
+    <creationDate transient="true">2013-09-24T13:28:22.0Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-11-18T10:12:36.0Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Picking List outbound</name>
+    <printText>Picking List</printText>
+    <description xsi:nil="true"/>
+    <documentCategory>OBWPL_doctype</documentCategory>
+    <salesTransaction>true</salesTransaction>
+    <sOSubType xsi:nil="true"/>
+    <documentTypeForShipment xsi:nil="true"/>
+    <documentTypeForInvoice xsi:nil="true"/>
+    <sequencedDocument>true</sequencedDocument>
+    <documentSequence id="6BAE46B1FC324BF1862388B82F5E6756" entity-name="ADSequence" identifier="Outbound Picking List"/>
+    <gLCategory id="0" entity-name="FinancialMgmtGLCategory" identifier="None of System"/>
+    <comments xsi:nil="true"/>
+    <default>false</default>
+    <numberOfCopies>1</numberOfCopies>
+    <table xsi:nil="true"/>
+    <filterByOrganization>false</filterByOrganization>
+    <documentCancelled xsi:nil="true"/>
+    <expense>false</expense>
+    <reversal>false</reversal>
+    <return>false</return>
+    <documentTypeForOrder xsi:nil="true"/>
+    <oBWPLUseOutbound>true</oBWPLUseOutbound>
+    <oBWPLIsGroup>false</oBWPLIsGroup>
+    <oBWPLGenerateShipment>false</oBWPLGenerateShipment>
+    <oBWPLShipmentDocumentType xsi:nil="true"/>
+  </DocumentType>
+  <DocumentType id="D17B6F88E50C44EAB3D2C3C0E91B2665" identifier="Picking List">
+    <id>D17B6F88E50C44EAB3D2C3C0E91B2665</id>
+    <active>true</active>
+    <creationDate transient="true">2013-11-18T17:33:58.0Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2013-11-18T17:33:58.0Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Picking List</name>
+    <printText>Picking List</printText>
+    <description xsi:nil="true"/>
+    <documentCategory>OBWPL_doctype</documentCategory>
+    <salesTransaction>false</salesTransaction>
+    <sOSubType xsi:nil="true"/>
+    <documentTypeForShipment xsi:nil="true"/>
+    <documentTypeForInvoice xsi:nil="true"/>
+    <sequencedDocument>true</sequencedDocument>
+    <documentSequence id="D3798BF012EE41C19D5F0AFABD4E2CB1" entity-name="ADSequence" identifier="Picking List"/>
+    <gLCategory id="0" entity-name="FinancialMgmtGLCategory" identifier="None of System"/>
+    <comments xsi:nil="true"/>
+    <default>false</default>
+    <numberOfCopies>1</numberOfCopies>
+    <table xsi:nil="true"/>
+    <filterByOrganization>false</filterByOrganization>
+    <documentCancelled xsi:nil="true"/>
+    <expense>false</expense>
+    <reversal>false</reversal>
+    <return>false</return>
+    <documentTypeForOrder xsi:nil="true"/>
+    <oBWPLUseOutbound>false</oBWPLUseOutbound>
+    <oBWPLIsGroup>false</oBWPLIsGroup>
+    <oBWPLGenerateShipment>false</oBWPLGenerateShipment>
+    <oBWPLShipmentDocumentType xsi:nil="true"/>
+  </DocumentType>
+</ob:Openbravo>

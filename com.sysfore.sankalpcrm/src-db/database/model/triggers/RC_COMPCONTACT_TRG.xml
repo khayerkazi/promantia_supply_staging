@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER RC_COMPCONTACT_TRG">
+    <trigger name="RC_COMPCONTACT_TRG" table="RC_COMPCONTACT" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_mobile NUMBER;
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF INSERTING OR UPDATING THEN
+
+   SELECT length(mobile) INTO v_mobile FROM rc_compcontact WHERE mobile = :NEW.mobile;
+   
+      
+     IF (v_mobile < 10) THEN
+        RAISE EXCEPTION '@Mobile No. must be of 10 digit@';
+     END IF;   
+
+
+END IF;
+
+            
+END RC_COMPCONTACT_TRG
+]]></body>
+    </trigger>
+  </database>

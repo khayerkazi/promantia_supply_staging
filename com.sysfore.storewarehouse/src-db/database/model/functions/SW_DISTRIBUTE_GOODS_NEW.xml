@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_DISTRIBUTE_GOODS_NEW">
+    <function name="SW_DISTRIBUTE_GOODS_NEW" type="NUMERIC">
+      <parameter name="porgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pmproductid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pmovementqty" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="porderline" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pbusiness_partner" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="puomid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="pfirst" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_iscac" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Vorgid       VARCHAR(32);
+v_query varchar(1000);
+v_id VARCHAR(32);
+Vmproductid  VARCHAR(32);
+Vmovementqty NUMBER;
+V_locatorid VARCHAR(32);
+V_qtyonhand NUMBER;
+VminoutID VARCHAR(32);
+VresID VARCHAR(32);
+Vorderlineid VARCHAR(32); 
+Vmovementtype VARCHAR(32);
+Vuser VARCHAR(32);
+Vboxno VARCHAR(32);
+Vreqorgid VARCHAR(32);
+Vattributsetinstanceid VARCHAR(32);
+VclientID VARCHAR(32):='187D8FC945A5481CB41B3EE767F80DBB'; 
+Cur_Picklist RECORD;
+Vresqty NUMBER;
+vBoxType NUMBER;
+v_ResultStr VARCHAR2(2000):='';
+Vtrxqty NUMBER:= 0 ;
+v_WarehousName VARCHAR(60):='';
+vfirst CHARACTER(1);
+test_result varchar(1000):=' ';
+v_stockinhand NUMBER;
+
+BEGIN
+
+Vorgid=porgid;
+Vmproductid=pmproductid;
+Vmovementqty=pmovementqty;
+Vorderlineid=porderline;
+vfirst=pfirst;
+
+
+select coalesce(sum(msd.qtyonhand),0) into v_stockinhand from m_storage_detail msd where msd.m_product_id =Vmproductid and msd.m_locator_id in (select m_locator_id from m_locator where
+m_warehouse_id in (select m_warehouse_id from m_warehouse where 
+em_sw_iscac=p_iscac
+and ad_org_id=Vorgid and name like 'Saleable%') and value not like 'System' and isactive= 'Y');
+
+
+IF (v_stockinhand>0) THEN
+
+FOR Cur_Picklist IN 
+(SELECT msd.m_locator_id,msd.qtyonhand as qtyonhand,msd.m_attributesetinstance_id,mas.em_sw_attribute_value From m_storage_detail msd,m_attributesetinstance mas 
+where msd.m_product_id =Vmproductid and mas.m_attributesetinstance_id = msd.m_attributesetinstance_id and msd.qtyonhand > 0
+and msd.m_locator_id in(select m_locator_id from m_locator where
+m_warehouse_id in (select m_warehouse_id from m_warehouse where 
+em_sw_iscac=p_iscac
+and ad_org_id=Vorgid and name like 'Saleable%') and value not like 'System' and isactive= 'Y') ORDER BY mas.em_sw_attribute_value) 
+LOOP
+
+
+     IF(Cur_Picklist.qtyonhand > 0) THEN
+	V_locatorid:=Cur_Picklist.m_locator_id;
+	V_qtyonhand:=Cur_Picklist.qtyonhand;
+	Vattributsetinstanceid:=Cur_Picklist.m_attributesetinstance_id;
+
+	
+	
+	select coalesce(sum(quantity),0) into Vresqty from m_reservation_stock where releasedqty = 0 and m_reservation_id in 
+	(select m_reservation_id from m_reservation where m_product_id = Vmproductid and isactive = 'Y') 
+	and m_locator_id=V_locatorid and m_attributesetinstance_id=Vattributsetinstanceid;
+	
+	if(Vresqty > 0)
+	THEN
+		V_qtyonhand:=V_qtyonhand-Vresqty;
+	END IF;
+
+	--test_result:=test_result || V_qtyonhand||' V_qtyonhand '||Vmovementqty||' Vmovementqty '||V_locatorid||' V_locatorid ';
+	--insert into temp_table values(V_qtyonhand);
+	/*insert into temp_table values(vfirst);
+	insert into temp_table values(V_qtyonhand);
+	insert into temp_table values(Vmovementqty);*/
+	
+IF(V_qtyonhand >= Vmovementqty and vfirst = 'Y') THEN
+		v_id:=get_uuid(); 
+--test_result := test_result||' -1-Vmovementqty '||Vmovementqty;
+	    INSERT INTO m_reservation(
+		    m_reservation_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_product_id, quantity, c_uom_id, 
+		    c_orderline_id, ad_user_id, c_bpartner_id, m_attributesetinstance_id, 
+		    reservedqty, releasedqty, res_status, res_process, 
+		    managereservation_pe)
+	    VALUES (v_id,VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100',Vmproductid,Vmovementqty,puomid, 
+		    Vorderlineid,null,pbusiness_partner, Vattributsetinstanceid, 
+		    0, 0, 'CO', 'HO','');
+	    INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100', v_id,
+		     Vmovementqty, 'N', V_locatorid,Vattributsetinstanceid, 
+		    0,Vorderlineid);
+		    --insert into temp_table values('here in loop2');
+		    RETURN 0;   
+ELSE IF (V_qtyonhand < Vmovementqty and V_qtyonhand > 0 and vfirst = 'Y') THEN
+	
+			v_id:=get_uuid(); 
+--	test_result := test_result||' -2-V_qtyonhand '||V_qtyonhand;
+		INSERT INTO m_reservation(
+		    m_reservation_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_product_id, quantity, c_uom_id, 
+		    c_orderline_id, ad_user_id, c_bpartner_id, m_attributesetinstance_id, 
+		    reservedqty, releasedqty, res_status, res_process, 
+		    managereservation_pe)
+	    VALUES (v_id,VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100',Vmproductid,Vmovementqty,puomid, 
+		    Vorderlineid,null,pbusiness_partner, Vattributsetinstanceid, 
+		    0, 0, 'CO', 'HO','');
+		  INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100', v_id,
+		     V_qtyonhand, 'N', V_locatorid,Vattributsetinstanceid, 
+		    0,Vorderlineid);
+                vfirst := 'N';  
+		Vmovementqty=Vmovementqty-V_qtyonhand;
+ELSE IF (V_qtyonhand < Vmovementqty and V_qtyonhand > 0 and vfirst = 'N') THEN
+
+             select m_reservation_id into v_id from m_reservation where c_orderline_id = Vorderlineid; 
+             --insert into temp_table values(v_id);
+             --insert into temp_table values(Vorderlineid);
+
+ --       test_result := test_result||' -3-V_qtyonhand '||V_qtyonhand;     
+IF (v_id is not null) THEN		 
+            INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100', v_id,
+		     V_qtyonhand, 'N', V_locatorid,Vattributsetinstanceid, 
+		    0,Vorderlineid);
+		    
+	     ELSE
+	     v_id:=get_uuid(); 
+		INSERT INTO m_reservation(
+		    m_reservation_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_product_id, quantity, c_uom_id, 
+		    c_orderline_id, ad_user_id, c_bpartner_id, m_attributesetinstance_id, 
+		    reservedqty, releasedqty, res_status, res_process, 
+		    managereservation_pe)
+	    VALUES (v_id,VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100',Vmproductid,Vmovementqty,puomid, 
+		    Vorderlineid,null,pbusiness_partner, Vattributsetinstanceid, 
+		    0, 0, 'CO', 'HO','');
+		  INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100', v_id,
+		     V_qtyonhand, 'N', V_locatorid,Vattributsetinstanceid, 
+		    0,Vorderlineid);
+	END IF;	    
+		Vmovementqty=Vmovementqty-V_qtyonhand;
+ELSE IF(V_qtyonhand >= Vmovementqty and vfirst = 'N') THEN
+
+      
+      IF(V_qtyonhand > Vmovementqty) THEN
+         V_qtyonhand = Vmovementqty;
+      END IF;
+ --test_result := test_result||' -4-V_qtyonhand '||V_qtyonhand; 
+           select m_reservation_id into v_id from m_reservation where c_orderline_id = Vorderlineid;
+            IF (v_id is not null) THEN		 
+            INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100', v_id,
+		     V_qtyonhand, 'N', V_locatorid,Vattributsetinstanceid, 
+		    0,Vorderlineid);
+		    
+	     ELSE
+	     v_id:=get_uuid(); 
+
+--	      test_result := test_result||' -5-V_qtyonhand '||V_qtyonhand; 
+		INSERT INTO m_reservation(
+		    m_reservation_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_product_id, quantity, c_uom_id, 
+		    c_orderline_id, ad_user_id, c_bpartner_id, m_attributesetinstance_id, 
+		    reservedqty, releasedqty, res_status, res_process, 
+		    managereservation_pe)
+	    VALUES (v_id,VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100',Vmproductid,Vmovementqty,puomid, 
+		    Vorderlineid,null,pbusiness_partner,Vattributsetinstanceid, 
+		    0, 0, 'CO', 'HO','');
+		  INSERT INTO m_reservation_stock(
+		    m_reservation_stock_id, ad_client_id, ad_org_id, isactive, created, 
+		    createdby, updated, updatedby, m_reservation_id, 
+		    quantity, isallocated, m_locator_id, m_attributesetinstance_id, 
+		    releasedqty,c_orderline_id)
+	    VALUES (get_uuid(),VclientID ,Vorgid,'Y',now(), 
+		    '100', now(),'100', v_id,
+		     V_qtyonhand, 'N', V_locatorid,Vattributsetinstanceid, 
+		    0,Vorderlineid);
+	     	    
+       	END IF;
+       	RETURN 0; 
+
+END IF;
+END IF;
+END IF;
+END IF;
+END IF;
+END LOOP;
+END IF;
+--Raise Exception '%', test_result ; 
+
+RETURN Vmovementqty;
+END SW_DISTRIBUTE_GOODS_NEW
+]]></body>
+    </function>
+  </database>

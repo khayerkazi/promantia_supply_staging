@@ -1,0 +1,221 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION IM_VALIDATEGTD">
+    <function name="IM_VALIDATEGTD" type="VARCHAR">
+      <parameter name="client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+*Decathlon Custom SP for validate GTD
+*Created by MITESH GAUE
+*mitesh.gaur@decathlon.in
+************************************************************************/
+DECLARE
+  validategtd Record;
+  validateduplicate Record;
+  validatedocumentnumber Record;
+  validatedocinpo Record; 
+  v_count NUMBER:=0;
+  v_countval NUMBER:=0;
+  v_missingErrorNotice VARCHAR(2000) := '';
+  v_documentno  VARCHAR(2000) := '';
+  v_messageImport VARCHAR(2000) :='';
+  v_duplicateboxnumber VARCHAR(255) :='';
+  v_boxnumbercheck VARCHAR(255) :='';
+  v_flag boolean := FALSE;
+  v_validateflag NUMBER:=0;
+  vqtyordered NUMBER:=0;
+  vconfirmqty NUMBER:=0;
+  vrecqty NUMBER:=0;
+  v_errormsg VARCHAR(2000) := '';
+
+BEGIN
+
+update im_gtd gtd set im_errormsg = '';
+
+--combine duplicate check with other validations
+FOR validateduplicate IN 
+(select im_gtd_id,documentno,itemcode from im_gtd gtd where documentno in 
+(select a.documentno from (select documentno, itemcode, warehouse, locator, count(1) from im_gtd 
+where validated='N' and createdby=user_id group by documentno, itemcode, warehouse, locator having count(1) > 1) a where gtd.documentno=a.documentno and gtd.itemcode = a.itemcode and gtd.warehouse = a.warehouse and gtd.locator = a.locator)) LOOP
+
+update im_gtd set im_errormsg='Duplicate Records,', validated= 'N' where im_gtd_id = validateduplicate.im_gtd_id;
+v_validateflag:=1;
+
+END LOOP;
+
+FOR validatedocumentnumber IN 
+-- Selecting all rows from i_gtd table
+(select distinct im_gtd_id, documentno, itemcode, qty, warehouse, locator, boxno,pcb_qty,log_rec from im_gtd where validated='N' and createdby=user_id) LOOP
+
+--- Check for Already inwarded
+
+select COALESCE(qtyordered,'0'), COALESCE(em_sw_confirmedqty,'0'), COALESCE(to_number(em_sw_recqty),'0') into vqtyordered, vconfirmqty, vrecqty from c_orderline where m_product_id in (select m_product_id from m_product where name=validatedocumentnumber.itemcode) and c_order_id in (select c_order_id from c_order where poreference=validatedocumentnumber.documentno);
+
+IF (vqtyordered < (validatedocumentnumber.qty+vrecqty) and vconfirmqty < (validatedocumentnumber.qty+vrecqty)) THEN
+
+v_missingErrorNotice := 'Cannot Inward quantities more than confirmed, ';
+
+END IF;
+
+--- END of Check for Already inwarded
+
+-- checking required field blank start
+v_flag:=TRUE;
+IF (validatedocumentnumber.documentno IS NULL OR TRIM(BOTH ' ' FROM validatedocumentnumber.documentno) = '') THEN
+  v_missingErrorNotice := 'DocumentNo is Blank, ';
+END IF;
+IF (validatedocumentnumber.itemcode IS NULL OR TRIM(BOTH ' ' FROM validatedocumentnumber.itemcode) = '') THEN
+  v_missingErrorNotice := 'Item Code is Blank, ';
+END IF;  
+IF ((validatedocumentnumber.qty IS NULL) OR (validatedocumentnumber.qty = 0)) THEN
+  v_missingErrorNotice := 'Qty is Blank or Zero, ';
+END IF;
+IF (validatedocumentnumber.warehouse IS NULL OR TRIM(BOTH ' ' FROM validatedocumentnumber.warehouse) = '') THEN
+  v_missingErrorNotice := 'Warehouse is Blank, ';
+END IF;
+IF (validatedocumentnumber.locator IS NULL OR TRIM(BOTH ' ' FROM validatedocumentnumber.locator) = '') THEN
+  v_missingErrorNotice := 'locator is Blank, ';
+END IF;
+IF (validatedocumentnumber.pcb_qty = 0) THEN
+  v_missingErrorNotice := 'PCB should not be Zero, ';
+END IF;
+
+-- checking required field blank end
+--check if duplicate box number is excel
+IF ((validatedocumentnumber.boxno IS NULL) OR (validatedocumentnumber.boxno = '')) THEN
+ELSE 
+v_boxnumbercheck=substring(validatedocumentnumber.boxno from 1 for 1);
+
+IF (v_boxnumbercheck='B') THEN 
+	ELSE
+	v_missingErrorNotice := 'Invalid Box Number Box number must start with B, ';
+END IF;
+END IF;
+IF (validatedocumentnumber.boxno IS NULL OR TRIM(BOTH ' ' FROM validatedocumentnumber.boxno) = '') THEN
+ELSE
+select count(boxno) INTO v_count from im_gtd where boxno=validatedocumentnumber.boxno;
+IF (v_count > 1 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || 'Duplicate Box Number in excel, ';
+END IF;
+END IF;
+--check if item code exits in erp
+select count(name) INTO v_count from m_product where name=validatedocumentnumber.itemcode;
+IF (v_count=0 ) THEN
+       v_missingErrorNotice := v_missingErrorNotice || 'Item Code Does Not Exit in ERP, ';
+END IF;
+--check if warehouse exits in erp
+select count(name) INTO v_count from m_warehouse where name =validatedocumentnumber.warehouse;
+IF (v_count=0 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || 'Warehouse Does Not Exit in ERP, ';
+END IF;
+--check if locator exits in erp for same warehouse which is in excel
+select count(value) INTO v_count from m_locator where value =validatedocumentnumber.locator and m_warehouse_id =(select m_warehouse_id from m_warehouse where name =validatedocumentnumber.warehouse);
+IF (v_count=0 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || 'Locator Does Not Exit in ERP, ';
+END IF;
+--check PO is created or not for document number which is in excel 
+select count(*) INTO v_count from c_order where c_doctype_id='C7CD4AC8AC414678A525AB7AE20D718C' and poreference=validatedocumentnumber.documentno;
+IF (v_count = 0 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || 'Document Number not exits in PO, ';
+  END IF;
+--check Item code exits in po or not for same document number 
+select count(m_product_id) INTO v_count from c_orderline where m_product_id =(select m_product_id from m_product where name= validatedocumentnumber.itemcode) and c_order_id IN (select c_order_id from c_order where poreference=TRIM(BOTH ' ' FROM validatedocumentnumber.documentno) and c_doctype_id='C7CD4AC8AC414678A525AB7AE20D718C' );  
+IF (v_count = 0 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || 'Item Code not exits in PO, ';
+END IF;      
+--check duplicate Item code in po for same document number
+IF (v_count > 1 ) THEN      
+      v_missingErrorNotice := v_missingErrorNotice || 'Duplicate Item Codes in PO, ';
+END IF;
+
+
+-- check if the PCB value exists in erp for the itemcode
+select em_cl_pcb_qty into v_countval from m_product where name=validatedocumentnumber.itemcode;
+
+	-- Check for current PCB and uploaded PCB
+
+	IF(validatedocumentnumber.pcb_qty != v_countval) THEN
+
+	v_missingErrorNotice :=  v_missingErrorNotice || 'PCB Qty does not match with ERP - ' || v_countval || ' ,';
+
+	END IF;
+
+	-- END of Check for current PCB and uploaded PCB
+
+IF((v_countval IS NULL) OR(v_countval = 0))THEN
+IF ((validatedocumentnumber.pcb_qty = 0) OR (validatedocumentnumber.pcb_qty IS NULL)) THEN
+	IF(validatedocumentnumber.pcb_qty IS NULL) AND (v_countval = 0) THEN
+		v_missingErrorNotice :=  'PCB not exists in ERP, ';
+	END  IF;
+  	IF(validatedocumentnumber.pcb_qty IS NULL) THEN
+  		v_missingErrorNotice := v_missingErrorNotice || 'PCB should not be blank. ';
+  	END IF;
+
+END IF;
+END IF;
+--raise exception 'log_rec %',validatedocumentnumber.log_rec;
+--check if logistics recharge exists in erp for the item code
+select em_cl_log_rec into v_countval from m_product where name=validatedocumentnumber.itemcode;
+IF((v_countval IS NULL) OR(v_countval = 0))THEN
+IF ((validatedocumentnumber.log_rec = '') OR (validatedocumentnumber.log_rec IS NULL)) THEN
+	IF((validatedocumentnumber.log_rec IS NULL) AND (v_countval = 0)) THEN
+		v_missingErrorNotice :=  'Logistics Recharge not exits in ERP ';
+	END  IF;
+	
+	--(5 ||9.7|| 54 || 145)
+  	IF(validatedocumentnumber.log_rec IS NULL) THEN
+  		v_missingErrorNotice := v_missingErrorNotice || 'Logistics Recharge should not be blank and it should be either 5 or 9.7 or 54 or 145';
+  	END IF; 
+  	
+  	IF(validatedocumentnumber.log_rec = '') AND (v_countval=0) THEN
+  		v_missingErrorNotice := v_missingErrorNotice || 'Logistics Recharge should not be 0 and it should be either 5 or 9.7 or 54 or 145';
+  	END IF; 
+
+	IF(validatedocumentnumber.log_rec = '0') AND (v_countval=0) THEN
+  		v_missingErrorNotice := v_missingErrorNotice || 'Logistics Recharge should not be 0 and it should be either 5 or 9.7 or 54 or 145';
+  	END IF; 
+END IF;
+END IF;
+
+-- Allow only 5 or 9.7 or 54 or 145 values for logisitics recharge
+IF(validatedocumentnumber.log_rec IS NOT NULL)THEN
+IF ((validatedocumentnumber.log_rec = '5') OR (validatedocumentnumber.log_rec = '9.7') OR (validatedocumentnumber.log_rec = '54') OR (validatedocumentnumber.log_rec = '145')) THEN 
+ELSE 
+  		 v_missingErrorNotice :=  'Logistics Recharge should be either 5 or 9.7 or 54 or 145 ';
+END IF;
+END IF;
+
+IF v_missingErrorNotice = '' THEN
+    UPDATE im_gtd SET im_errormsg = im_errormsg || v_missingErrorNotice where im_gtd_id=validatedocumentnumber.im_gtd_id;
+ELSE 
+    UPDATE im_gtd SET im_errormsg = im_errormsg || v_missingErrorNotice, validated= 'N' where im_gtd_id=validatedocumentnumber.im_gtd_id;
+	v_validateflag:=1;
+    
+END IF; 
+ v_missingErrorNotice :='';
+
+ END LOOP; 
+
+--setting validation for success records
+FOR validategtd IN 
+(select im_gtd_id, im_errormsg from im_gtd where createdby=user_id ) LOOP
+if ((validategtd.im_errormsg='') OR (validategtd.im_errormsg is null)) then
+update im_gtd set validated= 'Y' where im_gtd_id = validategtd.im_gtd_id;
+END IF;
+END LOOP;
+	if ( v_validateflag=0 ) THEN   
+	v_flag :=TRUE; 
+	ELSE
+	v_flag :=FALSE; 
+	END IF;
+RETURN v_flag;
+END IM_VALIDATEGTD
+]]></body>
+    </function>
+  </database>

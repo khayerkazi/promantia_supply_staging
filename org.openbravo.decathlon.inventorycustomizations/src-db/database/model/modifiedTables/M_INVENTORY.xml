@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_INVENTORY">
+    <table name="M_INVENTORY" primaryKey="M_INVENTORY_KEY">
+      <column name="EM_DIC_CYCLE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="DIC_CYCLE" name="EM_DIC_INV_CYCLE">
+        <reference local="EM_DIC_CYCLE_ID" foreign="DIC_CYCLE_ID"/>
+      </foreign-key>
+    </table>
+  </database>

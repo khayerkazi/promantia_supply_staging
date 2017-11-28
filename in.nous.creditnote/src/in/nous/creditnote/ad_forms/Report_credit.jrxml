@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reportcreditnote" pageWidth="800" pageHeight="842" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="760" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="21"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="creditnoteId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT 	p.name as itemcode, p.em_cl_modelcode as modelcode,
+	c.name as color,
+	p.em_cl_size as size, rr.name as creditnotetype, abs(invl.qtyinvoiced) as qty,
+	round(((invl.priceactual)-(invl.priceactual*round((t.rate/100),2)))*abs(invl.qtyinvoiced),0) as price,
+	round(t.rate,0) as rate, round(((invl.priceactual*round((t.rate/100),2))*abs(invl.qtyinvoiced)),0) as taxamount,
+	inv.documentno, b.em_rc_oxylane as decathlonid,b.name as firstname, b.name2 as lastname,
+	round(invl.priceactual*abs(invl.qtyinvoiced),0) as grandtotal, inv.grandtotal as GrandValue, inv.dateinvoiced
+
+FROM c_invoice inv
+	JOIN c_invoiceline invl ON invl.c_invoice_id = inv.c_invoice_id
+	JOIN m_product p ON p.m_product_id = invl.m_product_id
+	JOIN cl_color c ON c.cl_color_id = p.em_cl_color_id
+	JOIN c_bpartner b ON b.c_bpartner_id = inv.c_bpartner_id
+	JOIN c_order o ON o.c_order_id = inv.c_order_id and o.documentno = inv.documentno
+	JOIN c_return_reason rr ON rr.c_return_reason_id = o.c_return_reason_id
+	JOIN c_tax t ON t.c_tax_id = invl.c_tax_id
+WHERE inv.c_invoice_id=$P{creditnoteId}
+ORDER BY inv.documentno, p.name]]>
+	</queryString>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="modelcode" class="java.lang.String"/>
+	<field name="color" class="java.lang.String"/>
+	<field name="size" class="java.lang.String"/>
+	<field name="creditnotetype" class="java.lang.String"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="price" class="java.math.BigDecimal"/>
+	<field name="rate" class="java.math.BigDecimal"/>
+	<field name="taxamount" class="java.math.BigDecimal"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="decathlonid" class="java.lang.String"/>
+	<field name="firstname" class="java.lang.String"/>
+	<field name="lastname" class="java.lang.String"/>
+	<field name="grandtotal" class="java.math.BigDecimal"/>
+	<field name="grandvalue" class="java.math.BigDecimal"/>
+	<field name="dateinvoiced" class="java.sql.Timestamp"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="104" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="438" y="46" width="102" height="18" forecolor="#000000" backcolor="#000000"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="278" y="46" width="102" height="18" forecolor="#000000" backcolor="#000000"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Decathlon ID]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="108" y="76" width="112" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="438" y="76" width="102" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{dateinvoiced}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="278" y="76" width="102" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{decathlonid}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="108" y="46" width="112" height="18" forecolor="#000000" backcolor="#000000"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Document Number]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="223" y="11" width="122" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{creditnotetype}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="359" y="11" width="105" height="18"/>
+				<textElement textAlignment="Center">
+					<font fontName="Verdana" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Voucher]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="27" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="371" y="8" width="62" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Quantity]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="547" y="8" width="83" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tax Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="320" y="8" width="34" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Size]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="246" y="8" width="55" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Color]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="493" y="8" width="39" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Rate]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="128" y="8" width="100" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Model Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="640" y="8" width="66" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="448" y="8" width="40" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="9" y="8" width="100" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Item Code]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="33" splitType="Stretch">
+			<textField>
+				<reportElement x="10" y="6" width="100" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="128" y="6" width="100" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="247" y="6" width="54" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{color}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="321" y="6" width="34" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{size}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="371" y="6" width="62" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="448" y="6" width="34" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{price}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="496" y="6" width="38" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{rate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="557" y="6" width="60" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxamount}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="640" y="6" width="66" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{grandtotal}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="75" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="83" splitType="Stretch">
+			<staticText>
+				<reportElement x="480" y="5" width="111" height="20"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grand Value]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="223" y="5" width="152" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cashier]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="71" y="5" width="152" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[CRM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="375" y="5" width="105" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Member]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="146" y="33" width="396" height="43"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA["Credit note not transferable,can be used by the card holder only" and "to be used the same business day"]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="606" y="5" width="112" height="20"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{grandvalue}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

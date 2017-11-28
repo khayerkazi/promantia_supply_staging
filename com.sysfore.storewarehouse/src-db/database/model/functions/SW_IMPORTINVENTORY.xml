@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION SW_IMPORTINVENTORY">
+    <function name="SW_IMPORTINVENTORY" type="VARCHAR">
+      <parameter name="cilent_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[inventoryCreateCursor RECORD;
+  inventoryItemCreateCursor RECORD;
+  inventoryUpdateCursor RECORD;
+  inventoryItemUpdateCursor RECORD;
+
+  v_errorNotice VARCHAR(2000) := '';
+  v_validated NUMBER:=0;
+  v_updatedCounter NUMBER:=0;
+  v_insertedCounter NUMBER:=0; 
+  v_count NUMBER:=0;
+  v_itemcode_id VARCHAR(32):='';
+  v_warehouse Varchar(50) :='';
+  v_warehouse_id VARCHAR(32):='';
+  v_movementdate timestamp without time zone;
+  v_inventory Varchar(50) :='';
+  v_product Varchar(50) :='';
+  v_product_id VARCHAR(32):='';
+  v_locator Varchar(50) :='';
+  v_locator_id VARCHAR(32):='';
+  v_uom Varchar(50) :='';
+  v_uom_id VARCHAR(32):='';
+  v_line NUMBER:=0;
+  v_qtycount NUMBER:=0;
+  v_m_inventory_id VARCHAR(32):='';
+    
+  
+BEGIN
+
+ --Inventory
+  
+  FOR inventoryCreateCursor IN (SELECT i_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+       updated, updatedby, processing, processed, description, lot, m_inventoryline_id, m_locator_id, m_product_id,
+       qtybook, qtycount, serno, value, warehousevalue, x, y, z, locatorvalue, i_errormsg, i_isimported,
+       m_inventory_id, m_warehouse_id, movementdate
+       FROM i_inventory i WHERE i.value NOT IN (Select m_inventory.name from m_inventory))
+       
+  LOOP 
+
+    v_m_inventory_id := get_uuid();
+  --Warehouse
+    
+    v_warehouse := inventoryCreateCursor.m_warehouse_id;
+    
+    IF (v_warehouse IS NULL OR v_warehouse = '') THEN
+     
+         select m_warehouse_id into v_warehouse_id from m_warehouse where lower(m_warehouse.name) = lower('Standard');
+         
+    ELSE
+     
+         select  m_warehouse_id into v_warehouse_id from m_warehouse where lower(m_warehouse.name) = lower(v_warehouse);
+       
+    END IF;
+
+    -- RAISE NOTICE 'v_warehouse_id: % ' , v_warehouse_id ;
+
+  --Movement Date
+    v_movementdate := COALESCE (inventoryCreateCursor.movementdate,now());
+
+  
+	INSERT INTO m_inventory(
+            m_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby, name, description, m_warehouse_id, movementdate,processing,
+            generatelist,processed)
+	VALUES (v_m_inventory_id, inventoryCreateCursor.ad_client_id, inventoryCreateCursor.ad_org_id,
+                inventoryCreateCursor.isactive, inventoryCreateCursor.created,
+                inventoryCreateCursor.createdby, inventoryCreateCursor.updated,
+                inventoryCreateCursor.updatedby, inventoryCreateCursor.value,
+                inventoryCreateCursor.description,v_warehouse_id,
+                 v_movementdate,'N','N','N');
+	
+	                             
+	v_updatedCounter := v_updatedCounter+1; 
+	
+	
+   END LOOP;
+----------UPDATE M_INVENTORY STARTS--------
+
+  FOR inventoryUpdateCursor IN (SELECT i_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+       updated, updatedby, processing, processed, description, lot, m_inventoryline_id, m_locator_id, m_product_id,
+       qtybook, qtycount, serno, value, warehousevalue, x, y, z, locatorvalue, i_errormsg, i_isimported,
+       m_inventory_id, m_warehouse_id, movementdate
+       FROM i_inventory i WHERE i.value NOT IN (Select m_inventory.name from m_inventory))
+       
+  LOOP 
+
+    v_m_inventory_id := get_uuid();
+  --Warehouse
+    
+    v_warehouse := inventoryUpdateCursor.m_warehouse_id;
+    
+    IF (v_warehouse IS NULL OR v_warehouse = '') THEN
+     
+         select m_warehouse_id into v_warehouse_id from m_warehouse where lower(m_warehouse.name) = lower('Standard');
+         
+    ELSE
+     
+         select  m_warehouse_id into v_warehouse_id from m_warehouse where lower(m_warehouse.name) = lower(v_warehouse);
+       
+    END IF;
+
+  --Movement Date
+    v_movementdate := COALESCE (inventoryUpdateCursor.movementdate,now());
+
+  
+	UPDATE m_inventory SET ad_client_id = inventoryUpdateCursor.ad_client_id,
+                               ad_org_id = inventoryUpdateCursor.ad_org_id,
+                               isactive = inventoryUpdateCursor.isactive,
+                               created = inventoryUpdateCursor.created,
+                               createdby = inventoryCreateCursor.createdby,
+                               updated = inventoryCreateCursor.updated,
+                               updatedby = inventoryCreateCursor.updatedby,
+                               name = inventoryCreateCursor.value,
+                               description = inventoryCreateCursor.description,
+                               m_warehouse_id = v_warehouse_id,
+                               movementdate = v_movementdate
+                         WHERE m_inventory.name = inventoryUpdateCursor.value;
+                	
+	--delete from i_inventory where i_inventory_id = inventoryCreateCursor.i_inventory_id;                               
+	v_updatedCounter := v_updatedCounter+1; 
+	
+	
+   END LOOP; 
+
+
+----------UPDATE M_INVENTORY ENDS----------
+
+ --Inventory Item
+    FOR inventoryItemCreateCursor IN (SELECT i_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+       updated, updatedby, processing, processed, description, lot, m_inventoryline_id, m_locator_id, m_product_id,
+       qtybook, qtycount, serno, value, warehousevalue, x, y, z, locatorvalue, i_errormsg, i_isimported,
+       m_inventory_id, m_warehouse_id, movementdate FROM i_inventory)
+       --i WHERE i.m_product_id NOT IN (SELECT m_product_id FROM m_product ))
+
+  LOOP
+  v_line := v_line + 10;
+  select m_inventory_id INTO v_m_inventory_id from m_inventory 
+  where m_inventory.name =inventoryItemCreateCursor.value;
+  --RAISE NOTICE 'm_inventory_id: % ' , v_m_inventory_id ;
+  v_qtycount := COALESCE (inventoryItemCreateCursor.qtycount,0);
+  
+  --Product
+  
+      v_product := inventoryItemCreateCursor.m_product_id;
+    
+    IF (v_product IS NULL OR v_product = '') THEN
+     
+         select m_product_id,c_uom_id into v_product_id,v_uom_id from m_product where lower(m_product.name) = lower('Standard');
+         
+    ELSE
+     
+         select  m_product_id,c_uom_id into v_product_id,v_uom_id from m_product where lower(m_product.name) = lower(v_product);
+       
+    END IF;
+
+    
+  --Locator
+    --v_locator := inventoryItemCreateCursor.m_product_id;
+    
+    select m_locator_id INTO v_locator_id from m_locator
+    where m_warehouse_id = v_warehouse_id;
+
+  --   RAISE NOTICE 'v_warehouse_id: % ' , v_warehouse_id ;
+    -- RAISE NOTICE 'v_locator_id: % ' , v_locator_id ;
+  
+  --Inserting In Inventory Line Item
+  INSERT INTO m_inventoryline(m_inventoryline_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+    updated, updatedby,m_inventory_id,m_locator_id,m_product_id,line,
+    qtycount,description,c_uom_id)
+
+  VALUES 
+    (get_uuid(), inventoryItemCreateCursor.ad_client_id, inventoryItemCreateCursor.ad_org_id,
+    inventoryItemCreateCursor.isactive, inventoryItemCreateCursor.created,
+    inventoryItemCreateCursor.createdby, inventoryItemCreateCursor.updated,
+    inventoryItemCreateCursor.updatedby, v_m_inventory_id, v_locator_id,
+    v_product_id,v_line,
+    v_qtycount,inventoryItemCreateCursor.description,v_uom_id); 
+
+  delete from i_inventory where i_inventory_id = inventoryItemCreateCursor.i_inventory_id; 
+  delete from i_inventory where i_inventory_id = inventoryCreateCursor.i_inventory_id;
+   v_updatedCounter := v_updatedCounter+1; 
+ 
+  END LOOP;
+
+------------UPDATE M_INVENTORYLINE STARTS----------------------------------------------------------------
+
+   FOR inventoryItemUpdateCursor IN (SELECT i_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+       updated, updatedby, processing, processed, description, lot, m_inventoryline_id, m_locator_id, m_product_id,
+       qtybook, qtycount, serno, value, warehousevalue, x, y, z, locatorvalue, i_errormsg, i_isimported,
+       m_inventory_id, m_warehouse_id, movementdate FROM i_inventory)
+       --i WHERE i.m_product_id NOT IN (SELECT m_product_id FROM m_product ))
+
+  LOOP
+  v_line := v_line + 10;
+  select m_inventory_id INTO v_m_inventory_id from m_inventory 
+  where m_inventory.name = inventoryItemUpdateCursor.value;
+  
+  v_qtycount := COALESCE (inventoryItemUpdateCursor.qtycount,0);
+  
+  --Product
+  
+      v_product := inventoryItemUpdateCursor.m_product_id;
+    
+    IF (v_product IS NULL OR v_product = '') THEN
+     
+         select m_product_id,c_uom_id into v_product_id,v_uom_id from m_product where lower(m_product.name) = lower('Standard');
+         
+    ELSE
+     
+         select  m_product_id,c_uom_id into v_product_id,v_uom_id from m_product where lower(m_product.name) = lower(v_product);
+       
+    END IF;
+
+    
+  --Locator
+    select m_locator_id INTO v_locator_id from m_locator
+    where m_warehouse_id = v_warehouse_id;
+
+--     RAISE NOTICE 'v_locator_id: % ' , v_locator_id ;
+  
+  
+  --Updating In Inventory Line Item
+  UPDATE m_inventoryline SET ad_client_id = inventoryItemUpdateCursor.ad_client_id,
+                             ad_org_id = inventoryItemUpdateCursor.ad_org_id,
+                             isactive = inventoryItemUpdateCursor.isactive,
+                             created = inventoryItemUpdateCursor.created,
+                             createdby = inventoryItemUpdateCursor.createdby,
+                             updated = inventoryItemUpdateCursor.updated,
+                             updatedby = inventoryItemUpdateCursor.updatedby,
+                             m_inventory_id = v_m_inventory_id,
+                             m_locator_id = v_locator_id,
+                             m_product_id = v_product_id,
+                             line = v_line,
+                             qtycount = v_qtycount,
+                             description = inventoryItemUpdateCursor.description,
+                             c_uom_id = v_uom_id 
+                       WHERE m_inventoryline.m_inventory_id = v_m_inventory_id;
+
+   delete from i_inventory where i_inventory_id = inventoryItemUpdateCursor.i_inventory_id;
+   delete from i_inventory where i_inventory_id = inventoryUpdateCursor.i_inventory_id; 
+   v_updatedCounter := v_updatedCounter+1; 
+ 
+  END LOOP; 
+
+-----------UPDATE M_INVENTORYLINE ENDS--------------------------------------------------------------------
+  v_updatedCounter := v_updatedCounter - v_insertedCounter;
+  RETURN 'Successfully Inserted '||v_insertedCounter|| ' and Successfully updated ' || v_updatedCounter || ' items.'||'m_inventory_id: '|| v_inventory;
+END SW_IMPORTINVENTORY
+]]></body>
+    </function>
+  </database>

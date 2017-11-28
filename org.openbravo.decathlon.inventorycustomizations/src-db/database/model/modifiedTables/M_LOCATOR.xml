@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_LOCATOR">
+    <table name="M_LOCATOR" primaryKey="M_LOCATOR_KEY">
+      <column name="EM_DIC_AISLE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="DIC_AISLE" name="EM_DIC_LOCATOR_AISLE">
+        <reference local="EM_DIC_AISLE_ID" foreign="DIC_AISLE_ID"/>
+      </foreign-key>
+    </table>
+  </database>

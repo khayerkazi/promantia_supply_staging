@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION NSI_POST_INVENTORY">
+    <function name="NSI_POST_INVENTORY" type="VARCHAR">
+      <parameter name="p_itemcode" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_stock" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_storename" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_email" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_adClientId" type="VARCHAR" mode="in">
+      	<default/>
+      </parameter>
+      <body><![CDATA[v_inv_id VARCHAR(32);
+v_warehouse_id VARCHAR(32);
+v_ad_org VARCHAR(32);
+v_warehousename VARCHAR(1000);
+v_created_by VARCHAR(32);
+v_client_id VARCHAR(32);
+v_user_id VARCHAR(32);
+v_pInstanceInv_ID VARCHAR(32);
+v_product_id VARCHAR(32);
+v_locator VARCHAR(32);
+v_qtybook NUMBER;
+
+BEGIN
+v_inv_id:=get_uuid();
+v_pInstanceInv_ID:=get_uuid();
+--v_client_id:='187D8FC945A5481CB41B3EE767F80DBB';
+v_client_id:=p_adClientId;
+
+select name into v_warehousename from m_warehouse where ad_org_id=(select ad_org_id from ad_org where 
+name=p_storename) and name like 'Saleable%';
+
+select m_warehouse_id into v_warehouse_id from m_warehouse where name like v_warehousename;
+select ad_org_id into v_ad_org from ad_org where name = p_storename;
+--select ad_client_id into v_client_id from ad_client where name = 'DSI';
+select ad_user_id into v_user_id from ad_user where email = p_email; 
+select m_product_id into v_product_id from m_product where name = p_itemcode;
+select m_locator_id into v_locator from m_locator
+where m_warehouse_id in (select m_warehouse_id from m_warehouse where name like v_warehousename)
+and ad_org_id= (select ad_org_id from ad_org where name = p_storename );
+
+--insert into temp_table values(v_warehousename);
+
+IF NOT EXISTS(select qtyonhand  from m_storage_detail where m_product_id=v_product_id 
+  and m_attributesetinstance_id='0'
+  and m_locator_id = v_locator) then 
+  v_qtybook :=0; 
+  else
+select COALESCE(qtyonhand,0) into v_qtybook from m_storage_detail where m_product_id=v_product_id 
+  and m_attributesetinstance_id='0'
+  and m_locator_id = v_locator;
+  end if;
+
+ INSERT INTO m_inventory(m_inventory_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby,processing, processed, name, description, m_warehouse_id, movementdate,em_sw_movementtype)
+VALUES (v_inv_id, v_client_id,v_ad_org,
+                'Y', now(),
+                v_user_id, now(),
+                v_user_id, 'N','N',
+                'STORE CORRECTION',
+                'STORE CORRECTION FOR STOCK',v_warehouse_id,
+                 now(),'PI');
+
+ INSERT INTO ad_pinstance(ad_pinstance_id,ad_process_id,record_id,isprocessing, created,ad_user_id,updated,result,errormsg,ad_client_id,ad_org_id,createdby,updatedby,isactive)
+VALUES(v_pInstanceInv_ID,(select ad_process_id from ad_process where value='M_Inventory Post'),v_inv_id,'Y',now(),v_user_id,now(),'1','',v_client_id,v_ad_org,v_user_id,v_user_id,'Y');
+
+INSERT INTO m_inventoryline(m_inventoryline_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+    updated, updatedby,m_inventory_id,m_locator_id,m_product_id,line,
+    qtycount,qtybook,description,c_uom_id,m_attributesetinstance_id)
+
+  VALUES 
+    (get_uuid(), v_client_id,v_ad_org,
+    'Y', now(),
+    v_user_id, now(),
+    v_user_id, v_inv_id, v_locator,
+    v_product_id,10,
+    p_stock,v_qtybook,'STORE CORRECTION FOR STOCK',
+    '100','0');
+
+M_INVENTORY_POST(v_pInstanceInv_ID);
+
+RETURN 'Success';
+END NSI_POST_INVENTORY
+]]></body>
+    </function>
+  </database>
+

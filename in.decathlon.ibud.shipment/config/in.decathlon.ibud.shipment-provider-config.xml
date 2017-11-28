@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider>
+   
+  <bean>
+       <name>ShipmentWS</name>
+       <class>in.decathlon.ibud.shipment.supply.ShipmentWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>CompleteShipmentWS</name>
+       <class>in.decathlon.ibud.shipment.supply.CompleteShpmnetWebservice</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>StatusUpdateWS</name>
+       <class>in.decathlon.ibud.shipment.supply.UpdateStatusWebservice</class>
+       <singleton>true</singleton>
+   </bean>
+   
+   <bean>
+       <name>POStatusUpdateWS</name>
+       <class>in.decathlon.ibud.shipment.supply.UpdateStatusWSListner</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>CopyTruck</name>
+       <class>in.decathlon.ibud.shipment.supply.CopyTruckWebService</class>
+       <singleton>true</singleton>
+   </bean>
+<bean>
+       <name>CompleteShippingWS</name>
+       <class>in.decathlon.ibud.shipment.supply.CompleteShippingWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   
+</provider>
+

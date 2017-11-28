@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION RC_CREATE_MEMHISTORY">
+    <function name="RC_CREATE_MEMHISTORY" type="NULL">
+      <parameter name="p_client" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_user" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_partner" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2006 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  v_count NUMBER;
+  v_MemHistory_ID VARCHAR(32); 
+  v_Comments varchar(2000);
+BEGIN
+
+  --SELECT COUNT(*)
+  --INTO v_count
+  --FROM RC_MEMHISTORY_ID
+  --WHERE C_BPARTNER_ID=p_partner;
+   SELECT (--'Organization: '||ad_org.Name || 
+        --', Salutation: '||c_greeting.Name ||
+        --', First Name: '||c_bpartner.Name ||
+        --', Last Name: '||c_bpartner.Name2||
+        --', Email: '||coalesce(c_bpartner.em_rc_email,' ')||
+        --', Mobile: '||coalesce(c_bpartner.em_rc_mobile,' ')||
+        --', Address: '||coalesce(c_location.address1,' ')||', '||
+                       --coalesce(c_location.address2,' ')||', '||
+                       --coalesce(c_location.city,' ')||', '||
+                       --coalesce(c_location.postal,' ') ||
+        'Comments: '||coalesce(c_bpartner.em_rc_comments,' ')
+                             
+        ) INTO v_Comments
+
+from c_greeting,ad_org,c_bpartner left outer join c_bpartner_location 
+on c_bpartner_location.c_bpartner_id=c_bpartner.c_bpartner_id
+left outer join c_location
+on c_bpartner_location.c_location_id=c_location.c_location_id
+where c_bpartner.ad_org_id=ad_org.ad_org_id
+and c_bpartner.c_greeting_id=c_greeting.c_greeting_id
+and c_bpartner.c_bpartner_id=p_partner;
+
+IF v_Comments IS NULL THEN
+   RAISE EXCEPTION '@Please add all required fields for Member like Salutation etc%@',v_Comments;
+     
+ELSE 
+     Ad_Sequence_Next('RC_MemHistory', p_client, v_MemHistory_ID) ;
+    INSERT
+    INTO RC_MEMHISTORY
+      (
+        RC_MEMHISTORY_ID, AD_CLIENT_ID, AD_ORG_ID, ISACTIVE,
+        CREATED, CREATEDBY, UPDATED, UPDATEDBY,
+        C_BPARTNER_ID, CRMUSER_ID,COMMENTS
+      )
+      VALUES
+      (
+        v_MemHistory_ID, p_client, p_org, 'Y',
+        now(), p_user, now(), p_user,
+        p_partner, p_user, v_Comments
+      );   
+END IF;
+END RC_CREATE_MEMHISTORY
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved. SELECT CO.DOCUMENTNO,CO.DATEORDERED,COL.QTYORDERED
+      FROM C_ORDERLINE COL LEFT OUTER JOIN C_ORDER CO
+      ON COL.C_ORDER_ID = CO.C_ORDER_ID
+      WHERE CO.ISSOTRX='Y'
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+TO_CHAR(o.dateordered,'HH:MM:SS')
+-->
+
+
+<SqlClass name="ReportBestCustomerData" package="com.sysfore.sankalpcrm.ad_reports">
+  <SqlClassComment></SqlClassComment>
+
+
+ <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+	select c_bpartner.em_rc_oxylane as decathlon_id,
+	ad_org.name as organization,
+	c_bpartner.created as member_creation_date,
+	rc_natbusi.name as Nature_Of_Business,
+	c_bpartner.name as first_name,
+	c_bpartner.name2 as last_name,
+	c_bpartner.em_rc_email as email,
+	c_bpartner.em_rc_mobile as mobile,
+	(coalesce(c_location.address1,'')||'-'||coalesce(c_location.address2,'')||'-'||coalesce(c_location.em_rc_address3,'')||'-'||coalesce(c_location.em_rc_address4,'')) as Full_Address,
+	coalesce(c_location.city,'') as city,
+	coalesce(c_region.name,'') as state,
+	coalesce(c_location.postal,'') as postal_code,
+	sum(c_order.em_ds_grandtotalamt) as bill_amt,
+	sum(col.total_qty) as total_qty 
+	from c_order, (select c_orderline.c_order_id,sum(qtyordered) as total_qty 
+         from c_order,c_orderline 
+         where c_orderline.c_order_id = c_order.c_order_id 
+         group by c_orderline.c_order_id) col,
+         c_bpartner, ad_org, c_bpartner_location, c_location, c_region, rc_natbusi, rc_company 
+	WHERE 1=1 
+	and col.c_order_id = c_order.c_order_id 
+	and c_order.c_bpartner_id = c_bpartner.c_bpartner_id 
+	and c_order.ad_org_id = ad_org.ad_org_id 
+	and c_order.issotrx = 'Y' 
+	and c_bpartner_location.c_bpartner_id = c_bpartner.c_bpartner_id 
+	and c_bpartner_location.c_location_id = c_location.c_location_id 
+	and c_location.c_region_id = c_region.c_region_id 
+	and c_bpartner.em_rc_company_id = rc_company.rc_company_id 
+	and rc_company.rc_natbusi_id = rc_natbusi.rc_natbusi_id 
+        group by c_bpartner.em_rc_oxylane, c_bpartner.name,c_bpartner.name2,
+        c_bpartner.em_rc_email,c_bpartner.em_rc_mobile,
+        c_location.address1,c_location.address2,c_location.em_rc_address3,
+        c_location.em_rc_address4,c_location.city,c_region.name,
+        c_location.postal,ad_org.name,
+        c_bpartner.created,rc_natbusi.name 
+	having sum(c_order.em_ds_grandtotalamt) IS NOT NULL 
+	order by sum(c_order.em_ds_grandtotalamt) desc 
+        LIMIT TO_NUMBER(coalesce(?,'0'))
+
+	
+     ]]></Sql>
+
+
+  <Parameter name="dateFrom" optional="true" after="WHERE 1=1"><![CDATA[AND c_order.dateordered >= to_date(?)]]></Parameter>
+  <Parameter name="dateTo" optional="true" after="WHERE 1=1"><![CDATA[AND c_order.dateordered < to_date(?)]]></Parameter>
+  <Parameter name="org" optional="true" after="WHERE 1=1"><![CDATA[AND ad_org.ad_org_id = ?]]></Parameter>
+  <Parameter name="state" optional="true" after="WHERE 1=1"><![CDATA[AND c_region.c_region_id = ?]]></Parameter>
+  <Parameter name="topXrecords"/>
+  
+</SqlMethod>
+
+
+  <SqlMethod name="select1" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+	select c_bpartner.em_rc_oxylane as decathlon_id,
+	ad_org.name as organization,
+	c_bpartner.created as member_creation_date,
+	rc_natbusi.name as Nature_Of_Business,
+	c_bpartner.name as first_name,
+	c_bpartner.name2 as last_name,
+	c_bpartner.em_rc_email as email,
+	c_bpartner.em_rc_mobile as mobile,
+	(coalesce(c_location.address1,'')||'-'||coalesce(c_location.address2,'')||'-'||coalesce(c_location.em_rc_address3,'')||'-'||coalesce(c_location.em_rc_address4,'')) as Full_Address,
+	coalesce(c_location.city,'') as city,
+	coalesce(c_region.name,'') as state,
+	coalesce(c_location.postal,'') as postal_code,
+	sum(c_order.em_ds_grandtotalamt) as bill_amt,
+	sum(col.total_qty) as total_qty 
+	from c_order LEFT JOIN (select c_orderline.c_order_id,sum(qtyordered) as total_qty
+         from c_order,c_orderline
+         where c_orderline.c_order_id = c_order.c_order_id
+         group by c_orderline.c_order_id) col on col.c_order_id = c_order.c_order_id
+	LEFT JOIN c_bpartner 
+        on c_order.c_bpartner_id = c_bpartner.c_bpartner_id
+	LEFT JOIN ad_org 
+	on c_order.ad_org_id = ad_org.ad_org_id
+	LEFT JOIN c_bpartner_location 
+        on c_bpartner_location.c_bpartner_id = c_bpartner.c_bpartner_id
+	LEFT JOIN c_location 
+	on c_bpartner_location.c_location_id = c_location.c_location_id
+	LEFT JOIN c_region 
+	on c_location.c_region_id = c_region.c_region_id
+	LEFT JOIN rc_company
+	on c_bpartner.em_rc_company_id = rc_company.rc_company_id
+	LEFT JOIN rc_natbusi
+        on rc_company.rc_natbusi_id = rc_natbusi.rc_natbusi_id
+        WHERE 1=1
+        and c_order.issotrx = 'Y'
+        group by c_bpartner.em_rc_oxylane,c_bpartner.name,c_bpartner.name2,
+        c_bpartner.em_rc_email,c_bpartner.em_rc_mobile,
+        c_location.address1,c_location.address2,c_location.em_rc_address3,
+        c_location.em_rc_address4,c_location.city,c_region.name,
+        c_location.postal,ad_org.name,
+        c_bpartner.created,rc_natbusi.name 
+	having sum(c_order.em_ds_grandtotalamt) IS NOT NULL 
+        order by sum(c_order.em_ds_grandtotalamt) desc
+        LIMIT TO_NUMBER(coalesce(?,'0'))
+
+	
+     ]]></Sql>
+
+   
+  <Parameter name="dateFrom" optional="true" after="WHERE 1=1"><![CDATA[AND c_order.dateordered >= to_date(?)]]></Parameter>
+  <Parameter name="dateTo" optional="true" after="WHERE 1=1"><![CDATA[AND c_order.dateordered < to_date(?)]]></Parameter>
+  <Parameter name="state" optional="true" after="WHERE 1=1"><![CDATA[AND c_region.c_region_id = ?]]></Parameter>
+  
+ <Parameter name="topXrecords"/>
+  
+</SqlMethod>
+
+ <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+
+
+ </SqlClass>
+

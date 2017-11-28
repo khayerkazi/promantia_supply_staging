@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ACCTSCHEMA_DEFAULT">
+    <table name="C_ACCTSCHEMA_DEFAULT" primaryKey="C_ACCTSCHEMA_DEFAULT_KEY">
+      <column name="EM_OBINUTL_CONTRANSIT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

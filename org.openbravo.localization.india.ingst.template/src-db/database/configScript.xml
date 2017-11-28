@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+  <vector>
+    <versionInfo version="3.0.24034"/>
+    <columnDataChange tablename="AD_CALLOUT" columnname="NAME" pkRow="D5BB7D2FC23F4D2E9A39E9292055A2FB">
+      <oldValue><![CDATA[SE_Invoice_Organization]]></oldValue>
+      <newValue><![CDATA[SE_Invoice_OrganizationGSTIN]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MODEL_OBJECT" columnname="CLASSNAME" pkRow="A5F45F6DE7234EB1B64791BDD2923B7B">
+      <oldValue><![CDATA[org.openbravo.erpCommon.ad_callouts.SE_Invoice_Organization]]></oldValue>
+      <newValue><![CDATA[org.openbravo.localization.india.ingst.sales.ad_callouts.SE_Invoice_OrganizationGSTIN]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2012">
+      <oldValue/>
+      <newValue><![CDATA[D97C334D975641298AE1DAD1C1697E08]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2163">
+      <oldValue><![CDATA[D328D86B2E744A53A071047EA0FF5E4E]]></oldValue>
+      <newValue><![CDATA[04100CF5793740ACABB82349970C0712]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3400">
+      <oldValue/>
+      <newValue><![CDATA[AEDE7EF48A974F02B96E85CF41814984]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ONCHANGEFUNCTION" pkRow="1127">
+      <oldValue/>
+      <newValue><![CDATA[org.openbravo.localization.india.ingst.sales.Change_ProdCode]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="AD_FIELDGROUP_ID" pkRow="1141">
+      <oldValue/>
+      <newValue><![CDATA[91C71564724F4958829D10998A4F5C5C]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1141">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="1141">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="AD_FIELDGROUP_ID" pkRow="2988">
+      <oldValue/>
+      <newValue><![CDATA[91C71564724F4958829D10998A4F5C5C]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="2988">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="2988">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="AD_FIELDGROUP_ID" pkRow="3364">
+      <oldValue/>
+      <newValue><![CDATA[91C71564724F4958829D10998A4F5C5C]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3364">
+      <oldValue><![CDATA[75]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3364">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="AD_FIELDGROUP_ID" pkRow="3397">
+      <oldValue/>
+      <newValue><![CDATA[91C71564724F4958829D10998A4F5C5C]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3397">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3397">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[9020]]></newValue>
+    </columnDataChange>
+  </vector>

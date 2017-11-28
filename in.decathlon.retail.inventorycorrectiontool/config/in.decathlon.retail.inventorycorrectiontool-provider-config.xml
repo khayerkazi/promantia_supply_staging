@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <provider>
+   <bean>
+       <name>user</name>
+       <class>in.decathlon.retail.inventorycorrectiontool.ad_webservices.UserWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>stock</name>
+       <class>in.decathlon.retail.inventorycorrectiontool.ad_webservices.StockWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>stockupload</name>
+       <class>in.decathlon.retail.inventorycorrectiontool.ad_webservices.StockUploadWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>brndalerts</name>
+       <class>in.decathlon.retail.inventorycorrectiontool.ad_webservices.BrandStockAlertsWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>pastinv</name>
+       <class>in.decathlon.retail.inventorycorrectiontool.ad_webservices.PastInventoryWebService</class>
+       <singleton>true</singleton>
+   </bean>
+   <bean>
+       <name>stockrel</name>
+       <class>in.decathlon.retail.inventorycorrectiontool.ad_webservices.StockReliabilityWebService</class>
+       <singleton>true</singleton>
+   </bean>
+ </provider>
+

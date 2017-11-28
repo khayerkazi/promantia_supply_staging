@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER CL_MODELPRODUCT_TRG">
+    <trigger name="CL_MODELPRODUCT_TRG" table="CL_MODEL" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_modelname character varying(60);
+v_modelcode character varying(40);
+v_modelid character varying(32);
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+IF UPDATING THEN
+
+select M.cl_model_id,M.NAME,M.VALUE
+into v_modelid,v_modelname,v_modelcode
+from CL_MODEL M
+inner join M_PRODUCT P on (p.em_cl_model_id=m.cl_model_id)
+where P.em_cl_model_id=:NEW.Cl_model_ID limit 1;
+--RAISE EXCEPTION 'v_modelname: %',v_modelname;
+
+UPDATE m_product SET em_cl_modelname = v_modelname, em_cl_modelcode=v_modelcode
+WHERE em_cl_model_id = :NEW.Cl_model_ID;
+
+--END IF;
+END IF;
+
+            
+END CL_MODELPRODUCT_TRG
+]]></body>
+    </trigger>
+  </database>

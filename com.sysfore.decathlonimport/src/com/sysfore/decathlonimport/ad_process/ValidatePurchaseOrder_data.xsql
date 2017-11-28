@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/////
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+
+
+<SqlClass name="ValidatePurchaseOrderData" package="com.sysfore.decathlonimport.ad_process">
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		SELECT im_corder_id AS imcoid, itemcode, quantity, warehouse,extract(MONTH from cdd),supplierean  FROM im_corder where validated='N' and ad_client_id = ? and createdby=?
+	   ]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+	<Parameter name="createdby"/>
+  </SqlMethod>
+  
+  <SqlMethod name="validatePO" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        select im_validatepo(?) from dual; 
+    ]]>
+    </Sql>
+    <Parameter name="name"/>
+  </SqlMethod>
+  
+  
+  <SqlMethod name="itcheck" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		select count(*) from m_product where name=?	
+	]]>
+    </Sql>
+    <Parameter name="name"/>
+  </SqlMethod>
+    <SqlMethod name="whcheck" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		select count(*) from m_warehouse where name=?
+	 ]]>
+    </Sql>
+    <Parameter name="name"/>
+  </SqlMethod>
+ 
+   <SqlMethod name="productprice" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		select count(*) from m_productprice where m_product_id=(select m_product_id from m_product where name=?) 
+		and m_pricelist_version_id='0F39C05C15EE4E5BB50BD5FEC1645DA1'  
+	  ]]>
+    </Sql>
+    <Parameter name="name"/>
+  </SqlMethod>
+  <SqlMethod name="update" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		UPDATE im_corder set validated='Y' where ad_client_id=?
+	]]>
+    </Sql>
+    <Parameter name="ad_client_id"/>
+  </SqlMethod>
+  <SqlMethod name="updateerrormessage" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		UPDATE im_corder set im_errormsg=? where im_corder_id=?
+	]]>
+    </Sql>
+	<Parameter name="im_errormsg"/>
+    <Parameter name="im_corder_id"/>
+  </SqlMethod>
+  
+  
+   </SqlClass>

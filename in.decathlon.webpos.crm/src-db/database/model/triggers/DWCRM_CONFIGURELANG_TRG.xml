@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER DWCRM_CONFIGURELANG_TRG">
+    <trigger name="DWCRM_CONFIGURELANG_TRG" table="AD_USER" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_language character varying(60);
+v_orgname character varying(60);
+v_isstore character varying(6);
+ BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+select em_dwcrm_language into v_language from ad_orginfo where ad_org_id = :NEW.ad_org_id;
+select name into v_orgname from ad_org where ad_org_id = :NEW.ad_org_id ;--and em_sw_isstore='Y';
+select em_sw_isstore into v_isstore from ad_org where ad_org_id = :NEW.ad_org_id;
+
+
+
+IF INSERTING  THEN
+
+if((v_language is null OR v_language='' )AND( v_isstore='Y')) then
+	RAISE NO_DATA_FOUND||v_orgname;
+end if;
+
+IF(v_isstore='Y') THEN
+:NEW.Default_Ad_Language:=v_language; 
+END IF;
+
+ 
+END IF;
+
+
+END DWCRM_CONFIGURELANG_TRG
+]]></body>
+    </trigger>
+  </database>

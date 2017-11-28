@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+ ******************************************************************************
+-->
+
+<SqlClass name="ImportReqStockData" package="com.sysfore.decathlonimport.ad_process">
+ <SqlMethod name="selectDcno" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+          SELECT distinct documentno from im_stockreplenishment where validatestock='Y' and createdby = ?
+      ]]>
+    </Sql>
+    <Parameter name="adUserId"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectmproductId" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+          SELECT m_product_id from m_product where name = ?
+      ]]>
+    </Sql>
+    <Parameter name="name"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectorg" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+          select ad_org_id from m_inout where documentno  = ? and c_doctype_id = '2030AD7DD4284E2B936E261662EF735A' 
+      ]]>
+    </Sql>
+    <Parameter name="documentno"/>
+  </SqlMethod>
+   
+  <SqlMethod name="isstore" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+          select em_sw_isstore from ad_org where ad_org_id = ?
+      ]]>
+    </Sql>
+    <Parameter name="adOrgId"/>
+  </SqlMethod> 
+  
+    <SqlMethod name="swsrequisitionid" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+          select sw_srequisition_id from sw_srequisition where documentno = ?
+      ]]>
+    </Sql>
+    <Parameter name="documentno"/>
+  </SqlMethod> 
+   
+ <SqlMethod name="getshipqty" type="preparedStatement" return="String">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+          select round(qtyship,0) from sw_sreqline where m_product_id=? and  sw_srequisition_id=? 
+      ]]>
+    </Sql>
+    <Parameter name="mProductId"/>
+    <Parameter name="swSrequisitionId"/>
+  </SqlMethod>  
+   
+ <SqlMethod name="updatesrequisitiontodraft" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		update sw_srequisition set docaction='CO', processing='N', processed='N',docstatus='DR',requisitionstatus ='DR' where documentno=?
+	]]>
+    </Sql>
+     <Parameter name="documentno"/>
+  </SqlMethod>  
+ 
+ <SqlMethod name="updatesrequisitiontostatus" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		update sw_srequisition set docaction=?, processing=?, processed=?,docstatus=?,requisitionstatus =? where documentno=?
+	]]>
+    </Sql>
+    <Parameter name="docaction"/>
+    <Parameter name="processing"/>
+    <Parameter name="processed"/>
+    <Parameter name="docstatus"/>
+    <Parameter name="requisitionstatus"/>
+     <Parameter name="documentno"/>
+  </SqlMethod>  
+    
+ <SqlMethod name="updateline" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		update sw_sreqline set qtyship=TO_NUMBER(?),  qtyrec=TO_NUMBER(?) where m_product_id=? and sw_srequisition_id=? 
+	]]>
+    </Sql>
+     <Parameter name="qtyship"/>
+     <Parameter name="qtyrec"/>
+     <Parameter name="mProductId"/>
+     <Parameter name="swSrequisitionId"/>
+  </SqlMethod> 
+  
+  <SqlMethod name="updateCorderlineRecQty" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        update c_orderline set em_sw_recqty= (round(TO_NUMBER(coalesce(em_sw_recqty,'0')) + TO_NUMBER( ? ),0)) ,UPDATEDBY= ? ,UPDATED = now()  
+        where c_order_id=(select c_order_id from c_order where documentno= ? and issotrx='N' and c_doctype_id in (select c_doctype_id from c_doctype where name='Purchase Order')) and m_product_id= ?
+    ]]>
+    </Sql>
+     <Parameter name="movementqty"/>
+     <Parameter name="updatedby"/>
+     <Parameter name="emSwDocumentno"/>
+     <Parameter name="mProductId"/>
+  </SqlMethod> 
+  
+  <SqlMethod name="insertMtransection" type="preparedStatement" return="rowCount">
+  <SqlMethodComment></SqlMethodComment>
+    <Sql>
+	 <![CDATA[ 
+     insert into m_transaction(m_transaction_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, movementtype, 
+     m_locator_id, m_product_id, movementdate, movementqty,m_inoutline_id, c_uom_id, em_sw_locatorto_id, em_sw_movementtype, em_sw_documentno, m_attributesetinstance_id ) 
+     values(get_uuid(), ?,?,'Y', now(), ?, now(), ?, ?,?,?, now(), TO_NUMBER(?),?,'100' ,?,?, ?,?)
+	 ]]>
+    </Sql>
+	<Parameter name="adClientId"></Parameter>
+	<Parameter name="adOrgId"></Parameter>
+	<Parameter name="createdby"></Parameter>
+	<Parameter name="updatedby"></Parameter>
+	<Parameter name="movementtype"></Parameter>
+	<Parameter name="mLocatorId"></Parameter>
+	<Parameter name="mProductId"></Parameter>
+	<Parameter name="movementqty"></Parameter>
+	<Parameter name="minoutlineid"></Parameter>
+	<Parameter name="emSwLocatortoId"></Parameter>
+	<Parameter name="emSwMovementtype"></Parameter>
+	<Parameter name="emSwDocumentno"></Parameter>
+	<Parameter name="mAttributesetinstanceId"></Parameter>
+</SqlMethod>
+
+<SqlMethod name="deletefromtemp" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+		delete from im_stockreplenishment where validatestock='Y' and createdby=?
+		]]>
+    </Sql>
+     <Parameter name="createdby"/>
+     </SqlMethod>  
+
+  <SqlMethod name="insertshuttelheader" type="preparedStatement" return="rowCount">
+  <SqlMethodComment></SqlMethodComment>
+    <Sql>
+	 <![CDATA[ 
+insert into sw_shuttel(sw_shuttel_id, ad_client_id, ad_org_id, store_implanted, isactive, created, createdby, updated, updatedby, documentno, shutteldate, docstatus, processing, processed, isstore, iswarehouse) VALUES (?, ?, ?, ?, 'Y', now(), ?,
+ now(), ?, ?, now(), 'DR', 'N','N','N','N' )	 ]]>
+    </Sql>
+	<Parameter name="swShuttelId"></Parameter>
+	<Parameter name="adClientId"></Parameter>
+	<Parameter name="adOrgId"></Parameter>
+	<Parameter name="storeImplanted"></Parameter>
+	<Parameter name="createdby"></Parameter>
+	<Parameter name="updatedby"></Parameter>
+	<Parameter name="document"></Parameter>
+  </SqlMethod>  
+
+ <SqlMethod name="insertshuttelline" type="preparedStatement" return="rowCount">
+  <SqlMethodComment></SqlMethodComment>
+    <Sql>
+	 <![CDATA[ 
+	insert into sw_shuttellines(sw_shuttellines_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, sw_shuttel_id, m_product_id, cl_brand_id, modelname, size, color, qtyshuttel, line) VALUES(get_uuid(), ?, ?, 'Y', now(), ?, 
+now(), ?, ?, ?, ?, ?, ?, ?, TO_NUMBER(?), TO_NUMBER(?) )	 ]]>
+    </Sql>
+	<Parameter name="adClientId"></Parameter>
+	<Parameter name="adOrgId"></Parameter>
+	<Parameter name="createdby"></Parameter>
+	<Parameter name="updatedby"></Parameter>
+	<Parameter name="swShuttelId"></Parameter>
+      	<Parameter name="mProductId"></Parameter>
+	<Parameter name="clBrandId"></Parameter>
+	<Parameter name="modelname"></Parameter>
+	<Parameter name="size"></Parameter>
+	<Parameter name="color"></Parameter>
+  	<Parameter name="qtyshuttel"></Parameter>
+  	<Parameter name="line"></Parameter>
+  </SqlMethod>  
+
+
+<SqlMethod name="getLocatorId" type="preparedStatement" return="String">
+<SqlMethodComment></SqlMethodComment>
+<Sql>
+<![CDATA[
+select * from m_locator where m_warehouse_id in(select m_warehouse_id from m_warehouse where name = 'Return') ]]>
+</Sql>
+</SqlMethod>
+
+<SqlMethod name="getStoreLocatorId" type="preparedStatement" return="String">
+<SqlMethodComment></SqlMethodComment>
+<Sql>
+<![CDATA[
+select m_locator_id from m_locator where m_warehouse_id in
+(select m_warehouse_id from m_warehouse where name ilike 'Saleable%') and 
+ad_org_id= ? ]]>
+</Sql>
+<Parameter name="storeId"></Parameter>
+</SqlMethod>
+
+</SqlClass>
+
+

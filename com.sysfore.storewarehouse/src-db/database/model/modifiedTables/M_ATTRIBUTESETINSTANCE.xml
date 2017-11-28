@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_ATTRIBUTESETINSTANCE">
+    <table name="M_ATTRIBUTESETINSTANCE" primaryKey="M_ATTRIBUTESETINSTANCE_KEY">
+      <column name="EM_SW_ATTRIBUTE_VALUE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <unique name="EM_SW_LOT_UNIQUE">
+        <unique-column name="LOT"/>
+        <unique-column name="AD_ORG_ID"/>
+      </unique>
+    </table>
+  </database>

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DJE_PRODUCT_PROCE">
+    <function name="DJE_PRODUCT_PROCE" type="NULL">
+      <body><![CDATA[Cur_Product RECORD;
+
+v_C_AcctSchema_ID	                   VARCHAR2(32);
+v_P_Revenue_Acct    		           VARCHAR2(32);
+v_P_Expense_Acct    		           VARCHAR2(32);
+v_P_Asset_Acct    			   VARCHAR2(32);
+v_P_COGS_Acct    			   VARCHAR2(32);
+v_P_Revenue_Return_Acct                    VARCHAR2(32);
+v_p_cogs_return_acct                       VARCHAR2(32);
+
+BEGIN 
+
+FOR Cur_Product IN (select m_product.m_product_id, m_product_acct.m_product_id as Acct_product_id,m_product.Name,m_product.ad_client_id,m_product.ad_org_id,m_product.createdby,m_product.updatedby,m_product.m_product_category_id,m_product.c_taxcategory_id from m_product 
+left join m_product_acct on m_product_acct.m_product_id = m_product.m_product_id )
+LOOP
+
+
+SELECT 
+M_Product_Category_Acct.p_revenue_acct, 
+M_Product_Category_Acct.p_expense_acct,
+M_Product_Category_Acct.p_asset_acct, 
+M_Product_Category_Acct.p_cogs_acct, 
+M_Product_Category_Acct.p_revenue_return_acct, 
+M_Product_Category_Acct.p_cogs_return_acct,
+M_Product_Category_Acct.C_AcctSchema_ID 
+
+INTO 
+v_P_Revenue_Acct,
+v_P_Expense_Acct,
+v_P_Asset_Acct, 
+v_P_COGS_Acct,
+v_P_Revenue_Return_Acct,
+v_p_cogs_return_acct,
+v_C_AcctSchema_ID	
+
+FROM  M_Product_Category_Acct
+WHERE M_Product_Category_Acct.m_product_category_id = Cur_Product.m_product_category_id;
+
+IF(Cur_Product.Acct_product_id IS NOT NULL) THEN
+
+UPDATE m_product_acct SET P_Revenue_Acct=v_P_Revenue_Acct,P_Expense_Acct=v_P_Expense_Acct,P_Asset_Acct=v_P_Asset_Acct,P_COGS_Acct=v_P_COGS_Acct WHERE m_product_id = Cur_Product.m_product_id;	
+
+
+ELSE
+
+INSERT INTO M_Product_Acct(M_Product_Acct_ID, M_Product_ID, C_AcctSchema_ID,
+AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,
+P_Revenue_Acct, P_Expense_Acct,P_Asset_Acct, P_COGS_Acct,
+P_Revenue_Return_Acct,p_cogs_return_acct)
+VALUES
+(get_uuid(), Cur_Product.M_Product_ID, v_C_AcctSchema_ID,
+Cur_Product.AD_Client_ID, Cur_Product.AD_ORG_ID, 'Y', now(), Cur_Product.CreatedBy, now(), Cur_Product.UpdatedBy,
+v_P_Revenue_Acct,v_P_Expense_Acct,v_P_Asset_Acct, v_P_COGS_Acct,v_P_Revenue_Return_Acct,v_p_cogs_return_acct); 
+
+
+
+END IF;
+
+END LOOP;
+END DJE_PRODUCT_PROCE
+]]></body>
+    </function>
+  </database>

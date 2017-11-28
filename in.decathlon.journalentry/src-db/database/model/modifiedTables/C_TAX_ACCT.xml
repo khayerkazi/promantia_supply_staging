@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_TAX_ACCT">
+    <table name="C_TAX_ACCT" primaryKey="C_TAX_ACCT_KEY">
+      <index name="EM_DJE_C_TAX_ACCT_TAX_ACCT_ID" unique="false">
+        <index-column name="C_TAX_ACCT_ID"/>
+      </index>
+    </table>
+  </database>

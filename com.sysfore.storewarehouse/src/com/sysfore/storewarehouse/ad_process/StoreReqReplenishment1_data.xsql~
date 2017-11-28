@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2009 Openbravo S.L.U.
+ ******************************************************************************
+file created by mitesh for same
+-->
+
+<SqlClass name="StoreReqReplenishment1Data" package="com.sysfore.storewarehouse.ad_process">
+  <SqlMethod name="selectStoreDept" type="preparedStatement" return="multiple">
+		<SqlMethodComment></SqlMethodComment>
+		<Sql>
+			<![CDATA[
+			select cl_storedept_id as sdept from cl_storedept where isactive = 'Y'
+			and ad_client_id = ?
+			]]>
+		</Sql>
+		<Parameter name="ad_client_id"/>		
+	</SqlMethod>
+  <!-- select the In Store Stock -->
+   <SqlMethod name="selectbrand" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[      
+      select m.cl_brand_id as brandid from cl_model m, m_product p where p.m_product_id =? 
+      and m.cl_model_id=p.em_cl_model_id  ]]>
+    </Sql>
+    <Parameter name="mProductId"/>
+   </SqlMethod>
+  <!-- select the implantation quantity -->
+   <SqlMethod name="selectimplantationqty" type="preparedStatement" return="string">
+    <SqlMethodComment>selecting implantation qty for respective store</SqlMethodComment>
+    <Sql>
+      <![CDATA[      
+      select coalesce(round(implantation_qty,0),0) as impqty from cl_implantation where m_product_id=? and store_implanted=? and  isimplanted='N'
+	     ]]>
+    </Sql>
+    <Parameter name="mProductId"/>
+    <Parameter name="storeImplanted"/>	
+   </SqlMethod>
+<!-- update implantation isimplanted='Y' -->
+   <SqlMethod name="updateimplantedy" type="preparedStatement" return="rowcount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[      
+	      update cl_implantation set isimplanted='Y' where m_product_id=? and store_implanted=?
+	     ]]>
+    </Sql>
+    <Parameter name="mProductId"/>
+    <Parameter name="storeImplanted"/>	
+   </SqlMethod>
+</SqlClass>

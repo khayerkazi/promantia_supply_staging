@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION DS_CORRECT_PO">
+    <function name="DS_CORRECT_PO" type="NULL">
+      <parameter name="p_ordereddate" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[-- Logistice
+  v_ResultStr VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Result NUMBER:=1; -- 0=failure
+  v_Order_ID VARCHAR2(32);
+  v_enddate timestamp without time zone ;
+  v_companyRegion VARCHAR(60);
+  v_cstTaxId  VARCHAR(32);
+  TYPE RECORD IS REF CURSOR;
+    Cur_OrderData RECORD;
+    Cur_OrderLine RECORD;
+  BEGIN
+  v_enddate = p_ordereddate + Interval '1 day' ;
+  
+
+  
+
+FOR Cur_OrderData IN 
+(SELECT c_order_id , documentno,em_ds_bpartner_id From c_order where 
+dateordered between p_ordereddate and v_enddate and 
+ad_org_id='B2D0E3B212614BA6989ADCA3074FC423' and documentno ilike '%CAR%' and docstatus<>'DR'
+and issotrx='N')
+ LOOP
+   raise notice ' Documentno %' , Cur_OrderData.documentno;
+
+
+--update order to draft
+update c_order set processed='N',docaction='CO',docstatus='DR'   where c_order_id =Cur_OrderData.C_Order_ID;
+
+--update gross amt PERFORM DS_UPDGROSS_ORD(Cur_OrderData.C_Order_ID);
+
+update c_orderline set qtyinvoiced = 0 where c_order_id =Cur_OrderData.C_Order_ID and qtyinvoiced != 0 ;
+
+
+--book order 
+update c_order set processed='Y',docaction='--',docstatus='CO' , isinvoiced = 'N'  where c_order_id =Cur_OrderData.C_Order_ID;
+END LOOP;
+END DS_CORRECT_PO
+]]></body>
+    </function>
+  </database>

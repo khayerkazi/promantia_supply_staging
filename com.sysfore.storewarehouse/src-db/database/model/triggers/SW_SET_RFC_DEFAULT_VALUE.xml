@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_SET_RFC_DEFAULT_VALUE">
+    <trigger name="SW_SET_RFC_DEFAULT_VALUE" table="C_ORDER" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_doctype_id character varying;
+BEGIN
+IF( INSERTING ) THEN
+select c_doctype_id into v_doctype_id from c_doctype where name = 'RFC Order';
+ IF(:NEW.c_doctype_id = v_doctype_id) THEN
+    update c_order
+    set em_sw_status = 'PE'
+    where c_order_id = :NEW.c_order_id ;
+ END IF;
+END IF;
+RETURN NEW;
+END SW_SET_RFC_DEFAULT_VALUE
+]]></body>
+    </trigger>
+  </database>

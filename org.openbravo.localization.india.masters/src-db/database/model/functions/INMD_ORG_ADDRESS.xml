@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION INMD_ORG_ADDRESS">
+    <function name="INMD_ORG_ADDRESS" type="VARCHAR">
+      <parameter name="p_c_location_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_description NVARCHAR2(4000) ;
+  v_DefaultCountry VARCHAR2(4000) ;
+  
+BEGIN  
+  SELECT MAX(C_COUNTRY_ID) INTO v_DefaultCountry FROM C_COUNTRY WHERE ISACTIVE = 'Y' AND ISDEFAULT = 'Y';
+  SELECT COALESCE(TO_CHAR(L.ADDRESS1), '') ||
+    CASE
+      WHEN(L.ADDRESS2) IS NULL
+      THEN ''
+      ELSE ', ' || TO_CHAR(L.ADDRESS2)
+    END
+    || CHR(10)||
+    CASE
+      WHEN(L.CITY) IS NULL
+      THEN ''
+      ELSE ''||TO_CHAR(L.CITY)
+    END
+    ||
+    CASE
+      WHEN(L.POSTAL) IS NULL
+      THEN ''
+      ELSE ' - '|| L.POSTAL
+    END
+    ||
+    CASE
+      WHEN(R.NAME) IS NULL
+      THEN ''
+      ELSE ', '||TO_CHAR(R.NAME)
+    END
+    ||(
+    CASE C.C_COUNTRY_ID
+      WHEN v_DefaultCountry
+      THEN ''
+      ELSE ', ' || UPPER(TO_CHAR(C.NAME)) || ''
+    END
+    )
+  --  ||CHR(10)||(
+  --  CASE 
+  --    WHEN (BPL.Phone) is Null
+  --    THEN ''
+  --    ELSE 'Tel: ' || TO_CHAR(BPL.Phone) || '                                                  '
+  --  END
+ --   )
+ --   ||(
+  --  CASE 
+  --    WHEN (BPL.Fax) is Null
+   --   THEN ''
+   --   ELSE 'Fax: ' || TO_CHAR(BPL.Fax) || ''
+    --END
+   -- )
+  INTO v_description
+  FROM ad_orginfo   
+  LEFT JOIN C_LOCATION L on ad_orginfo.c_location_id = L.c_location_id
+  LEFT JOIN C_REGION R on L.c_region_id = R.c_region_id
+  LEFT JOIN C_COUNTRY C ON R.C_COUNTRY_ID = C.C_COUNTRY_ID
+  where L.C_LOCATION_id = p_c_location_id;
+  
+  RETURN v_description;
+END INMD_ORG_ADDRESS
+]]></body>
+    </function>
+  </database>

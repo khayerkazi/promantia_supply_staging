@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="DuplicateBill_subreport0"
+		 columnCount="1"
+		 printOrder="Horizontal"
+		 orientation="Portrait"
+		 pageWidth="481"
+		 pageHeight="802"
+		 columnWidth="481"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isFloatColumnFooter="true"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="ORDERID" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_ORDERID" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{ORDERID} == null || $P{ORDERID}.equals("")) ? "" : "AND c_orderline.c_order_id ='"+ $P{ORDERID}+"'"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[SELECT
+	c_orderline.priceactual as Rate,
+	c_orderline.linenetamt as Amount,
+        c_orderline.em_ds_unitqty as qty,
+        c_orderline.em_ds_lotqty as lotqty,
+        c_orderline.em_ds_lotprice as lotprice,
+        c_orderline.em_ds_boxqty as boxqty,
+        c_orderline.em_ds_boxprice as boxprice,
+        m_product.name as productname,
+        m_product.em_cl_modelname as pdesc,
+        c_orderline.m_product_id as id
+
+     
+FROM
+	 c_orderline,m_product
+WHERE
+	c_orderline.m_product_id = m_product.m_product_id
+        $P!{AUX_ORDERID}
+Order By m_product.name]]></queryString>
+
+	<field name="rate" class="java.math.BigDecimal"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="lotqty" class="java.math.BigDecimal"/>
+	<field name="lotprice" class="java.math.BigDecimal"/>
+	<field name="boxqty" class="java.math.BigDecimal"/>
+	<field name="boxprice" class="java.math.BigDecimal"/>
+	<field name="productname" class="java.lang.String"/>
+	<field name="pdesc" class="java.lang.String"/>
+	<field name="id" class="java.lang.String"/>
+
+	<variable name="ProductCount" class="java.lang.Integer" resetType="Report" calculation="DistinctCount">
+		<variableExpression><![CDATA[$F{id}]]></variableExpression>
+	</variable>
+	<variable name="sum" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{qty}.add($F{lotqty}).add($F{boxqty})]]></variableExpression>
+	</variable>
+	<variable name="unitamount" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{qty}.multiply($F{rate})]]></variableExpression>
+		<initialValueExpression><![CDATA[BigDecimal.valueOf(0)]]></initialValueExpression>
+	</variable>
+	<variable name="lotamount" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{lotqty}.multiply($F{lotprice})]]></variableExpression>
+		<initialValueExpression><![CDATA[BigDecimal.valueOf(0)]]></initialValueExpression>
+	</variable>
+	<variable name="boxamount" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{boxqty}.multiply($F{boxprice})]]></variableExpression>
+		<initialValueExpression><![CDATA[BigDecimal.valueOf(0)]]></initialValueExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="42"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="136"
+						y="0"
+						width="173"
+						height="10"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true"/>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{pdesc}+"-"+$F{productname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="220"
+						y="10"
+						width="41"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{qty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{rate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="143"
+						y="10"
+						width="31"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{qty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{qty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="143"
+						y="21"
+						width="31"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{lotqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{lotqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="220"
+						y="21"
+						width="41"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{lotqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{lotprice}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="220"
+						y="31"
+						width="41"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{boxqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{boxprice}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="143"
+						y="31"
+						width="31"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{boxqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{boxqty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="268"
+						y="10"
+						width="40"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{qty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{unitamount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="268"
+						y="21"
+						width="40"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{lotqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{lotamount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="268"
+						y="31"
+						width="40"
+						height="11"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{boxqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{boxamount}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="177"
+						y="10"
+						width="41"
+						height="11"
+						key="staticText-1"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{qty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<text><![CDATA[(by unit)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="177"
+						y="21"
+						width="41"
+						height="11"
+						key="staticText-2"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{lotqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<text><![CDATA[(by lot)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="177"
+						y="31"
+						width="41"
+						height="11"
+						key="staticText-3"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{boxqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<text><![CDATA[(by box)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="136"
+						y="10"
+						width="5"
+						height="11"
+						key="staticText-4"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{qty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<text><![CDATA[x]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="136"
+						y="21"
+						width="5"
+						height="11"
+						key="staticText-5"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{lotqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<text><![CDATA[x]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="136"
+						y="31"
+						width="5"
+						height="11"
+						key="staticText-6"
+						stretchType="RelativeToTallestObject"
+						isRemoveLineWhenBlank="true"
+						isPrintInFirstWholeBand="true"
+						isPrintWhenDetailOverflows="true">
+							<printWhenExpression><![CDATA[new Boolean(!$F{boxqty}.equals(BigDecimal.valueOf(0)))]]></printWhenExpression>
+						</reportElement>
+					<box></box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="7"/>
+					</textElement>
+				<text><![CDATA[x]]></text>
+				</staticText>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

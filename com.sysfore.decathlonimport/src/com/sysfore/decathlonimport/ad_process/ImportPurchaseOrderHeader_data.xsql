@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ ******************************************************************************
+ * The contents of this file are subject to the   Compiere License  Version 1.1
+ * ("License"); You may not use this file except in compliance with the License
+ * You may obtain a copy of the License at http://www.compiere.org/license.html
+ * Software distributed under the License is distributed on an  "AS IS"  basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ * The Original Code is                  Compiere  ERP & CRM  Business Solution
+ * The Initial Developer of the Original Code is Jorg Janke  and ComPiere, Inc.
+ * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+ * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+ * Contributor(s): Openbravo SLU
+ * Contributions are Copyright (C) 2001-2008 Openbravo S.L.U.
+
+
+ ******************************************************************************
+-->
+
+
+
+<SqlClass name="ImportPurchaseOrderHeaderData" package="com.sysfore.decathlonimport.ad_process" >
+<SqlMethod name="insertcorder" type="preparedStatement" return="rowCount">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+		<![CDATA[
+			INSERT INTO c_order(
+            c_order_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, issotrx, documentno, docstatus, 
+			docaction, processing, processed, c_doctype_id, c_doctypetarget_id, description, isdelivered, isinvoiced, isprinted,isselected, 
+			dateordered, datepromised, dateacct, c_bpartner_id, billto_id, c_bpartner_location_id, isdiscountprinted, c_currency_id,
+			paymentrule, c_paymentterm_id, invoicerule, deliveryrule, freightcostrule, deliveryviarule, priorityrule, totallines,
+			grandtotal, m_warehouse_id, m_pricelist_id, posted, copyfrom, isselfservice, generatetemplate, copyfrompo, em_ds_totalpriceadj,
+			em_ds_grandtotalamt, em_sw_modelcode, em_sw_modelname, em_sw_dept_id, em_sw_brand_id, em_sw_expdeldate, em_sw_estshipdate, em_sw_actshipdate,
+			em_sw_pricelistver, em_sw_currency, em_sw_postatus, em_ds_chargeamt) 
+			VALUES
+			(?, ?, ?, 'Y', now(), ?, now(), ?, 'N', ?,'DR', 'CO', 'N', 'N', 'C7CD4AC8AC414678A525AB7AE20D718C', 'C7CD4AC8AC414678A525AB7AE20D718C', 
+			'Bulk po upload', 'N', 'N', 'N', 'N',now(), now(), now(), ?, ?,	?,'N', '304', 'P', 'A4B18FE74DF64897B71663B0E57A4EFE', 'D', 'A', 'I', 'P', '5',
+			'0.0', '0.0', ?,'A6178825A4CD48A5BFF15471CA4AB823', 'N', 'N', 'N', 'N', 'N', '0', '0.00', ?, ?, ?, ?, now(),
+			now(), now(), '7A98590A22F34DB095826F0BB2511373', '100', 'DR', '0.0')
+			]]>
+    </Sql>
+	<Parameter name="cOrderId"/>
+    <Parameter name="adClientId"/>
+	<Parameter name="adOrgId"/>
+	<Parameter name="createdby"/>
+	<Parameter name="updatedby"/>
+	<Parameter name="documentno"/>
+	<Parameter name="cBpartnerId"/>
+	<Parameter name="billtoId"/>
+	<Parameter name="cBpartnerLocationId"/>
+	<Parameter name="mWarehouseId"/>
+	<Parameter name="emSwModelcode"/>
+	<Parameter name="emSwModelname"/>
+	<Parameter name="emSwDeptId"/>
+	<Parameter name="emSwBrandId"/>
+  </SqlMethod>
+</SqlClass>

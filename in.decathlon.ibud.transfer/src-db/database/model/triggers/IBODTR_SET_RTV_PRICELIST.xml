@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER IBODTR_SET_RTV_PRICELIST">
+    <trigger name="IBODTR_SET_RTV_PRICELIST" table="C_ORDER" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+dmi_catalog_id_v varchar(32):='2205CDAF5996448484851F4524B25EA2';
+c_doctype_id_v varchar(32):='';
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+select c_doctype_id into c_doctype_id_v from c_doctype where em_ibodtr_isinterorg  = 'Y' and isreturn  = 'Y'and issotrx = 'N' and docbasetype  ='POO';
+
+
+ IF(:new.m_pricelist_id<>dmi_catalog_id_v  and :new.em_sw_isauto_order='N' and :new.issotrx='N' and :new.c_doctype_id=c_doctype_id_v) THEN
+    update c_order
+    set m_pricelist_id=dmi_catalog_id_v
+    where c_order_id=:NEW.c_order_id ;
+ END IF;
+
+END IBODTR_SET_RTV_PRICELIST
+]]></body>
+    </trigger>
+  </database>

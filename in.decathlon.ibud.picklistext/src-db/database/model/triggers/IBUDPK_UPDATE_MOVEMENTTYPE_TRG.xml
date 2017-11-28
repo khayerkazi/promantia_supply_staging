@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER IBUDPK_UPDATE_MOVEMENTTYPE_TRG">
+    <trigger name="IBUDPK_UPDATE_MOVEMENTTYPE_TRG" table="M_MOVEMENTLINE" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[
+v_movement_type varchar(60);
+v_documentno varchar(100);
+v_isimplanted varchar(1);
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+	
+
+	select c_order.documentno,c_order.em_sw_isimplantation
+	into v_documentno,v_isimplanted
+	from m_movementline
+	join m_reservation on m_reservation.m_reservation_id=m_movementline.m_reservation_id
+	join c_orderline on m_reservation.c_orderline_id=c_orderline.c_orderline_id
+	join c_order on c_order.c_order_id=c_orderline.c_order_id
+	where m_movementline_id=:new.m_movementline_id;
+
+	if(v_documentno is not null) then
+			update m_movement set documentno=v_documentno where m_movement_id=:new.m_movement_id;
+	end if;
+
+
+select em_sw_movementtypegm into  v_movement_type from m_movement  where m_movement_id=:new.m_movement_id;
+	if(:NEW.em_obwpl_pickinglist_id is  not null and v_movement_type is null)
+	then
+if(v_isimplanted = 'Y') then
+		update m_movement set em_sw_movementtypegm='IMPL' where m_movement_id=:new.m_movement_id;
+else
+		update m_movement set em_sw_movementtypegm='SRQ' where m_movement_id=:new.m_movement_id;
+	end if;
+end if;
+
+END IBUDPK_UPDATE_MOVEMENTTYPE_TRG
+]]></body>
+    </trigger>
+  </database>

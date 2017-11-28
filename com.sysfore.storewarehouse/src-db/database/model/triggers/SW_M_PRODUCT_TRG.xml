@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER SW_M_PRODUCT_TRG">
+    <trigger name="SW_M_PRODUCT_TRG" table="M_PRODUCT" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_postal NUMBER;
+
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;
+END IF;
+
+IF INSERTING OR UPDATING THEN
+
+   SELECT length(upc) INTO v_postal FROM M_PRODUCT WHERE upc = :NEW.upc;
+    
+     IF ((v_postal > 13) OR (v_postal < 8)) THEN
+        RAISE EXCEPTION 'EAN Code must be 8 to 13 digits...';
+     END IF;  
+
+
+END IF;
+
+            
+END SW_M_PRODUCT_TRG
+]]></body>
+    </trigger>
+  </database>

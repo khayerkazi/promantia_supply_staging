@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2006 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="ReportStockFileData" package="in.nous.picklist.reports.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[select plnum,docno,itemcode,storedept,location,boxno, (CASE rownum  WHEN 1 THEN qty_requested ELSE null END)  as qty_requested ,qty_shipped,remarks,noofbox,picker,store,picklist.user,status from (select pl.documentno as plnum, co.documentno as docno, mp.name as itemcode,cls.name as storedept, ml.value as location, mt.lot as boxno, round(col.qtyordered) as qty_requested,round(movl.movementqty) as qty_shipped,ROW_NUMBER() OVER(PARTITION BY pl.documentno, mp.name, co.documentno,col.c_orderline_id  ORDER BY(SELECT 1)) as rownum, pl.description as remarks,'' as noofbox, '' as picker, cb.name as store, au.name as user, (case pl.pickliststatus when 'GR' then 'Grouped' when 'IP' then  'In Progess' when 'CL' then 'Picked' when 'DR' then 'Draft' when 'CA' then 'Cancel' when 'CO' then 'All Confirmed' when 'AS' then 'Assigned' when 'SH' then 'Shipped' when 'IBUDPK_SH' then 'Shipped' else 'All confirmed' end) as status from m_movementline movl
+ join m_locator  ml on ml.m_locator_id = movl.m_locator_id
+ join m_attributesetinstance mt on mt.m_attributesetinstance_id = movl.m_attributesetinstance_id
+ join obwpl_pickinglist pl on pl.obwpl_pickinglist_id = movl.em_obwpl_pickinglist_id
+ join m_product mp on mp.m_product_id = movl.m_product_id
+ join ad_user au on au.ad_user_id = movl.updatedby
+ join m_movement mov on mov.m_movement_id = movl.m_movement_id
+ join c_order co on co.documentno = mov.documentno
+ join cl_brand cls on cls.cl_brand_id = co.em_cl_brand_id
+ join c_bpartner cb on cb.c_bpartner_id = co.c_bpartner_id
+ join c_orderline col on (col.c_order_id = co.c_order_id and col.m_product_id = movl.m_product_id )
+ join m_reservation mr on (movl.m_reservation_id = mr.m_reservation_id and mr.c_orderline_id = col.c_orderline_id)
+ where movl.updated > pl.documentdate and co.docstatus not in ('VO','DR') and 1=1)picklist
+ order by plnum,docno,itemcode,rownum]]></Sql>
+     <Parameter name="parDateFrom" optional="true" after="1=1"><![CDATA[AND pl.documentdate >= to_date(?)]]></Parameter>
+     <Parameter name="parDateTo" optional="true" after="1=1"><![CDATA[AND pl.documentdate <= to_date(?)]]></Parameter>
+     <Parameter name="adOrg" optional="true" type="argument" after="1=1"><![CDATA[ AND co.ad_org_id IN]]></Parameter>
+
+  </SqlMethod>
+
+  <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+</SqlClass>
