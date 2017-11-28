@@ -33,8 +33,8 @@ import java.util.Iterator;
 
 import org.openbravo.model.ad.access.User;
 import org.openbravo.model.pricing.pricelist.ProductPrice;
-import org.openbravo.pricing.levelpricing.LevelProductPrice;
-import org.openbravo.pricing.levelpricing.LevelPricingRange;
+//import org.openbravo.pricing.levelpricing.LevelProductPrice;
+//import org.openbravo.pricing.levelpricing.LevelPricingRange;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -300,10 +300,10 @@ public class UpdatePricesWebService implements WebService {
 		/*
 		 * Calculating Lot 
 		 */
-		if(priceModel.getStrqty() != null && Integer.parseInt(priceModel.getStrqty()) > 1){
+		//if(priceModel.getStrqty() != null && Integer.parseInt(priceModel.getStrqty()) > 1){
 			
 			//Inserting new Record in lvlpr_levelproductprice table.
-			LevelProductPrice levelPrice = null;
+		/*	LevelProductPrice levelPrice = null;
 			final OBCriteria<LevelProductPrice> levelProductPriceObCriteria = OBDal.getInstance().createCriteria(LevelProductPrice.class);
 			levelProductPriceObCriteria.add(Restrictions.eq(LevelProductPrice.PROPERTY_PRODUCTPRICE, OBDal.getInstance().get(ProductPrice.class, productid)));
 			levelProductPriceObCriteria.add(Restrictions.eq(LevelProductPrice.PROPERTY_LVLPRRANGE, OBDal.getInstance().get(LevelPricingRange.class, rangeLotId)));
@@ -345,12 +345,12 @@ public class UpdatePricesWebService implements WebService {
 			OBDal.getInstance().flush();
 			SessionHandler.getInstance().commitAndStart();
 			isalgorithm = true;
-		}
+		}*/
 
 		/*
 		 * Calculating Box
 		 */
-		if((priceModel.getBoxqty() != null && Integer.parseInt(priceModel.getBoxqty()) > 1)){
+		/*if((priceModel.getBoxqty() != null && Integer.parseInt(priceModel.getBoxqty()) > 1)){
 
 			if((priceModel.getBoxqty() != null && Integer.parseInt(priceModel.getBoxqty()) > 1) &&
 					(Float.parseFloat(priceModel.getBoxqty()) != Float.parseFloat(priceModel.getStrqty()))){
@@ -447,7 +447,7 @@ public class UpdatePricesWebService implements WebService {
 			OBDal.getInstance().flush();
 			SessionHandler.getInstance().commitAndStart();
 		}
-		
+		*/
 		
 		return result;
 	}
