@@ -35,7 +35,7 @@
  join c_bpartner cb on cb.c_bpartner_id = co.c_bpartner_id
  join c_orderline col on (col.c_order_id = co.c_order_id and col.m_product_id = movl.m_product_id )
  join m_reservation mr on (movl.m_reservation_id = mr.m_reservation_id and mr.c_orderline_id = col.c_orderline_id)
- where movl.updated > pl.documentdate and co.docstatus not in ('VO','DR') and 1=1)picklist
+ where movl.updated > pl.documentdate and co.docstatus not in ('VO','DR') and 1=2)picklist
  order by plnum,docno,itemcode,rownum]]></Sql>
      <Parameter name="parDateFrom" optional="true" after="1=1"><![CDATA[AND pl.documentdate >= to_date(?)]]></Parameter>
      <Parameter name="parDateTo" optional="true" after="1=1"><![CDATA[AND pl.documentdate <= to_date(?)]]></Parameter>
