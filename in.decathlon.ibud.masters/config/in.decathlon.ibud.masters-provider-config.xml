@@ -5,6 +5,11 @@
        <class>in.decathlon.ibud.masters.server.MasterWebService</class>
        <singleton>true</singleton>
    </bean>
+<bean>
+       <name>MasterFixtureWS</name>
+       <class>in.decathlon.ibud.masters.server.MasterFixtureWS</class>
+       <singleton>true</singleton>
+   </bean>
    
    <bean>
        <name>PriceListWS</name>
