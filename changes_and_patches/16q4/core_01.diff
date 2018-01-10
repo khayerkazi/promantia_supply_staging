@@ -1,0 +1,2067 @@
+diff -r cd98953b932b src-db/database/model/functions/C_ORDER_POST1.xml
+--- a/src-db/database/model/functions/C_ORDER_POST1.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/C_ORDER_POST1.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -1279,7 +1279,7 @@
+                 -- Update reservation when possible.
+                 -- Read reservation.
+                 SELECT r.quantity, r.reservedqty, r.releasedqty, r.res_status,
+-                      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - COALESCE(rs.releasedqty, 0) ELSE 0 END), 0)
++                      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0)
+                   INTO v_quantity, v_reservedqty, v_releasedqty, v_res_status,
+                       v_allocated
+                 FROM m_reservation r
+@@ -1297,10 +1297,10 @@
+                     --Reservation quantity to decrease with more reserved quantity than new quantity, unreserve stock
+                     v_pendingtounreserve := v_reservedqty - cur_orderline.qtyordered;
+                     FOR cur_res_stock IN (
+-                        SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++                        SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+                         FROM m_reservation_stock
+                         WHERE m_reservation_id = v_reservation_id
+-                        ORDER BY COALESCE(releasedqty, 0), quantity - COALESCE(releasedqty, 0)
++                        ORDER BY releasedqty, quantity - releasedqty
+                     ) LOOP
+                       v_qtyaux := LEAST(v_pendingtounreserve, cur_res_stock.reservedqty);
+                       UPDATE m_reservation_stock
+@@ -1320,7 +1320,7 @@
+                     -- Delete reservation lines with quantity zero.
+                     DELETE FROM m_reservation_stock
+                     WHERE quantity = 0
+-                      AND COALESCE(releasedqty, 0) = 0
++                      AND releasedqty = 0
+                       AND m_reservation_id = v_reservation_id;
+                   END IF;
+                   UPDATE m_reservation
+diff -r cd98953b932b src-db/database/model/functions/MRP_RUN_INITIALIZE.xml
+--- a/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -217,7 +217,7 @@
+               LEFT JOIN m_reservation res ON res.c_orderline_id = ol.c_orderline_id AND res.res_status NOT IN ('CL', 'DR')
+               -- Prereserved purchase orders
+               LEFT JOIN (
+-                  SELECT rs.c_orderline_id, SUM(rs.quantity - COALESCE(rs.releasedqty, 0)) AS reservedqty
++                  SELECT rs.c_orderline_id, SUM(rs.quantity - rs.releasedqty) AS reservedqty
+                   FROM m_reservation r
+                       JOIN m_reservation_stock rs ON r.m_reservation_id = rs.m_reservation_id
+                   WHERE rs.c_orderline_id IS NOT NULL
+diff -r cd98953b932b src-db/database/model/functions/M_CHECK_STOCK.xml
+--- a/src-db/database/model/functions/M_CHECK_STOCK.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_CHECK_STOCK.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -55,7 +55,7 @@
+       AND (QTYONHAND<0 OR COALESCE(QTYORDERONHAND,0)<0));    
+     IF(v_ExistsNegativeStock <> 0) THEN
+       p_Result:=0;
+-      p_Message:='@NotEnoughStocked@';
++      p_Message:='@NotEnoughStocked@' || 'v_ExistsNegativeStock: ' || v_ExistsNegativeStock || ' p_M_Product_ID: ' || p_M_Product_ID || ' p_AD_Client_ID: ' || p_AD_Client_ID || ' p_AD_Org_ID: ' || p_AD_Org_ID;
+     END IF;
+   END IF;
+   RETURN;
+diff -r cd98953b932b src-db/database/model/functions/M_CREATE_RESERVE_FROM_SOL.xml
+--- a/src-db/database/model/functions/M_CREATE_RESERVE_FROM_SOL.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_CREATE_RESERVE_FROM_SOL.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -92,7 +92,7 @@
+   ) LOOP
+     M_RESERVE_STOCK_MANUAL(v_reservation_id, 'SD', cur_shipments.m_storage_detail_id, cur_shipments.movementqty, p_user_id, 'N', v_res_stock_id);
+     UPDATE m_reservation_stock
+-    SET releasedqty = COALESCE(releasedqty, 0) + cur_shipments.movementqty
++    SET releasedqty = releasedqty + cur_shipments.movementqty
+     WHERE m_reservation_stock_id = v_res_stock_id;
+   END LOOP;
+ 
+diff -r cd98953b932b src-db/database/model/functions/M_GET_STOCK.xml
+--- a/src-db/database/model/functions/M_GET_STOCK.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_GET_STOCK.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -127,6 +127,8 @@
+ 
+   M_GET_STOCK_PARAM(PInstance_ID, v_Record_ID, v_Quantity, v_ProductID, v_LocatorID, v_WarehouseID, v_PriorityWarehouseID, v_OrgID, v_AttributesetinstanceID, v_AD_User_ID, v_ClientID, v_warehouse_rule_id, v_UomID, v_ProductUomID, v_TableID, v_AuxID, v_LineNo, v_ProcessID, v_reservation_id, p_calledfromapp, v_result, v_Message);
+  
++SELECT * INTO v_result, v_Message FROM M_GET_STOCK_PARAM(PInstance_ID, v_Record_ID, v_Quantity, v_ProductID, v_LocatorID, v_WarehouseID, v_PriorityWarehouseID, v_OrgID, v_AttributesetinstanceID, v_AD_User_ID,
++	v_ClientID, v_warehouse_rule_id, v_UomID, v_ProductUomID, v_TableID, v_AuxID, v_LineNo, v_ProcessID, v_reservation_id, p_calledfromapp);
+ 
+   --  Update AD_PInstance
+   DBMS_OUTPUT.PUT_LINE('Updating PInstance - Finished ' || v_Message) ;
+diff -r cd98953b932b src-db/database/model/functions/M_GET_STOCK_PARAM.xml
+--- a/src-db/database/model/functions/M_GET_STOCK_PARAM.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_GET_STOCK_PARAM.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -170,7 +170,7 @@
+         WHERE r.m_reservation_id = v_reservation_id
+           AND rs.isallocated = 'Y'
+           AND rs.quantity > 0
+-          AND rs.quantity <> COALESCE(rs.releasedqty, 0)
++          AND rs.quantity <> rs.releasedqty
+           AND rs.m_locator_id IS NOT NULL
+     ) LOOP
+       INSERT INTO m_stock_proposed (
+@@ -247,6 +247,7 @@
+         AND l.m_locator_id = COALESCE(v_locatorid, l.m_locator_id)
+         AND w.m_warehouse_id = COALESCE(v_warehouseid, w.m_warehouse_id)
+         AND ow.ad_org_id = v_orgid
++AND t.qtyonhand >= t.reservedqty
+         AND COALESCE(t.qtyonhand, 0)>0
+         AND t.qtyonhand - (CASE WHEN rs.m_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END)  > 0
+         AND w.m_warehouse_id = COALESCE(r.m_warehouse_id, w.m_warehouse_id)
+@@ -557,14 +558,12 @@
+     FROM m_stock_proposed
+     WHERE ad_pinstance_id = p_uuid;
+     IF (v_totalqty < v_quantity AND v_availableqty >= v_quantity) THEN
+-      IF (v_message IS NULL OR v_message = '') THEN
++      --IF (v_message IS NULL OR v_message = '') THEN
+         SELECT name INTO v_productname
+         FROM m_product
+-        WHERE m_product_id = v_productid;
+-        v_message := '@NotEnoughStockedDueWHRule@';
+-      END IF;
+-      DBMS_OUTPUT.PUT_LINE( v_message); --OBTG:-20000--
+-      p_result := 2;
++        WHERE m_product_id = v_productid;v_message := '@NotEnoughStockedDueWHRule@ ' || '@Product@: ' || v_productname;
++      --END IF;
++   --RAISE_APPLICATION_ERROR(-20000, v_message);
+     END IF;
+     IF (v_totalqty > v_finalqty) THEN
+       -- IF these quantities are different there is some proposed stock with the isFinal flag = 'N'
+diff -r cd98953b932b src-db/database/model/functions/M_INOUT_CREATE.xml
+--- a/src-db/database/model/functions/M_INOUT_CREATE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_INOUT_CREATE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -505,7 +505,8 @@
+                       AND c_orderline_id = ol.c_orderline_id;
+                   END IF;
+ 
+-                  M_GET_STOCK_PARAM(v_pinstance_ID, v_record_id, v_Qty, v_Product_old, null, null, v_Warehouse_old, Cur_Order.AD_Org_ID, v_Attribute_old, v_User_ID, v_ad_client_id, v_warehouse_rule_id, v_UOM_old, v_Product_UOM_old, null, null, null, 'FF80818132C964E30132C9747257002E', v_reservation_id, 'N', v_pinstance_result, v_pinstance_msg);
++                   SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_pinstance_ID, v_record_id, v_Qty, v_Product_old, null, null, v_Warehouse_old, Cur_Order.AD_Org_ID, v_Attribute_old, v_User_ID,
++                  v_ad_client_id, v_warehouse_rule_id, v_UOM_old, v_Product_UOM_old, null, null, null, 'FF80818132C964E30132C9747257002E', v_reservation_id, 'N');
+                   -- Check result
+                   IF (v_pinstance_result = 0) THEN
+                     -- Error on m_get_stock
+diff -r cd98953b932b src-db/database/model/functions/M_INOUT_POST.xml
+--- a/src-db/database/model/functions/M_INOUT_POST.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_INOUT_POST.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -586,7 +586,7 @@
+                       SELECT rs.*
+                       FROM m_reservation_stock rs JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+                       WHERE rs.c_orderline_id = cur_inoutline.c_orderline_id
+-                        AND rs.quantity <> COALESCE(rs.releasedqty, 0)
++                        AND rs.quantity <> rs.releasedqty
+                         AND rs.m_locator_id IS NULL
+                         AND r.res_status NOT IN ('DR', 'CL')
+                   ) LOOP
+@@ -629,7 +629,7 @@
+                   DELETE FROM m_reservation_stock
+                   WHERE c_orderline_id = cur_inoutline.c_orderline_id
+                     AND quantity = 0
+-                    AND COALESCE(releasedqty, 0) = 0;
++                    AND releasedqty = 0;
+                 END;
+               ELSIF (cur_inout.issotrx = 'N' AND cur_inoutline.canceled_inoutline_id IS NOT NULL AND v_qty < 0) THEN
+                 -- Revert to pre-reservations
+@@ -663,7 +663,7 @@
+                 BEGIN
+                   v_pendingqty:=v_penqty;
+                   FOR cur_reserve_stock IN (
+-                      SELECT rs.quantity, COALESCE(rs.releasedqty,0) AS releasedqty, rs.m_reservation_stock_id, rs.m_reservation_id,
++SELECT rs.quantity, rs.releasedqty AS releasedqty, rs.m_reservation_stock_id, rs.m_reservation_id,
+                           rs.ad_org_id, rs.ad_client_id, rs.isallocated
+                       FROM m_reservation_stock rs JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+                       WHERE rs.c_orderline_id = cur_inoutline.c_orderline_id
+@@ -715,7 +715,7 @@
+                   DELETE FROM m_reservation_stock
+                   WHERE c_orderline_id = cur_inoutline.c_orderline_id
+                     AND quantity = 0
+-                    AND COALESCE(releasedqty, 0) = 0;
++                    AND releasedqty = 0;
+                 END;
+ 
+               END IF;
+@@ -729,15 +729,16 @@
+                   IsActive, Created, CreatedBy, Updated,
+                   UpdatedBy, MovementType, M_Locator_ID, M_Product_ID,
+                   M_AttributeSetInstance_ID, MovementDate, MovementQty, M_Product_UOM_ID,
+-                  QuantityOrder, C_UOM_ID
++                  QuantityOrder, C_UOM_ID, EM_Sw_Movementtype
++
+                 )
+                 VALUES
+                 (
+                   v_NextNo, Cur_InOutLine.M_InOutLine_ID, Cur_InOutLine.AD_Client_ID, Cur_InOutLine.AD_Org_ID,
+                    'Y', now(), v_User, now(),
+                   v_User, Cur_InOut.MovementType, Cur_InOutLine.M_Locator_ID, Cur_InOutLine.M_Product_ID,
+-                  COALESCE(Cur_InOutLine.M_AttributeSetInstance_ID, '0'), Cur_InOut.MovementDate, v_Qty, Cur_InOutLine.M_Product_UOM_ID,
+-                  v_QuantityOrder, Cur_InOutLine.C_UOM_ID
++                  COALESCE(Cur_InOutLine.M_AttributeSetInstance_ID, '0'), now(), v_Qty, Cur_InOutLine.M_Product_UOM_ID,
++                  v_QuantityOrder, Cur_InOutLine.C_UOM_ID, Cur_InOut.EM_Sw_Movement
+                 )
+                 ;
+             END IF;
+diff -r cd98953b932b src-db/database/model/functions/M_INVENTORY_LISTCREATE.xml
+--- a/src-db/database/model/functions/M_INVENTORY_LISTCREATE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_INVENTORY_LISTCREATE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -51,6 +51,7 @@
+     v_QtyRange VARCHAR2(60) ;
+     v_Regularization VARCHAR2(60) ;
+     v_ABC VARCHAR2(60);
++v_ExcludeReserved VARCHAR(1);
+     --
+     v_Warehouse_ID VARCHAR2(32);
+     v_Client_ID VARCHAR2(32);
+@@ -103,6 +104,9 @@
+       ELSIF(Cur_Parameter.ParameterName='ABC') THEN
+         v_ABC:=Cur_Parameter.P_String;
+         DBMS_OUTPUT.PUT_LINE('  ABC=' || v_ABC) ;
++ELSIF(Cur_Parameter.ParameterName='ExcludeReserved') THEN
++        v_ExcludeReserved:=Cur_Parameter.P_String;
++        DBMS_OUTPUT.PUT_LINE('  ExcludeReserved=' || v_ExcludeReserved) ;
+       ELSE
+         DBMS_OUTPUT.PUT_LINE('*** Unknown Parameter=' || Cur_Parameter.ParameterName) ;
+       END IF;
+@@ -213,7 +217,8 @@
+         (s.QTYORDERONHAND) AS QtyOnHandOrder,
+         s.C_UOM_ID,
+         s.M_Product_UOM_ID,
+-        s.M_AttributeSetInstance_ID
++s.M_AttributeSetInstance_ID,
++        COALESCE(s.reservedqty, 0) AS reservedqty
+       FROM M_Product p
+       INNER JOIN M_Storage_Detail s ON(s.M_Product_ID=p.M_Product_ID) 
+       LEFT JOIN m_attributeset aset ON p.m_attributeset_id = aset.m_attributeset_id	
+@@ -246,6 +251,7 @@
+ 		 AND PREQTYONHAND=0
+ 		 AND COALESCE(PREQTYORDERONHAND,0) = 0) OR v_QtyRange = '=')
+         AND p.isgeneric = 'N'
++AND (v_ExcludeReserved = 'N' OR s.reservedqty = 0)
+       ORDER BY s.M_Locator_ID,
+         p.Value,
+         s.Created
+@@ -279,14 +285,13 @@
+               IsActive, Created, CreatedBy, Updated,
+               UpdatedBy, M_Inventory_ID, M_Locator_ID, M_ATTRIBUTESETINSTANCE_ID,
+               M_Product_ID, QtyBook, QtyCount, C_UOM_ID,
+-              QUANTITYORDER, QUANTITYORDERBOOK, M_Product_UOM_ID
++              QUANTITYORDER, QUANTITYORDERBOOK, M_Product_UOM_ID, reservedqty
+             )
+             VALUES
+             (
+               v_NextNo, v_NextLine, v_Client_ID, v_Org_ID,
+                'Y', now(), v_User_ID, now(),
+               v_User_ID, v_Record_ID, Cur_Storage.M_Locator_ID, Cur_Storage.M_ATTRIBUTESETINSTANCE_ID,
+-              Cur_Storage.M_Product_ID, Cur_Storage.QtyOnHand,( CASE v_Regularization WHEN 'Y' THEN 0 ELSE Cur_Storage.QtyOnHand END), Cur_Storage.C_UOM_ID,(CASE WHEN Cur_Storage.QtyOnHandOrder IS NULL THEN NULL ELSE(CASE v_Regularization WHEN 'Y' THEN 0 ELSE Cur_Storage.QtyOnHandOrder END) END), Cur_Storage.QtyOnHandOrder, Cur_Storage.M_Product_UOM_ID
+             )
+             ;
+           v_NextLine:=v_NextLine + 10;
+@@ -302,7 +307,8 @@
+             QUANTITYORDERBOOK=Cur_Storage.QtyOnHandOrder,
+             M_Product_UOM_ID=Cur_Storage.M_Product_UOM_ID,
+             Updated=now(),
+-            UpdatedBy=v_User_ID
++            UpdatedBy=v_User_ID,
++	reservedqty=Cur_Storage.reservedqty
+           WHERE M_Inventory_ID=v_Record_ID
+             AND M_Product_ID=Cur_Storage.M_Product_ID
+             AND C_UOM_ID=Cur_Storage.C_UOM_ID
+diff -r cd98953b932b src-db/database/model/functions/M_MOVEMENT_POST.xml
+--- a/src-db/database/model/functions/M_MOVEMENT_POST.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_MOVEMENT_POST.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -195,7 +195,7 @@
+           END IF;
+           
+           IF (cur_moveline.m_reservation_id IS NOT NULL) THEN
+-            SELECT COALESCE(SUM(quantity - COALESCE(releasedqty,0)), 0) INTO v_reservedqty
++            SELECT COALESCE(SUM(quantity - releasedqty), 0) INTO v_reservedqty
+             FROM m_reservation_stock
+             WHERE m_reservation_id = cur_moveline.m_reservation_id
+               AND m_locator_id = cur_moveline.m_locator_id
+@@ -221,7 +221,7 @@
+               AND m_product_uom_id IS NULL;
+             v_reservedqty := cur_moveline.movementqty;
+             FOR cur_res_stock IN (
+-                SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty,0) AS reservedqty, isallocated
++                SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty, isallocated
+                 FROM m_reservation_stock
+                 WHERE m_reservation_id = cur_moveline.m_reservation_id
+                   AND m_locator_id = cur_moveline.m_locator_id
+diff -r cd98953b932b src-db/database/model/functions/M_PRICELIST_CREATE.xml
+--- a/src-db/database/model/functions/M_PRICELIST_CREATE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_PRICELIST_CREATE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -317,7 +317,7 @@
+               UpdatedBy,
+               PriceList,
+               PriceStd,
+-              PriceLimit
++               PriceLimit,em_cl_cessionprice, em_cl_mrpprice, em_cl_ccunitprice, em_cl_ccueprice, em_cl_ccpcbprice, em_cl_followcatalog
+             )
+           SELECT  get_uuid(), v_PriceList_Version_ID,
+             pp.M_Product_ID, v_Client_ID, v_Org_ID, 'Y',
+@@ -327,7 +327,9 @@
+             -- Price Std
+             COALESCE(C_Currency_Convert(pp.PriceStd, pl.C_Currency_ID, v_Currency_ID, Cur_DiscountLine.ConversionDate, Cur_DiscountLine.ConversionRateType, v_Client_ID, v_Org_ID), 0),
+             -- Price Limit
+-            COALESCE(C_Currency_Convert(pp.PriceLimit, pl.C_Currency_ID, v_Currency_ID, Cur_DiscountLine.ConversionDate, Cur_DiscountLine.ConversionRateType, v_Client_ID, v_Org_ID), 0)
++            
++            COALESCE(C_Currency_Convert(pp.PriceLimit, pl.C_Currency_ID, v_Currency_ID, Cur_DiscountLine.ConversionDate, Cur_DiscountLine.ConversionRateType, v_Client_ID, v_Org_ID), 0),
++            pp.em_cl_cessionprice, pp.em_cl_mrpprice, pp.em_cl_ccunitprice, pp.em_cl_ccueprice, pp.em_cl_ccpcbprice, 'Y'
+           FROM M_ProductPrice pp
+           INNER JOIN M_PriceList_Version plv
+             ON(pp.M_PriceList_Version_ID=plv.M_PriceList_Version_ID)
+diff -r cd98953b932b src-db/database/model/functions/M_PRODUCTION_RUN.xml
+--- a/src-db/database/model/functions/M_PRODUCTION_RUN.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_PRODUCTION_RUN.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -254,7 +254,8 @@
+               v_pinstance_msg AD_PInstance.errormsg%TYPE;
+             BEGIN
+               v_pinstance_id := get_uuid();
+-             M_GET_STOCK_PARAM(v_pinstance_id, v_record_id, null, v_Product_old, null, null, v_Warehouse_old, cur_bom.org_id, null, p_user, v_client_id, null, v_UOM_old, null, null, null, 10, '137', null, 'N', v_pinstance_result, v_pinstance_msg);
++         SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_pinstance_id, v_record_id, null, v_Product_old, null, null, v_Warehouse_old, cur_bom.org_id, null, p_user,
++              v_client_id, null, v_UOM_old, null, null, null, 10, '137', null, 'N');
+               -- Check result
+               IF (v_pinstance_result = 0) THEN
+                 -- Error on m_get_stock
+diff -r cd98953b932b src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml
+--- a/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_RESERVATION_CONSUMPTION.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -44,97 +44,286 @@
+   v_warehouse_id        VARCHAR2(32);
+   v_product_id          VARCHAR2(32);
+   v_uom_id              VARCHAR2(32);
++  v_res_stock_id        VARCHAR2(32);
++  v_storage_detail_id   VARCHAR2(32);
+   v_dim_warehouse_id    VARCHAR2(32);
+   v_dim_locator_id      VARCHAR2(32);
+   v_dim_asi_id          VARCHAR2(32);
+   v_res_status          M_RESERVATION.RES_STATUS%TYPE;
+-  v_this_pendingqty     NUMBER;
+-  v_this_sd_reserved    NUMBER;
+-  v_qtytorelease        NUMBER;
+-  v_attr_description    VARCHAR2(255);
+-  v_product_value       VARCHAR2(40);
+-  v_locator_value       VARCHAR2(40);
+-  v_uom_value           VARCHAR2(3);
++  v_qtytounreserve      NUMBER;
++  v_qtytounreserve_aux  NUMBER;
++  v_qtytoreserve        NUMBER;
++  v_qtyfromother        NUMBER;
++  v_newreservedqty      NUMBER;
++  v_availablestock      NUMBER;
++  v_dummy               VARCHAR2(2000);
++  v_prd_name        VARCHAR2(32); 
++
++  v_this_notreserved    NUMBER;
++  v_this_reservedqty    NUMBER;
++  v_this_releasedqty    NUMBER;
++  v_this_allocated      NUMBER;
++  v_this_noalloc        NUMBER;
++  v_this_sd_alloc       NUMBER;
++  v_this_sd_noalloc     NUMBER;
++  v_stock_onhand        NUMBER;
++  v_stock_res           NUMBER;
++  v_stock_alloc         NUMBER;
++
++  v_qtytorelease        NUMBER; 
+ 
+   TYPE RECORD IS REF CURSOR;
+-  cur_reserved_stock    RECORD;
++  cur_reserved_stock       RECORD;
++  cur_not_allocated_stock  RECORD;
+ BEGIN
+-  SELECT r.m_product_id, r.c_uom_id, COALESCE(r.quantity, 0) - COALESCE(r.releasedqty, 0),
++  SELECT r.m_product_id, r.c_uom_id, COALESCE(r.reservedqty, 0), COALESCE(r.releasedqty, 0), r.quantity - COALESCE(r.reservedqty, 0),
++      COALESCE(SUM(alloc.quantity - alloc.releasedqty), 0),
+       r.m_warehouse_id, r.m_locator_id, r.m_attributesetinstance_id, r.res_status
+-    INTO v_product_id, v_uom_id, v_this_pendingqty, 
++    INTO v_product_id, v_uom_id, v_this_reservedqty, v_this_releasedqty, v_this_notreserved,
++      v_this_allocated, 
+       v_dim_warehouse_id, v_dim_locator_id, v_dim_asi_id, v_res_status
+   FROM m_reservation r
+-      LEFT JOIN m_reservation_stock noalloc ON r.m_reservation_id = noalloc.m_reservation_id AND noalloc.isallocated = 'N'
++LEFT JOIN m_reservation_stock alloc ON r.m_reservation_id = alloc.m_reservation_id AND alloc.isallocated = 'Y'
+   WHERE r.m_reservation_id = p_reservation_id
+   GROUP BY r.m_product_id, r.c_uom_id, r.reservedqty, COALESCE(r.releasedqty,0), r.quantity,
+       r.m_warehouse_id, r.m_locator_id, r.m_attributesetinstance_id, r.res_status;
+   
+-  SELECT value
+-    INTO v_product_value
+-  FROM M_Product
+-  WHERE M_Product_ID = v_product_id;
++v_this_noalloc := v_this_reservedqty - v_this_allocated;
+ 
+-  IF(p_attributesetinstance_id IS NOT NULL) THEN
+-    SELECT description
+-      INTO v_attr_description
+-    FROM M_AttributeSetInstance
+-    WHERE M_AttributeSetInstance_ID = p_attributesetinstance_id;
++IF (v_res_status = 'HO') THEN
++    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeHoldReservation@');
++ END IF; 
++
++  SELECT sd.qtyonhand, sd.m_storage_detail_id, loc.m_warehouse_id
++    INTO v_stock_onhand, v_storage_detail_id, v_warehouse_id
++  FROM m_storage_detail sd
++    JOIN m_locator loc ON sd.m_locator_id = loc.m_locator_id
++  WHERE sd.m_product_id = v_product_id
++    AND sd.c_uom_id = v_uom_id
++    AND sd.m_attributesetinstance_id = COALESCE(p_attributesetinstance_id, '0')
++    AND sd.m_locator_id = p_locator_id;
++    
++ SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty, 0)), 0),
++      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0)
++    INTO v_stock_res, v_stock_alloc, v_this_sd_alloc, v_this_sd_noalloc
++  FROM m_reservation_stock rs
++    JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
++  WHERE r.m_product_id = v_product_id
++    AND r.res_status NOT IN ('CL', 'DR')
++    AND r.c_uom_id = v_uom_id
++    AND rs.m_locator_id = p_locator_id
++    AND rs.m_attributesetinstance_id = COALESCE(p_attributesetinstance_id, '0');
++
++  IF (COALESCE(v_dim_warehouse_id, v_warehouse_id) != v_warehouse_id
++ --OR COALESCE(v_dim_locator_id, p_locator_id) != p_locator_id
++      --OR COALESCE(v_dim_asi_id, p_attributesetinstance_id) != p_attributesetinstance_id
++      ) THEN
++    RAISE_APPLICATION_ERROR(-20000, '@WrongStockDimensionMismatch@');     
++END IF;
++
++  v_pendingtorelease := p_qty;
++  IF (v_pendingtorelease > v_this_reservedqty - v_this_releasedqty) THEN
++   v_pendingtorelease := v_this_reservedqty - v_this_releasedqty;
++    p_result := 2;
++   p_message := '@MoreQuantityToReleaseThanPending@';
++  END IF;
++-- Check that quantity to release is lower than available quantity considering other reservations allocated stock.
++
++
++  IF (v_pendingtorelease > v_stock_onhand - (v_stock_alloc - v_this_sd_alloc)) THEN
++   select name into v_prd_name from m_product where m_product_id in (select m_product_id from m_reservation where m_reservation_id=p_reservation_id);
++    RAISE EXCEPTION 'pendingtorelease  %, stock_onhand  %, stock_alloc %,this_sd_alloc % ,reservation_id %, product_name %',
++ v_pendingtorelease, v_stock_onhand , v_stock_alloc ,v_this_sd_alloc,p_reservation_id,v_prd_name;
++    --RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeAllStock@');
+   END IF;
+ 
+-  SELECT uomsymbol
+-    INTO v_uom_value
+-  FROM C_Uom
+-  WHERE C_Uom_ID = v_uom_id;
++  --IF (v_pendingtorelease > v_this_sd_alloc + v_this_noalloc) THEN
++    -- The quantity to release is higher than the currently allocated stock with given dimensions and the no allocated
++    -- reserved stock.
++ --   RAISE_APPLICATION_ERROR(-20000, '@CannotModifyAllocatedReserve@');
++  --END IF;
++  
++IF (v_pendingtorelease <= v_this_sd_alloc + v_this_sd_noalloc) THEN
++    -- All stock can be released by reservations own reserved stock
++    v_qtytoreserve := 0;
++    v_qtyfromother := 0;
++  ELSE 
++    -- There is not reserved stock available.
+ 
+-  IF (p_locator_id IS NOT NULL) THEN
+-    SELECT value, m_warehouse_id 
+-      INTO v_locator_value, v_warehouse_id
+-    FROM M_Locator
+-    WHERE M_Locator_ID = p_locator_id;
++
++    v_qtytoreserve := LEAST(v_stock_onhand - v_stock_res, v_pendingtorelease - (v_this_sd_alloc + v_this_sd_noalloc));
++    v_qtyfromother := v_pendingtorelease - v_qtytoreserve - (v_this_sd_alloc + v_this_sd_noalloc);
+   END IF;
++  
++  -- If exists not reserved stock reserve in current reservation.
++  v_ResultStr := 'Reserve and release available stock';
++  IF (v_qtytoreserve > 0) THEN
++    -- Reserve available stock
++   v_qtytounreserve := LEAST(v_qtytoreserve, v_this_noalloc - v_this_sd_noalloc);
++    IF (v_qtytounreserve > 0) THEN
+     
+-  IF (v_res_status = 'HO') THEN
+-    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeHoldReservation@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')||', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-'));
++
++      --If exists not allocated stock it has to be unreserved before reserving the new one.
++      FOR cur_reserved_stock IN (
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
++          FROM m_reservation_stock
++          WHERE m_reservation_id = p_reservation_id
++            AND isallocated = 'N'
++            AND quantity != releasedqty
++          ORDER BY quantity - releasedqty
++      ) LOOP
++        v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
++        UPDATE m_reservation_stock
++        SET quantity = quantity - v_qtytounreserve_aux
++        WHERE m_reservation_stock_id = cur_reserved_stock.m_reservation_stock_id;
++        v_qtytounreserve := v_qtytounreserve - v_qtytounreserve_aux;
++
++        IF (v_qtytounreserve = 0) THEN
++          EXIT;
++        END IF;
++      END LOOP;
++    END IF;
++--RAISE EXCEPTION 'p_reservation_id  %, v_storage_detail_id  %, v_qtytoreserve %,p_user_id %',p_reservation_id, v_storage_detail_id , v_qtytoreserve ,p_user_id;
++    M_RESERVE_STOCK_MANUAL(p_reservation_id, 'SD', v_storage_detail_id, v_qtytoreserve, p_user_id, 'N', v_res_stock_id);
++--RAISE EXCEPTION 'v_res_stock_id %',v_res_stock_id;
+   END IF;
+-
+-  IF (COALESCE(v_dim_warehouse_id, v_warehouse_id) != v_warehouse_id
+-      OR COALESCE(v_dim_locator_id, p_locator_id) != p_locator_id
+-      OR COALESCE(v_dim_asi_id, p_attributesetinstance_id) != p_attributesetinstance_id) THEN
+-    RAISE_APPLICATION_ERROR(-20000, '@WrongStockDimensionMismatch@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')||', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-'));
+-  END IF;
+-
+-  v_pendingtorelease := p_qty;
+-  IF (v_pendingtorelease >v_this_pendingqty) THEN
+-    v_pendingtorelease := v_this_pendingqty;
+-    p_result := 2;
+-    p_message := '@MoreQuantityToReleaseThanPending@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')|| ', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-');
+-  END IF;
+-
+-  SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty,0)),0)
+-    INTO v_this_sd_reserved
+-  FROM m_reservation_stock rs
+-  WHERE rs.m_locator_id = p_locator_id
+-    AND rs.m_reservation_id = p_reservation_id
+-    AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0');
+   
+-  IF (v_pendingtorelease > v_this_sd_reserved) THEN
+-    -- The reservation does not have enough stock reserved on given locator and attributes, reallocation is needed.
+-    M_RESERVATION_REALLOCATE(p_reservation_id, p_locator_id, p_attributesetinstance_id, p_qty, p_user_id, p_result, p_message);
++  IF (v_qtyfromother > 0) THEN
++    -- Finally take other reservation's not allocated stock.
++    v_ResultStr := 'Reserve other reservations stock';
++    FOR cur_not_allocated_stock IN (
++        SELECT r.m_reservation_id, rs.quantity, rs.releasedqty as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
++               r.ad_client_id, r.ad_org_id, r.m_product_id, r.c_uom_id, r.m_attributesetinstance_id, r.m_locator_id, r.m_warehouse_id,
++               r.c_orderline_id
++        FROM m_reservation_stock rs
++          JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
++        WHERE r.m_reservation_id != p_reservation_id
++         AND r.m_product_id = v_product_id
++          AND r.c_uom_id = v_uom_id
++          AND rs.m_locator_id = p_locator_id
++          AND rs.m_attributesetinstance_id = COALESCE(p_attributesetinstance_id, '0')
++          AND rs.isallocated = 'N'
++          AND r.res_status NOT IN ('HO', 'CL', 'DR')
++          AND rs.quantity != rs.releasedqty
++    ) LOOP
++      v_qtytorelease := LEAST(v_qtyfromother, cur_not_allocated_stock.quantity - cur_not_allocated_stock.releasedqty);
++      
++      IF (v_qtytorelease > COALESCE(v_this_notreserved, 0)) THEN
++        --The new reserved stock is higher than the pending quantity to reserve, other reserved stock must be unreserved.
++        v_qtytounreserve := v_qtytorelease - COALESCE(v_this_notreserved, 0);
++        FOR cur_reserved_stock IN (
++            SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
++           FROM m_reservation_stock
++            WHERE m_reservation_id = p_reservation_id
++              AND isallocated = 'N'
++              AND quantity != releasedqty
++        ) LOOP
++          v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
++          UPDATE m_reservation_stock
++          SET quantity = quantity - v_qtytounreserve_aux
++          WHERE m_reservation_stock_id = cur_reserved_stock.m_reservation_stock_id;
++          v_qtytounreserve := v_qtytounreserve - v_qtytounreserve_aux;
++  
++          IF (v_qtytounreserve = 0) THEN
++            EXIT;
++          END IF;
++        END LOOP;
++      END IF;
++      
++     UPDATE m_reservation_stock
++      SET quantity = quantity - v_qtytorelease
++      WHERE m_reservation_stock_id = cur_not_allocated_stock.m_reservation_stock_id;
++      DELETE FROM m_reservation_stock
++      WHERE quantity = 0
++        AND m_reservation_stock_id = cur_not_allocated_stock.m_reservation_stock_id;
++  
++      M_RESERVE_STOCK_MANUAL(p_reservation_id, 'SD', v_storage_detail_id, v_qtytorelease, p_user_id, 'N', v_res_stock_id);
++  
++      -- Call get stock to check availability
++      DECLARE
++        v_pinstance_result      AD_PInstance.result%TYPE;
++        v_pinstance_msg         AD_PInstance.errormsg%TYPE;
++        v_warehouse_rule_id     VARCHAR2(32);
++        v_pinstance_id          VARCHAR2(32) := get_uuid();
++      BEGIN
++        INSERT INTO ad_pinstance (
++            ad_pinstance_id, ad_process_id, record_id, isactive, 
++            ad_user_id, ad_client_id, ad_org_id, created, createdby,
++            updated, updatedby
++        ) VALUES (
++            v_pinstance_id, 'FF80818132C964E30132C9747257002E', p_reservation_id, 'Y',
++            p_User_ID, cur_not_allocated_stock.ad_client_id, cur_not_allocated_stock.ad_Org_ID, now(), p_user_ID,
++            now(), p_user_ID
++        );
++    
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '10', 'AD_Client_ID', cur_not_allocated_stock.ad_client_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '20', 'AD_Org_ID', cur_not_allocated_stock.ad_org_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '30', 'M_Product_ID', cur_not_allocated_stock.m_product_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '40', 'C_Uom_ID', cur_not_allocated_stock.c_uom_id, null, null, null, null, null);
++        --AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '50', 'M_Product_Uom_ID', v_Product_UOM_old, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'M_Warehouse_ID', cur_not_allocated_stock.m_warehouse_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '70', 'M_Locator_ID', cur_not_allocated_stock.m_locator_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '80', 'M_AttributesetInstance_ID', cur_not_allocated_stock.m_attributesetinstance_id, null, null, null, null, null);
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'Quantity', null, null, cur_not_allocated_stock.quantitytoreserve, null, null, null);
++        /*
++        * ADD PROPER PROCESS ID!
++        */
++        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '100', 'ProcessID', '---', null, null, null, null, null);
++    
++        IF (cur_not_allocated_stock.c_orderline_id IS NOT NULL) THEN
++          SELECT m_warehouse_rule_id INTO v_warehouse_rule_id
++          FROM c_orderline
++          WHERE c_orderline_id = cur_not_allocated_stock.c_orderline_id;
++          AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '110', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
++        END IF;
++    
++        M_GET_STOCK(v_pinstance_ID, 'N');
++        -- Check result
++        SELECT result, errormsg
++          INTO v_pinstance_result, v_pinstance_msg
++        FROM ad_pinstance
++       WHERE ad_pinstance_id = v_pinstance_id;
++        IF (v_pinstance_result = 0) THEN
++          -- Error on m_get_stock
++          RAISE_APPLICATION_ERROR(-20000, v_pinstance_msg);
++        END IF;
++       SELECT sum(quantity) INTO v_availablestock
++        FROM m_stock_proposed
++       WHERE ad_pinstance_id = v_pinstance_id;
++      END; -- End Call M_GET_STOCK
++      
++      IF (v_availablestock >= v_qtytorelease) THEN
++        M_RESERVE_STOCK_AUTO(cur_not_allocated_stock.m_reservation_id, p_user_id, v_newreservedqty);
++      ELSE
++        --Not enough available stock has been able to reallocate using new stock, undo reallocation.
++        UPDATE m_reservation_stock
++        SET quantity = COALESCE(quantity,0) - v_qtytorelease,
++            updated = now(),
++            updatedby = p_user_id
++        WHERE m_reservation_stock_id = v_res_stock_id;
++  
++        UPDATE m_reservation_stock
++        SET quantity = quantity + v_qtytorelease
++        WHERE m_reservation_stock_id = cur_not_allocated_stock.m_reservation_stock_id;
++      END IF;
++    END LOOP;
+   END IF;
+   
+   -- Release stock reserved in the reservation.
+   v_ResultStr := 'Release reserved stock';
+   FOR cur_reserved_stock IN (
+-      SELECT quantity - COALESCE(releasedqty,0) AS reservedqty, m_reservation_stock_id
++      SELECT quantity - releasedqty AS reservedqty, m_reservation_stock_id, isallocated
+       FROM m_reservation_stock
+       WHERE m_locator_id = p_locator_id
+-        AND COALESCE(m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
++        AND m_attributesetinstance_id = COALESCE(p_attributesetinstance_id, '0')
+         AND m_reservation_id = p_reservation_id
+       ORDER BY CASE isallocated WHEN 'Y' THEN 0 ELSE 1 END
+   ) LOOP
+     v_qtytorelease := LEAST(cur_reserved_stock.reservedqty, v_pendingtorelease);
+     UPDATE m_reservation_stock
+-    SET releasedqty = COALESCE(releasedqty,0) + v_qtytorelease,
++    SET releasedqty = releasedqty + v_qtytorelease,
+         updated = now(),
+         updatedby = p_user_id
+     WHERE m_reservation_stock_id = cur_reserved_stock.m_reservation_stock_id;
+@@ -145,10 +334,17 @@
+       EXIT;
+     END IF;
+   END LOOP;
+-  
++  -- Delete records with quantity 0 that might be left.
++  DELETE FROM m_reservation_stock
++  WHERE m_reservation_id = p_reservation_id
++    AND quantity = 0;
+   IF (v_pendingtorelease > 0) THEN
+-    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeAllStock@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')||', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-'));
+-  END IF;
++    select name into v_prd_name from m_product where m_product_id in (select m_product_id from m_reservation where m_reservation_id=p_reservation_id);
++    RAISE EXCEPTION 'pendingtorelease  %, stock_onhand  %, stock_alloc %,this_sd_alloc % ,reservation_id %, product_name %',
++ v_pendingtorelease, v_stock_onhand , v_stock_alloc ,v_this_sd_alloc,p_reservation_id,v_prd_name;
++
++--    RAISE_APPLICATION_ERROR(-20000, '@CannotConsumeAllStock@');
++ END IF;
+ EXCEPTION
+ WHEN OTHERS THEN
+   DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+diff -r cd98953b932b src-db/database/model/functions/M_RESERVATION_POST.xml
+--- a/src-db/database/model/functions/M_RESERVATION_POST.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_RESERVATION_POST.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -124,10 +124,10 @@
+       END IF;
+       -- Convert prereservation to reserve if purchase order is receipt.
+       FOR cur_prereserve IN (
+-          SELECT rs.m_reservation_stock_id, rs.quantity, COALESCE(rs.releasedqty, 0) AS releasedqty, rs.c_orderline_id
++          SELECT rs.m_reservation_stock_id, rs.quantity, rs.releasedqty AS releasedqty, rs.c_orderline_id
+           FROM m_reservation_stock rs
+           WHERE rs.m_reservation_id = v_reservation_id
+-            AND rs.quantity - COALESCE(rs.releasedqty, 0) > 0
++            AND rs.quantity - rs.releasedqty > 0
+             AND rs.c_orderline_id IS NOT NULL
+       ) LOOP
+         v_qtytoreserve := cur_prereserve.quantity - cur_prereserve.releasedqty;
+@@ -187,7 +187,7 @@
+         DELETE FROM m_reservation_stock
+         WHERE c_orderline_id = cur_prereserve.c_orderline_id
+           AND quantity = 0
+-          AND COALESCE(releasedqty, 0) = 0;
++          AND releasedqty = 0;
+       END LOOP;
+       -- Check that stock is still available
+       FOR cur_not_available IN (
+@@ -200,7 +200,7 @@
+                                              AND sd.m_product_uom_id IS NULL
+                                              AND sd.m_attributesetinstance_id = rs.m_attributesetinstance_id
+                                              AND sd.m_locator_id = rs.m_locator_id
+-        WHERE rs.quantity - COALESCE(rs.releasedqty, 0) > sd.qtyonhand - sd.reservedqty
++        WHERE rs.quantity - rs.releasedqty > sd.qtyonhand - sd.reservedqty
+           AND rs.m_reservation_id = v_reservation_id
+           AND rs.m_locator_id IS NOT NULL
+       ) LOOP
+@@ -222,6 +222,8 @@
+                       JOIN m_reservation r ON rs2.m_reservation_id = r.m_reservation_id
+                   WHERE rs2.c_orderline_id IS NOT NULL
+                     AND r.res_status NOT IN ('DR')
++AND r.m_product_id = v_product_id
++                    AND r.c_uom_id = v_uom_id
+                     AND r.m_product_id = v_product_id
+                     AND r.c_uom_id = v_uom_id
+                   GROUP BY rs2.c_orderline_id
+@@ -325,12 +327,12 @@
+       
+       -- Convert to pre-reserve reservations related to purchase orders that are not released.
+       FOR cur_prereserve IN (
+-          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty, c_orderline_id
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty, c_orderline_id
+           FROM m_reservation_stock
+           WHERE m_reservation_id = v_reservation_id
+             AND c_orderline_id IS NOT NULL
+             AND m_locator_id IS NOT NULL
+-            AND quantity - COALESCE(releasedqty, 0) > 0
++            AND quantity - releasedqty > 0
+       ) LOOP
+         -- Check if exists a pre-reserve for the purchase order line.
+         SELECT COUNT(*), MAX(m_reservation_stock_id)
+@@ -364,7 +366,7 @@
+       DELETE FROM m_reservation_stock
+       WHERE m_reservation_id = v_reservation_id
+         AND quantity = 0
+-        AND COALESCE(releasedqty, 0) = 0;
++        AND releasedqty = 0;
+ 
+       UPDATE c_order
+       SET so_res_status = CASE WHEN v_reservedcount > 0 THEN 'PR'
+diff -r cd98953b932b src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+--- a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -86,7 +86,7 @@
+     p_result := 1;
+   END IF;
+   SELECT r.m_product_id, r.c_uom_id, COALESCE(r.reservedqty, 0), COALESCE(r.releasedqty, 0), r.quantity - COALESCE(r.reservedqty, 0),
+-      COALESCE(SUM(alloc.quantity - COALESCE(alloc.releasedqty, 0)), 0),
++      COALESCE(SUM(alloc.quantity - alloc.releasedqty), 0),
+       r.m_warehouse_id, r.m_locator_id, r.m_attributesetinstance_id, r.res_status
+     INTO v_product_id, v_uom_id, v_this_reservedqty, v_this_releasedqty, v_this_notreserved,
+       v_this_allocated,
+@@ -138,10 +138,10 @@
+     AND sd.m_attributesetinstance_id = v_attributesetinstance_id
+     AND sd.m_locator_id = p_locator_id;
+     
+-  SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty, 0)), 0),
+-      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
+-      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0),
+-      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - COALESCE(rs.releasedqty,0) ELSE 0 END), 0)
++  SELECT COALESCE(SUM(rs.quantity - rs.releasedqty), 0),
++      COALESCE(SUM(CASE rs.isallocated WHEN 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'Y' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0),
++      COALESCE(SUM(CASE WHEN r.m_reservation_id = p_reservation_id AND rs.isallocated = 'N' THEN rs.quantity - rs.releasedqty ELSE 0 END), 0)
+     INTO v_stock_res, v_stock_alloc, v_this_sd_alloc, v_this_sd_noalloc
+   FROM m_reservation_stock rs
+     JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+@@ -202,13 +202,13 @@
+ 
+       --If exists not allocated stock it has to be unreserved before reserving the new one.
+       FOR cur_reserved_stock IN (
+-          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+           FROM m_reservation_stock
+           WHERE m_reservation_id = p_reservation_id
+             AND isallocated = 'N'
+-            AND quantity <> COALESCE(releasedqty,0)
++            AND quantity <> releasedqty
+             AND (m_attributesetinstance_id <> v_attributesetinstance_id OR m_locator_id <> p_locator_id)
+-          ORDER BY quantity - COALESCE(releasedqty,0)
++          ORDER BY quantity - releasedqty
+       ) LOOP
+         v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+         UPDATE m_reservation_stock
+@@ -237,7 +237,7 @@
+   -- Finally take other reservation's not allocated stock.
+   v_ResultStr := 'Reserve other reservations stock';
+   FOR cur_not_allocated_stock IN (
+-      SELECT r.m_reservation_id, rs.quantity, COALESCE(rs.releasedqty,0) as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
++      SELECT r.m_reservation_id, rs.quantity, rs.releasedqty as releasedqty, rs.m_reservation_stock_id, r.reservedqty, r.quantity as quantitytoreserve,
+              r.ad_client_id, r.ad_org_id, r.m_product_id, r.c_uom_id, r.m_attributesetinstance_id, r.m_locator_id, r.m_warehouse_id,
+              r.c_orderline_id
+       FROM m_reservation_stock rs
+@@ -249,7 +249,7 @@
+         AND rs.m_attributesetinstance_id = v_attributesetinstance_id
+         AND rs.isallocated = 'N'
+         AND r.res_status NOT IN ('HO', 'CL', 'DR')
+-        AND rs.quantity <> COALESCE(rs.releasedqty,0)
++        AND rs.quantity <> rs.releasedqty
+   ) LOOP
+     v_qtytorelease := LEAST(v_pendingtoreallocate, cur_not_allocated_stock.quantity - cur_not_allocated_stock.releasedqty);
+     
+@@ -260,12 +260,12 @@
+       v_qtytounreserve := v_qtytorelease - v_this_notreserved;
+       v_this_notreserved := 0;
+       FOR cur_reserved_stock IN (
+-          SELECT m_reservation_stock_id, quantity - COALESCE(releasedqty, 0) AS reservedqty
++          SELECT m_reservation_stock_id, quantity - releasedqty AS reservedqty
+           FROM m_reservation_stock
+           WHERE m_reservation_id = p_reservation_id
+             AND isallocated = 'N'
+             AND (m_attributesetinstance_id <> v_attributesetinstance_id OR m_locator_id <> p_locator_id)
+-            AND quantity <> COALESCE(releasedqty,0)
++            AND quantity <> releasedqty
+       ) LOOP
+ 
+         v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+diff -r cd98953b932b src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml
+--- a/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -77,7 +77,8 @@
+       WHERE c_orderline_id = v_soline_id;
+     END IF;
+ 
+-    M_GET_STOCK_PARAM(v_pinstance_id, p_reservation_id, v_pendingtoreserveqty, v_product_id, v_locator_id, v_warehouse_id, v_prioritywarehouse_id, v_org_id, v_asi_id, p_User_ID, v_client_id, v_warehouse_rule_id, v_uom_id, null, null, null, null, '---', null, 'N', v_pinstance_result, v_pinstance_msg);
++    SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_pinstance_id, p_reservation_id, v_pendingtoreserveqty, v_product_id, v_locator_id, v_warehouse_id, null, v_org_id, v_asi_id, p_User_ID,
++   v_client_id, v_warehouse_rule_id, v_uom_id, null, null, null, null, '---', p_reservation_id, 'N');
+     -- Check result
+     IF (v_pinstance_result = 0) THEN
+       -- Error on m_get_stock
+diff -r cd98953b932b src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
+--- a/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -99,7 +99,7 @@
+         FROM M_Locator
+         WHERE M_Locator_ID = v_reserve_locator_id;
+       END IF;
+-      RAISE_APPLICATION_ERROR(-20000, '@GivenStorageDetailDoesNotMatchReservationRequirements@' || ' @of@' || ' @Product@: ' || v_product_value || ', @AttributeSetInstance@: ' || COALESCE(v_attr_description, '-') || ', @UOM@: ' || v_uom_value || ' @And@'||' @StorageBin@: ' || COALESCE(v_locator_value, '-'));
++       -- RAISE_APPLICATION_ERROR(-20000, '@GivenStorageDetailDoesNotMatchReservationRequirements@' || ' @of@' || ' @Product@: ' || v_product_value || ', @AttributeSetInstance@: ' || COALESCE(v_attr_description, '-') || ', @UOM@: ' || v_uom_value || ' @And@'||' @StorageBin@: ' || COALESCE(v_locator_value, '-'));
+     END IF;
+ 
+     SELECT m_locator_id, m_attributesetinstance_id
+diff -r cd98953b932b src-db/database/model/functions/M_UNIQUEATTRIBUTE_RULE.xml
+--- a/src-db/database/model/functions/M_UNIQUEATTRIBUTE_RULE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_UNIQUEATTRIBUTE_RULE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -97,7 +97,7 @@
+     SELECT name INTO v_productname
+     FROM m_product
+     WHERE m_product_id = v_productid;
+-    v_Message := '@Product@: ' || v_productname ||'. @NotEnoughAttUniqueStock@';
++v_Message := ' @NotEnoughAttUniqueStock@';
+     AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_Message, 'N');
+     RETURN;
+   END IF;
+diff -r cd98953b932b src-db/database/model/tables/AD_ORG_WAREHOUSE.xml
+--- a/src-db/database/model/tables/AD_ORG_WAREHOUSE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/tables/AD_ORG_WAREHOUSE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -52,7 +52,7 @@
+       </foreign-key>
+       <index name="AD_ORGWAREHOUSE_ORG_IDX" unique="false">
+         <index-column name="AD_ORG_ID"/>
+-      </index>
++      </index> 
+       <index name="AD_ORGWAREHOUSE_WH_IDX" unique="false">
+         <index-column name="M_WAREHOUSE_ID"/>
+       </index>
+diff -r cd98953b932b src-db/database/model/tables/M_INVENTORYLINE.xml
+--- a/src-db/database/model/tables/M_INVENTORYLINE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/tables/M_INVENTORYLINE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -81,6 +81,10 @@
+         <default><![CDATA[0]]></default>
+         <onCreateDefault/>
+       </column>
++<column name="RESERVEDQTY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
++        <default><![CDATA[0]]></default>
++        <onCreateDefault/>
++      </column>
+       <column name="COST" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+         <default/>
+         <onCreateDefault/>
+diff -r cd98953b932b src-db/database/model/tables/M_MOVEMENTLINE.xml
+--- a/src-db/database/model/tables/M_MOVEMENTLINE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/tables/M_MOVEMENTLINE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -5,6 +5,10 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
++<column name="C_ORDERLINE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
++        <default/>
++        <onCreateDefault/>
++      </column>
+       <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+         <default/>
+         <onCreateDefault/>
+@@ -81,6 +85,9 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
++<foreign-key foreignTable="C_ORDERLINE" name="M_MOVEMENTLINE_C_ORDERLINE">
++        <reference local="C_ORDERLINE_ID" foreign="C_ORDERLINE_ID"/>
++      </foreign-key>
+       <foreign-key foreignTable="AD_CLIENT" name="M_MOVEMENTLINE_AD_CLIENT">
+         <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+       </foreign-key>
+diff -r cd98953b932b src-db/database/model/tables/M_PRODUCT.xml
+--- a/src-db/database/model/tables/M_PRODUCT.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/tables/M_PRODUCT.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -488,6 +488,9 @@
+         <index-column name="UPC"/>
+         <index-column name="M_PRODUCT_ID"/>
+       </index>
++<index name="M_PRODUCT_MODELCODE" unique="false">
++        <index-column name="EM_CL_MODELCODE"/>
++      </index>
+       <index name="M_PRODUCT_VALUE_ID" unique="false">
+         <index-column name="VALUE"/>
+         <index-column name="M_PRODUCT_ID"/>
+@@ -498,10 +501,7 @@
+       <unique name="M_PRODUCT_RESOURCE">
+         <unique-column name="S_RESOURCE_ID"/>
+       </unique>
+-      <unique name="M_PRODUCT_VALUE">
+-        <unique-column name="AD_CLIENT_ID"/>
+-        <unique-column name="VALUE"/>
+-      </unique>
++       
+       <check name="M_PROD_LINKEDTOPROD_QRUL_CHECK"><![CDATA[ISLINKEDTOPRODUCT = 'Y' AND QUANTITY_RULE IS NOT NULL OR ISLINKEDTOPRODUCT = 'N']]></check>
+       <check name="M_PROD_LINKEDTOPROD_SEL_CHECK"><![CDATA[ISLINKEDTOPRODUCT = 'Y' AND (PROD_CAT_SELECTION IS NOT NULL OR PRODUCT_SELECTION IS NOT NULL) OR ISLINKEDTOPRODUCT = 'N']]></check>
+       <check name="M_PROD_LINKEDTOPRODUCT_CHECK"><![CDATA[ISLINKEDTOPRODUCT IN ('Y', 'N')]]></check>
+diff -r cd98953b932b src-db/database/model/tables/M_RESERVATION.xml
+--- a/src-db/database/model/tables/M_RESERVATION.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/tables/M_RESERVATION.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -123,9 +123,9 @@
+       <foreign-key foreignTable="M_WAREHOUSE" name="M_RESERVATION_WAREHOUSE">
+         <reference local="M_WAREHOUSE_ID" foreign="M_WAREHOUSE_ID"/>
+       </foreign-key>
+-      <index name="M_RESERVATION_ORDERLINE_IDX" unique="false">
++<index name="M_RESERVATION_ORDERLINE_IDX" unique="false">
+         <index-column name="C_ORDERLINE_ID"/>
+-      </index>
++      </index> 
+       <index name="M_RESERVATION_PRODUCT_IDX" unique="false">
+         <index-column name="M_PRODUCT_ID"/>
+       </index>
+diff -r cd98953b932b src-db/database/model/tables/M_RESERVATION_STOCK.xml
+--- a/src-db/database/model/tables/M_RESERVATION_STOCK.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/tables/M_RESERVATION_STOCK.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -57,9 +57,9 @@
+         <default><![CDATA[0]]></default>
+         <onCreateDefault><![CDATA['0']]></onCreateDefault>
+       </column>
+-      <column name="RELEASEDQTY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+-        <default/>
+-        <onCreateDefault/>
++      <column name="RELEASEDQTY" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
++        <default><![CDATA[0]]></default>
++        <onCreateDefault><![CDATA[0]]></onCreateDefault>
+       </column>
+       <foreign-key foreignTable="M_ATTRIBUTESETINSTANCE" name="M_RESERVATION_STOCK_ATTRSETINS">
+         <reference local="M_ATTRIBUTESETINSTANCE_ID" foreign="M_ATTRIBUTESETINSTANCE_ID"/>
+diff -r cd98953b932b src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
+--- a/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -35,13 +35,13 @@
+   END IF;
+ 
+   IF (INSERTING OR UPDATING) THEN
+-    v_reservedqtydiff := COALESCE(:NEW.quantity, 0);
+-    v_releasedqtydiff := COALESCE(:NEW.releasedqty, 0);
++    v_reservedqtydiff := :NEW.quantity;
++    v_releasedqtydiff := :NEW.releasedqty;
+     v_reservation_id := :NEW.m_reservation_id;
+     v_attributesetinstance_id := :NEW.m_attributesetinstance_id;
+     v_locator_id := :NEW.m_locator_id;
+     IF (:NEW.isallocated = 'Y') THEN
+-      v_allocatedqtydiff := COALESCE(:NEW.quantity, 0) - v_releasedqtydiff;
++      v_allocatedqtydiff := :NEW.quantity - v_releasedqtydiff;
+     END IF;
+     IF (:NEW.releasedqty > :NEW.quantity) THEN
+       RAISE_APPLICATION_ERROR(-20000, '@CannotReleasedMoreReserved@');
+@@ -49,11 +49,11 @@
+   END IF;
+ 
+   IF (UPDATING OR DELETING) THEN
+-    v_reservedqtydiff := v_reservedqtydiff - COALESCE(:OLD.quantity, 0);
+-    v_releasedqtydiff := v_releasedqtydiff - COALESCE(:OLD.releasedqty, 0);
++    v_reservedqtydiff := v_reservedqtydiff - :OLD.quantity;
++    v_releasedqtydiff := v_releasedqtydiff - :OLD.releasedqty;
+     v_reservation_id := :OLD.m_reservation_id;
+     IF (:OLD.isallocated = 'Y') THEN
+-      v_allocatedqtydiff := v_allocatedqtydiff - COALESCE(:OLD.quantity, 0) + COALESCE(:OLD.releasedqty, 0);
++      v_allocatedqtydiff := v_allocatedqtydiff - :OLD.quantity + :OLD.releasedqty;
+     END IF;
+   END IF;
+   
+@@ -70,8 +70,8 @@
+ 
+   IF (v_reservedqtydiff <> 0 OR v_releasedqtydiff <> 0 or v_allocatedqtydiff <> 0) THEN
+          UPDATE m_reservation
+-         SET reservedqty = COALESCE(reservedqty, 0) + v_reservedqtydiff,
+-             releasedqty = COALESCE(releasedqty, 0) + v_releasedqtydiff
++         SET reservedqty = reservedqty + v_reservedqtydiff,
++             releasedqty = releasedqty + v_releasedqtydiff
+          WHERE m_reservation_id = v_reservation_id;
+          SELECT res_status, m_product_id, c_uom_id INTO v_resstatus, v_m_product_id, v_c_uom_id FROM   m_reservation where m_reservation_id = v_reservation_id;
+          IF(v_resstatus <> 'DR') THEN
+diff -r cd98953b932b src-db/database/model/triggers/M_RESERVATION_TRG.xml
+--- a/src-db/database/model/triggers/M_RESERVATION_TRG.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/triggers/M_RESERVATION_TRG.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -88,8 +88,8 @@
+   IF (UPDATING) THEN
+     IF (:OLD.res_status = 'DR' AND :NEW.res_status <> 'DR') THEN
+       FOR cur_reservationstock IN (
+-	      select rs.m_locator_id, rs.m_attributesetinstance_id, SUM(rs.quantity - coalesce(rs.releasedqty,0)) as reservedqty, 
+-				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - coalesce(rs.releasedqty,0)) ELSE 0 END) as allocatedqty
++	      select rs.m_locator_id, rs.m_attributesetinstance_id, SUM(rs.quantity - rs.releasedqty) as reservedqty, 
++				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - rs.releasedqty) ELSE 0 END) as allocatedqty
+         from m_reservation_stock rs
+ 				where rs.m_reservation_id = :NEW.m_reservation_id
+ 				group by rs.m_locator_id, rs.m_attributesetinstance_id
+@@ -107,8 +107,8 @@
+     END IF;
+     IF (:OLD.res_status <> 'DR' AND :NEW.res_status = 'DR') THEN
+       FOR cur_reservationstock IN (
+-	      select rs.m_locator_id, rs.m_attributesetinstance_id, SUM(rs.quantity - coalesce(rs.releasedqty,0)) as reservedqty, 
+-				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - coalesce(rs.releasedqty,0)) ELSE 0 END) as allocatedqty
++	      select rs.m_locator_id, rs.m_attributesetinstance_id, SUM(rs.quantity - rs.releasedqty) as reservedqty, 
++				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - rs.releasedqty) ELSE 0 END) as allocatedqty
+ 				from m_reservation_stock rs
+ 				where rs.m_reservation_id = :NEW.m_reservation_id
+ 				group by rs.m_locator_id, rs.m_attributesetinstance_id
+
+diff -r cd98953b932b src-db/database/model/triggers/M_TRANSACTION_TRG2.xml
+--- a/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/triggers/M_TRANSACTION_TRG2.xml	Fri Dec 29 08:25:54 2017 +0530
+@@ -35,7 +35,7 @@
+   END IF;
+ 
+   IF (INSERTING) THEN
+-    IF (:NEW.movementqty < 0 AND :NEW.m_product_uom_id IS NULL) THEN
++    IF (:NEW.movementqty < 0 AND :NEW.m_product_uom_id IS NULL AND :NEW.m_inventoryline_id is null) THEN
+       -- Check reservations. Reserved stock must be released before inserting the transacion.
+       SELECT count(1) INTO v_count
+       FROM dual
+@@ -45,26 +45,26 @@
+                     WHERE r.res_status NOT IN ('CL', 'DR')
+                       AND r.m_product_id = :NEW.m_product_id
+                       AND r.c_uom_id = :NEW.c_uom_id
+-                      AND COALESCE(rs.m_attributesetinstance_id, '0') = :NEW.m_attributesetinstance_id
++			AND rs.m_attributesetinstance_id = :NEW.m_attributesetinstance_id
+                       AND rs.m_locator_id = :NEW.m_locator_id);
+       IF (v_count > 0) THEN
+-        SELECT COALESCE(sum(rs.quantity - COALESCE(rs.releasedqty,0)), 0), sd.qtyonhand
++        SELECT COALESCE(sum(rs.quantity - rs.releasedqty), 0), sd.qtyonhand
+           INTO v_reserved, v_onhand
+         FROM m_reservation_stock rs
+             JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+             JOIN m_storage_detail sd ON r.m_product_id = sd.m_product_id
+                                         AND r.c_uom_id = sd.c_uom_id
+-                                        AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(sd.m_attributesetinstance_id, '0')
++                                        AND rs.m_attributesetinstance_id = sd.m_attributesetinstance_id
+                                         AND rs.m_locator_id = sd.m_locator_id
+                                         AND sd.m_product_uom_id IS NULL
+         WHERE r.res_status NOT IN ('CL', 'DR')
+           AND r.m_product_id = :NEW.m_product_id
+           AND r.c_uom_id = :NEW.c_uom_id
+-          AND COALESCE(rs.m_attributesetinstance_id, '0') = :NEW.m_attributesetinstance_id
++          AND rs.m_attributesetinstance_id = :NEW.m_attributesetinstance_id
+           AND rs.m_locator_id = :NEW.m_locator_id
+         GROUP BY sd.qtyonhand, sd.m_storage_detail_id;
+         IF (v_onhand - v_reserved < ABS(:NEW.movementqty) AND v_reserved > 0) THEN
+-	  SELECT value
++	  SELECT name
+             INTO v_product_value
+           FROM M_Product
+           WHERE M_Product_ID = :NEW.m_product_id;
+
+
+diff -r cd98953b932b src-db/database/model/views/M_RESERVEDGOODMNT_PICK_EDIT.xml
+--- a/src-db/database/model/views/M_RESERVEDGOODMNT_PICK_EDIT.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/views/M_RESERVEDGOODMNT_PICK_EDIT.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -1,4 +1,4 @@
+ <?xml version="1.0"?>
+   <database name="VIEW M_RESERVEDGOODMNT_PICK_EDIT">
+-    <view name="M_RESERVEDGOODMNT_PICK_EDIT"><![CDATA[SELECT rs.m_reservation_stock_id AS m_reservedgoodmnt_pick_edit_id, rs.m_reservation_id, r.ad_client_id, r.ad_org_id, rs.isactive, r.updated, r.updatedby, r.created, r.createdby, to_char('N') AS ob_selected, rs.m_locator_id, r.c_orderline_id, rs.quantity, COALESCE(rs.releasedqty, 0) AS releasedqty, NULL AS m_locatorto_id, to_number('0') AS movementqty, rs.m_attributesetinstance_id FROM m_reservation r JOIN m_reservation_stock rs ON r.m_reservation_id = rs.m_reservation_id WHERE rs.m_locator_id IS NOT NULL AND (rs.quantity - COALESCE(rs.releasedqty, 0)) > 0]]></view>
++    <view name="M_RESERVEDGOODMNT_PICK_EDIT"><![CDATA[SELECT rs.m_reservation_stock_id AS m_reservedgoodmnt_pick_edit_id, rs.m_reservation_id, r.ad_client_id, r.ad_org_id, rs.isactive, r.updated, r.updatedby, r.created, r.createdby, to_char('N') AS ob_selected, rs.m_locator_id, r.c_orderline_id, rs.quantity, rs.releasedqty AS releasedqty, NULL AS m_locatorto_id, to_number('0') AS movementqty, rs.m_attributesetinstance_id FROM m_reservation r JOIN m_reservation_stock rs ON r.m_reservation_id = rs.m_reservation_id WHERE rs.m_locator_id IS NOT NULL AND (rs.quantity - rs.releasedqty) > 0]]></view>
+   </database>
+diff -r cd98953b932b src-db/database/sourcedata/AD_COLUMN.xml
+--- a/src-db/database/sourcedata/AD_COLUMN.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/AD_COLUMN.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -67529,7 +67529,7 @@
+ <!--3817-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
+ <!--3817-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
+ <!--3817-->  <AD_ELEMENT_ID><![CDATA[1096]]></AD_ELEMENT_ID>
+-<!--3817-->  <AD_PROCESS_ID><![CDATA[105]]></AD_PROCESS_ID>
++<!--3817 <AD_PROCESS_ID><![CDATA[105]]></AD_PROCESS_ID>--> 
+ <!--3817-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
+ <!--3817-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
+ <!--3817-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
+@@ -67537,6 +67537,7 @@
+ <!--3817-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--3817-->  <POSITION><![CDATA[17]]></POSITION>
+ <!--3817-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--3817-->  <EM_OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></EM_OBUIAPP_PROCESS_ID>
+ <!--3817-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
+ <!--3817-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
+ <!--3817-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
+@@ -67546,6 +67547,46 @@
+ <!--3817-->  <ALLOWED_CROSS_ORG_LINK><![CDATA[N]]></ALLOWED_CROSS_ORG_LINK>
+ <!--3817--></AD_COLUMN>
+ 
++
++
++
++<!--799210125268474F849A2AB561B84DB9--><AD_COLUMN>
++<!--799210125268474F849A2AB561B84DB9-->  <AD_COLUMN_ID><![CDATA[799210125268474F849A2AB561B84DB9]]></AD_COLUMN_ID>
++<!--799210125268474F849A2AB561B84DB9-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--799210125268474F849A2AB561B84DB9-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--799210125268474F849A2AB561B84DB9-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--799210125268474F849A2AB561B84DB9-->  <NAME><![CDATA[Reserved Qty]]></NAME>
++<!--799210125268474F849A2AB561B84DB9-->  <HELP><![CDATA[Represents the total quantity reserved to fulfill the reservation. It cannot be higher than the pending quantity.]]></HELP>
++<!--799210125268474F849A2AB561B84DB9-->  <COLUMNNAME><![CDATA[Reservedqty]]></COLUMNNAME>
++<!--799210125268474F849A2AB561B84DB9-->  <AD_TABLE_ID><![CDATA[322]]></AD_TABLE_ID>
++<!--799210125268474F849A2AB561B84DB9-->  <AD_REFERENCE_ID><![CDATA[29]]></AD_REFERENCE_ID>
++<!--799210125268474F849A2AB561B84DB9-->  <FIELDLENGTH><![CDATA[2]]></FIELDLENGTH>
++<!--799210125268474F849A2AB561B84DB9-->  <DEFAULTVALUE><![CDATA[0]]></DEFAULTVALUE>
++<!--799210125268474F849A2AB561B84DB9-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--799210125268474F849A2AB561B84DB9-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--799210125268474F849A2AB561B84DB9-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--799210125268474F849A2AB561B84DB9-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--799210125268474F849A2AB561B84DB9-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--799210125268474F849A2AB561B84DB9-->  <SEQNO><![CDATA[531]]></SEQNO>
++<!--799210125268474F849A2AB561B84DB9-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--799210125268474F849A2AB561B84DB9-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--799210125268474F849A2AB561B84DB9-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--799210125268474F849A2AB561B84DB9-->  <AD_ELEMENT_ID><![CDATA[CABF113EC59AA4EFE040007F010017BB]]></AD_ELEMENT_ID>
++<!--799210125268474F849A2AB561B84DB9-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--799210125268474F849A2AB561B84DB9-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--799210125268474F849A2AB561B84DB9-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--799210125268474F849A2AB561B84DB9-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--799210125268474F849A2AB561B84DB9-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--799210125268474F849A2AB561B84DB9-->  <POSITION><![CDATA[23]]></POSITION>
++<!--799210125268474F849A2AB561B84DB9-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--799210125268474F849A2AB561B84DB9-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--799210125268474F849A2AB561B84DB9-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--799210125268474F849A2AB561B84DB9-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--799210125268474F849A2AB561B84DB9-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--799210125268474F849A2AB561B84DB9--></AD_COLUMN>
++
++
++
+ <!--3819--><AD_COLUMN>
+ <!--3819-->  <AD_COLUMN_ID><![CDATA[3819]]></AD_COLUMN_ID>
+ <!--3819-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -379109,4 +379150,44 @@
+ <!--FFE1ED5BBE79407B85712E8EA9B08335-->  <ALLOWED_CROSS_ORG_LINK><![CDATA[N]]></ALLOWED_CROSS_ORG_LINK>
+ <!--FFE1ED5BBE79407B85712E8EA9B08335--></AD_COLUMN>
+ 
++
++
++
++
++<!--0FCF6F7C4A9646E5BDC61E4113E19216--><AD_COLUMN>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_COLUMN_ID><![CDATA[0FCF6F7C4A9646E5BDC61E4113E19216]]></AD_COLUMN_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <NAME><![CDATA[Sales Order Line]]></NAME>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <DESCRIPTION><![CDATA[A unique and often automatically generated identifier for a sales order line.]]></DESCRIPTION>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <HELP><![CDATA[A unique identifier and a reference to a sales order line (product).]]></HELP>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <COLUMNNAME><![CDATA[C_Orderline_ID]]></COLUMNNAME>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_TABLE_ID><![CDATA[324]]></AD_TABLE_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_REFERENCE_ID><![CDATA[30]]></AD_REFERENCE_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_REFERENCE_VALUE_ID><![CDATA[800063]]></AD_REFERENCE_VALUE_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <FIELDLENGTH><![CDATA[32]]></FIELDLENGTH>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <SEQNO><![CDATA[153]]></SEQNO>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_ELEMENT_ID><![CDATA[561]]></AD_ELEMENT_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <POSITION><![CDATA[34]]></POSITION>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--0FCF6F7C4A9646E5BDC61E4113E19216--></AD_COLUMN>
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/AD_ELEMENT.xml
+--- a/src-db/database/sourcedata/AD_ELEMENT.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/AD_ELEMENT.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -34867,4 +34867,33 @@
+ <!--FF80818131FFA2FC0131FFC874C5001D-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
+ <!--FF80818131FFA2FC0131FFC874C5001D--></AD_ELEMENT>
+ 
++
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64--><AD_ELEMENT>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <AD_ELEMENT_ID><![CDATA[2F0389EDF65C4419B40AFC0F5E9B7C64]]></AD_ELEMENT_ID>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <COLUMNNAME><![CDATA[ExcludeReserved]]></COLUMNNAME>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <NAME><![CDATA[Exclue Reserved Stock]]></NAME>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <PRINTNAME><![CDATA[Exclue Reserved Stock]]></PRINTNAME>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
++<!--2F0389EDF65C4419B40AFC0F5E9B7C64--></AD_ELEMENT>
++ 
++ 
++ 
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36--><AD_ELEMENT>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <AD_ELEMENT_ID><![CDATA[784E1B274FEA4C9EA2EBCDD2B2A17B36]]></AD_ELEMENT_ID>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <COLUMNNAME><![CDATA[Stock]]></COLUMNNAME>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <NAME><![CDATA[Stock]]></NAME>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <PRINTNAME><![CDATA[Stock]]></PRINTNAME>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
++<!--784E1B274FEA4C9EA2EBCDD2B2A17B36--></AD_ELEMENT>
++
++
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/AD_FIELD.xml
+--- a/src-db/database/sourcedata/AD_FIELD.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/AD_FIELD.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -36460,9 +36460,9 @@
+ <!--2922-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+ <!--2922-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+ <!--2922-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+-<!--2922-->  <NAME><![CDATA[Create Inventory Count List]]></NAME>
+-<!--2922-->  <DESCRIPTION><![CDATA[Create Inventory Count List]]></DESCRIPTION>
+-<!--2922-->  <HELP><![CDATA[The inventory count lines are generated.  You can add new lines or delete lines.]]></HELP>
++<!--2922-->  <NAME><![CDATA[Generate List]]></NAME>
++<!--2922-->  <DESCRIPTION><![CDATA[Generate List]]></DESCRIPTION>
++<!--2922-->  <HELP><![CDATA[A button that generates a list to make an inventory of items]]></HELP>
+ <!--2922-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
+ <!--2922-->  <AD_TAB_ID><![CDATA[255]]></AD_TAB_ID>
+ <!--2922-->  <AD_COLUMN_ID><![CDATA[3817]]></AD_COLUMN_ID>
+@@ -177050,32 +177050,7 @@
+ <!--01295CE0CCEA4964AD4F4C4F66372FAC-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--01295CE0CCEA4964AD4F4C4F66372FAC--></AD_FIELD>
+ 
+-<!--0135EFB917E04A048BE2B3971994D556--><AD_FIELD>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <AD_FIELD_ID><![CDATA[0135EFB917E04A048BE2B3971994D556]]></AD_FIELD_ID>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <NAME><![CDATA[On Hand Order Quantity]]></NAME>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <HELP><![CDATA[The On Hand Quantity indicates the quantity of a product that is on hand in a warehouse in the second uom]]></HELP>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <AD_TAB_ID><![CDATA[20DD1153AC7448B19B844B25CF38F54C]]></AD_TAB_ID>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <AD_COLUMN_ID><![CDATA[800639]]></AD_COLUMN_ID>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISDISPLAYED><![CDATA[N]]></ISDISPLAYED>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <DISPLAYLENGTH><![CDATA[10]]></DISPLAYLENGTH>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISREADONLY><![CDATA[N]]></ISREADONLY>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <SEQNO><![CDATA[80]]></SEQNO>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <SHOWINRELATION><![CDATA[N]]></SHOWINRELATION>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
+-<!--0135EFB917E04A048BE2B3971994D556-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+-<!--0135EFB917E04A048BE2B3971994D556--></AD_FIELD>
++
+ 
+ <!--0157DD4316594C6CBC58F2AACC7EBCAB--><AD_FIELD>
+ <!--0157DD4316594C6CBC58F2AACC7EBCAB-->  <AD_FIELD_ID><![CDATA[0157DD4316594C6CBC58F2AACC7EBCAB]]></AD_FIELD_ID>
+@@ -304742,7 +304717,7 @@
+ <!--EA53D6CAE34F40758980090D0CAA4A8A-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--EA53D6CAE34F40758980090D0CAA4A8A--></AD_FIELD>
+ 
+-<!--EA61CBF1E2734620A8AC3620383B02FF--><AD_FIELD>
++<!--fEA61CBF1E2734620A8AC3620383B02FF--><AD_FIELD>
+ <!--EA61CBF1E2734620A8AC3620383B02FF-->  <AD_FIELD_ID><![CDATA[EA61CBF1E2734620A8AC3620383B02FF]]></AD_FIELD_ID>
+ <!--EA61CBF1E2734620A8AC3620383B02FF-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+ <!--EA61CBF1E2734620A8AC3620383B02FF-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+@@ -312503,6 +312478,11 @@
+ <!--FD0D66CE5B7C096DE040007F010024B1-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--FD0D66CE5B7C096DE040007F010024B1--></AD_FIELD>
+ 
++ 
++
++
++
++
+ <!--FD1FAD5E33A345A4A61E64304C7CC3DF--><AD_FIELD>
+ <!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_FIELD_ID><![CDATA[FD1FAD5E33A345A4A61E64304C7CC3DF]]></AD_FIELD_ID>
+ <!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -313614,4 +313594,61 @@
+ <!--FFD194D926554AE9A7C401912E6E4060-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--FFD194D926554AE9A7C401912E6E4060--></AD_FIELD>
+ 
++<!--0135EFB917E04A048BE2B3971994D556--><AD_FIELD>
++<!--0135EFB917E04A048BE2B3971994D556-->  <AD_FIELD_ID><![CDATA[0135EFB917E04A048BE2B3971994D556]]></AD_FIELD_ID>
++<!--0135EFB917E04A048BE2B3971994D556-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--0135EFB917E04A048BE2B3971994D556-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--0135EFB917E04A048BE2B3971994D556-->  <NAME><![CDATA[On Hand Order Quantity]]></NAME>
++<!--0135EFB917E04A048BE2B3971994D556-->  <HELP><![CDATA[The On Hand Quantity indicates the quantity of a product that is on hand in a warehouse in the second uom]]></HELP>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--0135EFB917E04A048BE2B3971994D556-->  <AD_TAB_ID><![CDATA[20DD1153AC7448B19B844B25CF38F54C]]></AD_TAB_ID>
++<!--0135EFB917E04A048BE2B3971994D556-->  <AD_COLUMN_ID><![CDATA[800639]]></AD_COLUMN_ID>
++<!--0135EFB917E04A048BE2B3971994D556-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISDISPLAYED><![CDATA[N]]></ISDISPLAYED>
++<!--0135EFB917E04A048BE2B3971994D556-->  <DISPLAYLENGTH><![CDATA[10]]></DISPLAYLENGTH>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISREADONLY><![CDATA[N]]></ISREADONLY>
++<!--0135EFB917E04A048BE2B3971994D556-->  <SEQNO><![CDATA[80]]></SEQNO>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--0135EFB917E04A048BE2B3971994D556-->  <SHOWINRELATION><![CDATA[N]]></SHOWINRELATION>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
++<!--0135EFB917E04A048BE2B3971994D556-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--0135EFB917E04A048BE2B3971994D556-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
++<!--0135EFB917E04A048BE2B3971994D556-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--0135EFB917E04A048BE2B3971994D556-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
++<!--0135EFB917E04A048BE2B3971994D556-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
++<!--0135EFB917E04A048BE2B3971994D556--></AD_FIELD>
++
++
++<!--9F083A7C9753416CB346CEE83D321D24--><AD_FIELD>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <AD_FIELD_ID><![CDATA[9F083A7C9753416CB346CEE83D321D24]]></AD_FIELD_ID>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <NAME><![CDATA[Reserved Qty]]></NAME>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <HELP><![CDATA[Represents the total quantity reserved to fulfill the reservation. It cannot be higher than the pending quantity.]]></HELP>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <AD_TAB_ID><![CDATA[256]]></AD_TAB_ID>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <AD_COLUMN_ID><![CDATA[799210125268474F849A2AB561B84DB9]]></AD_COLUMN_ID>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISDISPLAYED><![CDATA[Y]]></ISDISPLAYED>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <DISPLAYLENGTH><![CDATA[2]]></DISPLAYLENGTH>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISREADONLY><![CDATA[Y]]></ISREADONLY>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <SEQNO><![CDATA[160]]></SEQNO>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <SHOWINRELATION><![CDATA[Y]]></SHOWINRELATION>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
++<!--9F083A7C9753416CB346CEE83D321D24-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
++<!--9F083A7C9753416CB346CEE83D321D24--></AD_FIELD>
++
++ 
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/AD_FIELDGROUP.xml
+--- a/src-db/database/sourcedata/AD_FIELDGROUP.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/AD_FIELDGROUP.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -644,4 +644,25 @@
+ <!--FFEBF36F217A49C49FCDA375681FC2D6-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--FFEBF36F217A49C49FCDA375681FC2D6--></AD_FIELDGROUP>
+ 
++<!--34E46C267E2A427BAC0FE00873727BDD--><AD_FIELDGROUP>
++<!--34E46C267E2A427BAC0FE00873727BDD-->  <AD_FIELDGROUP_ID><![CDATA[34E46C267E2A427BAC0FE00873727BDD]]></AD_FIELDGROUP_ID>
++<!--34E46C267E2A427BAC0FE00873727BDD-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--34E46C267E2A427BAC0FE00873727BDD-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--34E46C267E2A427BAC0FE00873727BDD-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--34E46C267E2A427BAC0FE00873727BDD-->  <NAME><![CDATA[Stock]]></NAME>
++<!--34E46C267E2A427BAC0FE00873727BDD-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--34E46C267E2A427BAC0FE00873727BDD-->  <ISCOLLAPSED><![CDATA[Y]]></ISCOLLAPSED>
++<!--34E46C267E2A427BAC0FE00873727BDD--></AD_FIELDGROUP>
++ 
++ 
++<!--C35CCBDC7F164C16B0D398D962FA99B5--><AD_FIELDGROUP>
++<!--C35CCBDC7F164C16B0D398D962FA99B5-->  <AD_FIELDGROUP_ID><![CDATA[C35CCBDC7F164C16B0D398D962FA99B5]]></AD_FIELDGROUP_ID>
++<!--C35CCBDC7F164C16B0D398D962FA99B5-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--C35CCBDC7F164C16B0D398D962FA99B5-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--C35CCBDC7F164C16B0D398D962FA99B5-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--C35CCBDC7F164C16B0D398D962FA99B5-->  <NAME><![CDATA[Options]]></NAME>
++<!--C35CCBDC7F164C16B0D398D962FA99B5-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--C35CCBDC7F164C16B0D398D962FA99B5-->  <ISCOLLAPSED><![CDATA[N]]></ISCOLLAPSED>
++<!--C35CCBDC7F164C16B0D398D962FA99B5--></AD_FIELDGROUP>
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/AD_MESSAGE.xml
+--- a/src-db/database/sourcedata/AD_MESSAGE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/AD_MESSAGE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -28211,4 +28211,43 @@
+ <!--FF80818132F241BB0132F390D6BF00D5-->  <ISINCLUDEINI18N><![CDATA[N]]></ISINCLUDEINI18N>
+ <!--FF80818132F241BB0132F390D6BF00D5--></AD_MESSAGE>
+ 
++
++
++<!--46B112E6561947709CCA91E4B230E518--><AD_MESSAGE>
++<!--46B112E6561947709CCA91E4B230E518-->  <AD_MESSAGE_ID><![CDATA[46B112E6561947709CCA91E4B230E518]]></AD_MESSAGE_ID>
++<!--46B112E6561947709CCA91E4B230E518-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--46B112E6561947709CCA91E4B230E518-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--46B112E6561947709CCA91E4B230E518-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--46B112E6561947709CCA91E4B230E518-->  <VALUE><![CDATA[InsertingInventoryLinesStock]]></VALUE>
++<!--46B112E6561947709CCA91E4B230E518-->  <MSGTEXT><![CDATA[Error while creating Inventory Lines based on exising Stock]]></MSGTEXT>
++<!--46B112E6561947709CCA91E4B230E518-->  <MSGTYPE><![CDATA[E]]></MSGTYPE>
++<!--46B112E6561947709CCA91E4B230E518-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--46B112E6561947709CCA91E4B230E518-->  <ISINCLUDEINI18N><![CDATA[N]]></ISINCLUDEINI18N>
++<!--46B112E6561947709CCA91E4B230E518--></AD_MESSAGE>
++
++ 
++<!--A4298867CE244CAFA03F1B6C2FBE40B2--><AD_MESSAGE>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <AD_MESSAGE_ID><![CDATA[A4298867CE244CAFA03F1B6C2FBE40B2]]></AD_MESSAGE_ID>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <VALUE><![CDATA[InsertingInventoryLines]]></VALUE>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <MSGTEXT><![CDATA[Error while creating Inventory Lines based on Product and/or Storage Bin]]></MSGTEXT>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <MSGTYPE><![CDATA[E]]></MSGTYPE>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2-->  <ISINCLUDEINI18N><![CDATA[N]]></ISINCLUDEINI18N>
++<!--A4298867CE244CAFA03F1B6C2FBE40B2--></AD_MESSAGE>
++
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D--><AD_MESSAGE>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <AD_MESSAGE_ID><![CDATA[B6B1EAA68F0B4A3D93A45A6F82D48B3D]]></AD_MESSAGE_ID>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <VALUE><![CDATA[InsertingZeroAmoutRecords]]></VALUE>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <MSGTEXT><![CDATA[Error while inserting 0 amount records in Storage Details]]></MSGTEXT>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <MSGTYPE><![CDATA[E]]></MSGTYPE>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D-->  <ISINCLUDEINI18N><![CDATA[N]]></ISINCLUDEINI18N>
++<!--B6B1EAA68F0B4A3D93A45A6F82D48B3D--></AD_MESSAGE>
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/AD_REFERENCE.xml
+--- a/src-db/database/sourcedata/AD_REFERENCE.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/AD_REFERENCE.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -7067,4 +7067,43 @@
+ <!--FF9658201F8B4BE780BE00AAA9499ED5-->  <ISVALUEDISPLAYED><![CDATA[N]]></ISVALUEDISPLAYED>
+ <!--FF9658201F8B4BE780BE00AAA9499ED5--></AD_REFERENCE>
+ 
++
++
++<!--9F31767CF51C4A298706A3ED3D76B2E7--><AD_REFERENCE>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <AD_REFERENCE_ID><![CDATA[9F31767CF51C4A298706A3ED3D76B2E7]]></AD_REFERENCE_ID>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <NAME><![CDATA[Multi Product Selector With Stock]]></NAME>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <ISBASEREFERENCE><![CDATA[N]]></ISBASEREFERENCE>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <PARENTREFERENCE_ID><![CDATA[87E6CFF8F71548AFA33F181C317970B5]]></PARENTREFERENCE_ID>
++<!--9F31767CF51C4A298706A3ED3D76B2E7-->  <ISVALUEDISPLAYED><![CDATA[N]]></ISVALUEDISPLAYED>
++<!--9F31767CF51C4A298706A3ED3D76B2E7--></AD_REFERENCE>
++ 
++<!--C2549651F27343D4BFA27AF189CBE4E6--><AD_REFERENCE>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <AD_REFERENCE_ID><![CDATA[C2549651F27343D4BFA27AF189CBE4E6]]></AD_REFERENCE_ID>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <NAME><![CDATA[Multi Storage Bin Selector]]></NAME>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <ISBASEREFERENCE><![CDATA[N]]></ISBASEREFERENCE>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <PARENTREFERENCE_ID><![CDATA[87E6CFF8F71548AFA33F181C317970B5]]></PARENTREFERENCE_ID>
++<!--C2549651F27343D4BFA27AF189CBE4E6-->  <ISVALUEDISPLAYED><![CDATA[N]]></ISVALUEDISPLAYED>
++<!--C2549651F27343D4BFA27AF189CBE4E6--></AD_REFERENCE>
++
++<!--E80EBFAE46E8452688AF672145213748--><AD_REFERENCE>
++<!--E80EBFAE46E8452688AF672145213748-->  <AD_REFERENCE_ID><![CDATA[E80EBFAE46E8452688AF672145213748]]></AD_REFERENCE_ID>
++<!--E80EBFAE46E8452688AF672145213748-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--E80EBFAE46E8452688AF672145213748-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--E80EBFAE46E8452688AF672145213748-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--E80EBFAE46E8452688AF672145213748-->  <NAME><![CDATA[Multi Product Selector]]></NAME>
++<!--E80EBFAE46E8452688AF672145213748-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--E80EBFAE46E8452688AF672145213748-->  <ISBASEREFERENCE><![CDATA[N]]></ISBASEREFERENCE>
++<!--E80EBFAE46E8452688AF672145213748-->  <PARENTREFERENCE_ID><![CDATA[87E6CFF8F71548AFA33F181C317970B5]]></PARENTREFERENCE_ID>
++<!--E80EBFAE46E8452688AF672145213748-->  <ISVALUEDISPLAYED><![CDATA[N]]></ISVALUEDISPLAYED>
++<!--E80EBFAE46E8452688AF672145213748--></AD_REFERENCE>
++
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/OBUIAPP_PARAMETER.xml
+--- a/src-db/database/sourcedata/OBUIAPP_PARAMETER.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/OBUIAPP_PARAMETER.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -1304,4 +1304,197 @@
+ <!--FE096E38F377483B830E7DCCDE0956F3-->  <ATT_SHOWINDESCRIPTION><![CDATA[N]]></ATT_SHOWINDESCRIPTION>
+ <!--FE096E38F377483B830E7DCCDE0956F3--></OBUIAPP_PARAMETER>
+ 
++
++
++
++<!--03B3110681D249F39D96FD20473355A5--><OBUIAPP_PARAMETER>
++<!--03B3110681D249F39D96FD20473355A5-->  <OBUIAPP_PARAMETER_ID><![CDATA[03B3110681D249F39D96FD20473355A5]]></OBUIAPP_PARAMETER_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--03B3110681D249F39D96FD20473355A5-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <NAME><![CDATA[Inventory Quantity]]></NAME>
++<!--03B3110681D249F39D96FD20473355A5-->  <SEQNO><![CDATA[40]]></SEQNO>
++<!--03B3110681D249F39D96FD20473355A5-->  <AD_REFERENCE_ID><![CDATA[17]]></AD_REFERENCE_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <AD_REFERENCE_VALUE_ID><![CDATA[212]]></AD_REFERENCE_VALUE_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <COLUMNNAME><![CDATA[QtyRange]]></COLUMNNAME>
++<!--03B3110681D249F39D96FD20473355A5-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--03B3110681D249F39D96FD20473355A5-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--03B3110681D249F39D96FD20473355A5-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--03B3110681D249F39D96FD20473355A5-->  <AD_ELEMENT_ID><![CDATA[1676]]></AD_ELEMENT_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--03B3110681D249F39D96FD20473355A5-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--03B3110681D249F39D96FD20473355A5-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <STARTINNEWLINE><![CDATA[Y]]></STARTINNEWLINE>
++<!--03B3110681D249F39D96FD20473355A5-->  <AD_FIELDGROUP_ID><![CDATA[C35CCBDC7F164C16B0D398D962FA99B5]]></AD_FIELDGROUP_ID>
++<!--03B3110681D249F39D96FD20473355A5-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--03B3110681D249F39D96FD20473355A5-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--03B3110681D249F39D96FD20473355A5--></OBUIAPP_PARAMETER>
++ 
++ 
++<!--0DECB4DD59B348608B901C27BCFC50FB--><OBUIAPP_PARAMETER>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <OBUIAPP_PARAMETER_ID><![CDATA[0DECB4DD59B348608B901C27BCFC50FB]]></OBUIAPP_PARAMETER_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <NAME><![CDATA[Product]]></NAME>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <DESCRIPTION><![CDATA[An item produced by a process.]]></DESCRIPTION>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <HELP><![CDATA[Identifies an item which is either purchased or sold in this organization.]]></HELP>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <SEQNO><![CDATA[20]]></SEQNO>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <AD_REFERENCE_ID><![CDATA[87E6CFF8F71548AFA33F181C317970B5]]></AD_REFERENCE_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <AD_REFERENCE_VALUE_ID><![CDATA[E80EBFAE46E8452688AF672145213748]]></AD_REFERENCE_VALUE_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <COLUMNNAME><![CDATA[M_Product_ID]]></COLUMNNAME>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <AD_ELEMENT_ID><![CDATA[454]]></AD_ELEMENT_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <STARTINNEWLINE><![CDATA[N]]></STARTINNEWLINE>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--0DECB4DD59B348608B901C27BCFC50FB-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--0DECB4DD59B348608B901C27BCFC50FB--></OBUIAPP_PARAMETER>
++ 
++<!--53767CC7F20840C7AE945275E179319F--><OBUIAPP_PARAMETER>
++<!--53767CC7F20840C7AE945275E179319F-->  <OBUIAPP_PARAMETER_ID><![CDATA[53767CC7F20840C7AE945275E179319F]]></OBUIAPP_PARAMETER_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--53767CC7F20840C7AE945275E179319F-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <NAME><![CDATA[Storage Bin]]></NAME>
++<!--53767CC7F20840C7AE945275E179319F-->  <DESCRIPTION><![CDATA[A set of coordinates (x, y, z) which help locate an item in a warehouse.]]></DESCRIPTION>
++<!--53767CC7F20840C7AE945275E179319F-->  <HELP><![CDATA[The Locator ID indicates where in a Warehouse a product is located.]]></HELP>
++<!--53767CC7F20840C7AE945275E179319F-->  <SEQNO><![CDATA[10]]></SEQNO>
++<!--53767CC7F20840C7AE945275E179319F-->  <AD_REFERENCE_ID><![CDATA[87E6CFF8F71548AFA33F181C317970B5]]></AD_REFERENCE_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <AD_REFERENCE_VALUE_ID><![CDATA[C2549651F27343D4BFA27AF189CBE4E6]]></AD_REFERENCE_VALUE_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <COLUMNNAME><![CDATA[M_Locator_ID]]></COLUMNNAME>
++<!--53767CC7F20840C7AE945275E179319F-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--53767CC7F20840C7AE945275E179319F-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--53767CC7F20840C7AE945275E179319F-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--53767CC7F20840C7AE945275E179319F-->  <AD_ELEMENT_ID><![CDATA[448]]></AD_ELEMENT_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--53767CC7F20840C7AE945275E179319F-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--53767CC7F20840C7AE945275E179319F-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--53767CC7F20840C7AE945275E179319F-->  <STARTINNEWLINE><![CDATA[N]]></STARTINNEWLINE>
++<!--53767CC7F20840C7AE945275E179319F-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--53767CC7F20840C7AE945275E179319F-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--53767CC7F20840C7AE945275E179319F--></OBUIAPP_PARAMETER> 
++ 
++<!--9E70B3354B2D4D29AF0183921D6B5241--><OBUIAPP_PARAMETER>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <OBUIAPP_PARAMETER_ID><![CDATA[9E70B3354B2D4D29AF0183921D6B5241]]></OBUIAPP_PARAMETER_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <NAME><![CDATA[Stock]]></NAME>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <SEQNO><![CDATA[30]]></SEQNO>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <AD_REFERENCE_ID><![CDATA[87E6CFF8F71548AFA33F181C317970B5]]></AD_REFERENCE_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <AD_REFERENCE_VALUE_ID><![CDATA[9F31767CF51C4A298706A3ED3D76B2E7]]></AD_REFERENCE_VALUE_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <COLUMNNAME><![CDATA[Stock]]></COLUMNNAME>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <AD_ELEMENT_ID><![CDATA[784E1B274FEA4C9EA2EBCDD2B2A17B36]]></AD_ELEMENT_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <STARTINNEWLINE><![CDATA[Y]]></STARTINNEWLINE>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <AD_FIELDGROUP_ID><![CDATA[34E46C267E2A427BAC0FE00873727BDD]]></AD_FIELDGROUP_ID>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--9E70B3354B2D4D29AF0183921D6B5241-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--9E70B3354B2D4D29AF0183921D6B5241--></OBUIAPP_PARAMETER> 
++ 
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C--><OBUIAPP_PARAMETER>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <OBUIAPP_PARAMETER_ID><![CDATA[A4F3833F34744C55B1DD2EEB8D9C1C8C]]></OBUIAPP_PARAMETER_ID>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <NAME><![CDATA[Exclue Reserved Stock]]></NAME>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <SEQNO><![CDATA[60]]></SEQNO>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <AD_REFERENCE_ID><![CDATA[20]]></AD_REFERENCE_ID>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <COLUMNNAME><![CDATA[ExcludeReserved]]></COLUMNNAME>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <AD_ELEMENT_ID><![CDATA[2F0389EDF65C4419B40AFC0F5E9B7C64]]></AD_ELEMENT_ID>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <STARTINNEWLINE><![CDATA[N]]></STARTINNEWLINE>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--A4F3833F34744C55B1DD2EEB8D9C1C8C--></OBUIAPP_PARAMETER>
++
++<!--B7F8264A1B9645A58BB7317D2851FCEB--><OBUIAPP_PARAMETER>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <OBUIAPP_PARAMETER_ID><![CDATA[B7F8264A1B9645A58BB7317D2851FCEB]]></OBUIAPP_PARAMETER_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <NAME><![CDATA[Abc]]></NAME>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <DESCRIPTION><![CDATA[ABC classification according to a Pareto distribution]]></DESCRIPTION>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <HELP><![CDATA[ABC classification according to a Pareto distribution]]></HELP>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <SEQNO><![CDATA[70]]></SEQNO>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <AD_REFERENCE_ID><![CDATA[17]]></AD_REFERENCE_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <AD_REFERENCE_VALUE_ID><![CDATA[1000500000]]></AD_REFERENCE_VALUE_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <COLUMNNAME><![CDATA[ABC]]></COLUMNNAME>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <AD_ELEMENT_ID><![CDATA[1000500001]]></AD_ELEMENT_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <STARTINNEWLINE><![CDATA[N]]></STARTINNEWLINE>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <AD_FIELDGROUP_ID><![CDATA[C35CCBDC7F164C16B0D398D962FA99B5]]></AD_FIELDGROUP_ID>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--B7F8264A1B9645A58BB7317D2851FCEB-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--B7F8264A1B9645A58BB7317D2851FCEB--></OBUIAPP_PARAMETER> 
++ 
++<!--D090994FEB014C75B1D0CFF9A26E9F0D--><OBUIAPP_PARAMETER>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <OBUIAPP_PARAMETER_ID><![CDATA[D090994FEB014C75B1D0CFF9A26E9F0D]]></OBUIAPP_PARAMETER_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <NAME><![CDATA[Regularization]]></NAME>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <SEQNO><![CDATA[50]]></SEQNO>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <AD_REFERENCE_ID><![CDATA[20]]></AD_REFERENCE_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <COLUMNNAME><![CDATA[regularization]]></COLUMNNAME>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <AD_ELEMENT_ID><![CDATA[800141]]></AD_ELEMENT_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <STARTINNEWLINE><![CDATA[N]]></STARTINNEWLINE>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <AD_FIELDGROUP_ID><![CDATA[C35CCBDC7F164C16B0D398D962FA99B5]]></AD_FIELDGROUP_ID>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--D090994FEB014C75B1D0CFF9A26E9F0D--></OBUIAPP_PARAMETER>
++
++<!--9A915418247A4AA282EF857139DBEAD9--><OBUIAPP_PARAMETER>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <OBUIAPP_PARAMETER_ID><![CDATA[9A915418247A4AA282EF857139DBEAD9]]></OBUIAPP_PARAMETER_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <NAME><![CDATA[Storage Bin Name]]></NAME>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <SEQNO><![CDATA[15]]></SEQNO>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <COLUMNNAME><![CDATA[Locator_Name]]></COLUMNNAME>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <FIELDLENGTH><![CDATA[0]]></FIELDLENGTH>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISMANDATORY><![CDATA[N]]></ISMANDATORY>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <ISFIXED><![CDATA[N]]></ISFIXED>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <EVALUATEFIXEDVALUE><![CDATA[N]]></EVALUATEFIXEDVALUE>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <STARTINNEWLINE><![CDATA[N]]></STARTINNEWLINE>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <DISPLAYEDROWS><![CDATA[5]]></DISPLAYEDROWS>
++<!--9A915418247A4AA282EF857139DBEAD9-->  <DISPLAYTITLE><![CDATA[Y]]></DISPLAYTITLE>
++<!--9A915418247A4AA282EF857139DBEAD9--></OBUIAPP_PARAMETER>
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/OBUIAPP_PROCESS.xml
+--- a/src-db/database/sourcedata/OBUIAPP_PROCESS.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/OBUIAPP_PROCESS.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -719,4 +719,25 @@
+ <!--FE3A8C134D41488DB3A69837BD54B56A-->  <ISCANADDRECORDSTOSELECTOR><![CDATA[N]]></ISCANADDRECORDSTOSELECTOR>
+ <!--FE3A8C134D41488DB3A69837BD54B56A--></OBUIAPP_PROCESS>
+ 
++
++<!--7E9AAC75F8D64EF097D5063B06494F49--><OBUIAPP_PROCESS>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <OBUIAPP_PROCESS_ID><![CDATA[7E9AAC75F8D64EF097D5063B06494F49]]></OBUIAPP_PROCESS_ID>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <VALUE><![CDATA[Inventory_Create]]></VALUE>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <NAME><![CDATA[Create Inventory Count List]]></NAME>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <DESCRIPTION><![CDATA[Create Inventory Count List]]></DESCRIPTION>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <HELP><![CDATA[The inventory count lines are generated.  You can add new lines or delete lines.]]></HELP>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <CLASSNAME><![CDATA[org.openbravo.materialmgmt.CreateInventoryCountListProcess]]></CLASSNAME>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <ISBACKGROUND><![CDATA[N]]></ISBACKGROUND>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <UIPATTERN><![CDATA[OBUIAPP_PickAndExecute]]></UIPATTERN>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <ISMULTIRECORD><![CDATA[N]]></ISMULTIRECORD>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <IS_EXPLICIT_ACCESS><![CDATA[N]]></IS_EXPLICIT_ACCESS>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <ISGRIDLEGACY><![CDATA[N]]></ISGRIDLEGACY>
++<!--7E9AAC75F8D64EF097D5063B06494F49-->  <ISCANADDRECORDSTOSELECTOR><![CDATA[N]]></ISCANADDRECORDSTOSELECTOR>
++<!--7E9AAC75F8D64EF097D5063B06494F49--></OBUIAPP_PROCESS>
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/OBUISEL_SELECTOR.xml
+--- a/src-db/database/sourcedata/OBUISEL_SELECTOR.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/OBUISEL_SELECTOR.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -1198,4 +1198,68 @@
+ <!--FED71549F4554FEB900DA516DDC3CA52-->  <CUSTOM_QUERY><![CDATA[N]]></CUSTOM_QUERY>
+ <!--FED71549F4554FEB900DA516DDC3CA52--></OBUISEL_SELECTOR>
+ 
++
++
++<!--35DDE84988C644C9B169107C56AC0459--><OBUISEL_SELECTOR>
++<!--35DDE84988C644C9B169107C56AC0459-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <NAME><![CDATA[Multi Product Selector With Stock]]></NAME>
++<!--35DDE84988C644C9B169107C56AC0459-->  <AD_REFERENCE_ID><![CDATA[9F31767CF51C4A298706A3ED3D76B2E7]]></AD_REFERENCE_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <AD_TABLE_ID><![CDATA[800036]]></AD_TABLE_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <AD_COLUMN_ID><![CDATA[800650]]></AD_COLUMN_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <FILTER_EXPRESSION><![CDATA["w.id = \'" + OB.getParameters().get('inpmWarehouseId') + "\'"]]></FILTER_EXPRESSION>
++<!--35DDE84988C644C9B169107C56AC0459-->  <OBCLKER_TEMPLATE_ID><![CDATA[9314DE8599AD44E7BFC4CC50699042AB]]></OBCLKER_TEMPLATE_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--35DDE84988C644C9B169107C56AC0459-->  <VALUEFIELD_ID><![CDATA[8F1ABA1F69264D8FBFAB0782E59C2B3D]]></VALUEFIELD_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <DISPLAYFIELD_ID><![CDATA[CB04204B00B44A869DD541BD2C6CB4CC]]></DISPLAYFIELD_ID>
++<!--35DDE84988C644C9B169107C56AC0459-->  <SUGGESTIONTEXTMATCHSTYLE><![CDATA[substring]]></SUGGESTIONTEXTMATCHSTYLE>
++<!--35DDE84988C644C9B169107C56AC0459-->  <POPUPTEXTMATCHSTYLE><![CDATA[substring]]></POPUPTEXTMATCHSTYLE>
++<!--35DDE84988C644C9B169107C56AC0459-->  <HQL><![CDATA[select e.id as id, p.searchKey as searchKey, p.uPCEAN as uPCEAN, p.name as name, sb.searchKey as storageBin, e.quantityOnHand as quantityOnHand, pc.name as pcName, w.name as wName
+++from MaterialMgmtStorageDetail e
+++join e.product p
+++join e.storageBin sb
+++join p.productCategory pc
+++join sb.warehouse as w
+++where @additional_filters@ and e.active= 'Y' and (e.quantityOnHand <> 0 or coalesce(e.onHandOrderQuanity, 0) <> 0)]]></HQL>
++<!--35DDE84988C644C9B169107C56AC0459-->  <ENTITY_ALIAS><![CDATA[e]]></ENTITY_ALIAS>
++<!--35DDE84988C644C9B169107C56AC0459-->  <CUSTOM_QUERY><![CDATA[Y]]></CUSTOM_QUERY>
++<!--35DDE84988C644C9B169107C56AC0459--></OBUISEL_SELECTOR> 
++ 
++<!--DF44523511CE473381B1900BC30C1B4E--><OBUISEL_SELECTOR>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <OBUISEL_SELECTOR_ID><![CDATA[DF44523511CE473381B1900BC30C1B4E]]></OBUISEL_SELECTOR_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <NAME><![CDATA[Multi Product Selector]]></NAME>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <AD_REFERENCE_ID><![CDATA[E80EBFAE46E8452688AF672145213748]]></AD_REFERENCE_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <AD_TABLE_ID><![CDATA[208]]></AD_TABLE_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <AD_COLUMN_ID><![CDATA[1402]]></AD_COLUMN_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <WHERECLAUSE><![CDATA[e.active='Y' and e.isGeneric='N' and e.stocked='Y' and  e.productType = 'I']]></WHERECLAUSE>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <OBCLKER_TEMPLATE_ID><![CDATA[9314DE8599AD44E7BFC4CC50699042AB]]></OBCLKER_TEMPLATE_ID>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <SUGGESTIONTEXTMATCHSTYLE><![CDATA[substring]]></SUGGESTIONTEXTMATCHSTYLE>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <POPUPTEXTMATCHSTYLE><![CDATA[substring]]></POPUPTEXTMATCHSTYLE>
++<!--DF44523511CE473381B1900BC30C1B4E-->  <CUSTOM_QUERY><![CDATA[N]]></CUSTOM_QUERY>
++<!--DF44523511CE473381B1900BC30C1B4E--></OBUISEL_SELECTOR>
++ 
++ 
++<!--EBD95DEE5E4D47A68B0848C513BBF68E--><OBUISEL_SELECTOR>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <OBUISEL_SELECTOR_ID><![CDATA[EBD95DEE5E4D47A68B0848C513BBF68E]]></OBUISEL_SELECTOR_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <NAME><![CDATA[Multi Storage Bin Selector]]></NAME>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <AD_REFERENCE_ID><![CDATA[C2549651F27343D4BFA27AF189CBE4E6]]></AD_REFERENCE_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <AD_TABLE_ID><![CDATA[207]]></AD_TABLE_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <AD_COLUMN_ID><![CDATA[1389]]></AD_COLUMN_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <WHERECLAUSE><![CDATA[e.active = true and e.warehouse.id=@inpmWarehouseId@]]></WHERECLAUSE>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <OBCLKER_TEMPLATE_ID><![CDATA[9314DE8599AD44E7BFC4CC50699042AB]]></OBCLKER_TEMPLATE_ID>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <SUGGESTIONTEXTMATCHSTYLE><![CDATA[substring]]></SUGGESTIONTEXTMATCHSTYLE>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <POPUPTEXTMATCHSTYLE><![CDATA[substring]]></POPUPTEXTMATCHSTYLE>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E-->  <CUSTOM_QUERY><![CDATA[N]]></CUSTOM_QUERY>
++<!--EBD95DEE5E4D47A68B0848C513BBF68E--></OBUISEL_SELECTOR>
++
+ </data>
+diff -r cd98953b932b src-db/database/sourcedata/OBUISEL_SELECTOR_FIELD.xml
+--- a/src-db/database/sourcedata/OBUISEL_SELECTOR_FIELD.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/sourcedata/OBUISEL_SELECTOR_FIELD.xml	Thu Dec 28 11:35:46 2017 +0530
+@@ -4654,4 +4654,234 @@
+ <!--FFDF2D4F05F347D0A27B7CBAAEFFE502-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
+ <!--FFDF2D4F05F347D0A27B7CBAAEFFE502--></OBUISEL_SELECTOR_FIELD>
+ 
++
++
++ 
++<!--067B2C9D6DF64132868959709B4A0E7E--><OBUISEL_SELECTOR_FIELD>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[067B2C9D6DF64132868959709B4A0E7E]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <NAME><![CDATA[UPC/EAN]]></NAME>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <SORT><![CDATA[Y]]></SORT>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <SORTNO><![CDATA[20]]></SORTNO>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <DISPLAY_EXPRESSION><![CDATA[uPCEAN]]></DISPLAY_EXPRESSION>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--067B2C9D6DF64132868959709B4A0E7E-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--067B2C9D6DF64132868959709B4A0E7E--></OBUISEL_SELECTOR_FIELD> 
++ 
++<!--43BC06AC1BC04E46B29F5E584EA61E53--><OBUISEL_SELECTOR_FIELD>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[43BC06AC1BC04E46B29F5E584EA61E53]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <NAME><![CDATA[Quantity On Hand]]></NAME>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <SORT><![CDATA[Y]]></SORT>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <SORTNO><![CDATA[70]]></SORTNO>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <DISPLAY_EXPRESSION><![CDATA[quantityOnHand]]></DISPLAY_EXPRESSION>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <AD_REFERENCE_ID><![CDATA[29]]></AD_REFERENCE_ID>
++<!--43BC06AC1BC04E46B29F5E584EA61E53-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--43BC06AC1BC04E46B29F5E584EA61E53--></OBUISEL_SELECTOR_FIELD> 
++ 
++<!--4D05B2F9543E4B208984A86D8D5DD448--><OBUISEL_SELECTOR_FIELD>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[4D05B2F9543E4B208984A86D8D5DD448]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <NAME><![CDATA[Storage Bin]]></NAME>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <SORT><![CDATA[Y]]></SORT>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <SORTNO><![CDATA[60]]></SORTNO>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <DISPLAY_EXPRESSION><![CDATA[storageBin]]></DISPLAY_EXPRESSION>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--4D05B2F9543E4B208984A86D8D5DD448-->  <SHOWINPICKLIST><![CDATA[Y]]></SHOWINPICKLIST>
++<!--4D05B2F9543E4B208984A86D8D5DD448--></OBUISEL_SELECTOR_FIELD> 
++ 
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D--><OBUISEL_SELECTOR_FIELD>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[8F1ABA1F69264D8FBFAB0782E59C2B3D]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <NAME><![CDATA[ID]]></NAME>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <SORT><![CDATA[N]]></SORT>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <FILTER><![CDATA[N]]></FILTER>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <SHOWINGRID><![CDATA[N]]></SHOWINGRID>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <SORTNO><![CDATA[0]]></SORTNO>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <DISPLAY_EXPRESSION><![CDATA[id]]></DISPLAY_EXPRESSION>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <AD_REFERENCE_ID><![CDATA[13]]></AD_REFERENCE_ID>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--8F1ABA1F69264D8FBFAB0782E59C2B3D--></OBUISEL_SELECTOR_FIELD> 
++ 
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D--><OBUISEL_SELECTOR_FIELD>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[C5B6BA4254CA4DA99653B31A1DF9A32D]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <NAME><![CDATA[Product Category]]></NAME>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <SORT><![CDATA[Y]]></SORT>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <SORTNO><![CDATA[40]]></SORTNO>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <DISPLAY_EXPRESSION><![CDATA[pcName]]></DISPLAY_EXPRESSION>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--C5B6BA4254CA4DA99653B31A1DF9A32D--></OBUISEL_SELECTOR_FIELD> 
++ 
++<!--C787D520413A4A55BC99B1B6B2CB3957--><OBUISEL_SELECTOR_FIELD>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[C787D520413A4A55BC99B1B6B2CB3957]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <NAME><![CDATA[Warehosue]]></NAME>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <SORT><![CDATA[Y]]></SORT>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <SORTNO><![CDATA[50]]></SORTNO>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <DISPLAY_EXPRESSION><![CDATA[wName]]></DISPLAY_EXPRESSION>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--C787D520413A4A55BC99B1B6B2CB3957-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--C787D520413A4A55BC99B1B6B2CB3957--></OBUISEL_SELECTOR_FIELD>
+++
++<!--C8C49CCB1C5D4923BB3648BE19469F5B--><OBUISEL_SELECTOR_FIELD>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[C8C49CCB1C5D4923BB3648BE19469F5B]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <NAME><![CDATA[Search Key]]></NAME>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <SORT><![CDATA[Y]]></SORT>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <SEARCHINSUGGESTIONBOX><![CDATA[Y]]></SEARCHINSUGGESTIONBOX>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <SORTNO><![CDATA[10]]></SORTNO>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <DISPLAY_EXPRESSION><![CDATA[searchKey]]></DISPLAY_EXPRESSION>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B-->  <SHOWINPICKLIST><![CDATA[Y]]></SHOWINPICKLIST>
++<!--C8C49CCB1C5D4923BB3648BE19469F5B--></OBUISEL_SELECTOR_FIELD> 
++ 
++<!--CB04204B00B44A869DD541BD2C6CB4CC--><OBUISEL_SELECTOR_FIELD>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[CB04204B00B44A869DD541BD2C6CB4CC]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <OBUISEL_SELECTOR_ID><![CDATA[35DDE84988C644C9B169107C56AC0459]]></OBUISEL_SELECTOR_ID>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <NAME><![CDATA[Name]]></NAME>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <ISCENTRALLYMAINTAINED><![CDATA[N]]></ISCENTRALLYMAINTAINED>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <SORT><![CDATA[Y]]></SORT>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <SEARCHINSUGGESTIONBOX><![CDATA[Y]]></SEARCHINSUGGESTIONBOX>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <SORTNO><![CDATA[30]]></SORTNO>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <DISPLAY_EXPRESSION><![CDATA[name]]></DISPLAY_EXPRESSION>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
++<!--CB04204B00B44A869DD541BD2C6CB4CC-->  <SHOWINPICKLIST><![CDATA[Y]]></SHOWINPICKLIST>
++<!--CB04204B00B44A869DD541BD2C6CB4CC--></OBUISEL_SELECTOR_FIELD> 
++
++
++<!--D7C38702738B400BA953CC980AA4D0C4--><OBUISEL_SELECTOR_FIELD>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[D7C38702738B400BA953CC980AA4D0C4]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <OBUISEL_SELECTOR_ID><![CDATA[DF44523511CE473381B1900BC30C1B4E]]></OBUISEL_SELECTOR_ID>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <AD_COLUMN_ID><![CDATA[1410]]></AD_COLUMN_ID>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <NAME><![CDATA[Name]]></NAME>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <DESCRIPTION><![CDATA[A non-unique identifier for a record/document often used as a search tool.]]></DESCRIPTION>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <HELP><![CDATA[A more descriptive identifier (that does need to be unique) of a record/document that is used as a default search option along with the search key (that is unique and mostly shorter). It is up to 60 characters in length.]]></HELP>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <PROPERTY><![CDATA[_identifier]]></PROPERTY>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <SORT><![CDATA[Y]]></SORT>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <SEARCHINSUGGESTIONBOX><![CDATA[Y]]></SEARCHINSUGGESTIONBOX>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <SORTNO><![CDATA[0]]></SORTNO>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--D7C38702738B400BA953CC980AA4D0C4-->  <SHOWINPICKLIST><![CDATA[Y]]></SHOWINPICKLIST>
++<!--D7C38702738B400BA953CC980AA4D0C4--></OBUISEL_SELECTOR_FIELD> 
++ 
++<!--F4E500BDACEE4F188F9AC8416CE54378--><OBUISEL_SELECTOR_FIELD>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[F4E500BDACEE4F188F9AC8416CE54378]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <OBUISEL_SELECTOR_ID><![CDATA[DF44523511CE473381B1900BC30C1B4E]]></OBUISEL_SELECTOR_ID>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <AD_COLUMN_ID><![CDATA[2012]]></AD_COLUMN_ID>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <NAME><![CDATA[Product Category]]></NAME>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <DESCRIPTION><![CDATA[A classification of items based on similar characteristics or attributes.]]></DESCRIPTION>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <HELP><![CDATA[Identifies the category which this product belongs to.  Product categories are used for pricing.]]></HELP>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <PROPERTY><![CDATA[productCategory]]></PROPERTY>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <SORT><![CDATA[Y]]></SORT>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <SORTNO><![CDATA[0]]></SORTNO>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--F4E500BDACEE4F188F9AC8416CE54378-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--F4E500BDACEE4F188F9AC8416CE54378--></OBUISEL_SELECTOR_FIELD>
++
++
++
++<!--B4457439934E4712AA0F32ECB8E70799--><OBUISEL_SELECTOR_FIELD>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <OBUISEL_SELECTOR_FIELD_ID><![CDATA[B4457439934E4712AA0F32ECB8E70799]]></OBUISEL_SELECTOR_FIELD_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <OBUISEL_SELECTOR_ID><![CDATA[DF44523511CE473381B1900BC30C1B4E]]></OBUISEL_SELECTOR_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <AD_COLUMN_ID><![CDATA[D6C6D9A44360FD26E040007F01000176]]></AD_COLUMN_ID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <NAME><![CDATA[Brand]]></NAME>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <PROPERTY><![CDATA[brand]]></PROPERTY>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SORT><![CDATA[Y]]></SORT>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <FILTER><![CDATA[Y]]></FILTER>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SEARCHINSUGGESTIONBOX><![CDATA[N]]></SEARCHINSUGGESTIONBOX>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SHOWINGRID><![CDATA[Y]]></SHOWINGRID>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SORTNO><![CDATA[0]]></SORTNO>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <ISOUTFIELD><![CDATA[N]]></ISOUTFIELD>
++<!--B4457439934E4712AA0F32ECB8E70799-->  <SHOWINPICKLIST><![CDATA[N]]></SHOWINPICKLIST>
++<!--B4457439934E4712AA0F32ECB8E70799--></OBUISEL_SELECTOR_FIELD>
+++
+ </data>
+diff -r cd98953b932b src/org/openbravo/erpCommon/ad_callouts/SL_Inventory_Locator.java
+--- a/src/org/openbravo/erpCommon/ad_callouts/SL_Inventory_Locator.java	Thu Dec 15 07:16:21 2016 +0000
++++ b/src/org/openbravo/erpCommon/ad_callouts/SL_Inventory_Locator.java	Thu Dec 28 11:35:46 2017 +0530
+@@ -53,7 +53,8 @@
+       info.addResult("inpqtycount", StringUtils.isEmpty(data[0].qty) ? "\"\""
+           : (Object) data[0].qty);
+       info.addResult("inpqtybook", StringUtils.isEmpty(data[0].qty) ? "\"\"" : (Object) data[0].qty);
+-
++info.addResult("inpreservedqty", StringUtils.isEmpty(data[0].reserved) ? "\"\""
++          : (Object) data[0].reserved);
+       info.addResult("EXECUTE", "displayLogic();");
+     }
+   }
+diff -r cd98953b932b src/org/openbravo/erpCommon/ad_callouts/SL_Inventory_Locator_data.xsql
+--- a/src/org/openbravo/erpCommon/ad_callouts/SL_Inventory_Locator_data.xsql	Thu Dec 15 07:16:21 2016 +0000
++++ b/src/org/openbravo/erpCommon/ad_callouts/SL_Inventory_Locator_data.xsql	Thu Dec 28 11:35:46 2017 +0530
+@@ -24,7 +24,7 @@
+     <SqlMethodComment></SqlMethodComment>
+     <Sql>
+       <![CDATA[
+-      SELECT COALESCE(qtyorderonhand,0) AS qtyorder, COALESCE(qtyonhand,0) AS qty
++      SELECT COALESCE(qtyorderonhand,0) AS qtyorder, COALESCE(qtyonhand,0) AS qty, COALESCE(reservedqty,0) AS reserved
+       FROM M_storage_detail 
+       WHERE m_product_id=? AND m_locator_id=? AND c_uom_id=? AND 1=1 AND m_attributesetinstance_id=?
+       ]]>
