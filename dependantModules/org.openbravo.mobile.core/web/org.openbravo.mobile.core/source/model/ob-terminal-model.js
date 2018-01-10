@@ -359,7 +359,7 @@ OB.Model.Terminal = Backbone.Model.extend({
 
     function dropTable(db, sql) {
       db.transaction(function (tx) {
-        tx.executeSql(sql, {}, function () {
+        tx.executeSql(sql, [], function () {
           OB.info('succesfully dropped table: ' + sql);
         }, function () {
           OB.error(arguments);

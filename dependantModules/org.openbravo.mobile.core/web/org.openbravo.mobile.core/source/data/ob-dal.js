@@ -263,7 +263,7 @@ enyo.kind({
           whereClause = OB.Dal.getWhereClause(whereClause, propertyMap);
         }
         sql = sql + whereClause.sql;
-        params = whereClause.params;
+params = _.isEmpty(whereClause.params) ? [] : whereClause.params;
 
         if (orderBy) {
           sql = sql + ' ORDER BY ' + orderBy + ' ';
@@ -276,7 +276,7 @@ enyo.kind({
         }
 
         OB.Data.localDB.readTransaction(function (tx) {
-          tx.executeSql(sql, params, function (tr, result) {
+          tx.executeSql(sql, _.isEmpty(params) ? [] : params, function (tr, result) {
             var i, collectionType = OB.Collection[model.prototype.modelName + 'List'] || Backbone.Collection,
                 collection = new collectionType(),
                 len = result.rows.length;
@@ -302,7 +302,7 @@ enyo.kind({
           sql = sql + ' LIMIT ' + model.prototype.dataLimit;
         }
         OB.Data.localDB.readTransaction(function (tx) {
-          tx.executeSql(sql, params, function (tr, result) {
+          tx.executeSql(sql, _.isEmpty(params) ? [] : params, function (tr, result) {
             var i, collectionType = OB.Collection[model.prototype.modelName + 'List'] || Backbone.Collection,
                 collection = new collectionType(),
                 len = result.rows.length;
@@ -547,7 +547,7 @@ enyo.kind({
         sql = 'DELETE FROM ' + tableName;
         whereClause = OB.Dal.getWhereClause(criteria, propertyMap);
         sql = sql + whereClause.sql;
-        params = whereClause.params;
+        params = _.isEmpty(whereClause.params) ? [] : whereClause.params;
         OB.Data.localDB.transaction(function (tx) {
           tx.executeSql(sql, params, silentFunction(success), _.isFunction(error) ? error : null);
         });
@@ -605,12 +605,12 @@ enyo.kind({
         OB.Data.localDB.transaction(function (tx) {
           var createStatement = model.getCreateStatement ? model.getCreateStatement() : model.prototype.createStatement;
           var createIndexStatement;
-          tx.executeSql(createStatement, null, function () {
+          tx.executeSql(createStatement, [], function () {
             //Create Index
             if (model.hasIndex && model.hasIndex()) {
               _.each(model.getIndexes(), function (indexDefinition) {
                 createIndexStatement = model.getCreateIndexStatement(indexDefinition);
-                tx.executeSql(createIndexStatement, null, null, function () {
+                tx.executeSql(createIndexStatement, [], null, function () {
                   OB.error('Error creating index ' + indexDefinition.name + ' for table ' + OB.Dal.getTableName(model));
                 });
               });

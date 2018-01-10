@@ -69,7 +69,7 @@ public class ImportStorePriceServlet extends HttpSecureAppServlet {
       String client = vars.getClient();
       String organistation = vars.getOrg();
       String user = vars.getUser();
-     // result = ImportStorePriceData.importStorePrice(this, client, organistation, user);
+      //result = ImportStorePriceData.importStorePrice(this, client, organistation, user);
       myError.setType("Success");
       myError.setTitle(Utility.messageBD(this, "Success", vars.getLanguage()));
       myError.setMessage(Utility.messageBD(this, result, vars.getLanguage()));

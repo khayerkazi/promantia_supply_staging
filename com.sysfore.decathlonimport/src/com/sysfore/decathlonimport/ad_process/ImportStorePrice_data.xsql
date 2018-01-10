@@ -29,7 +29,7 @@
     </Sql>
     <Parameter name="ad_client_id"/>
   </SqlMethod>
-<!--  <SqlMethod name="importStorePrice" type="preparedStatement" return="String">
+  <!--<SqlMethod name="importStorePrice" type="preparedStatement" return="String">
     <SqlMethodComment></SqlMethodComment>
     <Sql>
       <![CDATA[

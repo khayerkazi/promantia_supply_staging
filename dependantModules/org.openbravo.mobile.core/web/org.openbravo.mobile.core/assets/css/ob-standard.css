@@ -905,7 +905,7 @@ div.btnselect {
   vertical-align: bottom;
 }
 .image-wrap:after {
-  content: ' ';
+  content: '';
   width: 100%;
   height: 100%;
   position: absolute;

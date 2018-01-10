@@ -34,7 +34,7 @@ isc.OBWPL_CreateFromOrderPopup.addProperties({
     defaultToFirstOption: true,
     redrawOnChange: true,
     valueMap: {
-      'NO-OUT': OB.I18N.getLabel('OBWPL_PLType_NoOut_Label'),
+      
       'OUT': OB.I18N.getLabel('OBWPL_PLType_Out_Label')
     }
   }, {

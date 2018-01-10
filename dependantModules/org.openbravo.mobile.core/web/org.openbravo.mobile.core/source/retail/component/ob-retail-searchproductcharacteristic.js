@@ -49,7 +49,9 @@ enyo.kind({
         components: [{
           kind: 'OB.UI.SearchInputAutoFilter',
           name: 'productname',
-          style: 'width: 100%;'
+          style: 'width: 100%;',
+          minLengthToSearch: 4
+
         }]
       }, {
         style: 'display: table-cell;',
@@ -313,7 +315,8 @@ enyo.kind({
   }, {
     style: 'display: table; width:100%',
     components: [{
-      style: 'display: table-cell; width:30%',
+      name: 'characteristicsFilterContainer',
+      style: 'width:30%',
       classes: 'row-fluid',
       components: [{
         components: [{
@@ -355,7 +358,11 @@ enyo.kind({
     this.$.products.setCollection(this.products);
     this.$.productsCh.setCollection(this.productsCh);
     //    this.$.products.getHeader().setHeaderCollection(this.categories);
-
+//preference
+    this.$.characteristicsFilterContainer.addStyles('display: table-cell;');
+    if (OB.MobileApp.model.hasPermission('OBPOS_HideProductCharacteristics', true)) {
+      this.$.characteristicsFilterContainer.addStyles('display:none;');
+    }
     function errorCallback(tx, error) {
       OB.UTIL.showError("OBDAL error: " + error);
     }

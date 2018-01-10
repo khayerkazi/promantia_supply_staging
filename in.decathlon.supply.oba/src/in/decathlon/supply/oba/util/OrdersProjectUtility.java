@@ -86,7 +86,7 @@ public class OrdersProjectUtility {
 		final StringBuilder whereClause = new StringBuilder();
 		whereClause.append("as o WHERE o.sWEMSwPostatus IN ('SO', 'VO') AND ");
 		whereClause.append("o.documentType.id='C7CD4AC8AC414678A525AB7AE20D718C' AND ");
-	whereClause.append("o.businessPartner.id in (select id from BusinessPartner where rCSource='CAN') and o.createdBy!='100' and o.imsapDuplicatesapPo!='Y'");
+		whereClause.append("o.businessPartner.id in (select id from BusinessPartner where rCSource='CAN') and o.createdBy!='100' and o.imsapDuplicatesapPo!='Y'");
 		final OBQuery<Order> orderPO = OBDal.getInstance().createQuery(Order.class, whereClause.toString());
 		if(orderPO.count() > 0) {
 			poList = orderPO.list();
@@ -332,8 +332,6 @@ public class OrdersProjectUtility {
         ZipInputStream zipIs = null;
         ZipEntry zEntry = null;
         try {
-      System.out.print("sourcePath: " + sourcePath);
-
         	
         	for (final File fileEntry : new File(sourcePath).listFiles()) {
         		fis = new FileInputStream(sourcePath + fileEntry.getName());

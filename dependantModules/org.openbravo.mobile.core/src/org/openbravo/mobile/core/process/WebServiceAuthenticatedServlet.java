@@ -45,7 +45,7 @@ public abstract class WebServiceAuthenticatedServlet extends BaseKernelServlet {
       throws ServletException, IOException {
 
     try {
-      final KernelHttpServletResponse localResponse = new KernelHttpServletResponse();
+/*      final KernelHttpServletResponse localResponse = new KernelHttpServletResponse();
       localResponse.setDelegate(response);
       RequestContext.get().setResponse(localResponse);
 
@@ -64,7 +64,7 @@ public abstract class WebServiceAuthenticatedServlet extends BaseKernelServlet {
       } else {
         response.setStatus(HttpServletResponse.SC_OK);
       }
-    } catch (Exception e) {
+  */  } catch (Exception e) {
       SessionHandler.getInstance().setDoRollback(true);
       if (e instanceof NotAuthorizedException) {
         log.debug("Not authorized", e);

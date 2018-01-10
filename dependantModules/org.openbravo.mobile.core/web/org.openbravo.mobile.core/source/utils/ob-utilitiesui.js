@@ -372,7 +372,7 @@ OB.UTIL.showStatus = function (s) {
 };
 
 OB.UTIL.showError = function (s) {
-  OB.UTIL.showLoading(false);
+ 
   return OB.UTIL.showAlert.display(s, OB.I18N.getLabel('OBMOBC_LblError'), 'alert-error');
 };
 

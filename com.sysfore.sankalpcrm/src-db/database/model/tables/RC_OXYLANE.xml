@@ -47,8 +47,8 @@
       <foreign-key foreignTable="AD_ORG" name="RC_OXYLANEORG">
         <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
       </foreign-key>
-      <unique name="RC_DECATHLONNO_UNIQUE">
+ <!--     <unique name="RC_DECATHLONNO_UNIQUE">
         <unique-column name="OXYLANENO"/>
       </unique>
-    </table>
+   --> </table>
   </database>

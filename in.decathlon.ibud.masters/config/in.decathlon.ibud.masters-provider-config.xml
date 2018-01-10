@@ -9,8 +9,7 @@
        <name>MasterFixtureWS</name>
        <class>in.decathlon.ibud.masters.server.MasterFixtureWS</class>
        <singleton>true</singleton>
-   </bean>
-   
+   </bean>   
    <bean>
        <name>PriceListWS</name>
        <class>in.decathlon.ibud.masters.server.PriceListWebService</class>

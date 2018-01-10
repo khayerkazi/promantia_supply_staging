@@ -35,12 +35,12 @@ public class RfidInventoryReport extends DalBaseProcess {
       String cycle = (String) bundle.getParams().get("cycle");
       int cycleInt = Integer.parseInt(cycle);
       File f = new File(webDirName);
-      //CSVGenerator csvg = new CSVGenerator(f, "InventoryUpload");
+  //    CSVGenerator csvg = new CSVGenerator(f, "InventoryUpload");
 
       String qry = "select mw.name as Warehouse, mp.name as Product, coalesce(mp.uPCEAN,'NA') as EAN, ml.searchKey as Location, coalesce(mt.lotName,'') as Box, round(msd.quantityOnHand) as Quantity, round(msd.reservedQty) as Reserved from MaterialMgmtStorageDetail msd join msd.product mp join msd.storageBin ml join msd.attributeSetValue mt join ml.warehouse mw where ml.searchKey like '" + locator + "%' and msd.quantityOnHand > 0 and not exists (from MaterialMgmtInventoryCount mi join mi.materialMgmtInventoryCountLineList mil where mil.product.id = msd.product.id and mil.storageBin.id = msd.storageBin.id and mil.attributeSetValue.id = msd.attributeSetValue.id and mil.creationDate > now()- " + cycleInt + " and mi.processed = 'Y') and mw.id = '" + mWarehouseId + "'  order by ml.searchKey";
       Query query = OBDal.getInstance().getSession().createQuery(qry);
-      //File csvfile = csvg.generateCSV(query);
-      String newfile = null;//csvfile.getName();
+    //  File csvfile = csvg.generateCSV(query);
+      String newfile =null;// csvfile.getName();
       String fullFileName = webDirName + "/" + newfile;
 
       final OBError msg = new OBError();
