@@ -1,0 +1,43 @@
+diff -r cd98953b932b src/org/openbravo/common/datasource/StockReservationPickAndEditDataSource.java
+--- a/src/org/openbravo/common/datasource/StockReservationPickAndEditDataSource.java	Thu Dec 15 07:16:21 2016 +0000
++++ b/src/org/openbravo/common/datasource/StockReservationPickAndEditDataSource.java	Mon Jan 29 17:53:53 2018 +0530
+@@ -1553,7 +1553,7 @@
+     if (storageBin != null) {
+       hqlString.append(" and sd.storageBin = :storageBin ");
+     }
+-    if (attribute != null) {
++    if (attribute != null && !"0".equals(attribute.getId())) {
+       hqlString.append(" and sd.attributeSetValue = :attributeSetValue ");
+     }
+     final Session session = OBDal.getInstance().getSession();
+@@ -1562,7 +1562,7 @@
+     if (storageBin != null) {
+       query.setParameter("storageBin", storageBin);
+     }
+-    if (attribute != null) {
++    if (attribute != null && !"0".equals(attribute.getId())) {
+       query.setParameter("attributeSetValue", attribute);
+     }
+     return (BigDecimal) query.uniqueResult();
+
+diff -r cd98953b932b src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
+--- a/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml	Mon Jan 29 17:53:27 2018 +0530
+    SELECT m_locator_id, m_attributesetinstance_id
+@@ -138,7 +138,7 @@
+   ) VALUES (
+     v_reservation_stock_id, v_client_id, v_org_id, 'Y',
+     now(), p_user_id, now(), p_user_id,
+-    p_reservation_id, v_asi_id, v_locator_id, v_poline_id,
++    p_reservation_id, COALESCE(v_asi_id, '0'), v_locator_id, v_poline_id,
+     p_qty, 0, p_allocated
+   ); 
+ 
+diff -r cd98953b932b src-db/database/model/functions/M_GET_STOCK.xml
+--- a/src-db/database/model/functions/M_GET_STOCK.xml	Thu Dec 15 07:16:21 2016 +0000
++++ b/src-db/database/model/functions/M_GET_STOCK.xml	Mon Jan 29 18:12:32 2018 +0530
+@@ -125,8 +125,10 @@    
+-  M_GET_STOCK_PARAM(PInstance_ID, v_Record_ID, v_Quantity, v_ProductID, v_LocatorID, v_WarehouseID, v_PriorityWarehouseID, v_OrgID, v_AttributesetinstanceID, v_AD_User_ID, v_ClientID, v_warehouse_rule_id, v_UomID, v_ProductUomID, v_TableID, v_AuxID, v_LineNo, v_ProcessID, v_reservation_id, p_calledfromapp, v_result, v_Message);
++--  M_GET_STOCK_PARAM(PInstance_ID, v_Record_ID, v_Quantity, v_ProductID, v_LocatorID, v_WarehouseID, v_PriorityWarehouseID, v_OrgID, v_AttributesetinstanceID, v_AD_User_ID, v_ClientID, v_warehouse_rule_id, v_UomID, v_ProductUomID, v_TableID, v_AuxID, v_LineNo, v_ProcessID, v_reservation_id, p_calledfromapp, v_result, v_Message);
+  
+
