@@ -127,7 +127,7 @@ public abstract class WarehouseRuleImplementation {
   public BigDecimal getActuallQty(Warehouse warehouse, Product product) {
     BigDecimal totalQty = BigDecimal.ZERO;
     String qry = "select sum(quantityOnHand) from MaterialMgmtStorageDetail sd where sd.storageBin.warehouse.id="
-        + " :warehouseId and sd.product.id= :productId and (sd.storageBin.oBWHSType = null or sd.storageBin.oBWHSType<>'OUT' or sd.storageBin.oBWHSType<>'ARC') and sd.storageBin.active='Y'";
+        + " :warehouseId and sd.product.id= :productId and sd.storageBin.oBWHSType='ST' and sd.storageBin.active='Y'";
     Query storageQuery = OBDal.getInstance().getSession().createQuery(qry);
     storageQuery.setParameter("warehouseId", warehouse.getId());
     storageQuery.setParameter("productId", product.getId());
@@ -148,7 +148,7 @@ public abstract class WarehouseRuleImplementation {
   public BigDecimal getReservedQty(Warehouse warehouse, Product product) {
     BigDecimal resrvdQty = BigDecimal.ZERO;
     String qry = "select sum(reservedQty) from MaterialMgmtStorageDetail sd where sd.storageBin.warehouse.id="
-        + " :warehouseId and sd.product.id= :productId and (sd.storageBin.oBWHSType = null or sd.storageBin.oBWHSType<>'OUT' or sd.storageBin.oBWHSType<>'ARC') and sd.storageBin.active='Y'";
+        + " :warehouseId and sd.product.id= :productId and   sd.storageBin.oBWHSType='ST' and sd.storageBin.active='Y'";
     Query storageQuery = OBDal.getInstance().getSession().createQuery(qry);
     storageQuery.setParameter("warehouseId", warehouse.getId());
     storageQuery.setParameter("productId", product.getId());
