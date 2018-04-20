@@ -19,6 +19,7 @@ import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.dal.service.OBQuery;
+import org.openbravo.localization.india.ingst.master.data.GstIdentifierMaster;
 import org.openbravo.model.ad.access.Role;
 import org.openbravo.model.ad.access.User;
 import org.openbravo.model.ad.utility.Tree;
@@ -29,6 +30,8 @@ import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.enterprise.OrganizationAcctSchema;
 import org.openbravo.model.common.enterprise.OrganizationInformation;
 import org.openbravo.model.common.enterprise.Warehouse;
+import org.openbravo.model.financialmgmt.accounting.coa.AcctSchema;
+import org.openbravo.scheduling.ProcessLogger;
 import org.openbravo.service.json.DataResolvingMode;
 import org.openbravo.service.json.DataToJsonConverter;
 import org.openbravo.service.json.JsonConstants;
@@ -36,7 +39,7 @@ import org.openbravo.service.json.JsonToDataConverter;
 
 public class JSONHelper {
   public static final Logger log = Logger.getLogger(JSONHelper.class);
-
+  
   @SuppressWarnings("unchecked")
   public static boolean saveJSONObject(JSONArray jsonArrayContent) throws Exception {
     SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -64,12 +67,23 @@ public class JSONHelper {
     String dsidefStorephonedesc = null;
     String dsidefStoremanagermail = null;
     Boolean existingIsReady = false;
-    Currency existingCurrency = null;
+    //Currency existingCurrency = null;
+    
+    Boolean isSummaryLevel = false;
+    String legalName = null;
+    Boolean allowPeriodControl = null;
+    AcctSchema generalLedgar =null;
+    String emdsTelephoneNo = null;
+    Boolean emFacstIsExternal = null;
+    Long emIbdrepOrgreppriority = null;
+    GstIdentifierMaster gstUniqueID = null;
+    User userContact = null;
+    Boolean isTaxNotDeductible = false;
 
     Organization org = null;
     Warehouse dwarehouse = null;
     Role dRole = null;
-    BusinessPartner existingPosInvoiceBPartner = null;
+    // BusinessPartner existingPosInvoiceBPartner = null;
 
     Organization dOrg = null;
     try {
@@ -91,6 +105,7 @@ public class JSONHelper {
           // object is present in store so update and save it
           log.debug(entityName + " with this id exists");
           if (entityName.equals("Organization")) {
+            
             OBContext.setAdminMode(true);
             OBContext.getOBContext().addWritableOrganization(id);
             Organization existingOrg = OBDal.getInstance().get(Organization.class, id);
@@ -98,7 +113,7 @@ public class JSONHelper {
             repoPriority = existingOrg.getIbdrepOrgreppriority();
             poStatusPriority = existingOrg.getIbudsPostatusPriority();
             existingIsReady = existingOrg.isReady();
-            existingCurrency = existingOrg.getCurrency();
+            // existingCurrency = existingOrg.getCurrency();
 
             dSIDEFIslbtapply = existingOrg.isDSIDEFIslbtapply();
             dsidefPosdoctype = existingOrg.getDsidefPosdoctype();
@@ -116,20 +131,34 @@ public class JSONHelper {
             dsidefStorephonedesc = existingOrg.getDsidefStorephonedesc();
             dsidefStoremanagermail = existingOrg.getDsidefStoremanagermail();
 
+            isSummaryLevel = existingOrg.isSummaryLevel();
+            legalName = existingOrg.getSocialName();
+            allowPeriodControl = existingOrg.isAllowPeriodControl();
+            generalLedgar = existingOrg.getGeneralLedger();
+            emdsTelephoneNo = existingOrg.getDSTelephoneNo();
+            emFacstIsExternal = existingOrg.isFacstIsExternal();
+            emIbdrepOrgreppriority = existingOrg.getIbdrepOrgreppriority();
+
             OBContext.restorePreviousMode();
+
           }
           if (entityName.equals("OrganizationInformation")) {
+
             OBContext.setAdminMode(true);
             if (id != null) {
               OBContext.getOBContext().addWritableOrganization(id);
               OrganizationInformation existingOrginfo = OBDal.getInstance().get(
                   OrganizationInformation.class, id);
-              existingPosInvoiceBPartner = existingOrginfo.getDsidefPosinvoicebp();
+              // existingPosInvoiceBPartner = existingOrginfo.getDsidefPosinvoicebp();
+              gstUniqueID = existingOrginfo.getIngstGstidentifirmaster();
+              userContact = existingOrginfo.getUserContact();
+              //isTaxNotDeductible = existingOrginfo.isNotTaxDeductable();
             }
             OBContext.restorePreviousMode();
-
+            
           }
           if (entityName.equals("ADUser")) {
+
             User existingUser = OBDal.getInstance().get(User.class, id);
 
             OBContext.setAdminMode(true);
@@ -153,14 +182,16 @@ public class JSONHelper {
             bob.setValue("prmiProcess", null);
             bob.setValue("prmiComponentlabel", null);
           }
+          
           if (entityName.equals("Organization")) {
+
             OBContext.setAdminMode(true);
             OBContext.getOBContext().addWritableOrganization((String) bob.getId());
             bob.setValue("active", existingOrgActive);
             bob.setValue("ibdrepOrgreppriority", repoPriority);
             bob.setValue("ibudsPostatusPriority", poStatusPriority);
             bob.setValue("ready", existingIsReady);
-            bob.setValue("currency", existingCurrency);
+            // bob.setValue("currency", existingCurrency);
 
             bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
             bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
@@ -178,16 +209,33 @@ public class JSONHelper {
             bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
             bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
 
+            bob.setValue("summaryLevel", isSummaryLevel);
+            bob.setValue("socialName", legalName);
+            bob.setValue("allowPeriodControl", allowPeriodControl);
+            bob.setValue("generalLedger", generalLedgar);
+            bob.setValue("dSTelephoneNo", emdsTelephoneNo);
+            bob.setValue("facstIsExternal", emFacstIsExternal);
+            bob.setValue("ibdrepOrgreppriority", emIbdrepOrgreppriority);
             OBContext.restorePreviousMode();
+            log.info(entityName + " with id=" + id + " pulling........");
+
           }
           if (entityName.equals("OrganizationInformation")) {
+
             OBContext.setAdminMode(true);
             OBContext.getOBContext().addWritableOrganization((String) bob.getId());
             bob.setValue("yourCompanyDocumentImage", null);
-            bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
+            // bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
+            bob.setValue("ingstGstidentifirmaster", gstUniqueID);
+            bob.setValue("userContact", userContact);
+            bob.setValue("notTaxDeductable", isTaxNotDeductible);
             OBContext.restorePreviousMode();
+            log.info(entityName + " with id=" + id + " pulling........");
+
           }
+          
           if (entityName.equals("ADUser")) {
+
             OBContext.setAdminMode(true);
             bob.setValue("organization", org);
             bob.setValue("defaultWarehouse", dwarehouse);
@@ -195,11 +243,14 @@ public class JSONHelper {
             bob.setValue("defaultRole", dRole);
             bob.setValue("businessPartner", null);
             bob.setValue("partnerAddress", null);
+            log.info(entityName + " with id=" + id + " pulling........");
 
           }
 
           if (entityName.equals("BusinessPartner")) {
             bob.setValue("rCOxylane", null);
+            log.info(entityName + " with id=" + id + " pulling........");
+
           }
           OBContext.setAdminMode(true);
           OBDal.getInstance().save(bob);
@@ -226,12 +277,16 @@ public class JSONHelper {
           if (entityName.equals("CL_Model")) {
             bob.setValue("prmiProcess", null);
             bob.setValue("prmiComponentlabel", null);
+            log.info(entityName + " with id=" + id + " pulling........");
+
           }
 
           bob.setValue("id", id);
-          if (entityName.equals("Organization") || entityName.equals("OrganizationInformation")) {
-            OBContext.setAdminMode(true);
+          if (entityName.equals("Organization") || entityName.equals("OrganizationInformation")) {        	  
+        	  
             // OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+            if (entityName.equals("Organization")) {
+            OBContext.setAdminMode(true);
 
             bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
             bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
@@ -248,11 +303,33 @@ public class JSONHelper {
             bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
             bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
 
-            if (entityName.equals("OrganizationInformation")) {
-              bob.setValue("yourCompanyDocumentImage", null);
-              bob.setValue("dsidefPosinvoicebp", null);
+            bob.setValue("summaryLevel", isSummaryLevel);
+            bob.setValue("socialName", legalName);
+            bob.setValue("allowPeriodControl", allowPeriodControl);
+            bob.setValue("generalLedger", generalLedgar);
+            bob.setValue("dSTelephoneNo", emdsTelephoneNo);
+            bob.setValue("facstIsExternal", emFacstIsExternal);
+            bob.setValue("ibdrepOrgreppriority", emIbdrepOrgreppriority);
+            OBContext.restorePreviousMode();
+            log.info(entityName + " with id=" + id + " pulling........");
+
             }
-          }
+            
+            if (entityName.equals("OrganizationInformation")) {
+                OBContext.setAdminMode(true);
+                // OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+                bob.setValue("yourCompanyDocumentImage", null);
+                // bob.setValue("dsidefPosinvoicebp", null);
+                bob.setValue("ingstGstidentifirmaster", gstUniqueID);
+                bob.setValue("userContact", userContact);
+                bob.setValue("notTaxDeductable", isTaxNotDeductible);
+                OBContext.restorePreviousMode();
+                
+                log.info(entityName + " with id=" + id + " pulling........");
+
+              }
+            }
+         
           bob.setValue("updated", date);
           bob.setValue("creationDate", date);
           // bob.setValue("createdBy", OBContext.getOBContext().getUser());
@@ -267,12 +344,16 @@ public class JSONHelper {
             deleteExistingTreeNode(treeNodeId, nodeId);
 
             OBContext.restorePreviousMode();
+            log.info(entityName + " with id=" + id + " pulling........");
+
           }
           // Delete document sequence created by trigger
           if (entityName.equals("ADSequence")) {
             String name = entityJson.getString("name");
             deleteExistingSequence(name);
             OBDal.getInstance().flush();
+            log.info(entityName + " with id=" + id + " pulling........");
+
           }
           if (entityName.equals("ADUser")) {
             OBContext.setAdminMode(true);
@@ -280,12 +361,15 @@ public class JSONHelper {
             bob.setValue("defaultOrganization", null);
             bob.setValue("businessPartner", null);
             bob.setValue("partnerAddress", null);
+            log.info(entityName + " with id=" + id + " pulling........");
 
           }
           if (entityName.equals("BusinessPartner")) {
             bob.setValue("rCOxylane", null);
+            log.info(entityName + " with id=" + id + " pulling........");
+
           }
-          OBContext.setAdminMode(true);
+          OBContext.setAdminMode(false);
           OBDal.getInstance().save(bob);
           log.info(entityName + " with id=" + id + " saved/updated");
           if (entityName.equals("FinancialMgmtTaxRate")) {
@@ -293,8 +377,8 @@ public class JSONHelper {
             deleteExtraTaxacct(id);
           }
 
-          isSaved = true;
           OBContext.restorePreviousMode();
+          isSaved = true;
 
         }
 
@@ -310,6 +394,7 @@ public class JSONHelper {
         OBContext.setAdminMode(true);
         OBDal.getInstance().commitAndClose();
       } catch (Exception e) {
+    	log.error(objectName + " failed during pulling.....<<<<<<<>>>>>>>.....");
         throw new Exception("Entity:[" + objectName + "] Identifier : [" + objectID + "] ," + e);
       } finally {
         OBContext.restorePreviousMode();
