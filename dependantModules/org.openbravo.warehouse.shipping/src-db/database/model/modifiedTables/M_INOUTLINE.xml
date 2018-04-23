@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_INOUTLINE">
+    <table name="M_INOUTLINE" primaryKey="M_INOUTLINE_KEY">
+      <column name="EM_OBWSHIP_CESSIONPRICE" primaryKey="false" required="false" type="DECIMAL" size="12,2" autoIncrement="false">
+        <default><![CDATA[0.00]]></default>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>

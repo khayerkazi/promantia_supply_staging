@@ -19,6 +19,7 @@
 
 package org.openbravo.warehouse.shipping;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +28,23 @@ import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.criterion.Restrictions;
 import org.openbravo.base.exception.OBException;
 import org.openbravo.base.provider.OBProvider;
 import org.openbravo.client.application.process.BaseProcessActionHandler;
 import org.openbravo.dal.core.OBContext;
+import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.dal.service.OBDao;
 import org.openbravo.erpCommon.utility.OBMessageUtils;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
 import org.openbravo.model.common.enterprise.Warehouse;
+import org.openbravo.model.common.plm.Product;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOut;
+import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
+import org.openbravo.model.pricing.pricelist.PriceList;
+import org.openbravo.model.pricing.pricelist.PriceListVersion;
+import org.openbravo.model.pricing.pricelist.ProductPrice;
 
 public class SelectShipmentsBoxes extends BaseProcessActionHandler {
   private static Logger log = Logger.getLogger(SelectShipmentsBoxes.class);
@@ -188,6 +196,19 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
       OBDal.getInstance().save(shipping);
       OBDal.getInstance().flush();
       cont++;
+
+      List<ShipmentInOutLine> inoutLineList = inout.getMaterialMgmtShipmentInOutLineList();
+      Map<Product, BigDecimal> mapObj = new HashMap<Product, BigDecimal>();
+      for (ShipmentInOutLine inoutLine : inoutLineList) {
+        mapObj.put(inoutLine.getProduct(), getCessionPrice(inoutLine.getProduct()));
+      }
+      for (ShipmentInOutLine inoutLine : inoutLineList) {
+        if (mapObj.containsKey(inoutLine.getProduct()))
+          inoutLine.setOBWSHIPCessionPrice(mapObj.get(inoutLine.getProduct()));
+        OBDal.getInstance().save(inoutLine);
+        // OBDal.getInstance().flush();
+      }
+
     }
 
     // Remove non selected Details
@@ -196,6 +217,34 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
     map.put("DifferentWarehouse", differentWarehouse);
     map.put("Count", Integer.toString(cont));
     return map;
+  }
+
+  private BigDecimal getCessionPrice(Product product) {
+    // TODO Auto-generated method stub
+    OBCriteria<PriceListVersion> priceListVersionCriteria = OBDal.getInstance().createCriteria(
+        PriceListVersion.class);
+    priceListVersionCriteria.add(Restrictions.eq(PriceList.PROPERTY_NAME, "DMI CATALOGUE"));
+    priceListVersionCriteria.list();
+
+    if (priceListVersionCriteria.list().size() < 0) {
+      throw new OBException("PriceList DMI CATALOGUE is not available in erp");
+    }
+
+    OBCriteria<ProductPrice> productPriceCriteria = OBDal.getInstance().createCriteria(
+        ProductPrice.class);
+    productPriceCriteria.add(Restrictions.eq(ProductPrice.PROPERTY_PRODUCT, product));
+    productPriceCriteria.add(Restrictions.eq(ProductPrice.PROPERTY_PRICELISTVERSION,
+        priceListVersionCriteria.list().get(0)));
+
+    BigDecimal clCessionPrice = productPriceCriteria.list().get(0).getClCessionprice();
+
+    if (productPriceCriteria.list().size() < 0) {
+      throw new OBException(
+          "ProductPrice for priceListVersion as DMI CATALOGUE is not present for product: "
+              + product.getName());
+    } else
+      return clCessionPrice;
+
   }
 
   /**
