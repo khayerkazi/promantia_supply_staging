@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2018-04-23T17:00:32 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="14906b87-4347-44b2-bc55-87240136171b">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="150"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Supply_Invoice.xml"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
 	<parameter name="BASE_DESIGN" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[select ml.m_inoutline_id ,orl.c_orderline_id, os.documentno as INVOICENUMBER, mw.em_gs_gstin as GSTINNo, (loc.address1 || ' ' || loc.address2  || ' ' || loc.city || ' ' || loc.postal) as ADDRESS,
-os.em_gs_uniqueno as SerialNoOfInvoice, os.shipment_date as DateofInvoice,
+os.em_gs_uniqueno as SerialNoOfInvoice, os.shipment_date as DateofInvoice, ml.em_OBWSHIP_CessionPrice as ShippingCessionPrice,
  (cloc.address1 || ' ' || cloc.address2  || ' ' || cloc.city || ' ' || cloc.postal) as SupplyAddress,
 reg1.name as State1, reg.name as State, reg.value as StateCode, ingst.uidno as GSTINUniqueID,
 mp.name as ProductName, mp.em_cl_modelname as ModelName, gst.value as ProductHSNCode,
@@ -42,12 +46,14 @@ where os.obwship_shipping_id =$P{DOCUMENT_ID}
 and mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1'
 group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, loc.address1,loc.address2,loc.city,loc.postal, os.em_gs_uniqueno, os.shipment_date, cloc.address1,cloc.address2,cloc.city,cloc.postal, reg1.name, reg.name, reg.value, ingst.uidno, mp.name, mp.em_cl_modelname, gst.value, ml.movementqty, mpp.em_cl_cessionprice,ct.rate]]>
 	</queryString>
+	<field name="m_inoutline_id" class="java.lang.String"/>
 	<field name="c_orderline_id" class="java.lang.String"/>
 	<field name="invoicenumber" class="java.lang.String"/>
 	<field name="gstinno" class="java.lang.String"/>
 	<field name="address" class="java.lang.String"/>
 	<field name="serialnoofinvoice" class="java.lang.String"/>
 	<field name="dateofinvoice" class="java.sql.Timestamp"/>
+	<field name="shippingcessionprice" class="java.math.BigDecimal"/>
 	<field name="supplyaddress" class="java.lang.String"/>
 	<field name="state1" class="java.lang.String"/>
 	<field name="state" class="java.lang.String"/>
@@ -76,14 +82,14 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 	<title>
 		<band height="310">
 			<textField>
-				<reportElement x="209" y="-30" width="133" height="20"/>
+				<reportElement x="209" y="-30" width="133" height="20" uuid="25f35a6e-1ba8-4095-bbd6-bdca51e26878"/>
 				<textElement textAlignment="Center">
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{gstinno}.equals( $F{gstinuniqueid} )?"Delivery-Challan":"Tax-Invoice"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{gstinno}.equals( $F{gstinuniqueid} )?"Delivery-Challan":"Tax-Invoice"]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="120" width="200" height="20"/>
+				<reportElement x="80" y="120" width="200" height="20" uuid="de6679bd-af37-40fa-a60d-2e3537cbb9c4"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -94,10 +100,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{invoicenumber}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{invoicenumber}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="245" width="200" height="20"/>
+				<reportElement x="80" y="245" width="200" height="20" uuid="021d8b11-046b-4d3f-bf35-964501e5dc77"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -108,10 +114,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{state}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{state}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="60" width="80" height="40"/>
+				<reportElement x="0" y="60" width="80" height="40" uuid="bc4e4356-342f-48b5-abf6-3c7bda59507a"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -125,7 +131,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Address]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="60" width="110" height="40"/>
+				<reportElement x="280" y="60" width="110" height="40" uuid="89947062-391c-4599-bc87-56775dc0863e"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -139,7 +145,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Mode of Transport By Road/Rail/Air/Water]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="120" width="110" height="20"/>
+				<reportElement x="280" y="120" width="110" height="20" uuid="4f744040-33cd-4c69-8f0d-c2ebbd9a55f8"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -153,7 +159,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Currency]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="100" width="80" height="20"/>
+				<reportElement x="0" y="100" width="80" height="20" uuid="d2c5ade1-4784-4b53-9ca8-e47337b368c6"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -167,7 +173,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[State]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="285" width="80" height="20"/>
+				<reportElement x="0" y="285" width="80" height="20" uuid="9f0412f6-6bd5-473d-b436-e5aa3c2dd297"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -181,7 +187,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[GSTIN/Unique ID.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="20" width="110" height="20"/>
+				<reportElement x="280" y="20" width="110" height="20" uuid="2f4ee740-21bb-4a26-8291-588ad7303612"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -195,7 +201,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Vehicle No.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="165" width="80" height="20"/>
+				<reportElement x="0" y="165" width="80" height="20" uuid="b3043424-738c-4121-819b-405ccacc8bf8"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -209,7 +215,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Billed To/Place of Supply]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="390" y="60" width="150" height="40"/>
+				<reportElement x="390" y="60" width="150" height="40" uuid="df95d72a-65e3-4199-927d-861078a936ce"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -221,7 +227,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="100" width="200" height="20"/>
+				<reportElement x="80" y="100" width="200" height="20" uuid="b4e945a4-242c-4a06-ad88-9ba43b5ff2fc"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -232,10 +238,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{state1}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{state1}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="205" width="200" height="40"/>
+				<reportElement x="80" y="205" width="200" height="40" uuid="3ea2c2b6-f248-4353-b95d-693fc8f5f699"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -246,10 +252,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{supplyaddress}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{supplyaddress}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="140" width="200" height="20"/>
+				<reportElement x="80" y="140" width="200" height="20" uuid="7d28b7fa-6392-4ea2-94f4-9645234df2e1"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -260,10 +266,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{dateofinvoice}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{dateofinvoice}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="390" y="0" width="150" height="20"/>
+				<reportElement x="390" y="0" width="150" height="20" uuid="b1c73414-5090-41f7-8820-9c2c11d2617f"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -275,7 +281,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="120" width="80" height="20"/>
+				<reportElement x="0" y="120" width="80" height="20" uuid="605899ab-62a5-4d97-afa9-9abb7217c70e"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -289,7 +295,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Shipment No.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="40" width="80" height="20"/>
+				<reportElement x="0" y="40" width="80" height="20" uuid="50e7bbd1-99f9-491b-9c15-0310e58a87cd"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -303,7 +309,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Name]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="100" width="110" height="20"/>
+				<reportElement x="280" y="100" width="110" height="20" uuid="225011a9-b2e2-41c3-9eb7-b71540732ea7"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -317,7 +323,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Seal No.]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="20" width="200" height="20"/>
+				<reportElement x="80" y="20" width="200" height="20" uuid="365ccc75-c2db-48de-a918-cdf267bab0c8"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -328,10 +334,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{gstinno}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{gstinno}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="60" width="200" height="40"/>
+				<reportElement x="80" y="60" width="200" height="40" uuid="c61253c3-2b2d-4cac-9cc2-c699c1ced735"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -342,10 +348,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{address}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{address}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="265" width="80" height="20"/>
+				<reportElement x="0" y="265" width="80" height="20" uuid="03c95fdd-25a7-4846-bced-ab866b559be5"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -359,7 +365,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[State code]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="0" width="200" height="20"/>
+				<reportElement x="80" y="0" width="200" height="20" uuid="b9647ff6-48d3-4808-94c0-fe6904fc18df"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -370,10 +376,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{serialnoofinvoice}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{serialnoofinvoice}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="285" width="200" height="20"/>
+				<reportElement x="80" y="285" width="200" height="20" uuid="7ddcee9a-7341-41e8-ba25-7cbb3c0bec19"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -384,10 +390,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{gstinuniqueid}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{gstinuniqueid}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="0" width="80" height="20"/>
+				<reportElement x="0" y="0" width="80" height="20" uuid="714096f8-4780-45f7-ac3d-b61261896c3e"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -401,7 +407,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Invoice No.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="185" width="80" height="20"/>
+				<reportElement x="0" y="185" width="80" height="20" uuid="8797879e-7b56-440e-9dde-973fdf26eac2"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -415,7 +421,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Name]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="205" width="80" height="40"/>
+				<reportElement x="0" y="205" width="80" height="40" uuid="77386380-5285-4c79-979d-43af83bc1ead"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -429,7 +435,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Address]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="390" y="40" width="150" height="20"/>
+				<reportElement x="390" y="40" width="150" height="20" uuid="d1df5b46-a4d4-4a21-8fa1-a3cb58fc7039"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -441,7 +447,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="80" y="185" width="200" height="20"/>
+				<reportElement x="80" y="185" width="200" height="20" uuid="f267a283-5d1d-42ce-a898-cbd8cd59827a"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -455,7 +461,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Decathlon Sports India Pvt Ltd]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="390" y="20" width="150" height="20"/>
+				<reportElement x="390" y="20" width="150" height="20" uuid="db84f667-79c6-4ffb-8e44-5b5f1f3b9910"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -467,7 +473,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="40" width="110" height="20"/>
+				<reportElement x="280" y="40" width="110" height="20" uuid="ca4ee47d-68c3-48e9-9cd4-549cad522c5f"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -481,7 +487,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[L.R./R.R No.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="20" width="80" height="20"/>
+				<reportElement x="0" y="20" width="80" height="20" uuid="2db47f84-2826-4fbf-b98e-02c8e06aa42a"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -495,7 +501,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[GSTIN No.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="140" width="80" height="20"/>
+				<reportElement x="0" y="140" width="80" height="20" uuid="54d85ab0-78c6-4c28-88d5-ba24b3d85747"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -509,7 +515,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Date of Invoice]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="80" y="165" width="200" height="20"/>
+				<reportElement x="80" y="165" width="200" height="20" uuid="9d58e16f-5fd9-4eb5-979a-8a2f36a36e3d"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -523,7 +529,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="80" y="265" width="200" height="20"/>
+				<reportElement x="80" y="265" width="200" height="20" uuid="22ee36fa-f5b1-4c43-a17e-2fbb21ad5944"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -534,10 +540,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{statecode}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{statecode}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="80" y="40" width="200" height="20"/>
+				<reportElement x="80" y="40" width="200" height="20" uuid="4c43dbb5-d021-4044-8d72-aa25cbb007a5"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -551,7 +557,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Decathlon Sports India Pvt Ltd]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="0" width="110" height="20"/>
+				<reportElement x="280" y="0" width="110" height="20" uuid="a01e7cbc-1800-4f7a-9c7d-6335c4610747"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -565,7 +571,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Transporter Name]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="390" y="120" width="150" height="20"/>
+				<reportElement x="390" y="120" width="150" height="20" uuid="f5efccb4-3fa9-4ada-b70d-acb633fd7503"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -579,7 +585,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[INR]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="390" y="100" width="150" height="20"/>
+				<reportElement x="390" y="100" width="150" height="20" uuid="3b3c176a-4aaf-4afd-8947-3f0b3cade5ac"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -591,7 +597,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="245" width="80" height="20"/>
+				<reportElement x="0" y="245" width="80" height="20" uuid="7d811468-27da-4b76-9f25-f6e25735bb7a"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -612,7 +618,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 	<columnHeader>
 		<band height="40" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="30" height="40"/>
+				<reportElement x="0" y="0" width="30" height="40" uuid="76114f5b-7b12-444c-8b10-fe0710a1e370"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -626,7 +632,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Sl. No.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="395" y="0" width="85" height="16"/>
+				<reportElement x="395" y="0" width="85" height="16" uuid="439f8f25-c44a-4c71-9649-0d8e0b269b58"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -640,7 +646,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[IGST]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="480" y="0" width="60" height="40"/>
+				<reportElement x="480" y="0" width="60" height="40" uuid="e1199dd6-aed9-43eb-859c-fd9cdfd1d369"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -654,7 +660,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Total]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="250" y="0" width="30" height="40"/>
+				<reportElement x="250" y="0" width="30" height="40" uuid="cee86666-fd3e-4c44-8244-d5733c6f4f95"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -668,7 +674,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[QTY]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="340" y="0" width="55" height="40"/>
+				<reportElement x="340" y="0" width="55" height="40" uuid="546d685a-2e08-4ab0-9e70-c43605538f6e"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -682,7 +688,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Taxable value]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="425" y="16" width="55" height="24"/>
+				<reportElement x="425" y="16" width="55" height="24" uuid="82040e1b-a80a-4bd1-b80d-f1725f689abf"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -696,7 +702,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Amt.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="395" y="16" width="30" height="24"/>
+				<reportElement x="395" y="16" width="30" height="24" uuid="2b47ce8a-562e-430f-9ed9-0984a7de3211"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -710,7 +716,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Rate]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="30" y="0" width="60" height="40"/>
+				<reportElement x="30" y="0" width="60" height="40" uuid="859f2b97-0bb9-4893-8a77-a85cf165ee69"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -724,7 +730,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[ITEM Code]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="0" width="60" height="40"/>
+				<reportElement x="280" y="0" width="60" height="40" uuid="df34a7aa-757d-41bd-94ff-6161d4fba4bf"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -738,7 +744,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[RATE (Per item)]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="190" y="0" width="60" height="40"/>
+				<reportElement x="190" y="0" width="60" height="40" uuid="b905afe3-5955-4a83-8a13-b072a4371132"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -752,7 +758,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[HSN Code]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="90" y="0" width="100" height="40"/>
+				<reportElement x="90" y="0" width="100" height="40" uuid="90bb9dca-9ed4-4ee7-aa93-0ad0bf1c3579"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -770,7 +776,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 	<detail>
 		<band height="25" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="0" width="30" height="25"/>
+				<reportElement x="0" y="0" width="30" height="25" uuid="c7ffef0f-53dc-41e0-9cd2-38ed2b2768a1"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -781,10 +787,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="280" y="0" width="60" height="25"/>
+				<reportElement x="280" y="0" width="60" height="25" uuid="8e5f23cc-f734-4069-b8b9-fb1e852c5789"/>
 				<box rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -795,10 +801,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cessionprice}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{shippingcessionprice}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.00;-###0.00" isBlankWhenNull="true">
-				<reportElement x="425" y="0" width="55" height="25"/>
+				<reportElement x="425" y="0" width="55" height="25" uuid="39fe9c84-9670-4983-893f-f53679cd4ffc"/>
 				<box rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -809,10 +815,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{totaltaxvalue}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{totaltaxvalue}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="190" y="0" width="60" height="25"/>
+				<reportElement x="190" y="0" width="60" height="25" uuid="b9cdd200-c0de-4ca1-becd-e2fed79a3992"/>
 				<box leftPadding="0" rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -823,10 +829,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{producthsncode}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{producthsncode}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="250" y="0" width="30" height="25"/>
+				<reportElement x="250" y="0" width="30" height="25" uuid="32a4608f-d804-4cfb-bab4-b0777573c502"/>
 				<box rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -837,10 +843,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{shipmentqty}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{shipmentqty}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.00;-###0.00" isBlankWhenNull="true">
-				<reportElement x="340" y="0" width="55" height="25"/>
+				<reportElement x="340" y="0" width="55" height="25" uuid="bf793ced-2173-4d4c-8d8f-7f24ed64d3ef"/>
 				<box rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -851,10 +857,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxablevalue}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{taxablevalue}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.00;-###0.00" isBlankWhenNull="true">
-				<reportElement x="480" y="0" width="60" height="25"/>
+				<reportElement x="480" y="0" width="60" height="25" uuid="9ec987a4-a5db-4f88-a2d4-bdb8fc57db3c"/>
 				<box rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -865,10 +871,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{total}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="30" y="0" width="60" height="25"/>
+				<reportElement x="30" y="0" width="60" height="25" uuid="6f026376-289b-4a91-81e8-c2e3ed02d7f2"/>
 				<box leftPadding="0" rightPadding="3">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -879,10 +885,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{productname}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{productname}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.00;-###0.00" isBlankWhenNull="true">
-				<reportElement x="395" y="0" width="30" height="25"/>
+				<reportElement x="395" y="0" width="30" height="25" uuid="6088b98c-460d-4309-8532-ac66d0e1b9ca"/>
 				<box rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -893,10 +899,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{ingstrate}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ingstrate}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="90" y="0" width="100" height="25"/>
+				<reportElement x="90" y="0" width="100" height="25" uuid="5146a404-d3c6-4381-ac5d-c5e7b00b42f2"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -907,7 +913,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{modelname}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{modelname}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
@@ -917,14 +923,14 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 	<lastPageFooter>
 		<band height="120">
 			<staticText>
-				<reportElement x="454" y="100" width="100" height="20"/>
+				<reportElement x="454" y="100" width="100" height="20" uuid="f1b2c467-177f-4a73-bd65-964ab3341ab7"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Signature]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="190" y="0" width="150" height="20"/>
+				<reportElement x="190" y="0" width="150" height="20" uuid="ec978346-f7b6-42a1-9610-bf559a4786fa"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -938,7 +944,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[TOTAL  Invoice Value(in figures)]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="190" y="20" width="150" height="29"/>
+				<reportElement x="190" y="20" width="150" height="29" uuid="caac6fbc-b123-44a5-80f2-32eb75125767"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -952,7 +958,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[TOTAL  Invoice Value(in words) ]]></text>
 			</staticText>
 			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
-				<reportElement x="480" y="0" width="60" height="20"/>
+				<reportElement x="480" y="0" width="60" height="20" uuid="a278bed8-3f98-4dfc-bdc1-8b173c9d17bc"/>
 				<box rightPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -963,10 +969,10 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{grandtotal}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{grandtotal}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="340" y="20" width="200" height="29"/>
+				<reportElement x="340" y="20" width="200" height="29" uuid="b63f7468-3b3b-4527-9399-3697f439f3d0"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -977,12 +983,12 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[(($V{grandtotal}).doubleValue()*100.0 - ($V{grandtotal}).intValue()*100) == 0 ?
+				<textFieldExpression><![CDATA[(($V{grandtotal}).doubleValue()*100.0 - ($V{grandtotal}).intValue()*100) == 0 ?
 "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}) + " only "
 : "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}) + " paise only "]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="190" y="49" width="150" height="29"/>
+				<reportElement x="190" y="49" width="150" height="29" uuid="197e9010-e49d-4ae0-96c6-bd712d4d5d59"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -996,7 +1002,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<text><![CDATA[Amount of Tax subject to Reverse Charge ]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="340" y="49" width="200" height="29"/>
+				<reportElement x="340" y="49" width="200" height="29" uuid="e08588d4-18ef-43e6-9b44-fdff88631274"/>
 				<box leftPadding="2">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
