@@ -1,0 +1,45 @@
+diff -r 7ef7f3b46ca1 -r 17951d92e45b src-db/database/model/triggers/M_MOVEMENTLINE_TRG.xml
+--- a/src-db/database/model/triggers/M_MOVEMENTLINE_TRG.xml	Mon Dec 01 12:12:43 2014 +0530
++++ b/src-db/database/model/triggers/M_MOVEMENTLINE_TRG.xml	Mon Dec 01 12:14:15 2014 +0530
+@@ -24,7 +24,7 @@
+   * Portions created by Jorg Janke are Copyright (C) 1999-2001 Jorg Janke, parts
+   * created by ComPiere are Copyright (C) ComPiere, Inc.;   All Rights Reserved.
+   * Contributor(s): Openbravo SLU
+-  * Contributions are Copyright (C) 2001-2013 Openbravo S.L.U.
++  * Contributions are Copyright (C) 2001-2014 Openbravo S.L.U.
+   ******************************************************************************/
+     
+ BEGIN
+@@ -35,6 +35,10 @@
+ 
+   -- Get ID
+   IF(UPDATING OR INSERTING) THEN
++		-- Check if locator and locator_to are diferents
++		IF  (:NEW.M_LOCATOR_ID = :NEW.M_LOCATORTO_ID) THEN
++		  RAISE_APPLICATION_ERROR(-20000, '@MovementLineLocators@');
++		END IF;
+     v_ID:=:new.M_Movement_ID;
+   ELSE
+     v_ID:=:old.M_Movement_ID;
+diff -r 7ef7f3b46ca1 -r 17951d92e45b src-db/database/sourcedata/AD_MESSAGE.xml
+--- a/src-db/database/sourcedata/AD_MESSAGE.xml	Mon Dec 01 12:12:43 2014 +0530
++++ b/src-db/database/sourcedata/AD_MESSAGE.xml	Mon Dec 01 12:14:15 2014 +0530
+@@ -25201,6 +25201,18 @@
+ <!--F75B3D9E7E5E410CB8C7C25F04CA24CB-->  <ISINCLUDEINI18N><![CDATA[N]]></ISINCLUDEINI18N>
+ <!--F75B3D9E7E5E410CB8C7C25F04CA24CB--></AD_MESSAGE>
+ 
++<!--F7A63781B41F465AA3C676A0FEA07E4E--><AD_MESSAGE>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <AD_MESSAGE_ID><![CDATA[F7A63781B41F465AA3C676A0FEA07E4E]]></AD_MESSAGE_ID>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <VALUE><![CDATA[MovementLineLocators]]></VALUE>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <MSGTEXT><![CDATA[Storage Bin must be different than New Storage Bin.]]></MSGTEXT>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <MSGTYPE><![CDATA[I]]></MSGTYPE>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--F7A63781B41F465AA3C676A0FEA07E4E-->  <ISINCLUDEINI18N><![CDATA[N]]></ISINCLUDEINI18N>
++<!--F7A63781B41F465AA3C676A0FEA07E4E--></AD_MESSAGE>
++
+ <!--F7A6AFA7E34D4A0099E7A7E8021C5ECB--><AD_MESSAGE>
+ <!--F7A6AFA7E34D4A0099E7A7E8021C5ECB-->  <AD_MESSAGE_ID><![CDATA[F7A6AFA7E34D4A0099E7A7E8021C5ECB]]></AD_MESSAGE_ID>
+ <!--F7A6AFA7E34D4A0099E7A7E8021C5ECB-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>

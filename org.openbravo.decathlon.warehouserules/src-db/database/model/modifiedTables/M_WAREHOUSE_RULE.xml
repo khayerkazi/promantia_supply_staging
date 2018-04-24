@@ -10,6 +10,7 @@
         <onCreateDefault/>
       </column>
       <unique name="EM_DWHR_UNIQUE_JAVA">
+        <unique-column name="AD_CLIENT_ID"/>
         <unique-column name="EM_DWHR_JAVAPROCEDURE"/>
       </unique>
     </table>

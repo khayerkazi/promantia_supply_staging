@@ -1,0 +1,13 @@
+diff -r 63b0000f187d src-db/database/model/tables/M_PRODUCT.xml
+--- a/src-db/database/model/tables/M_PRODUCT.xml	Mon Dec 08 15:40:02 2014 +0530
++++ b/src-db/database/model/tables/M_PRODUCT.xml	Sat May 02 14:50:52 2015 +0530
+@@ -422,6 +422,9 @@
+       <index name="M_PRODUCT_GEN_PROD" unique="false">
+         <index-column name="GENERIC_PRODUCT_ID"/>
+       </index>
++      <index name="M_PRODUCT_MODELCODE" unique="false">
++        <index-column name="EM_CL_MODELCODE"/>
++      </index>
+       <index name="M_PRODUCT_NAME" unique="false">
+         <index-column name="NAME"/>
+       </index>

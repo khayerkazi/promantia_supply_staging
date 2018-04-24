@@ -1,0 +1,73 @@
+diff -r 652c29dd5d04 dependantModules/org.openbravo.mobile.core/web/org.openbravo.mobile.core/source/data/ob-dal.js
+--- a/dependantModules/org.openbravo.mobile.core/web/org.openbravo.mobile.core/source/data/ob-dal.js	Thu May 21 19:32:06 2015 +0530
++++ b/dependantModules/org.openbravo.mobile.core/web/org.openbravo.mobile.core/source/data/ob-dal.js	Fri May 29 09:25:59 2015 +0200
+@@ -263,7 +263,7 @@
+           whereClause = OB.Dal.getWhereClause(whereClause, propertyMap);
+         }
+         sql = sql + whereClause.sql;
+-        params = whereClause.params;
++        params = _.isEmpty(whereClause.params) ? [] : whereClause.params;
+ 
+         if (orderBy) {
+           sql = sql + ' ORDER BY ' + orderBy + ' ';
+@@ -276,7 +276,7 @@
+         }
+ 
+         OB.Data.localDB.readTransaction(function (tx) {
+-          tx.executeSql(sql, params, function (tr, result) {
++          tx.executeSql(sql, _.isEmpty(params) ? [] : params, function (tr, result) {
+             var i, collectionType = OB.Collection[model.prototype.modelName + 'List'] || Backbone.Collection,
+                 collection = new collectionType(),
+                 len = result.rows.length;
+@@ -302,7 +302,7 @@
+           sql = sql + ' LIMIT ' + model.prototype.dataLimit;
+         }
+         OB.Data.localDB.readTransaction(function (tx) {
+-          tx.executeSql(sql, params, function (tr, result) {
++          tx.executeSql(sql, _.isEmpty(params) ? [] : params, function (tr, result) {
+             var i, collectionType = OB.Collection[model.prototype.modelName + 'List'] || Backbone.Collection,
+                 collection = new collectionType(),
+                 len = result.rows.length;
+@@ -547,7 +547,7 @@
+         sql = 'DELETE FROM ' + tableName;
+         whereClause = OB.Dal.getWhereClause(criteria, propertyMap);
+         sql = sql + whereClause.sql;
+-        params = whereClause.params;
++        params = _.isEmpty(whereClause.params) ? [] : whereClause.params;
+         OB.Data.localDB.transaction(function (tx) {
+           tx.executeSql(sql, params, silentFunction(success), _.isFunction(error) ? error : null);
+         });
+@@ -605,12 +605,12 @@
+         OB.Data.localDB.transaction(function (tx) {
+           var createStatement = model.getCreateStatement ? model.getCreateStatement() : model.prototype.createStatement;
+           var createIndexStatement;
+-          tx.executeSql(createStatement, null, function () {
++          tx.executeSql(createStatement, [], function () {
+             //Create Index
+             if (model.hasIndex && model.hasIndex()) {
+               _.each(model.getIndexes(), function (indexDefinition) {
+                 createIndexStatement = model.getCreateIndexStatement(indexDefinition);
+-                tx.executeSql(createIndexStatement, null, null, function () {
++                tx.executeSql(createIndexStatement, [], null, function () {
+                   OB.error('Error creating index ' + indexDefinition.name + ' for table ' + OB.Dal.getTableName(model));
+                 });
+               });
+diff -r 652c29dd5d04 dependantModules/org.openbravo.mobile.core/web/org.openbravo.mobile.core/source/model/ob-terminal-model.js
+--- a/dependantModules/org.openbravo.mobile.core/web/org.openbravo.mobile.core/source/model/ob-terminal-model.js	Thu May 21 19:32:06 2015 +0530
++++ b/dependantModules/org.openbravo.mobile.core/web/org.openbravo.mobile.core/source/model/ob-terminal-model.js	Fri May 29 09:25:59 2015 +0200
+@@ -359,7 +359,7 @@
+ 
+     function dropTable(db, sql) {
+       db.transaction(function (tx) {
+-        tx.executeSql(sql, {}, function () {
++        tx.executeSql(sql, [], function () {
+           OB.info('succesfully dropped table: ' + sql);
+         }, function () {
+           OB.error(arguments);
+@@ -1207,4 +1207,4 @@
+       OB.error(arguments);
+     });
+   }
+-});
++});
+\ No newline at end of file

@@ -1,0 +1,11 @@
+diff -r d439897d7199 web/org.openbravo.mobile.core/source/utils/ob-utilitiesui.js
+--- a/web/org.openbravo.mobile.core/source/utils/ob-utilitiesui.js	Tue Mar 31 11:51:09 2015 +0530
++++ b/web/org.openbravo.mobile.core/source/utils/ob-utilitiesui.js	Tue Mar 31 12:07:09 2015 +0530
+@@ -372,7 +372,6 @@
+ };
+ 
+ OB.UTIL.showError = function (s) {
+-  OB.UTIL.showLoading(false);
+   return OB.UTIL.showAlert.display(s, OB.I18N.getLabel('OBMOBC_LblError'), 'alert-error');
+ };
+ 

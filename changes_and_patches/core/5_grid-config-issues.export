@@ -1,0 +1,76 @@
+# HG changeset patch
+# User Augusto Mauch <augusto.mauch@openbravo.com>
+# Date 1416332635 -3600
+#      Tue Nov 18 18:43:55 2014 +0100
+# Node ID fa4ede476bc2cceb79ea6c2e14ca82c6932a3d38
+# Parent  85e6d391edffd350fec67b5944896810ea3f7d48
+Fixes bug 28220:FK no longer filtered without applying selected parent criteria
+
+The problem was the following. If a tab was configured to use lazy filtering, when one of its foreign keys is filtered the criteria is obtained from the current values of the filter editor, instead of directly calling the getCriteria function of the grid.
+
+The problem is that the criteria was not being passed to the OBViewGrid.convertCriteria function, which among other things adds the criteria to filter by the record selected in the parent tab. The result was that the dropdown contained way more records than it should, and that the query to retrieve the records could have very bad performance if the table associated with the tab contained many records.
+
+diff -r 85e6d391edff -r fa4ede476bc2 modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/formitem/ob-formitem-fk-filter.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/formitem/ob-formitem-fk-filter.js	Wed Oct 29 11:35:01 2014 +0100
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/form/formitem/ob-formitem-fk-filter.js	Tue Nov 18 18:43:55 2014 +0100
+@@ -293,7 +293,8 @@
+ 
+     if (this.form.grid.sourceWidget.lazyFiltering) {
+       // Fetch the criteria from the current values of the filter editor
+-      gridCriteria = this.form.grid.getValues();
++      // Invoke the convertCriteria function to filter by the record selected in the parent tab if needed
++      gridCriteria = this.grid.sourceWidget.convertCriteria(this.form.grid.getValues());
+     } else {
+       gridCriteria = this.form.grid.sourceWidget.getCriteria();
+     }
+# HG changeset patch
+# User Augusto Mauch <augusto.mauch@openbravo.com>
+# Date 1416416966 -3600
+#      Wed Nov 19 18:09:26 2014 +0100
+# Node ID 1cb344e25b164bf1ae9b84131e13fc488833f15a
+# Parent  fa4ede476bc2cceb79ea6c2e14ca82c6932a3d38
+Fixes issue 28229: Lazy Filtering works properly in P&E windows
+
+There was a problem when the button to apply the current filters (only shown when lazy filtering is configured for a tab) was pressed in a P&E window. If the filters were not changed before pressing the button, the grid.refreshGrid function was invoked, and this function was not defined for P&E windows. This function has been defined now. Also, a flag has been added to detect when the filterClause is removed, to allow refreshing the grid in that case even if the filter editor is not changed.
+
+diff -r fa4ede476bc2 -r 1cb344e25b16 modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-grid.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-grid.js	Tue Nov 18 18:43:55 2014 +0100
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/grid/ob-grid.js	Wed Nov 19 18:09:26 2014 +0100
+@@ -628,7 +628,9 @@
+           if (!this._iconEnabled) {
+             return;
+           }
+-          if (grid.filterHasChanged) {
++          if (grid.filterHasChanged || grid.filterClauseJustRemoved) {
++            // the filter clause can only be removed once
++            delete grid.filterClauseJustRemoved;
+             // Do not change the sorting after receiving the data from the datasource
+             grid._filteringAndSortingManually = true;
+             grid.filterEditor.performFilter(true, true);
+diff -r fa4ede476bc2 -r 1cb344e25b16 modules/org.openbravo.client.application/web/org.openbravo.client.application/js/process/ob-pick-and-execute-grid.js
+--- a/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/process/ob-pick-and-execute-grid.js	Tue Nov 18 18:43:55 2014 +0100
++++ b/modules/org.openbravo.client.application/web/org.openbravo.client.application/js/process/ob-pick-and-execute-grid.js	Wed Nov 19 18:09:26 2014 +0100
+@@ -529,6 +529,10 @@
+   },
+ 
+   clearFilter: function () {
++    if (this.lazyFiltering && this.filterClause) {
++      // store that the filter has been removed to enable showing potential new records
++      this.filterClauseJustRemoved = true;
++    }
+     this.filterClause = null;
+     this._cleaningFilter = true;
+     this.contentView.messageBar.hide();
+@@ -830,6 +834,11 @@
+     } else {
+       this.Super('getMinFieldWidth', arguments);
+     }
++  },
++
++  refreshGrid: function () {
++    // fetch the data with the current criteria and context info
++    this.filterData(this.getCriteria(), null, this.getContextInfo());
+   }
+ 
+ });
+\ No newline at end of file

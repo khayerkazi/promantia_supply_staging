@@ -1,0 +1,16 @@
+diff -r f5968b75bfdf dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalreceipts.js
+--- a/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalreceipts.js	Mon Dec 08 13:36:38 2014 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/web/org.openbravo.retail.posterminal/js/components/modalreceipts.js	Wed Dec 10 10:30:03 2014 +0530
+@@ -77,10 +77,10 @@
+         style: 'float: left; width: 15%',
+         name: 'time'
+       }, {
+-        style: 'float: left; width: 25%',
++        style: 'float: left; width: 50%',
+         name: 'orderNo'
+       }, {
+-        style: 'float: left; width: 60%',
++        style: 'float: left; width: 34%',
+         name: 'bp'
+       }, {
+         style: 'clear: both;'

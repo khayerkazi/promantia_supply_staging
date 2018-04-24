@@ -1,0 +1,38 @@
+diff -r 763614dcb90a dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/Terminal.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/Terminal.java	Thu Nov 20 09:39:47 2014 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/term/Terminal.java	Thu Nov 20 12:02:00 2014 +0530
+@@ -74,8 +74,16 @@
+ 
+     final OrganizationInformation myOrgInfo = pOSTerminal.getOrganization()
+         .getOrganizationInformationList().get(0);
++
++    String storeAddress = "";
+     String regionId = "";
+     String countryId = "";
++
++    if (myOrgInfo.getLocationAddress() != null
++        && myOrgInfo.getLocationAddress().getIdentifier().length() > 0) {
++      storeAddress = myOrgInfo.getLocationAddress().getIdentifier();
++    }
++
+     if (myOrgInfo.getLocationAddress().getRegion() != null) {
+       regionId = myOrgInfo.getLocationAddress().getRegion().getId();
+     }
+@@ -83,6 +91,7 @@
+     if (myOrgInfo.getLocationAddress().getCountry() != null) {
+       countryId = myOrgInfo.getLocationAddress().getCountry().getId();
+     }
++
+     String selectOrgImage = "";
+     String fromOrgImage = "";
+     String whereOrgImage = "";
+@@ -102,7 +111,8 @@
+         + "' as symbol, " + "'" + warehouseId + "' as warehouse, " + lastDocumentNumber
+         + " as lastDocumentNumber, " + lastQuotationDocumentNumber
+         + " as lastQuotationDocumentNumber, " + "'" + regionId + "'" + " as organizationRegionId, "
+-        + "'" + countryId + "'" + " as organizationCountryId, " + selectOrgImage
++        + "'" + countryId + "'" + " as organizationCountryId, '" + storeAddress
++        + "' as organizationAddressIdentifier," + selectOrgImage
+         + regularTerminalHQLProperties.getHqlSelect()
+         + " from OBPOS_Applications AS pos inner join pos.obposTerminaltype as postype "
+         + fromOrgImage + " where pos.$readableCriteria and pos.searchKey = '"

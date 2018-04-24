@@ -3,6 +3,8 @@ package org.openbravo.decathlon.warehouserules;
 import in.decathlon.ibud.commons.BusinessEntityMapper;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,7 @@ import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.enterprise.Warehouse;
 import org.openbravo.model.common.enterprise.WarehouseRule;
 import org.openbravo.model.common.plm.Product;
+import org.openbravo.service.db.DalConnectionProvider;
 
 public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation {
 
@@ -208,6 +211,42 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
 
     this.monitorMessage = this.monitorMessage + "\n\t\tTotal Available Stock: " + availableQty
         + "\tOn Hand Stock: " + qtyInWarehouse + "\tReserved Stock: " + reservedQty;
+       getStockPerLocatior(warehouse, product);
     return availableQty;
+  }
+
+  public void getStockPerLocatior(Warehouse warehouse, Product product) {
+
+    String sql = "select sum(qtyonhand) as qtyonhand , sum(reservedqty) as reservedqty ,ml.value as locatorName	  from m_storage_detail sd 	  join m_locator ml on sd.m_locator_id=ml.m_locator_id join m_warehouse mw on ml.m_warehouse_id=mw.m_warehouse_id	  join m_product mp on sd.m_product_id=mp.m_product_id	  "
+        + " where mw.m_warehouse_id= ? and  mp.m_product_id= ?"
+        + "    and  ml.em_obwhs_type ='ST'	         and ml.isactive='Y' group by ml.value having sum(qtyonhand) > sum(reservedqty);";
+
+    PreparedStatement sqlQuery = null;
+    ResultSet rs = null;
+
+    try {
+      sqlQuery = new DalConnectionProvider(false).getPreparedStatement(sql);
+
+      sqlQuery.setString(1, warehouse.getId());
+      sqlQuery.setString(2, product.getId());
+      sqlQuery.execute();
+      rs = sqlQuery.getResultSet();
+      while (rs.next()) {
+        BigDecimal qtyonhand = rs.getBigDecimal("qtyonhand");
+        BigDecimal reservedqty = rs.getBigDecimal("reservedqty");
+        String locatorName = rs.getString("locatorName");
+        BigDecimal availableQty = qtyonhand.subtract(reservedqty);
+
+        this.monitorMessage = this.monitorMessage + "\n\t\t warehouse name: " + warehouse.getName()
+            + " locatorName: " + locatorName + " On Hand Stock on locator : " + qtyonhand
+            + " Reserved Stock on locator: " + reservedqty + " Total Available Stock: "
+            + availableQty;
+
+      }
+
+    } catch (Exception e) {
+       e.printStackTrace();
+    }
+
   }
 }

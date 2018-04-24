@@ -1,0 +1,2563 @@
+diff --git a/referencedata/sampledata/F_B_International_Group/M_WAREHOUSE_RULE.xml b/referencedata/sampledata/F_B_International_Group/M_WAREHOUSE_RULE.xml
+--- a/referencedata/sampledata/F_B_International_Group/M_WAREHOUSE_RULE.xml
++++ b/referencedata/sampledata/F_B_International_Group/M_WAREHOUSE_RULE.xml
+@@ -12,6 +12,7 @@
+   <NAME><![CDATA[Default Warehouse Rule]]></NAME>
+   <PROCEDURENAME><![CDATA[M_WAREHOUSE_DEFAULT_RULE]]></PROCEDURENAME>
+   <DESCRIPTION><![CDATA[Useful to overwrite a warehouse rule defined at warehouse on specific documents.]]></DESCRIPTION>
++  <TYPE><![CDATA[I]]></TYPE>
+ </M_WAREHOUSE_RULE>
+ 
+ <M_WAREHOUSE_RULE>
+@@ -26,6 +27,7 @@
+   <NAME><![CDATA[Unique Attribute]]></NAME>
+   <PROCEDURENAME><![CDATA[M_UNIQUEATTRIBUTE_RULE]]></PROCEDURENAME>
+   <DESCRIPTION><![CDATA[Returns stock of the first attribute set instance in the warehouse with enough stock.]]></DESCRIPTION>
++  <TYPE><![CDATA[I]]></TYPE>
+ </M_WAREHOUSE_RULE>
+ 
+ <M_WAREHOUSE_RULE>
+@@ -40,6 +42,7 @@
+   <NAME><![CDATA[Unique Storage Bin]]></NAME>
+   <PROCEDURENAME><![CDATA[M_UNIQUELOCATOR_RULE]]></PROCEDURENAME>
+   <DESCRIPTION><![CDATA[Returns stock of the first storage bin in the warehouse with enough stock.]]></DESCRIPTION>
++  <TYPE><![CDATA[I]]></TYPE>
+ </M_WAREHOUSE_RULE>
+ 
+ </data>
+diff --git a/referencedata/sampledata/QA_Testing/M_WAREHOUSE_RULE.xml b/referencedata/sampledata/QA_Testing/M_WAREHOUSE_RULE.xml
+--- a/referencedata/sampledata/QA_Testing/M_WAREHOUSE_RULE.xml
++++ b/referencedata/sampledata/QA_Testing/M_WAREHOUSE_RULE.xml
+@@ -12,6 +12,7 @@
+   <NAME><![CDATA[Unique Storage Bin]]></NAME>
+   <PROCEDURENAME><![CDATA[M_UNIQUELOCATOR_RULE]]></PROCEDURENAME>
+   <DESCRIPTION><![CDATA[Returns stock of the first storage bin in the warehouse with enough stock.]]></DESCRIPTION>
++  <TYPE><![CDATA[I]]></TYPE>
+ </M_WAREHOUSE_RULE>
+ 
+ <M_WAREHOUSE_RULE>
+@@ -26,6 +27,7 @@
+   <NAME><![CDATA[Unique Attribute]]></NAME>
+   <PROCEDURENAME><![CDATA[M_UNIQUEATTRIBUTE_RULE]]></PROCEDURENAME>
+   <DESCRIPTION><![CDATA[Returns stock of the first attribute set instance in the warehouse with enough stock.]]></DESCRIPTION>
++  <TYPE><![CDATA[I]]></TYPE>
+ </M_WAREHOUSE_RULE>
+ 
+ <M_WAREHOUSE_RULE>
+@@ -40,6 +42,7 @@
+   <NAME><![CDATA[Default Warehouse Rule]]></NAME>
+   <PROCEDURENAME><![CDATA[M_WAREHOUSE_DEFAULT_RULE]]></PROCEDURENAME>
+   <DESCRIPTION><![CDATA[Useful to overwrite a warehouse rule defined at warehouse on specific documents.]]></DESCRIPTION>
++  <TYPE><![CDATA[I]]></TYPE>
+ </M_WAREHOUSE_RULE>
+ 
+ </data>
+diff --git a/src-db/database/model/functions/MA_PRODUCTIONRUN_STANDARD.xml b/src-db/database/model/functions/MA_PRODUCTIONRUN_STANDARD.xml
+--- a/src-db/database/model/functions/MA_PRODUCTIONRUN_STANDARD.xml
++++ b/src-db/database/model/functions/MA_PRODUCTIONRUN_STANDARD.xml
+@@ -309,34 +309,14 @@
+               v_warehouse_rule_id VARCHAR2(32);
+             BEGIN
+               v_AD_Pinstance_ID := GET_UUID();
+-              INSERT INTO AD_PINSTANCE (
+-                  AD_PINSTANCE_ID, AD_PROCESS_ID, RECORD_ID, ISACTIVE, 
+-                  AD_USER_ID, AD_CLIENT_ID, AD_ORG_ID, CREATED, CREATEDBY,
+-                  UPDATED, UPDATEDBY
+-              ) VALUES (
+-                  v_AD_Pinstance_ID,'FF80818132C964E30132C9747257002E',v_Record_ID,'Y',
+-                  v_User_ID, v_Client_ID, v_PlanOrg_ID, now(), v_User_ID,
+-                  now(), v_User_ID
+-              );
+-
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '10', 'AD_Client_ID', v_Client_ID, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '20', 'M_Product_ID', v_Product_old, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '30', 'C_Uom_ID', v_UOM_old, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '40', 'M_Product_Uom_ID', v_Product_UOM_old, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '50', 'AD_Org_ID', v_PlanOrg_ID, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '60', 'AuxID', v_Production_ID, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '70', 'TableId', '325', null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '80', 'LineNo', null, null, v_PlanLine, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '90', 'ProcessID', '800105', null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '100', 'Quantity', null, null, v_DoneQuantity*Cur_WRPUsed.MovementQty, null, null, null);
+               
+               SELECT COALESCE(wrpp.m_warehouse_rule_id, sp.m_warehouse_rule_id) INTO v_warehouse_rule_id
+               FROM ma_wrphaseproduct wrpp
+                   JOIN ma_sequenceproduct sp ON wrpp.ma_sequenceproduct_id = sp.ma_sequenceproduct_id
+               WHERE wrpp.ma_wrphaseproduct_id = cur_wrpused.ma_wrphaseproduct_id;
+-              AD_PINSTANCE_PARA_INSERT(v_AD_Pinstance_ID, '110', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
+-
+-              M_GET_STOCK(v_AD_Pinstance_ID, 'N');
++              --Review no warehouse as parameter
++              SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_AD_Pinstance_ID, v_Record_ID, v_DoneQuantity*Cur_WRPUsed.MovementQty, v_Product_old, null, null, null, v_PlanOrg_ID, null, v_User_ID,
++              v_Client_ID, v_warehouse_rule_id, v_UOM_old, v_Product_UOM_old, '325', v_Production_ID, v_PlanLine, '800105', null, 'N');              
+               -- Check result
+               SELECT result, errormsg
+                 INTO v_pinstance_result, v_pinstance_msg
+diff --git a/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml b/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml
+--- a/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml
++++ b/src-db/database/model/functions/MRP_RUN_INITIALIZE.xml
+@@ -182,33 +182,10 @@
+       v_pinstance_msg AD_PInstance.errormsg%TYPE;
+     BEGIN
+       v_ad_pinstance_id := GET_UUID();
+-      INSERT INTO ad_pinstance (
+-        ad_pinstance_id, ad_process_id, record_id, isactive, 
+-        ad_user_id, ad_client_id, ad_org_id, created, createdby,
+-        updated, updatedby
+-      ) VALUES (
+-        v_ad_pinstance_id,'FF80818132C964E30132C9747257002E',p_run,'Y',
+-        p_user_id, p_client_id, p_org_id, now(), p_user_id,
+-        now(), p_user_id
+-      );
+ 
+-      AD_PINSTANCE_PARA_INSERT(v_ad_pinstance_id, '10', 'AD_Client_ID', p_client_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_ad_pinstance_id, '20', 'AD_Org_ID', p_org_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_ad_pinstance_id, '30', 'M_Product_ID', Cur_Product.M_Product_ID, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_ad_pinstance_id, '60', 'AuxID', p_Run, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_ad_pinstance_id, '70', 'TableId', '800219', null, null, null, null, null);
+-      IF (p_production = 'Y') THEN
+-        AD_PINSTANCE_PARA_INSERT(v_ad_pinstance_id, '80', 'ProcessID', '800162', null, null, null, null, null); 	 
+-      ELSE
+-        AD_PINSTANCE_PARA_INSERT(v_ad_pinstance_id, '90', 'ProcessID', '800164', null, null, null, null, null); 	
+-      END IF;
+-
+-      M_GET_STOCK(v_ad_pinstance_id, 'N');
++      SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_ad_pinstance_id, p_run, null, Cur_Product.M_Product_ID, null, null, null, p_org_id, null, p_user_id,
++      p_client_id, null, null, null, '800219', p_Run, null, case when p_production = 'Y' then '800162' else '800164' end , null, 'N');
+       -- Check result
+-      SELECT result, errormsg
+-        INTO v_pinstance_result, v_pinstance_msg
+-      FROM ad_pinstance
+-      WHERE ad_pinstance_id = v_ad_pinstance_id;
+       IF (v_pinstance_result = 0) THEN
+         -- Error on m_get_stock
+         RAISE_APPLICATION_ERROR(-20000, v_pinstance_msg);
+diff --git a/src-db/database/model/functions/M_CHECK_STOCK.xml b/src-db/database/model/functions/M_CHECK_STOCK.xml
+--- a/src-db/database/model/functions/M_CHECK_STOCK.xml
++++ b/src-db/database/model/functions/M_CHECK_STOCK.xml
+@@ -28,39 +28,33 @@
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+-* All portions are Copyright (C) 2001-2006 Openbravo SLU
++* All portions are Copyright (C) 2001-2014 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************/
+   v_ResultStr VARCHAR2(2000):='';
+   v_ExistsNegativeStock NUMBER;
+-  v_Stock CHAR:='N';
+-  v_Name VARCHAR2(60) ;
+-  v_AD_Client_ID VARCHAR2(32);
++  v_AllowsNegativeStock CHAR:='N';
+ BEGIN
+   v_ResultStr:='Checking stock';
+   p_Result:=1;
+   SELECT ALLOWNEGATIVESTOCK
+-  INTO v_Stock
++  INTO v_AllowsNegativeStock
+   FROM AD_CLIENTINFO
+   WHERE AD_CLIENT_ID=p_AD_Client_ID;
+-  IF v_Stock='N' THEN
+-    SELECT COUNT(*)
++  IF v_AllowsNegativeStock='N' THEN
++    SELECT count(1) from DUAL
+     INTO v_ExistsNegativeStock
+-    FROM
+-      ( SELECT ROUND(COALESCE(QTYONHAND, 0), 2) AS QTY,
+-        ROUND(COALESCE(QTYORDERONHAND, 0), 2) AS QTYORDER
++    WHERE EXISTS
++      ( SELECT 1
+       FROM M_STORAGE_DETAIL
+       WHERE M_PRODUCT_ID=p_M_Product_ID
+         AND AD_CLIENT_ID=p_AD_Client_ID
+         AND AD_ORG_ID=p_AD_Org_ID
+-      )
+-      A
+-    WHERE QTY<0
+-      OR QTYORDER<0;
+-    IF v_ExistsNegativeStock<>0 THEN
++      AND (QTYONHAND<0 OR COALESCE(QTYORDERONHAND,0)<0));    
++    IF(v_ExistsNegativeStock <> 0) THEN
+       p_Result:=0;
+-      p_Message:='@NotEnoughStocked@';
++      p_Message:='@NotEnoughStocked@' || 'v_ExistsNegativeStock: ' || v_ExistsNegativeStock || ' p_M_Product_ID: ' || p_M_Product_ID || ' p_AD_Client_ID: ' || p_AD_Client_ID || ' p_AD_Org_ID: ' || p_AD_Org_ID;
+     END IF;
+   END IF;
+   RETURN;
+diff --git a/src-db/database/model/functions/M_GET_STOCK.xml b/src-db/database/model/functions/M_GET_STOCK.xml
+--- a/src-db/database/model/functions/M_GET_STOCK.xml
++++ b/src-db/database/model/functions/M_GET_STOCK.xml
+@@ -32,10 +32,6 @@
+   -- Parameter
+   TYPE RECORD IS REF CURSOR;
+   Cur_Parameter RECORD;
+-  Cur_Stock RECORD;
+-  Cur_MStock RECORD;
+-  cur_warehouse RECORD;
+-  cur_allocated RECORD;
+ 
+   -- Parameter Variables
+   v_Quantity NUMBER(10);
+@@ -130,246 +126,8 @@
+   END LOOP; -- Get Parameter
+   DBMS_OUTPUT.PUT_LINE('  Record_ID=' || v_Record_ID) ;
+ 
+-  IF (v_reservation_id IS NOT NULL) THEN
+-    -- If a reservation is given first consume allocated stock.
+-    FOR cur_allocated IN (
+-        SELECT rs.quantity, rs.releasedqty, sd.m_storage_detail_id
+-        FROM m_reservation_stock rs
+-            JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+-            JOIN m_storage_detail sd ON sd.m_product_id = r.m_product_id
+-                                        AND sd.c_uom_id = r.c_uom_id
+-                                        AND sd.m_product_uom_id IS NULL
+-                                        AND sd.m_locator_id = rs.m_locator_id
+-                                        AND COALESCE(sd.m_attributesetinstance_id, '0') = COALESCE(rs.m_attributesetinstance_id, '0')
+-        WHERE r.m_reservation_id = v_reservation_id
+-          AND rs.isallocated = 'Y'
+-          AND rs.quantity > 0
+-          AND rs.quantity <> COALESCE(rs.releasedqty, 0)
+-          AND rs.m_locator_id IS NOT NULL
+-    ) LOOP
+-      INSERT INTO m_stock_proposed (
+-          m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
+-          created , createdby, updated, updatedby,
+-          ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
+-          isfinal
+-      ) VALUES (
+-          get_uuid(), v_ClientID, v_OrgID, 'Y',
+-          now(), v_AD_User_ID, now(), v_AD_User_ID,
+-          pinstance_id, v_Count, cur_allocated.m_storage_detail_id, cur_allocated.quantity - COALESCE(cur_allocated.releasedqty, 0), null,
+-          'Y'
+-      );
+-      v_Count:=v_Count+1;
+-    END LOOP;
+-  END IF;
+-
+-  -- Insert Values from Auxiliar STOCK
+-  FOR Cur_Stock IN (
+-      SELECT ms.m_storage_detail_id, COALESCE(ms.quantity, 0) AS qty, ms.qtyorder AS qtyorder, ms.UPDATED AS lastupdated
+-      FROM m_storage_detail t
+-          JOIN m_stock_aux ms ON t.m_storage_detail_id = ms.m_storage_detail_id
+-          JOIN m_locator l ON t.m_locator_id = l.m_locator_id
+-          JOIN m_warehouse w ON l.m_warehouse_id = w.m_warehouse_id
+-          JOIN ad_org_warehouse ow ON w.m_warehouse_id = ow.m_warehouse_id
+-          LEFT JOIN m_attributesetinstance asi ON t.m_attributesetinstance_id = asi.m_attributesetinstance_id
+-          LEFT JOIN m_product_uom pu ON t.m_product_uom_id = pu.m_product_uom_id
+-          LEFT JOIN c_uom u ON pu.c_uom_id = u.c_uom_id
+-      WHERE t.m_product_id = v_productid
+-        AND ms.aux_id = v_auxid
+-        AND ms.ad_table_id = v_tableid
+-        AND ms.line < v_lineno
+-        AND COALESCE(t.c_uom_id, '-1') = COALESCE(v_uomid, t.c_uom_id, '-1')
+-        AND COALESCE(t.m_product_uom_id, '-1') = COALESCE(v_productuomid, t.m_product_uom_id, '-1')
+-        AND COALESCE(t.m_attributesetinstance_id, '-1') = COALESCE(v_attributesetinstanceid, t.m_attributesetinstance_id, '-1')
+-        AND COALESCE(l.m_locator_id, '-1') = COALESCE(v_locatorid, l.m_locator_id, '-1')
+-        AND COALESCE(w.m_warehouse_id, '-1') = COALESCE(v_warehouseid, w.m_warehouse_id, '-1')
+-        AND ow.ad_org_id = v_orgid
+-        AND COALESCE(ms.quantity, 0)>0
+-      ORDER BY CASE w.m_warehouse_id WHEN COALESCE(v_PriorityWarehouseID, '-1') THEN 0 ELSE 1 END, ow.priority, l.priorityno, asi.created, t.created
+-  ) LOOP
+-    INSERT INTO m_stock_proposed (
+-        m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
+-        created , createdby, updated, updatedby,
+-        ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
+-        isfinal
+-    ) VALUES (
+-        get_uuid(), v_ClientID, v_OrgID, 'Y',
+-        now(), v_AD_User_ID, now(), v_AD_User_ID,
+-        pinstance_id, v_Count, Cur_Stock.M_STORAGE_DETAIL_ID, Cur_Stock.Qty, Cur_Stock.qtyorder,
+-        'Y'
+-    );
+-    v_Count:=v_Count+1;
+-  END LOOP;
+-
+-  -- Insert Values from Storage Detail
+-  FOR Cur_Stock  IN (
+-      SELECT t.m_storage_detail_id, COALESCE(t.qtyonhand - COALESCE(res.reservedqty, 0), 0) AS qty, t.qtyorderonhand AS qtyorder, l.priorityno, t.UPDATED AS lastupdated,
+-      t.qtyonhand, COALESCE(res.reservedqty, 0) as reservedqty
+-      FROM m_storage_detail t 
+-          JOIN m_locator l ON t.m_locator_id=l.m_locator_id
+-          JOIN m_warehouse w ON l.m_warehouse_id = w.m_warehouse_id
+-          JOIN ad_org_warehouse ow ON w.m_warehouse_id = ow.m_warehouse_id
+-          LEFT JOIN m_attributesetinstance asi ON t.m_attributesetinstance_id = asi.m_attributesetinstance_id
+-          LEFT JOIN m_product_uom pu ON t.m_product_uom_id = pu.m_product_uom_id
+-          LEFT JOIN c_uom u ON pu.c_uom_id = u.c_uom_id
+-          LEFT JOIN m_reservation r ON r.m_reservation_id = v_reservation_id AND r.m_product_id = t.m_product_id AND r.c_uom_id = t.c_uom_id
+-          LEFT JOIN (
+-              SELECT r.m_product_id, r.c_uom_id, rs.m_locator_id, COALESCE(rs.m_attributesetinstance_id, '0') as m_attributesetinstance_id,
+-                  SUM(rs.quantity - COALESCE(rs.releasedqty, 0)) AS reservedqty
+-              FROM m_reservation r
+-                  JOIN m_reservation_stock rs ON r.m_reservation_id = rs.m_reservation_id
+-              WHERE r.m_product_id = v_productid
+-                AND r.c_uom_id = COALESCE(v_uomid, r.c_uom_id)
+-                AND rs.m_locator_id IS NOT NULL
+-                AND rs.m_locator_id = COALESCE(v_locatorid, rs.m_locator_id)
+-                AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(v_attributesetinstanceid, rs.m_attributesetinstance_id, '0')
+-                AND r.res_status NOT IN ('CL', 'DR')
+-                AND ((v_reservation_id IS NOT NULL AND rs.isallocated = 'Y')
+-                    OR v_reservation_id IS NULL)
+-              GROUP BY r.m_product_id, r.c_uom_id, rs.m_locator_id, COALESCE(rs.m_attributesetinstance_id, '0')
+-            ) res ON t.m_product_id = res.m_product_id
+-                      AND t.c_uom_id = res.c_uom_id
+-                      AND COALESCE(t.m_attributesetinstance_id, '0') = res.m_attributesetinstance_id
+-                      AND t.m_locator_id = res.m_locator_id
+-      WHERE t.m_product_id=v_productid
+-        AND COALESCE(t.c_uom_id, '-1') = COALESCE(v_uomid, t.c_uom_id, '-1')
+-        AND COALESCE(t.m_product_uom_id, '-1') = COALESCE(v_productuomid, t.m_product_uom_id, '-1')
+-        AND COALESCE(t.m_attributesetinstance_id, '-1') = COALESCE(v_attributesetinstanceid, t.m_attributesetinstance_id, '-1')
+-        AND COALESCE(l.m_locator_id, '-1') = COALESCE(v_locatorid, l.m_locator_id, '-1')
+-        AND COALESCE(w.m_warehouse_id, '-1') = COALESCE(v_warehouseid, w.m_warehouse_id, '-1')
+-        AND ow.ad_org_id = v_orgid
+-        AND COALESCE(t.qtyonhand, 0)>0
+-        AND t.qtyonhand - COALESCE(res.reservedqty, 0) > 0
+-        AND w.m_warehouse_id = COALESCE(r.m_warehouse_id, w.m_warehouse_id)
+-        AND l.m_locator_id = COALESCE(r.m_locator_id, l.m_locator_id)
+-        AND asi.m_attributesetinstance_id = COALESCE(r.m_attributesetinstance_id, asi.m_attributesetinstance_id)
+-      ORDER BY CASE w.m_warehouse_id WHEN COALESCE(v_PriorityWarehouseID, '-1') THEN 0 ELSE 1 END, ow.priority, l.priorityno, asi.created, t.created
+-  ) LOOP
+-    IF (cur_stock.qtyonhand > cur_stock.reservedqty) THEN
+-      INSERT INTO m_stock_proposed (
+-          m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
+-          created , createdby, updated, updatedby,
+-          ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
+-          isfinal
+-      ) VALUES (
+-          get_uuid(), v_ClientID, v_OrgID, 'Y',
+-          now(), v_AD_User_ID, now(), v_AD_User_ID,
+-          pinstance_id, v_Count, Cur_Stock.M_STORAGE_DETAIL_ID, Cur_Stock.Qty, Cur_Stock.QtyOrder,
+-          'Y'
+-      );
+-      v_Count:=v_Count+1;
+-    END IF;
+-  END LOOP;
+-
+-  --M_Get_Stock - Finish Process Extension Point
+-  SELECT count(*) INTO v_count
+-  FROM DUAL
+-  WHERE EXISTS (SELECT 1 FROM ad_ep_procedures WHERE ad_extension_points_id = 'FF80818132FDD74F0132FDF278430029');
+-  IF (v_count=1) THEN
+-    DECLARE
+-      v_ep_instance VARCHAR2(32);
+-      v_extension_point_id VARCHAR2(32) := 'FF80818132FDD74F0132FDF278430029';
+-    BEGIN
+-      v_ep_instance := get_uuid();
+-
+-      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'AD_Pinstance_Stock_ID',
+-        pinstance_id, NULL, NULL, NULL, NULL, NULL, NULL);
+-      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'Record_ID',
+-        v_Record_ID, NULL, NULL, NULL, NULL, NULL, NULL);
+-      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'User',
+-        v_AD_User_ID, NULL, NULL, NULL, NULL, NULL, NULL);
+-      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'Message',
+-        NULL, NULL, NULL, NULL, NULL, NULL, v_Message);
+-      AD_EXTENSION_POINT_HANDLER(v_ep_instance, v_extension_point_id);
+-      
+-      SELECT p_text INTO v_Message
+-      FROM ad_ep_instance_para
+-      WHERE ad_ep_instance_id = v_ep_instance
+-      AND parametername LIKE 'Message';
+-
+-      DELETE FROM ad_ep_instance_para
+-      WHERE ad_ep_instance_id = v_ep_instance;
+-    END;
+-  END IF;
+-  
+-  -- Apply stock rules only if a quantity is given
+-  IF (v_Quantity IS NULL) THEN
+-    RETURN;
+-  END IF;
+-  DECLARE
+-    v_sql VARCHAR2(2000);
+-    v_applyrule CHAR(1);
+-    v_finalqty NUMBER;
+-    v_totalqty NUMBER;
+-    v_availableqty NUMBER;
+-    v_qtyaux NUMBER:=v_quantity;
+-    v_AuxResult NUMBER;
+-    v_AuxMessage VARCHAR2(2000):='';
+-    v_productname M_PRODUCT.NAME%TYPE;
+-  BEGIN
+-    SELECT SUM(quantity) INTO v_availableqty
+-    FROM m_stock_proposed
+-    WHERE ad_pinstance_id = pinstance_id;
+-
+-    FOR cur_warehouse IN (
+-        SELECT l.m_warehouse_id, wr.procedurename, wr.m_warehouse_rule_id, MAX(sp.priority) AS priority, w.name
+-        FROM m_stock_proposed sp
+-            JOIN m_storage_detail sd ON sp.m_storage_detail_id = sd.m_storage_detail_id
+-            JOIN m_locator l ON sd.m_locator_id = l.m_locator_id
+-            JOIN m_warehouse w ON l.m_warehouse_id = w.m_warehouse_id
+-            LEFT JOIN m_warehouse_rule wr ON wr.m_warehouse_rule_id = COALESCE(v_warehouse_rule_id, w.m_warehouse_rule_id)
+-        WHERE ad_pinstance_id = pinstance_id
+-        GROUP BY l.m_warehouse_id, wr.m_warehouse_rule_id, wr.procedurename, w.name
+-        ORDER BY MIN(sp.priority)
+-    ) LOOP
+-      IF (cur_warehouse.procedurename IS NOT NULL) THEN
+-        AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, '', p_calledfromapp) ;
+-        IF (AD_GET_RDBMS() = 'ORACLE') THEN
+-          v_Sql := 'CALL ' || cur_warehouse.procedurename || '('''||pinstance_id||''', '''||cur_warehouse.m_warehouse_id||''')';
+-        ELSE
+-          v_Sql := 'SELECT ' || cur_warehouse.procedurename || '('''||pinstance_id||''', '''||cur_warehouse.m_warehouse_id||''') FROM DUAL';
+-        END IF;
+-        BEGIN
+-          EXECUTE IMMEDIATE v_Sql;
+-        EXCEPTION WHEN OTHERS THEN
+-          DBMS_OUTPUT.PUT_LINE('ERROR EXECUTING STOCK RULE PROCEDURE');
+-        END;
+-        SELECT result, errormsg INTO v_auxresult, v_auxmessage
+-        FROM ad_pinstance
+-        WHERE ad_pinstance_id = pinstance_id;
+-        v_message := v_message || ' ' || cur_warehouse.name || ': ' || COALESCE(v_auxmessage, '@Success@');
+-      END IF;
+-      -- Check if there is enough final quantity.
+-      SELECT COALESCE(SUM(quantity), 0) INTO v_finalqty
+-      FROM m_stock_proposed
+-      WHERE ad_pinstance_id = pinstance_id
+-        AND priority <= cur_warehouse.priority
+-        AND isfinal = 'Y';
+-      v_qtyaux := v_qtyaux - v_finalqty;
+-      IF (v_qtyaux <= 0) THEN
+-        DELETE FROM m_stock_proposed
+-        WHERE ad_pinstance_id = pinstance_id
+-          AND (priority > cur_warehouse.priority
+-              OR isfinal = 'N');
+-        EXIT;
+-      END IF;
+-      
+-    END LOOP;
+-    SELECT SUM(CASE isfinal WHEN 'Y' THEN quantity ELSE 0 END), SUM(quantity)
+-      INTO v_finalqty, v_totalqty
+-    FROM m_stock_proposed
+-    WHERE ad_pinstance_id = pinstance_id;
+-    IF (v_totalqty < v_quantity AND v_availableqty >= v_quantity) THEN
+-        SELECT name INTO v_productname
+-        FROM m_product
+-        WHERE m_product_id = v_productid;
+-        v_message := '@NotEnoughStockedDueWHRule@ ' || '@Product@: ' || v_productname;
+-      RAISE_APPLICATION_ERROR(-20000, v_message);
+-    END IF;
+-    IF (v_totalqty > v_finalqty) THEN
+-      -- IF these quantities are different there is some proposed stock with the isFinal flag = 'N'
+-      v_result := 2;
+-    END IF;
+-  END;
++	SELECT * INTO v_result, v_Message FROM M_GET_STOCK_PARAM(PInstance_ID, v_Record_ID, v_Quantity, v_ProductID, v_LocatorID, v_WarehouseID, v_PriorityWarehouseID, v_OrgID, v_AttributesetinstanceID, v_AD_User_ID,
++	v_ClientID, v_warehouse_rule_id, v_UomID, v_ProductUomID, v_TableID, v_AuxID, v_LineNo, v_ProcessID, v_reservation_id, p_calledfromapp);
+ 
+   --  Update AD_PInstance
+   DBMS_OUTPUT.PUT_LINE('Updating PInstance - Finished ' || v_Message) ;
+diff --git a/src-db/database/model/functions/M_GET_STOCK_PARAM.xml b/src-db/database/model/functions/M_GET_STOCK_PARAM.xml
+new file mode 100644
+--- /dev/null
++++ b/src-db/database/model/functions/M_GET_STOCK_PARAM.xml
+@@ -0,0 +1,595 @@
++<?xml version="1.0"?>
++  <database name="FUNCTION M_GET_STOCK_PARAM">
++    <function name="M_GET_STOCK_PARAM" type="NULL">
++      <parameter name="p_uuid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_recordid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_quantity" type="NUMERIC" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_productid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_locatorid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_warehouseid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_prioritywarehouseid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_orgid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_attributesetinstanceid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_ad_user_id" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_clientid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_warehouse_rule_id" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_uomid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_productuomid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_tableid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_auxid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_lineno" type="NUMERIC" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_processid" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_reservation_id" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_calledfromapp" type="VARCHAR" mode="in">
++        <default/>
++      </parameter>
++      <parameter name="p_result" type="NUMERIC" mode="out">
++        <default/>
++      </parameter>
++      <parameter name="p_message" type="VARCHAR" mode="out">
++        <default/>
++      </parameter>
++      <body><![CDATA[/*************************************************************************
++* The contents of this file are subject to the Openbravo  Public  License
++* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
++* Version 1.1  with a permitted attribution clause; you may not  use this
++* file except in compliance with the License. You  may  obtain  a copy of
++* the License at http://www.openbravo.com/legal/license.html
++* Software distributed under the License  is  distributed  on  an "AS IS"
++* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
++* License for the specific  language  governing  rights  and  limitations
++* under the License.
++* The Original Code is Openbravo ERP.
++* The Initial Developer of the Original Code is Openbravo SLU
++* All portions are Copyright (C) 2014 Openbravo SLU
++* All Rights Reserved.
++* Contributor(s):  ______________________________________.
++************************************************************************/
++  -- Logistice
++  v_ResultStr VARCHAR2(2000):='';
++  v_Message VARCHAR2(2000):='';
++  v_Record_ID VARCHAR2(32);
++  p_result NUMBER:=1;
++  
++  -- Parameter
++  TYPE RECORD IS REF CURSOR;
++  Cur_Parameter RECORD;
++  Cur_Stock RECORD;
++  Cur_MStock RECORD;
++  cur_warehouse RECORD;
++  cur_allocated RECORD;
++
++  -- Parameter Variables
++  v_Quantity NUMBER(10);
++  v_ProductID   VARCHAR2(32);
++  v_LocatorID   VARCHAR2(32);
++  v_WarehouseID VARCHAR2(32) ;
++  v_PriorityWarehouseID VARCHAR2(32);
++  v_OrgID VARCHAR2(32) ;
++  v_AttributesetinstanceID  VARCHAR2(32) ;
++  v_AD_User_ID VARCHAR2(32) ;
++  v_ClientID VARCHAR2(32) ;
++  v_warehouse_rule_id VARCHAR2(32);
++  v_UomID VARCHAR2(32) ;
++  v_ProductUomID VARCHAR2(32) ;
++  v_TableID  VARCHAR2(32):='-1';
++  v_AuxID VARCHAR2(32):='-1';
++  v_LineNo NUMBER;
++  v_Count NUMBER:=1;
++  v_ProcessID VARCHAR2(32) ;
++  v_Reservation_ID VARCHAR2(32);
++  
++BEGIN
++
++  -- Get Parameters
++  p_message:='ReadingParameters';
++  v_Record_ID:=p_recordId;
++  DBMS_OUTPUT.PUT_LINE('  v_Record_ID=' || coalesce(v_Record_ID, '')) ;
++  v_AD_User_ID:=p_AD_User_ID;
++  DBMS_OUTPUT.PUT_LINE('  v_AD_User_ID=' || coalesce(v_AD_User_ID, '')) ;
++  v_Quantity:=p_Quantity;
++  DBMS_OUTPUT.PUT_LINE('  v_Quantity=' || coalesce(v_Quantity, 0)) ;
++  v_ProductID:=p_ProductID;
++  DBMS_OUTPUT.PUT_LINE('  v_ProductID=' || coalesce(v_ProductID, '')) ;
++  v_UomID:=p_UomID;
++  DBMS_OUTPUT.PUT_LINE('  v_UomID=' || coalesce(v_UomID, '')) ;
++  v_ProductUomID:=p_ProductUomID;
++  DBMS_OUTPUT.PUT_LINE('  v_ProductUomID=' || coalesce(v_ProductUomID, '')) ;
++  v_LocatorID:=p_LocatorID;
++  DBMS_OUTPUT.PUT_LINE('  v_LocatorID=' || coalesce(v_LocatorID, '')) ;
++  v_WarehouseID:=p_WarehouseID;
++  DBMS_OUTPUT.PUT_LINE('  v_WarehouseID=' || coalesce(v_WarehouseID, '')) ;
++  v_PriorityWarehouseID:=p_PriorityWarehouseID;
++  DBMS_OUTPUT.PUT_LINE('  v_PriorityWarehouseID=' || coalesce(v_PriorityWarehouseID, '')) ;
++  v_ClientID:=p_ClientID;
++  DBMS_OUTPUT.PUT_LINE('  v_ClientID=' || coalesce(v_ClientID, '')) ;
++  v_OrgID:=p_OrgID;
++  DBMS_OUTPUT.PUT_LINE('  v_OrgID=' || coalesce(v_OrgID, '')) ;
++  v_AttributesetinstanceID:=p_AttributesetinstanceID;
++  DBMS_OUTPUT.PUT_LINE('  v_AttributesetinstanceID=' || coalesce(v_AttributesetinstanceID, '')) ;
++  v_warehouse_rule_id:=p_warehouse_rule_id;
++  DBMS_OUTPUT.PUT_LINE('  v_warehouse_rule_id=' || coalesce(v_warehouse_rule_id, '')) ;
++  IF (p_TableID IS NOT NULL) THEN
++    v_TableID:=p_TableID;
++  END IF;
++  IF (p_AuxID IS NOT NULL) THEN
++    v_AuxID:=p_AuxID;
++  END IF;
++  v_LineNo:=p_LineNo;
++  v_ProcessID:=p_ProcessID;
++  v_reservation_id:=p_reservation_id;
++  DBMS_OUTPUT.PUT_LINE('  Record_ID=' || v_Record_ID) ;
++
++  IF (v_reservation_id IS NOT NULL) THEN
++    -- If a reservation is given first consume allocated stock.
++    FOR cur_allocated IN (
++        SELECT rs.quantity, rs.releasedqty, sd.m_storage_detail_id
++        FROM m_reservation_stock rs
++            JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
++            JOIN m_storage_detail sd ON sd.m_product_id = r.m_product_id
++                                        AND sd.c_uom_id = r.c_uom_id
++                                        AND sd.m_product_uom_id IS NULL
++                                        AND sd.m_locator_id = rs.m_locator_id
++                                        AND sd.m_attributesetinstance_id = rs.m_attributesetinstance_id
++        WHERE r.m_reservation_id = v_reservation_id
++          AND rs.isallocated = 'Y'
++          AND rs.quantity > 0
++          AND rs.quantity <> COALESCE(rs.releasedqty, 0)
++          AND rs.m_locator_id IS NOT NULL
++    ) LOOP
++      INSERT INTO m_stock_proposed (
++          m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
++          created , createdby, updated, updatedby,
++          ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
++          isfinal
++      ) VALUES (
++          get_uuid(), v_ClientID, v_OrgID, 'Y',
++          now(), v_AD_User_ID, now(), v_AD_User_ID,
++          p_uuid, v_Count, cur_allocated.m_storage_detail_id, cur_allocated.quantity - COALESCE(cur_allocated.releasedqty, 0), null,
++          'Y'
++      );
++      v_Count:=v_Count+1;
++    END LOOP;
++  END IF;
++
++  -- Insert Values from Auxiliar STOCK
++  FOR Cur_Stock IN (
++      SELECT ms.m_storage_detail_id, COALESCE(ms.quantity, 0) AS qty, ms.qtyorder AS qtyorder, ms.UPDATED AS lastupdated
++      FROM m_storage_detail t
++          JOIN m_stock_aux ms ON t.m_storage_detail_id = ms.m_storage_detail_id
++          JOIN m_locator l ON t.m_locator_id = l.m_locator_id
++          JOIN m_warehouse w ON l.m_warehouse_id = w.m_warehouse_id
++          JOIN ad_org_warehouse ow ON w.m_warehouse_id = ow.m_warehouse_id
++          LEFT JOIN m_attributesetinstance asi ON t.m_attributesetinstance_id = asi.m_attributesetinstance_id
++          LEFT JOIN m_product_uom pu ON t.m_product_uom_id = pu.m_product_uom_id
++          LEFT JOIN c_uom u ON pu.c_uom_id = u.c_uom_id
++      WHERE t.m_product_id = v_productid
++        AND ms.aux_id = v_auxid
++        AND ms.ad_table_id = v_tableid
++        AND ms.line < v_lineno
++        AND COALESCE(t.c_uom_id, '-1') = COALESCE(v_uomid, t.c_uom_id, '-1')
++        AND COALESCE(t.m_product_uom_id, '-1') = COALESCE(v_productuomid, t.m_product_uom_id, '-1')
++        AND t.m_attributesetinstance_id = COALESCE(v_attributesetinstanceid, t.m_attributesetinstance_id)
++        AND COALESCE(l.m_locator_id, '-1') = COALESCE(v_locatorid, l.m_locator_id, '-1')
++        AND COALESCE(w.m_warehouse_id, '-1') = COALESCE(v_warehouseid, w.m_warehouse_id, '-1')
++        AND ow.ad_org_id = v_orgid
++        AND COALESCE(ms.quantity, 0)>0
++      ORDER BY CASE w.m_warehouse_id WHEN COALESCE(v_PriorityWarehouseID, '-1') THEN 0 ELSE 1 END, ow.priority, l.priorityno, asi.created, t.created
++  ) LOOP
++    INSERT INTO m_stock_proposed (
++        m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
++        created , createdby, updated, updatedby,
++        ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
++        isfinal
++    ) VALUES (
++        get_uuid(), v_ClientID, v_OrgID, 'Y',
++        now(), v_AD_User_ID, now(), v_AD_User_ID,
++        p_uuid, v_Count, Cur_Stock.M_STORAGE_DETAIL_ID, Cur_Stock.Qty, Cur_Stock.qtyorder,
++        'Y'
++    );
++    v_Count:=v_Count+1;
++  END LOOP;
++
++  -- Insert Values from Storage Detail
++  FOR Cur_Stock  IN (
++      SELECT t.m_storage_detail_id, t.qtyonhand - (CASE WHEN v_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END) AS qty, 
++      t.qtyorderonhand AS qtyorder, l.priorityno, t.UPDATED AS lastupdated, t.qtyonhand, 
++      (CASE WHEN v_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END) as reservedqty
++      FROM m_storage_detail t 
++          JOIN m_locator l ON t.m_locator_id=l.m_locator_id
++          JOIN m_warehouse w ON l.m_warehouse_id = w.m_warehouse_id
++          JOIN ad_org_warehouse ow ON w.m_warehouse_id = ow.m_warehouse_id
++          LEFT JOIN m_attributesetinstance asi ON t.m_attributesetinstance_id = asi.m_attributesetinstance_id
++          LEFT JOIN m_product_uom pu ON t.m_product_uom_id = pu.m_product_uom_id
++          LEFT JOIN c_uom u ON pu.c_uom_id = u.c_uom_id
++          LEFT JOIN m_reservation r ON r.m_reservation_id = v_reservation_id AND r.m_product_id = t.m_product_id AND r.c_uom_id = t.c_uom_id
++      WHERE t.m_product_id=v_productid
++        AND t.c_uom_id = COALESCE(v_uomid, t.c_uom_id)
++        AND COALESCE(t.m_product_uom_id, '-1') = COALESCE(v_productuomid, t.m_product_uom_id, '-1')
++        AND t.m_attributesetinstance_id = COALESCE(v_attributesetinstanceid, t.m_attributesetinstance_id)
++        AND l.m_locator_id = COALESCE(v_locatorid, l.m_locator_id)
++        AND w.m_warehouse_id = COALESCE(v_warehouseid, w.m_warehouse_id)
++        AND ow.ad_org_id = v_orgid
++        AND COALESCE(t.qtyonhand, 0)>0
++        AND t.qtyonhand - (CASE WHEN v_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END)  > 0
++        AND w.m_warehouse_id = COALESCE(r.m_warehouse_id, w.m_warehouse_id)
++        AND l.m_locator_id = COALESCE(r.m_locator_id, l.m_locator_id)
++        AND asi.m_attributesetinstance_id = COALESCE(r.m_attributesetinstance_id, asi.m_attributesetinstance_id)
++      ORDER BY CASE w.m_warehouse_id WHEN COALESCE(v_PriorityWarehouseID, '-1') THEN 0 ELSE 1 END, ow.priority, l.priorityno, asi.created, t.created
++  ) LOOP
++    IF (cur_stock.qtyonhand > cur_stock.reservedqty) THEN
++      INSERT INTO m_stock_proposed (
++          m_stock_proposed_id, ad_client_id, ad_org_id, isactive, 
++          created , createdby, updated, updatedby,
++          ad_pinstance_id, priority, m_storage_detail_id, quantity, qtyorder,
++          isfinal
++      ) VALUES (
++          get_uuid(), v_ClientID, v_OrgID, 'Y',
++          now(), v_AD_User_ID, now(), v_AD_User_ID,
++          p_uuid, v_Count, Cur_Stock.M_STORAGE_DETAIL_ID, Cur_Stock.Qty, Cur_Stock.QtyOrder,
++          'Y'
++      );
++      v_Count:=v_Count+1;
++    END IF;
++  END LOOP;
++
++  --M_Get_Stock - Deprecated- Finish Process Extension Point
++  --This extension point is deprecated as requires the usage of pinstance and pinstance_para
++  SELECT count(*) INTO v_count
++  FROM DUAL
++  WHERE EXISTS (SELECT 1 FROM ad_ep_procedures WHERE ad_extension_points_id = 'FF80818132FDD74F0132FDF278430029');
++  IF (v_count=1) THEN
++    DECLARE
++      v_ep_instance VARCHAR2(32);
++      v_extension_point_id VARCHAR2(32) := 'FF80818132FDD74F0132FDF278430029';
++    BEGIN
++      SELECT count(*) INTO v_count
++      FROM DUAL
++      WHERE EXISTS (SELECT 1 FROM AD_PInstance where ad_pinstance_id = p_uuid);
++      IF(v_count=0) THEN 
++	      INSERT INTO ad_pinstance (ad_pinstance_id, ad_process_id, record_id, isactive, ad_user_id, ad_client_id, ad_org_id, created, createdby, updated, updatedby) 
++	      VALUES (p_uuid, 'FF80818132C964E30132C9747257002E', p_recordId, 'Y', p_AD_User_ID, p_ClientID, p_OrgID, now(), p_AD_User_ID, now(), p_AD_User_ID
++	      );
++	  
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '10', 'AD_Client_ID', p_ClientID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '20', 'AD_Org_ID', p_OrgID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '30', 'M_Product_ID', p_ProductID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '40', 'C_Uom_ID', p_UomID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '50', 'M_Product_Uom_ID', p_ProductUomID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '60', 'M_Warehouse_ID', p_WarehouseID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '70', 'M_Locator_ID', p_LocatorID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '80', 'M_AttributesetInstance_ID', p_AttributesetinstanceID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '90', 'Quantity', null, null, p_Quantity, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '100', 'Priority_Warehouse_ID', v_PriorityWarehouseID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '110', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '120', 'TableId', v_TableID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '130', 'AuxID', v_AuxID, null, null, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '140', 'LineNo', null, null, v_LineNo, null, null, null);
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '150', 'M_Reservation_ID', v_reservation_id, null, null, null, null, null);
++	      /*
++	      * ADD PROPER PROCESS ID!
++	      */
++	      AD_PINSTANCE_PARA_INSERT(p_uuid, '160', 'ProcessID', '---', null, null, null, null, null);
++      END IF;
++      v_ep_instance := get_uuid();
++
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'AD_Pinstance_Stock_ID',
++        p_uuid, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'Record_ID',
++        v_Record_ID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'User',
++        v_AD_User_ID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'Message',
++        NULL, NULL, NULL, NULL, NULL, NULL, v_Message);
++      AD_EXTENSION_POINT_HANDLER(v_ep_instance, v_extension_point_id);
++      
++      SELECT p_text INTO v_Message
++      FROM ad_ep_instance_para
++      WHERE ad_ep_instance_id = v_ep_instance
++      AND parametername LIKE 'Message';
++
++      DELETE FROM ad_ep_instance_para
++      WHERE ad_ep_instance_id = v_ep_instance;
++      IF(v_count=0) THEN 
++        DELETE FROM ad_pinstance
++        WHERE ad_pinstance_id = p_uuid;
++      END IF;
++    END;
++  END IF;
++  --M_Get_Stock - Finish Process Extension Point (To get performance improvement use this extension point as requires no usage of pinstance and pinstance para
++  SELECT count(*) INTO v_count
++  FROM DUAL
++  WHERE EXISTS (SELECT 1 FROM ad_ep_procedures WHERE ad_extension_points_id = '931282171E0E4E07A946AD80D9A16E08');
++  IF (v_count=1) THEN
++    DECLARE
++      v_ep_instance VARCHAR2(32);
++      v_extension_point_id VARCHAR2(32) := '931282171E0E4E07A946AD80D9A16E08';
++    BEGIN
++      v_ep_instance := get_uuid();
++
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'AD_Pinstance_Stock_ID',
++        p_uuid, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'Record_ID',
++        v_Record_ID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'User',
++        v_AD_User_ID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'AD_Client_ID',
++        p_ClientID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'AD_Org_ID',
++        p_OrgID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'M_Product_ID',
++        p_ProductID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'C_Uom_ID',
++        p_UomID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'M_Product_Uom_ID',
++        p_ProductUomID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'M_Warehouse_ID',
++        p_WarehouseID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'M_Locator_ID',
++        M_Locator_ID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'M_AttributesetInstance_ID',
++        p_AttributesetinstanceID, NULL, NULL, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'Quantity',
++        NULL, NULL, p_Quantity, NULL, NULL, NULL, NULL);
++      AD_EP_INSTANCE_PARA_INSERT(v_ep_instance, v_extension_point_id, 'Message',
++        NULL, NULL, NULL, NULL, NULL, NULL, v_Message);
++      AD_EXTENSION_POINT_HANDLER(v_ep_instance, v_extension_point_id);
++      
++      SELECT p_text INTO v_Message
++      FROM ad_ep_instance_para
++      WHERE ad_ep_instance_id = v_ep_instance
++      AND parametername LIKE 'Message';
++
++      DELETE FROM ad_ep_instance_para
++      WHERE ad_ep_instance_id = v_ep_instance;
++    END;
++  END IF;
++    
++  -- Apply stock rules only if a quantity is given
++  IF (v_Quantity IS NULL) THEN
++    RETURN;
++  END IF;
++  DECLARE
++    v_sql VARCHAR2(2000);
++    v_applyrule CHAR(1);
++    v_finalqty NUMBER;
++    v_totalqty NUMBER;
++    v_availableqty NUMBER;
++    v_qtyaux NUMBER:=v_quantity;
++    v_AuxResult NUMBER;
++    v_AuxMessage VARCHAR2(2000):='';
++    v_productname M_PRODUCT.NAME%TYPE;
++    v_parameters VARCHAR2(2000);
++  BEGIN
++    SELECT SUM(quantity) INTO v_availableqty
++    FROM m_stock_proposed
++    WHERE ad_pinstance_id = p_uuid;
++DBMS_OUTPUT.PUT_LINE( 'v_warehouse_rule_id: ' || coalesce(v_warehouse_rule_id,''));
++    FOR cur_warehouse IN (
++        SELECT l.m_warehouse_id, wr.procedurename, wr.m_warehouse_rule_id, wr.type, MAX(sp.priority) AS priority, w.name
++        FROM m_stock_proposed sp
++            JOIN m_storage_detail sd ON sp.m_storage_detail_id = sd.m_storage_detail_id
++            JOIN m_locator l ON sd.m_locator_id = l.m_locator_id
++            JOIN m_warehouse w ON l.m_warehouse_id = w.m_warehouse_id
++            LEFT JOIN m_warehouse_rule wr ON wr.m_warehouse_rule_id = COALESCE(v_warehouse_rule_id, w.m_warehouse_rule_id)
++        WHERE ad_pinstance_id = p_uuid
++        GROUP BY l.m_warehouse_id, wr.m_warehouse_rule_id, wr.procedurename, w.name, wr.type
++        ORDER BY MIN(sp.priority)
++    ) LOOP
++      IF (cur_warehouse.procedurename IS NOT NULL AND cur_warehouse.TYPE = 'I') THEN
++      	SELECT count(*) INTO v_count
++      	FROM DUAL
++      	WHERE EXISTS (SELECT 1 FROM AD_PInstance where ad_pinstance_id = p_uuid);
++      	IF(v_count=0) THEN 
++  	      INSERT INTO ad_pinstance (ad_pinstance_id, ad_process_id, record_id, isactive,ad_user_id, ad_client_id, ad_org_id, created, createdby, updated, updatedby) 
++  	      VALUES (p_uuid, 'FF80818132C964E30132C9747257002E', p_recordId, 'Y',p_AD_User_ID, p_ClientID, p_OrgID, now(), p_AD_User_ID, now(), p_AD_User_ID);
++  
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '10', 'AD_Client_ID', p_ClientID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '20', 'AD_Org_ID', p_OrgID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '30', 'M_Product_ID', p_ProductID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '40', 'C_Uom_ID', p_UomID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '50', 'M_Product_Uom_ID', p_ProductUomID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '60', 'M_Warehouse_ID', p_WarehouseID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '70', 'M_Locator_ID', p_LocatorID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '80', 'M_AttributesetInstance_ID', p_AttributesetinstanceID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '90', 'Quantity', null, null, p_Quantity, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '100', 'Priority_Warehouse_ID', v_PriorityWarehouseID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '110', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '120', 'TableId', v_TableID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '130', 'AuxID', v_AuxID, null, null, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '140', 'LineNo', null, null, v_LineNo, null, null, null);
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '150', 'M_Reservation_ID', v_reservation_id, null, null, null, null, null);
++  	      /*
++  	      * ADD PROPER PROCESS ID!
++  	      */
++  	      AD_PINSTANCE_PARA_INSERT(p_uuid, '160', 'ProcessID', '---', null, null, null, null, null);
++          AD_UPDATE_PINSTANCE(p_uuid, NULL, 'N', 1, '', p_calledfromapp) ;
++        END IF;
++        IF (AD_GET_RDBMS() = 'ORACLE') THEN
++          v_Sql := 'CALL ' || cur_warehouse.procedurename || '('''||p_uuid||''', '''||cur_warehouse.m_warehouse_id||''')';
++        ELSE
++          v_Sql := 'SELECT ' || cur_warehouse.procedurename || '('''||p_uuid||''', '''||cur_warehouse.m_warehouse_id||''') FROM DUAL';
++        END IF;
++        BEGIN
++          EXECUTE IMMEDIATE v_Sql;
++        EXCEPTION WHEN OTHERS THEN
++          DBMS_OUTPUT.PUT_LINE('ERROR EXECUTING STOCK RULE PROCEDURE');
++        END;
++        SELECT result, errormsg INTO v_auxresult, v_auxmessage
++        FROM ad_pinstance
++        WHERE ad_pinstance_id = p_uuid;
++        v_message := v_message || ' ' || cur_warehouse.name || ': ' || COALESCE(v_auxmessage, '@Success@');
++    	IF(v_count=0) THEN 
++        DELETE FROM ad_pinstance
++        WHERE ad_pinstance_id = p_uuid;
++      END IF;
++        
++      ELSIF (cur_warehouse.procedurename IS NOT NULL AND cur_warehouse.TYPE = 'P') THEN
++      v_parameters:= ''''||p_uuid||''', '''||p_ClientID||''', '''||p_OrgID
++          ||''', '''||p_ProductID||''', '''||p_UomID||'''';
++      IF(p_ProductUomID IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||p_ProductUomID||'''';
++      END IF;
++      IF(cur_warehouse.m_warehouse_id IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||cur_warehouse.m_warehouse_id||'''';
++      END IF;
++      IF(p_LocatorID IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||p_LocatorID||'''';
++      END IF;
++      IF(p_AttributesetinstanceID IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||p_AttributesetinstanceID||'''';
++      END IF;
++      IF(p_Quantity IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '||p_Quantity;
++      END IF;
++      IF(v_PriorityWarehouseID IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||v_PriorityWarehouseID||'''';
++      END IF;
++      IF(v_warehouse_rule_id IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||v_warehouse_rule_id||'''';
++      END IF;
++      IF(v_TableID IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||v_TableID||'''';
++      END IF;
++      IF(v_AuxID IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||v_AuxID||'''';
++      END IF;
++      IF(v_LineNo IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '||v_LineNo;
++      END IF;
++      IF(v_reservation_id IS NULL) THEN
++        v_parameters:= v_parameters || ', NULL';
++      ELSE
++        v_parameters:= v_parameters ||', '''||v_reservation_id||'''';
++      END IF;
++      DBMS_OUTPUT.PUT_LINE( 'v_parameters: ' || coalesce(v_parameters,''));
++        IF (AD_GET_RDBMS() = 'ORACLE') THEN
++          v_Sql := 'CALL ' || cur_warehouse.procedurename || ' (' || v_parameters ||', v_auxresult, v_auxmessage)';
++        ELSE
++          v_Sql := 'SELECT ' || cur_warehouse.procedurename || ' (' || v_parameters ||') ';
++        END IF;
++        BEGIN
++        IF (AD_GET_RDBMS() = 'ORACLE') THEN
++          EXECUTE IMMEDIATE v_Sql;     
++        ELSE
++          EXECUTE IMMEDIATE v_Sql  INTO v_auxresult, v_auxmessage;
++        END IF;
++        EXCEPTION WHEN OTHERS THEN
++          DBMS_OUTPUT.PUT_LINE('ERROR EXECUTING STOCK RULE PROCEDURE2: ' || cur_warehouse.procedurename);
++          DBMS_OUTPUT.PUT_LINE( v_Sql);
++        END;
++        v_message := v_message || ' ' || cur_warehouse.name || ': ' || COALESCE(v_auxmessage, '@Success@');
++      END IF;
++      -- Check if there is enough final quantity.
++      SELECT COALESCE(SUM(quantity), 0) INTO v_finalqty
++      FROM m_stock_proposed
++      WHERE ad_pinstance_id = p_uuid
++        AND priority <= cur_warehouse.priority
++        AND isfinal = 'Y';
++      v_qtyaux := v_qtyaux - v_finalqty;
++      IF (v_qtyaux <= 0) THEN
++        DELETE FROM m_stock_proposed
++        WHERE ad_pinstance_id = p_uuid
++          AND (priority > cur_warehouse.priority
++              OR isfinal = 'N');
++        EXIT;
++      END IF;
++    END LOOP;
++    SELECT SUM(CASE isfinal WHEN 'Y' THEN quantity ELSE 0 END), SUM(quantity)
++      INTO v_finalqty, v_totalqty
++    FROM m_stock_proposed
++    WHERE ad_pinstance_id = p_uuid;
++    IF (v_totalqty < v_quantity AND v_availableqty >= v_quantity) THEN
++      --IF (v_message IS NULL OR v_message = '') THEN
++        SELECT name INTO v_productname
++        FROM m_product
++        WHERE m_product_id = v_productid;
++        v_message := '@NotEnoughStockedDueWHRule@ ' || '@Product@: ' || v_productname;
++      --END IF;
++      RAISE_APPLICATION_ERROR(-20000, v_message);
++    END IF;
++    IF (v_totalqty > v_finalqty) THEN
++      -- IF these quantities are different there is some proposed stock with the isFinal flag = 'N'
++      p_result := 2;
++    END IF;
++  END;
++  p_message:= v_message;
++  RETURN;
++EXCEPTION
++WHEN OTHERS THEN
++  DBMS_OUTPUT.PUT_LINE(p_message) ;
++  IF (SQLERRM LIKE '@ERROR=%') THEN
++    p_message:= SQLERRM;
++  ELSE
++    p_message:= '@ERROR=' || SQLERRM;
++  END IF;
++  DBMS_OUTPUT.PUT_LINE(p_message) ;
++  p_result:=0;
++  IF (p_calledfromapp = 'Y') THEN
++    RETURN;
++  ELSE
++    RAISE;
++    RETURN;
++  END IF;
++END M_GET_STOCK_PARAM
++]]></body>
++    </function>
++  </database>
+diff --git a/src-db/database/model/functions/M_INOUT_CREATE.xml b/src-db/database/model/functions/M_INOUT_CREATE.xml
+--- a/src-db/database/model/functions/M_INOUT_CREATE.xml
++++ b/src-db/database/model/functions/M_INOUT_CREATE.xml
+@@ -459,30 +459,9 @@
+                   v_reservation_id VARCHAR2(32);
+                 BEGIN
+                   v_pinstance_id := get_uuid();
+-                  INSERT INTO ad_pinstance (
+-                      ad_pinstance_id, ad_process_id, record_id, isactive, 
+-                      ad_user_id, ad_client_id, ad_org_id, created, createdby,
+-                      updated, updatedby
+-                  ) VALUES (
+-                      v_pinstance_id, 'FF80818132C964E30132C9747257002E', v_record_id, 'Y',
+-                      v_User_ID, v_ad_client_id, ol.AD_Org_ID, now(), v_User_ID,
+-                      now(), v_User_ID
+-                  );
+-    
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '10', 'AD_Client_ID', v_ad_client_id, null, null, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '20', 'AD_Org_ID', Cur_Order.AD_Org_ID, null, null, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '30', 'M_Product_ID', v_Product_old, null, null, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '40', 'C_Uom_ID', v_UOM_old, null, null, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '50', 'M_Product_Uom_ID', v_Product_UOM_old, null, null, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'Priority_Warehouse_ID', v_Warehouse_old, null, null, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '70', 'M_AttributesetInstance_ID', v_Attribute_old, null, null, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '80', 'Quantity', null, null, v_Qty, null, null, null);
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'ProcessID', '118', null, null, null, null, null);
+-
+                   SELECT m_warehouse_rule_id INTO v_warehouse_rule_id
+                   FROM c_orderline
+                   WHERE c_orderline_id = ol.c_orderline_id;
+-                  AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '100', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
+ 
+                   SELECT count(*) INTO v_count
+                   FROM m_reservation
+@@ -496,15 +475,11 @@
+                     FROM m_reservation
+                     WHERE res_status != 'CL'
+                       AND c_orderline_id = ol.c_orderline_id;
+-                    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '110', 'M_Reservation_ID', v_reservation_id, null, null, null, null, null);
+                   END IF;
+ 
+-                  M_GET_STOCK(v_pinstance_ID, 'N');
++                  SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_pinstance_ID, v_record_id, v_Qty, v_Product_old, null, null, v_Warehouse_old, Cur_Order.AD_Org_ID, v_Attribute_old, v_User_ID,
++                  v_ad_client_id, v_warehouse_rule_id, v_UOM_old, v_Product_UOM_old, null, null, null, 'FF80818132C964E30132C9747257002E', v_reservation_id, 'N');
+                   -- Check result
+-                  SELECT result, errormsg
+-                    INTO v_pinstance_result, v_pinstance_msg
+-                  FROM ad_pinstance
+-                  WHERE ad_pinstance_id = v_pinstance_id;
+                   IF (v_pinstance_result = 0) THEN
+                     -- Error on m_get_stock
+                     RAISE_APPLICATION_ERROR(-20000, v_pinstance_msg);
+diff --git a/src-db/database/model/functions/M_PRODUCTION_RUN.xml b/src-db/database/model/functions/M_PRODUCTION_RUN.xml
+--- a/src-db/database/model/functions/M_PRODUCTION_RUN.xml
++++ b/src-db/database/model/functions/M_PRODUCTION_RUN.xml
+@@ -249,34 +249,9 @@
+               v_pinstance_msg AD_PInstance.errormsg%TYPE;
+             BEGIN
+               v_pinstance_id := get_uuid();
+-              INSERT INTO ad_pinstance (
+-                  ad_pinstance_id, ad_process_id, record_id, isactive, 
+-                  ad_user_id, ad_client_id, ad_org_id, created, createdby,
+-                  updated, updatedby
+-              ) VALUES (
+-                  v_pinstance_id, 'FF80818132C964E30132C9747257002E', v_record_id, 'Y',
+-                  p_user, v_client_id, v_org_id, now(), p_user,
+-                  now(), p_user
+-              );
+-
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '10', 'AD_Client_ID', v_client_id, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '20', 'AD_Org_ID', cur_bom.org_id, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '30', 'M_Product_ID', v_Product_old, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '40', 'C_Uom_ID', v_UOM_old, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '50', 'M_Product_Uom_ID', null, null, null, null, null, null);
+-              -- Records in m_aux_stock are not considered in BOM production.
+-              --AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'AuxID', v_record_id, null, null, null, null, null);
+-              --AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '70', 'TableId', '325', null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'Priority_Warehouse_ID', v_Warehouse_old, null, null, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '80', 'LineNo', null, null, 10, null, null, null);
+-              AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'ProcessID', '137', null, null, null, null, null);
+-
+-              M_GET_STOCK(v_pinstance_ID, 'N');
++              SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_pinstance_id, v_record_id, null, v_Product_old, null, null, v_Warehouse_old, cur_bom.org_id, null, p_user,
++              v_client_id, null, v_UOM_old, null, null, null, 10, '137', null, 'N');
+               -- Check result
+-              SELECT result, errormsg
+-                INTO v_pinstance_result, v_pinstance_msg
+-              FROM ad_pinstance
+-              WHERE ad_pinstance_id = v_pinstance_id;
+               IF (v_pinstance_result = 0) THEN
+                 -- Error on m_get_stock
+                 RAISE_APPLICATION_ERROR(-20000, v_pinstance_msg);
+diff --git a/src-db/database/model/functions/M_RESERVATION_POST.xml b/src-db/database/model/functions/M_RESERVATION_POST.xml
+--- a/src-db/database/model/functions/M_RESERVATION_POST.xml
++++ b/src-db/database/model/functions/M_RESERVATION_POST.xml
+@@ -145,7 +145,7 @@
+           WHERE rs.c_orderline_id = cur_prereserve.c_orderline_id
+             AND r.res_status NOT IN ('DR', 'CL')
+             AND rs.m_locator_id = cur_receipt.m_locator_id
+-            AND COALESCE(rs.m_attributesetinstance_id, '0') = cur_receipt.m_attributesetinstance_id;
++            AND rs.m_attributesetinstance_id = cur_receipt.m_attributesetinstance_id;
+           IF (cur_receipt.receiptqty > v_reservedqty) THEN
+             v_aux := LEAST(v_qtytoreserve, cur_receipt.receiptqty - v_reservedqty);
+             -- Check if exists a reserved stock for the same orderline, attributes and locator in the reservation
+@@ -155,7 +155,7 @@
+               AND m_locator_id = cur_receipt.m_locator_id
+               AND m_reservation_id = v_reservation_id
+               AND isallocated = 'Y'
+-              AND COALESCE(m_attributesetinstance_id, '0') = cur_receipt.m_attributesetinstance_id;
++              AND m_attributesetinstance_id = cur_receipt.m_attributesetinstance_id;
+             -- Update existing prereserved stock to decrease reserved qty
+             UPDATE m_reservation_stock
+             SET quantity = quantity - v_aux
+@@ -194,23 +194,13 @@
+         SELECT AD_COLUMN_IDENTIFIER('M_Locator', rs.m_locator_id, 'en_US') as locatorName,
+                asi.description AS attributeName
+         FROM m_reservation_stock rs
+-            JOIN m_attributesetinstance asi ON COALESCE(rs.m_attributesetinstance_id, '0') = asi.m_attributesetinstance_id
++            JOIN m_attributesetinstance asi ON rs.m_attributesetinstance_id = asi.m_attributesetinstance_id
+             LEFT JOIN m_storage_detail sd ON sd.m_product_id = v_product_id
+                                              AND sd.c_uom_id = v_uom_id
+                                              AND sd.m_product_uom_id IS NULL
+-                                             AND COALESCE(sd.m_attributesetinstance_id, '0') = COALESCE(rs.m_attributesetinstance_id, '0')
++                                             AND sd.m_attributesetinstance_id = rs.m_attributesetinstance_id
+                                              AND sd.m_locator_id = rs.m_locator_id
+-            LEFT JOIN (
+-                    SELECT SUM(rs2.quantity - COALESCE(rs2.releasedqty,0)) AS reservedstock, rs2.m_locator_id, COALESCE(rs2.m_attributesetinstance_id,'0') AS m_attributesetinstance_id
+-                    FROM m_reservation_stock rs2
+-                      JOIN m_reservation r ON rs2.m_reservation_id = r.m_reservation_id
+-                    WHERE r.m_product_id = v_product_id
+-                      AND r.res_status NOT IN ('CL', 'DR')
+-                      AND r.c_uom_id = v_uom_id
+-                    GROUP BY rs2.m_locator_id, COALESCE(rs2.m_attributesetinstance_id,'0')
+-                  ) other ON rs.m_locator_id = other.m_locator_id
+-                             AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(other.m_attributesetinstance_id, '0')
+-        WHERE rs.quantity - COALESCE(rs.releasedqty, 0) > COALESCE(sd.qtyonhand, 0) - COALESCE(other.reservedstock, 0)
++        WHERE rs.quantity - COALESCE(rs.releasedqty, 0) > sd.qtyonhand - sd.reservedqty
+           AND rs.m_reservation_id = v_reservation_id
+           AND rs.m_locator_id IS NOT NULL
+       ) LOOP
+diff --git a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+--- a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
++++ b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+@@ -34,13 +34,15 @@
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+-* All portions are Copyright (C) 2013 Openbravo SLU
++* All portions are Copyright (C) 2013-2014 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************/
+ 
+   v_ResultStr VARCHAR2(2000):='';
+   v_pendingtoreallocate  NUMBER;
++  v_Message 						VARCHAR2(2000):='';
++  v_Result						 NUMBER;
+   v_warehouse_id        VARCHAR2(32);
+   v_product_id          VARCHAR2(32);
+   v_uom_id              VARCHAR2(32);
+@@ -72,6 +74,11 @@
+   v_product_value       VARCHAR2(40);
+   v_locator_value       VARCHAR2(40);
+   v_uom_value           VARCHAR2(3);
++  v_attributesetinstance_id VARCHAR2(32);
++  v_warehouse_rule_id     VARCHAR2(32);
++
++  
++  v_pinstance_id          VARCHAR2(32) := get_uuid();
+ 
+   TYPE RECORD IS REF CURSOR;
+   cur_reserved_stock       RECORD;
+@@ -103,6 +110,9 @@
+       INTO v_attr_description
+     FROM M_AttributeSetInstance
+     WHERE M_AttributeSetInstance_ID = p_attributesetinstance_id;
++    v_attributesetinstance_id := p_attributesetinstance_id;
++  ELSE
++    v_attributesetinstance_id := '0';
+   END IF;
+ 
+   SELECT uomsymbol
+@@ -127,7 +137,7 @@
+     JOIN m_locator loc ON sd.m_locator_id = loc.m_locator_id
+   WHERE sd.m_product_id = v_product_id
+     AND sd.c_uom_id = v_uom_id
+-    AND COALESCE(sd.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
++    AND sd.m_attributesetinstance_id = v_attributesetinstance_id
+     AND sd.m_locator_id = p_locator_id;
+     
+   SELECT COALESCE(SUM(rs.quantity - COALESCE(rs.releasedqty, 0)), 0),
+@@ -141,11 +151,11 @@
+     AND r.res_status NOT IN ('CL', 'DR')
+     AND r.c_uom_id = v_uom_id
+     AND rs.m_locator_id = p_locator_id
+-    AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0');
++    AND rs.m_attributesetinstance_id = v_attributesetinstance_id;
+ 
+-  IF (COALESCE(v_dim_warehouse_id, v_warehouse_id) != v_warehouse_id
+-      OR COALESCE(v_dim_locator_id, p_locator_id) != p_locator_id
+-      OR COALESCE(v_dim_asi_id, p_attributesetinstance_id) != p_attributesetinstance_id) THEN
++  IF (COALESCE(v_dim_warehouse_id, v_warehouse_id) <> v_warehouse_id
++      OR COALESCE(v_dim_locator_id, p_locator_id) <> p_locator_id
++      OR COALESCE(v_dim_asi_id, v_attributesetinstance_id) <> v_attributesetinstance_id) THEN
+     RAISE_APPLICATION_ERROR(-20000, '@WrongStockDimensionMismatch@'||' @of@'||' @Product@: '||v_product_value||', @AttributeSetInstance@: '||COALESCE(v_attr_description, '-')||', @UOM@: '||v_uom_value||' @And@'||' @StorageBin@: '||COALESCE(v_locator_value, '-'));
+   END IF;
+ 
+@@ -194,8 +204,8 @@
+           FROM m_reservation_stock
+           WHERE m_reservation_id = p_reservation_id
+             AND isallocated = 'N'
+-            AND quantity != COALESCE(releasedqty,0)
+-            AND ((m_attributesetinstance_id != p_attributesetinstance_id OR m_attributesetinstance_id is null) OR m_locator_id != p_locator_id)
++            AND quantity <> COALESCE(releasedqty,0)
++            AND (m_attributesetinstance_id <> v_attributesetinstance_id OR m_locator_id <> p_locator_id)
+           ORDER BY quantity - COALESCE(releasedqty,0)
+       ) LOOP
+         v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+@@ -230,14 +240,14 @@
+              r.c_orderline_id
+       FROM m_reservation_stock rs
+           JOIN m_reservation r ON rs.m_reservation_id = r.m_reservation_id
+-      WHERE r.m_reservation_id != p_reservation_id
++      WHERE r.m_reservation_id <> p_reservation_id
+         AND r.m_product_id = v_product_id
+         AND r.c_uom_id = v_uom_id
+         AND rs.m_locator_id = p_locator_id
+-        AND COALESCE(rs.m_attributesetinstance_id, '0') = COALESCE(p_attributesetinstance_id, '0')
++        AND rs.m_attributesetinstance_id = v_attributesetinstance_id
+         AND rs.isallocated = 'N'
+         AND r.res_status NOT IN ('HO', 'CL', 'DR')
+-        AND rs.quantity != COALESCE(rs.releasedqty,0)
++        AND rs.quantity <> COALESCE(rs.releasedqty,0)
+   ) LOOP
+     v_qtytorelease := LEAST(v_pendingtoreallocate, cur_not_allocated_stock.quantity - cur_not_allocated_stock.releasedqty);
+     
+@@ -252,8 +262,8 @@
+           FROM m_reservation_stock
+           WHERE m_reservation_id = p_reservation_id
+             AND isallocated = 'N'
+-            AND ((m_attributesetinstance_id != p_attributesetinstance_id OR m_attributesetinstance_id is null) OR m_locator_id != p_locator_id)
+-            AND quantity != COALESCE(releasedqty,0)
++            AND (m_attributesetinstance_id <> v_attributesetinstance_id OR m_locator_id <> p_locator_id)
++            AND quantity <> COALESCE(releasedqty,0)
+       ) LOOP
+ 
+         v_qtytounreserve_aux := LEAST(v_qtytounreserve, cur_reserved_stock.reservedqty);
+@@ -273,60 +283,26 @@
+     WHERE m_reservation_stock_id = cur_not_allocated_stock.m_reservation_stock_id;
+       
+     M_RESERVE_STOCK_MANUAL(p_reservation_id, 'SD', v_storage_detail_id, v_qtytorelease, p_user_id, 'N', v_res_stock_id);
+-
++    IF (cur_not_allocated_stock.c_orderline_id IS NOT NULL) THEN
++      SELECT m_warehouse_rule_id INTO v_warehouse_rule_id
++      FROM c_orderline
++      WHERE c_orderline_id = cur_not_allocated_stock.c_orderline_id;
++    END IF;
+     -- Call get stock to check availability
+-    DECLARE
+-      v_pinstance_result      AD_PInstance.result%TYPE;
+-      v_pinstance_msg         AD_PInstance.errormsg%TYPE;
+-      v_warehouse_rule_id     VARCHAR2(32);
+-      v_pinstance_id          VARCHAR2(32) := get_uuid();
+-    BEGIN
+-      INSERT INTO ad_pinstance (
+-          ad_pinstance_id, ad_process_id, record_id, isactive, 
+-          ad_user_id, ad_client_id, ad_org_id, created, createdby,
+-          updated, updatedby
+-      ) VALUES (
+-          v_pinstance_id, 'FF80818132C964E30132C9747257002E', p_reservation_id, 'Y',
+-          p_User_ID, cur_not_allocated_stock.ad_client_id, cur_not_allocated_stock.ad_Org_ID, now(), p_user_ID,
+-          now(), p_user_ID
+-      );
+-  
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '10', 'AD_Client_ID', cur_not_allocated_stock.ad_client_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '20', 'AD_Org_ID', cur_not_allocated_stock.ad_org_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '30', 'M_Product_ID', cur_not_allocated_stock.m_product_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '40', 'C_Uom_ID', cur_not_allocated_stock.c_uom_id, null, null, null, null, null);
+-      --AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '50', 'M_Product_Uom_ID', v_Product_UOM_old, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'M_Warehouse_ID', cur_not_allocated_stock.m_warehouse_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '70', 'M_Locator_ID', cur_not_allocated_stock.m_locator_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '80', 'M_AttributesetInstance_ID', cur_not_allocated_stock.m_attributesetinstance_id, null, null, null, null, null);
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'Quantity', null, null, v_qtytorelease, null, null, null);
+-      /*
+-      * ADD PROPER PROCESS ID!
+-      */
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '100', 'ProcessID', '---', null, null, null, null, null);
+-  
+-      IF (cur_not_allocated_stock.c_orderline_id IS NOT NULL) THEN
+-        SELECT m_warehouse_rule_id INTO v_warehouse_rule_id
+-        FROM c_orderline
+-        WHERE c_orderline_id = cur_not_allocated_stock.c_orderline_id;
+-        AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '110', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
+-      END IF;
+-  
+-      M_GET_STOCK(v_pinstance_ID, 'N');
+-      -- Check result
+-      SELECT result, errormsg
+-        INTO v_pinstance_result, v_pinstance_msg
+-      FROM ad_pinstance
+-      WHERE ad_pinstance_id = v_pinstance_id;
+-      IF (v_pinstance_result = 0) THEN
+-        -- Error on m_get_stock
+-        RAISE_APPLICATION_ERROR(-20000, v_pinstance_msg);
+-      END IF;
+-      SELECT sum(quantity) INTO v_availablestock
+-      FROM m_stock_proposed
+-      WHERE ad_pinstance_id = v_pinstance_id;
+-    END; -- End Call M_GET_STOCK
+     
++    SELECT * INTO  v_Result, v_Message from m_get_stock_param(v_pinstance_ID, p_reservation_id, cur_not_allocated_stock.quantitytoreserve, 
++    cur_not_allocated_stock.m_product_id, cur_not_allocated_stock.m_locator_id, cur_not_allocated_stock.m_warehouse_id, 
++    null, cur_not_allocated_stock.ad_org_id, cur_not_allocated_stock.m_attributesetinstance_id,p_User_ID,cur_not_allocated_stock.ad_client_id, 
++    v_warehouse_rule_id, cur_not_allocated_stock.c_uom_id, null, null, null, null, '---',  null, 'N');
++    IF (v_Result = 0) THEN
++      -- Error on m_get_stock
++      RAISE_APPLICATION_ERROR(-20000, v_Message);
++    END IF;
++    SELECT sum(quantity) INTO v_availablestock
++    FROM m_stock_proposed
++    WHERE ad_pinstance_id = v_pinstance_id;
++    DELETE FROM m_stock_proposed
++    WHERE ad_pinstance_id = v_pinstance_id;
+     IF (v_availablestock >= v_qtytorelease) THEN
+       M_RESERVE_STOCK_AUTO(cur_not_allocated_stock.m_reservation_id, p_user_id, v_newreservedqty);
+       v_pendingtoreallocate := v_pendingtoreallocate - v_qtytorelease;
+diff --git a/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml b/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml
+--- a/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml
++++ b/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml
+@@ -69,43 +69,15 @@
+     v_pinstance_msg AD_PInstance.errormsg%TYPE;
+     v_warehouse_rule_id VARCHAR2(32);
+   BEGIN
+-    INSERT INTO ad_pinstance (
+-        ad_pinstance_id, ad_process_id, record_id, isactive, 
+-        ad_user_id, ad_client_id, ad_org_id, created, createdby,
+-        updated, updatedby
+-    ) VALUES (
+-        v_pinstance_id, 'FF80818132C964E30132C9747257002E', p_reservation_id, 'Y',
+-        p_User_ID, v_client_id, v_Org_ID, now(), p_user_ID,
+-        now(), p_user_ID
+-    );
+-
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '10', 'AD_Client_ID', v_client_id, null, null, null, null, null);
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '20', 'AD_Org_ID', v_org_id, null, null, null, null, null);
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '30', 'M_Product_ID', v_product_id, null, null, null, null, null);
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '40', 'C_Uom_ID', v_uom_id, null, null, null, null, null);
+-    --AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '50', 'M_Product_Uom_ID', v_Product_UOM_old, null, null, null, null, null);
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '60', 'M_Warehouse_ID', v_warehouse_id, null, null, null, null, null);
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '70', 'M_Locator_ID', v_locator_id, null, null, null, null, null);
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '80', 'M_AttributesetInstance_ID', v_asi_id, null, null, null, null, null);
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '90', 'Quantity', null, null, v_pendingtoreserveqty, null, null, null);
+-    /*
+-    * ADD PROPER PROCESS ID!
+-    */
+-    AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '100', 'ProcessID', '---', null, null, null, null, null);
+-
+     IF (v_soline_id IS NOT NULL) THEN
+       SELECT m_warehouse_rule_id INTO v_warehouse_rule_id
+       FROM c_orderline
+       WHERE c_orderline_id = v_soline_id;
+-      AD_PINSTANCE_PARA_INSERT(v_pinstance_id, '110', 'M_Warehouse_Rule_ID', v_warehouse_rule_id, null, null, null, null, null);
+     END IF;
+ 
+-    M_GET_STOCK(v_pinstance_ID, 'N');
++    SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_pinstance_id, p_reservation_id, v_pendingtoreserveqty, v_product_id, v_locator_id, v_warehouse_id, null, v_org_id, v_asi_id, p_User_ID,
++    v_client_id, v_warehouse_rule_id, v_uom_id, null, null, null, null, '---', null, 'N');
+     -- Check result
+-    SELECT result, errormsg
+-      INTO v_pinstance_result, v_pinstance_msg
+-    FROM ad_pinstance
+-    WHERE ad_pinstance_id = v_pinstance_id;
+     IF (v_pinstance_result = 0) THEN
+       -- Error on m_get_stock
+       RAISE_APPLICATION_ERROR(-20000, v_pinstance_msg);
+diff --git a/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml b/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
+--- a/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
++++ b/src-db/database/model/functions/M_RESERVE_STOCK_MANUAL.xml
+@@ -110,7 +110,7 @@
+     FROM m_reservation_stock
+     WHERE m_reservation_id = p_reservation_id
+       AND m_locator_id = v_locator_id
+-      AND COALESCE(m_attributesetinstance_id, '0') = COALESCE(v_asi_id, '0')
++      AND m_attributesetinstance_id = COALESCE(v_asi_id, '0')
+       AND isallocated = p_allocated;
+   ELSIF (p_type_id = 'PO') THEN
+     v_poline_id := p_stock_id;
+diff --git a/src-db/database/model/functions/M_UPDATE_INVENTORY.xml b/src-db/database/model/functions/M_UPDATE_INVENTORY.xml
+--- a/src-db/database/model/functions/M_UPDATE_INVENTORY.xml
++++ b/src-db/database/model/functions/M_UPDATE_INVENTORY.xml
+@@ -52,38 +52,39 @@
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+-* All portions are Copyright (C) 2001-2006 Openbravo SLU
++* All portions are Copyright (C) 2001-2014 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************/
+-  v_cuenta NUMBER;
+   v_count NUMBER;
+   v_qtyorder NUMBER;
+   v_preqtyorder NUMBER;
+   v_Storage_ID VARCHAR2(32);
++  v_attributesetinstance VARCHAR2(32);
+ 
+ BEGIN
+   v_qtyorder:=p_qtyorder;
+   v_preqtyorder:=p_preqtyorder;
+-  SELECT COUNT(*)
+-  INTO v_cuenta
++  v_attributesetinstance :=COALESCE(p_attributesetinstance,'0');
++  SELECT count(1)
++  INTO v_count
++  FROM DUAL WHERE EXISTS(
++  SELECT 1
+   FROM M_STORAGE_DETAIL
+   WHERE M_PRODUCT_ID=p_product
+     AND M_LOCATOR_ID=p_locator
+-    AND COALESCE(M_ATTRIBUTESETINSTANCE_ID, '0')=COALESCE(p_attributesetinstance, '0')
++    AND M_ATTRIBUTESETINSTANCE_ID=v_attributesetinstance
+     AND C_UOM_ID=p_uom
+-    AND COALESCE(M_PRODUCT_UOM_ID, '-1')=COALESCE(p_product_uom, '-1') ;
++    AND COALESCE(M_PRODUCT_UOM_ID, '-1')=COALESCE(p_product_uom, '-1'));
+   IF(p_product_uom IS NOT NULL) THEN
+     IF(v_qtyorder IS NULL) THEN
+       v_qtyorder:=0;
+     END IF;
+     IF(v_preqtyorder IS NULL) THEN
+       v_preqtyorder:=0;
+-
++    END IF;
+   END IF;
+-  END IF;
+-  IF(v_cuenta=0) THEN
+-    Ad_Sequence_Next('M_Storage_Detail', p_client, v_Storage_ID) ;
++  IF(v_count = 0) THEN
+     INSERT
+     INTO M_STORAGE_DETAIL
+       (
+@@ -95,9 +96,9 @@
+       )
+       VALUES
+       (
+-        v_Storage_ID, p_client, p_org, 'Y',
++        get_uuid(), p_client, p_org, 'Y',
+         now(), p_user, now(), p_user,
+-        p_product, p_locator, COALESCE(p_attributesetinstance, '0'), p_uom,
++        p_product, p_locator, v_attributesetinstance, p_uom,
+         p_product_uom, COALESCE(p_qty, 0), v_qtyorder, p_datelastinventory,
+         COALESCE(p_preqty, 0), v_preqtyorder
+       )
+@@ -115,7 +116,7 @@
+       UPDATEDBY=p_user
+     WHERE M_PRODUCT_ID=p_product
+       AND M_LOCATOR_ID=p_locator
+-      AND COALESCE(M_ATTRIBUTESETINSTANCE_ID, '0')=COALESCE(p_attributesetinstance, '0')
++      AND M_ATTRIBUTESETINSTANCE_ID=v_attributesetinstance
+       AND C_UOM_ID=p_uom
+       AND COALESCE(M_PRODUCT_UOM_ID, '-1')=COALESCE(p_product_uom, '-1') ;
+    
+@@ -124,7 +125,7 @@
+     FROM m_product p join m_attributeset aset ON p.m_attributeset_id = aset.m_attributeset_id 
+                      JOIN M_STORAGE_DETAIL SD ON SD.M_PRODUCT_ID=p.m_product_id
+             AND SD.M_LOCATOR_ID=p_locator
+-            AND COALESCE(SD.M_ATTRIBUTESETINSTANCE_ID, '0')=COALESCE(p_attributesetinstance, '0')
++            AND SD.M_ATTRIBUTESETINSTANCE_ID=v_attributesetinstance
+             AND SD.C_UOM_ID=p_uom
+             AND COALESCE(SD.M_PRODUCT_UOM_ID, '-1')=COALESCE(p_product_uom, '-1')
+     WHERE COALESCE(p.attrsetvaluetype, '-') <> 'F'
+diff --git a/src-db/database/model/tables/AD_EXTENSION_POINTS.xml b/src-db/database/model/tables/AD_EXTENSION_POINTS.xml
+--- a/src-db/database/model/tables/AD_EXTENSION_POINTS.xml
++++ b/src-db/database/model/tables/AD_EXTENSION_POINTS.xml
+@@ -33,7 +33,7 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
+-      <column name="DESCRIPTION" primaryKey="false" required="true" type="NVARCHAR" size="255" autoIncrement="false">
++      <column name="DESCRIPTION" primaryKey="false" required="true" type="NVARCHAR" size="2000" autoIncrement="false">
+         <default/>
+         <onCreateDefault/>
+       </column>
+diff --git a/src-db/database/model/tables/M_PRODUCT.xml b/src-db/database/model/tables/M_PRODUCT.xml
+--- a/src-db/database/model/tables/M_PRODUCT.xml
++++ b/src-db/database/model/tables/M_PRODUCT.xml
+@@ -437,10 +437,6 @@
+       <unique name="M_PRODUCT_RESOURCE">
+         <unique-column name="S_RESOURCE_ID"/>
+       </unique>
+-      <unique name="M_PRODUCT_VALUE">
+-        <unique-column name="AD_CLIENT_ID"/>
+-        <unique-column name="VALUE"/>
+-      </unique>
+       <check name="M_PRODUCT_ATSETVALTYPE_CHK"><![CDATA[(M_ATTRIBUTESETINSTANCE_ID IS NULL) OR (ATTRSETVALUETYPE IS NOT NULL)]]></check>
+       <check name="M_PRODUCT_DISCONTINUED_CHECK"><![CDATA[DISCONTINUED IN ('Y', 'N')]]></check>
+       <check name="M_PRODUCT_ENFORCE_ATTRIBUT_CHK"><![CDATA[ENFORCE_ATTRIBUTE IN ('Y', 'N')]]></check>
+diff --git a/src-db/database/model/tables/M_RESERVATION_STOCK.xml b/src-db/database/model/tables/M_RESERVATION_STOCK.xml
+--- a/src-db/database/model/tables/M_RESERVATION_STOCK.xml
++++ b/src-db/database/model/tables/M_RESERVATION_STOCK.xml
+@@ -53,9 +53,9 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
+-      <column name="M_ATTRIBUTESETINSTANCE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+-        <default/>
+-        <onCreateDefault/>
++      <column name="M_ATTRIBUTESETINSTANCE_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
++        <default><![CDATA[0]]></default>
++        <onCreateDefault><![CDATA['0']]></onCreateDefault>
+       </column>
+       <column name="RELEASEDQTY" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+         <default/>
+diff --git a/src-db/database/model/tables/M_STOCK_PROPOSED.xml b/src-db/database/model/tables/M_STOCK_PROPOSED.xml
+--- a/src-db/database/model/tables/M_STOCK_PROPOSED.xml
++++ b/src-db/database/model/tables/M_STOCK_PROPOSED.xml
+@@ -63,9 +63,6 @@
+       <foreign-key foreignTable="AD_ORG" name="AD_ORG_MSTOCKPROPOSED">
+         <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+       </foreign-key>
+-      <foreign-key foreignTable="AD_PINSTANCE" name="AD_PINSTANCE_MSTOCKPROPOSED" onDelete="cascade">
+-        <reference local="AD_PINSTANCE_ID" foreign="AD_PINSTANCE_ID"/>
+-      </foreign-key>
+       <foreign-key foreignTable="M_STORAGE_DETAIL" name="M_STORAGEDET_MSTOCKPROPOSED">
+         <reference local="M_STORAGE_DETAIL_ID" foreign="M_STORAGE_DETAIL_ID"/>
+       </foreign-key>
+diff --git a/src-db/database/model/tables/M_STORAGE_DETAIL.xml b/src-db/database/model/tables/M_STORAGE_DETAIL.xml
+--- a/src-db/database/model/tables/M_STORAGE_DETAIL.xml
++++ b/src-db/database/model/tables/M_STORAGE_DETAIL.xml
+@@ -9,9 +9,9 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
+-      <column name="M_ATTRIBUTESETINSTANCE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+-        <default/>
+-        <onCreateDefault/>
++      <column name="M_ATTRIBUTESETINSTANCE_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
++        <default><![CDATA[0]]></default>
++        <onCreateDefault><![CDATA['0']]></onCreateDefault>
+       </column>
+       <column name="C_UOM_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+         <default/>
+@@ -73,6 +73,14 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
++      <column name="RESERVEDQTY" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
++        <default><![CDATA[0]]></default>
++        <onCreateDefault/>
++      </column>
++      <column name="ALLOCATEDQTY" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
++        <default><![CDATA[0]]></default>
++        <onCreateDefault/>
++      </column>
+       <foreign-key foreignTable="AD_CLIENT" name="M_STORAGE_DETAIL_AD_CLIENT">
+         <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+       </foreign-key>
+@@ -103,6 +111,12 @@
+       <index name="M_STORAGE_DETAIL_UOM" unique="false">
+         <index-column name="C_UOM_ID"/>
+       </index>
++      <index name="M_STORAGEDET_QTYONHAND" unique="false">
++        <index-column name="QTYONHAND"/>
++      </index>
++      <index name="M_STORAGEDET_QTYORDERONHAND" unique="false">
++        <index-column name="QTYORDERONHAND"/>
++      </index>
+       <unique name="M_STORAGE_DETAIL_UN">
+         <unique-column name="M_PRODUCT_ID"/>
+         <unique-column name="M_LOCATOR_ID"/>
+diff --git a/src-db/database/model/tables/M_WAREHOUSE_RULE.xml b/src-db/database/model/tables/M_WAREHOUSE_RULE.xml
+--- a/src-db/database/model/tables/M_WAREHOUSE_RULE.xml
++++ b/src-db/database/model/tables/M_WAREHOUSE_RULE.xml
+@@ -45,6 +45,10 @@
+         <default/>
+         <onCreateDefault/>
+       </column>
++      <column name="TYPE" primaryKey="false" required="true" type="VARCHAR" size="60" autoIncrement="false">
++        <default><![CDATA[P]]></default>
++        <onCreateDefault><![CDATA['I']]></onCreateDefault>
++      </column>
+       <foreign-key foreignTable="AD_CLIENT" name="M_WAREHOUSE_RULE_CLIENT">
+         <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+       </foreign-key>
+diff --git a/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml b/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
+--- a/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
++++ b/src-db/database/model/triggers/M_RESERVATION_STOCK_TRG.xml
+@@ -21,8 +21,13 @@
+ ************************************************************************/
+   v_reservedqtydiff NUMBER:=0;
+   v_releasedqtydiff NUMBER:=0;
++  v_allocatedqtydiff NUMBER:=0;
+   v_reservation_id      VARCHAR2(32);
++  v_attributesetinstance_id      VARCHAR2(32);
++  v_locator_id      VARCHAR2(32);
+   v_resstatus       VARCHAR2(60);
++  v_m_product_id       VARCHAR2(60);
++  v_c_uom_id       VARCHAR2(60);
+   v_prd_name       VARCHAR2(60);
+   
+ BEGIN
+@@ -34,6 +39,11 @@
+     v_reservedqtydiff := COALESCE(:NEW.quantity, 0);
+     v_releasedqtydiff := COALESCE(:NEW.releasedqty, 0);
+     v_reservation_id := :NEW.m_reservation_id;
++    v_attributesetinstance_id := :NEW.m_attributesetinstance_id;
++    v_locator_id := :NEW.m_locator_id;
++    IF (:NEW.isallocated = 'Y') THEN
++      v_allocatedqtydiff := COALESCE(:NEW.quantity, 0) - v_releasedqtydiff;
++    END IF;
+     IF (:NEW.releasedqty > :NEW.quantity) THEN
+     Select name into v_prd_name from m_product where m_product_id in (select m_product_id from m_reservation where m_reservation_id=v_reservation_id);
+       RAISE NO_DATA_FOUND||v_prd_name;
+@@ -43,22 +53,37 @@
+   IF (UPDATING OR DELETING) THEN
+     v_reservedqtydiff := v_reservedqtydiff - COALESCE(:OLD.quantity, 0);
+     v_releasedqtydiff := v_releasedqtydiff - COALESCE(:OLD.releasedqty, 0);
++    IF (:OLD.isallocated = 'Y') THEN
++      v_allocatedqtydiff := v_allocatedqtydiff - COALESCE(:OLD.quantity, 0) + COALESCE(:OLD.releasedqty, 0);
++    END IF;
+     v_reservation_id := :OLD.m_reservation_id;
+   END IF;
+   
+   IF (DELETING) THEN
+-    SELECT res_status INTO v_resstatus
+-    FROM m_reservation
+-    WHERE m_reservation_id = :OLD.m_reservation_id;
+     IF (:OLD.releasedqty <> 0) THEN
+       RAISE_APPLICATION_ERROR(-20000, '@CannotDeleteReleasedReservation@');
+     END IF;
++    v_attributesetinstance_id := :OLD.m_attributesetinstance_id;
++    v_locator_id := :OLD.m_locator_id;
+   END IF;
+ 
+-  /*UPDATE m_reservation
+-  SET reservedqty = COALESCE(reservedqty, 0) + v_reservedqtydiff,
+-      releasedqty = COALESCE(releasedqty, 0) + v_releasedqtydiff
+-  WHERE m_reservation_id = v_reservation_id;*/
++  IF (v_reservedqtydiff <> 0 OR v_releasedqtydiff <> 0 or v_allocatedqtydiff <> 0) THEN
++         UPDATE m_reservation
++         SET reservedqty = COALESCE(reservedqty, 0) + v_reservedqtydiff,
++             releasedqty = COALESCE(releasedqty, 0) + v_releasedqtydiff
++         WHERE m_reservation_id = v_reservation_id;
++         SELECT res_status, m_product_id, c_uom_id INTO v_resstatus, v_m_product_id, v_c_uom_id FROM   m_reservation where m_reservation_id = v_reservation_id;
++         IF(v_resstatus <> 'DR') THEN
++                 UPDATE m_storage_detail
++                 SET reservedqty = reservedqty + v_reservedqtydiff - v_releasedqtydiff,
++                     allocatedqty = allocatedqty + v_allocatedqtydiff
++                 WHERE m_product_id = v_m_product_id
++                       AND m_product_uom_id IS NULL
++                       AND c_uom_id = v_c_uom_id
++                       AND m_locator_id = v_locator_id
++                       AND m_attributesetinstance_id = v_attributesetinstance_id;
++         END IF;
++  END IF;
+ END M_RESERVATION_STOCK_TRG
+ ]]></body>
+     </trigger>
+diff --git a/src-db/database/model/triggers/M_RESERVATION_TRG.xml b/src-db/database/model/triggers/M_RESERVATION_TRG.xml
+--- a/src-db/database/model/triggers/M_RESERVATION_TRG.xml
++++ b/src-db/database/model/triggers/M_RESERVATION_TRG.xml
+@@ -28,6 +28,9 @@
+   v_dummy               VARCHAR2(2000);
+   v_productname         m_product.name%TYPE;
+   v_isgeneric           CHAR(1);
++  -- Parameter
++  TYPE RECORD IS REF CURSOR;
++  cur_reservationstock 				RECORD;
+ BEGIN
+   IF (AD_isTriggerEnabled()='N') THEN
+     RETURN;
+@@ -45,7 +48,7 @@
+ 
+   END IF;
+ 
+-  IF (INSERTING OR UPDATING) THEN
++  IF (INSERTING OR (UPDATING AND (:NEW.quantity <> :old.quantity OR :NEW.reservedqty <> :OLD.reservedqty))) THEN
+     IF (:NEW.res_status NOT IN ('DR', 'CL') AND :NEW.c_orderline_id IS NOT NULL) THEN
+       UPDATE c_orderline
+       SET so_res_status = CASE WHEN :NEW.quantity = :NEW.reservedqty THEN 'CR'
+@@ -74,8 +77,51 @@
+     END IF;
+   END IF;
+ 
++  IF (UPDATING) THEN
++    IF (:OLD.res_status = 'DR' AND :NEW.res_status <> 'DR') THEN
++      FOR cur_reservationstock IN (
++	      select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id, SUM(rs.quantity - coalesce(rs.releasedqty,0)) as reservedqty, 
++				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - coalesce(rs.releasedqty,0)) ELSE 0 END) as allocatedqty
++				from m_reservation r, m_reservation_stock rs
++				where r.m_reservation_id = :NEW.m_reservation_id
++				and r.m_reservation_id = rs.m_reservation_id
++				group by r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id
++      )
++      LOOP
++			  UPDATE m_storage_detail
++			  SET reservedqty = reservedqty + cur_reservationstock.reservedqty,
++			      allocatedqty = allocatedqty + cur_reservationstock.allocatedqty
++			  WHERE m_product_id = cur_reservationstock.m_product_id
++				AND m_product_uom_id IS NULL
++				AND c_uom_id = cur_reservationstock.c_uom_id
++				AND m_locator_id = cur_reservationstock.m_locator_id
++				AND m_attributesetinstance_id = cur_reservationstock.m_attributesetinstance_id;
++      END LOOP;
++    END IF;
++    IF (:OLD.res_status <> 'DR' AND :NEW.res_status = 'DR') THEN
++      FOR cur_reservationstock IN (
++	      select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id, SUM(rs.quantity - coalesce(rs.releasedqty,0)) as reservedqty, 
++				SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - coalesce(rs.releasedqty,0)) ELSE 0 END) as allocatedqty
++				from m_reservation r, m_reservation_stock rs
++				where r.m_reservation_id = :NEW.m_reservation_id
++				and r.m_reservation_id = rs.m_reservation_id
++				group by r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id
++      )
++      LOOP
++			  UPDATE m_storage_detail
++			  SET reservedqty = reservedqty - cur_reservationstock.reservedqty,
++			      allocatedqty = allocatedqty - cur_reservationstock.allocatedqty
++			  WHERE m_product_id = cur_reservationstock.m_product_id
++				AND m_product_uom_id IS NULL
++				AND c_uom_id = cur_reservationstock.c_uom_id
++				AND m_locator_id = cur_reservationstock.m_locator_id
++				AND m_attributesetinstance_id = cur_reservationstock.m_attributesetinstance_id;
++      END LOOP;
++    END IF;
++  END IF;
++
+   IF (DELETING) THEN
+-    IF (:OLD.res_status != 'DR') THEN
++    IF (:OLD.res_status <> 'DR') THEN
+       RAISE_APPLICATION_ERROR(-20000, '@DocumentProcessed@');
+     ELSIF (:OLD.releasedqty <> 0) THEN
+       RAISE_APPLICATION_ERROR(-20000, '@CannotDeleteReleasedReservation@');
+diff --git a/src-db/database/sourcedata/AD_COLUMN.xml b/src-db/database/sourcedata/AD_COLUMN.xml
+--- a/src-db/database/sourcedata/AD_COLUMN.xml
++++ b/src-db/database/sourcedata/AD_COLUMN.xml
+@@ -250958,6 +250958,45 @@
+ <!--5B04E3CC29ED3D9EE040007F01007E8D-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
+ <!--5B04E3CC29ED3D9EE040007F01007E8D--></AD_COLUMN>
+ 
++<!--5B12293ED6644491AB3E7DED061C6201--><AD_COLUMN>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_COLUMN_ID><![CDATA[5B12293ED6644491AB3E7DED061C6201]]></AD_COLUMN_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <NAME><![CDATA[Type]]></NAME>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <DESCRIPTION><![CDATA[Defines the type of procedure to be used]]></DESCRIPTION>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <HELP><![CDATA[There are two types:
++- Parameter: This is the one which should be used by default. It receives parameters directly avoiding to use PInstance infrastructure to get performance improvements.
++- PInstance: Deprecated. This was the old way of defining warehouse rules. It was receiving parameters via PInstance para and that was causing performance issues.]]></HELP>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <COLUMNNAME><![CDATA[Type]]></COLUMNNAME>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_TABLE_ID><![CDATA[8D057FD1218B44C3BD5B97DA65A6E3C1]]></AD_TABLE_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_REFERENCE_ID><![CDATA[17]]></AD_REFERENCE_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_REFERENCE_VALUE_ID><![CDATA[511000BCCFAF486CBC76A5B8CEEDCE38]]></AD_REFERENCE_VALUE_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <FIELDLENGTH><![CDATA[60]]></FIELDLENGTH>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <DEFAULTVALUE><![CDATA[P]]></DEFAULTVALUE>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <SEQNO><![CDATA[150]]></SEQNO>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_ELEMENT_ID><![CDATA[67B484CD6E3F425AB3D97E0E4585852D]]></AD_ELEMENT_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <POSITION><![CDATA[12]]></POSITION>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--5B12293ED6644491AB3E7DED061C6201-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--5B12293ED6644491AB3E7DED061C6201--></AD_COLUMN>
++
+ <!--5B37FBD77A2C47A6804C6E8E1A340561--><AD_COLUMN>
+ <!--5B37FBD77A2C47A6804C6E8E1A340561-->  <AD_COLUMN_ID><![CDATA[5B37FBD77A2C47A6804C6E8E1A340561]]></AD_COLUMN_ID>
+ <!--5B37FBD77A2C47A6804C6E8E1A340561-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -260943,8 +260982,8 @@
+ <!--6F61A8993BCB5E52E040007F01005AF5-->  <HELP><![CDATA[A description is limited to 255 characters.]]></HELP>
+ <!--6F61A8993BCB5E52E040007F01005AF5-->  <COLUMNNAME><![CDATA[Description]]></COLUMNNAME>
+ <!--6F61A8993BCB5E52E040007F01005AF5-->  <AD_TABLE_ID><![CDATA[579B46D6525A42DC94E6BD5B5DBA26BC]]></AD_TABLE_ID>
+-<!--6F61A8993BCB5E52E040007F01005AF5-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
+-<!--6F61A8993BCB5E52E040007F01005AF5-->  <FIELDLENGTH><![CDATA[255]]></FIELDLENGTH>
++<!--6F61A8993BCB5E52E040007F01005AF5-->  <AD_REFERENCE_ID><![CDATA[14]]></AD_REFERENCE_ID>
++<!--6F61A8993BCB5E52E040007F01005AF5-->  <FIELDLENGTH><![CDATA[2000]]></FIELDLENGTH>
+ <!--6F61A8993BCB5E52E040007F01005AF5-->  <ISKEY><![CDATA[N]]></ISKEY>
+ <!--6F61A8993BCB5E52E040007F01005AF5-->  <ISPARENT><![CDATA[N]]></ISPARENT>
+ <!--6F61A8993BCB5E52E040007F01005AF5-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
+@@ -302632,6 +302671,40 @@
+ <!--B3C02955628E4062B7188BBD356F1AD6-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
+ <!--B3C02955628E4062B7188BBD356F1AD6--></AD_COLUMN>
+ 
++<!--B3CEFA886AC24D6E87AF85B8B7D56888--><AD_COLUMN>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <AD_COLUMN_ID><![CDATA[B3CEFA886AC24D6E87AF85B8B7D56888]]></AD_COLUMN_ID>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <NAME><![CDATA[AllocatedQuantity]]></NAME>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <COLUMNNAME><![CDATA[AllocatedQty]]></COLUMNNAME>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <AD_TABLE_ID><![CDATA[800036]]></AD_TABLE_ID>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <AD_REFERENCE_ID><![CDATA[29]]></AD_REFERENCE_ID>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <FIELDLENGTH><![CDATA[2]]></FIELDLENGTH>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <DEFAULTVALUE><![CDATA[0]]></DEFAULTVALUE>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <SEQNO><![CDATA[200]]></SEQNO>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <AD_ELEMENT_ID><![CDATA[1E5CB7185CF94CC595BDB2A1C2129C75]]></AD_ELEMENT_ID>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <POSITION><![CDATA[20]]></POSITION>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--B3CEFA886AC24D6E87AF85B8B7D56888--></AD_COLUMN>
++
+ <!--B40C56E6339AA169E040A8C091661452--><AD_COLUMN>
+ <!--B40C56E6339AA169E040A8C091661452-->  <AD_COLUMN_ID><![CDATA[B40C56E6339AA169E040A8C091661452]]></AD_COLUMN_ID>
+ <!--B40C56E6339AA169E040A8C091661452-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -303025,10 +303098,10 @@
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <HELP><![CDATA[Process Instance identifies the instance of a process. Every time a process is executed a new instance of it is created.]]></HELP>
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <COLUMNNAME><![CDATA[AD_Pinstance_ID]]></COLUMNNAME>
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <AD_TABLE_ID><![CDATA[FF80818132C964E30132C968F45B0008]]></AD_TABLE_ID>
+-<!--B6515412FD584EE5BE86529CAA4FE52D-->  <AD_REFERENCE_ID><![CDATA[19]]></AD_REFERENCE_ID>
++<!--B6515412FD584EE5BE86529CAA4FE52D-->  <AD_REFERENCE_ID><![CDATA[10]]></AD_REFERENCE_ID>
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <FIELDLENGTH><![CDATA[32]]></FIELDLENGTH>
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <ISKEY><![CDATA[N]]></ISKEY>
+-<!--B6515412FD584EE5BE86529CAA4FE52D-->  <ISPARENT><![CDATA[Y]]></ISPARENT>
++<!--B6515412FD584EE5BE86529CAA4FE52D-->  <ISPARENT><![CDATA[N]]></ISPARENT>
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <ISUPDATEABLE><![CDATA[N]]></ISUPDATEABLE>
+ <!--B6515412FD584EE5BE86529CAA4FE52D-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
+@@ -303515,6 +303588,41 @@
+ <!--B6CF9A78D1624E31B887969621DB25F4-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
+ <!--B6CF9A78D1624E31B887969621DB25F4--></AD_COLUMN>
+ 
++<!--B6E9298FE2BC4510A319F2C2196FA772--><AD_COLUMN>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <AD_COLUMN_ID><![CDATA[B6E9298FE2BC4510A319F2C2196FA772]]></AD_COLUMN_ID>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <NAME><![CDATA[Reserved Qty]]></NAME>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <HELP><![CDATA[Represents the total quantity reserved to fulfill the reservation. It cannot be higher than the pending quantity.]]></HELP>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <COLUMNNAME><![CDATA[ReservedQty]]></COLUMNNAME>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <AD_TABLE_ID><![CDATA[800036]]></AD_TABLE_ID>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <AD_REFERENCE_ID><![CDATA[29]]></AD_REFERENCE_ID>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <FIELDLENGTH><![CDATA[2]]></FIELDLENGTH>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <DEFAULTVALUE><![CDATA[0]]></DEFAULTVALUE>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISKEY><![CDATA[N]]></ISKEY>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISPARENT><![CDATA[N]]></ISPARENT>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISMANDATORY><![CDATA[Y]]></ISMANDATORY>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISUPDATEABLE><![CDATA[Y]]></ISUPDATEABLE>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISIDENTIFIER><![CDATA[N]]></ISIDENTIFIER>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <SEQNO><![CDATA[190]]></SEQNO>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISTRANSLATED><![CDATA[N]]></ISTRANSLATED>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISSELECTIONCOLUMN><![CDATA[N]]></ISSELECTIONCOLUMN>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <AD_ELEMENT_ID><![CDATA[CABF113EC59AA4EFE040007F010017BB]]></AD_ELEMENT_ID>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISSESSIONATTR><![CDATA[N]]></ISSESSIONATTR>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISSECONDARYKEY><![CDATA[N]]></ISSECONDARYKEY>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <POSITION><![CDATA[19]]></POSITION>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <IMAGESIZEVALUESACTION><![CDATA[N]]></IMAGESIZEVALUESACTION>
++<!--B6E9298FE2BC4510A319F2C2196FA772-->  <ISUSEDSEQUENCE><![CDATA[N]]></ISUSEDSEQUENCE>
++<!--B6E9298FE2BC4510A319F2C2196FA772--></AD_COLUMN>
++
+ <!--B6ED6056952048FE9080441B05FD8BD8--><AD_COLUMN>
+ <!--B6ED6056952048FE9080441B05FD8BD8-->  <AD_COLUMN_ID><![CDATA[B6ED6056952048FE9080441B05FD8BD8]]></AD_COLUMN_ID>
+ <!--B6ED6056952048FE9080441B05FD8BD8-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -312502,7 +312610,7 @@
+ <!--CB8AA603D65152F6E040007F01002AD2-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
+ <!--CB8AA603D65152F6E040007F01002AD2-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+ <!--CB8AA603D65152F6E040007F01002AD2-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+-<!--CB8AA603D65152F6E040007F01002AD2-->  <POSITION><![CDATA[11]]></POSITION>
++<!--CB8AA603D65152F6E040007F01002AD2-->  <POSITION><![CDATA[10]]></POSITION>
+ <!--CB8AA603D65152F6E040007F01002AD2-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
+ <!--CB8AA603D65152F6E040007F01002AD2-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
+ <!--CB8AA603D65152F6E040007F01002AD2-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
+@@ -312571,7 +312679,7 @@
+ <!--CB9E2FD2CC3EDE61E040007F010001E1-->  <ISDESENCRYPTABLE><![CDATA[N]]></ISDESENCRYPTABLE>
+ <!--CB9E2FD2CC3EDE61E040007F010001E1-->  <DEVELOPMENTSTATUS><![CDATA[RE]]></DEVELOPMENTSTATUS>
+ <!--CB9E2FD2CC3EDE61E040007F010001E1-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+-<!--CB9E2FD2CC3EDE61E040007F010001E1-->  <POSITION><![CDATA[13]]></POSITION>
++<!--CB9E2FD2CC3EDE61E040007F010001E1-->  <POSITION><![CDATA[11]]></POSITION>
+ <!--CB9E2FD2CC3EDE61E040007F010001E1-->  <ISTRANSIENT><![CDATA[N]]></ISTRANSIENT>
+ <!--CB9E2FD2CC3EDE61E040007F010001E1-->  <ISAUTOSAVE><![CDATA[Y]]></ISAUTOSAVE>
+ <!--CB9E2FD2CC3EDE61E040007F010001E1-->  <VALIDATEONNEW><![CDATA[Y]]></VALIDATEONNEW>
+diff --git a/src-db/database/sourcedata/AD_ELEMENT.xml b/src-db/database/sourcedata/AD_ELEMENT.xml
+--- a/src-db/database/sourcedata/AD_ELEMENT.xml
++++ b/src-db/database/sourcedata/AD_ELEMENT.xml
+@@ -21197,6 +21197,18 @@
+ <!--1E09C68B2939415897A5BC5BC7321AB2-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
+ <!--1E09C68B2939415897A5BC5BC7321AB2--></AD_ELEMENT>
+ 
++<!--1E5CB7185CF94CC595BDB2A1C2129C75--><AD_ELEMENT>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <AD_ELEMENT_ID><![CDATA[1E5CB7185CF94CC595BDB2A1C2129C75]]></AD_ELEMENT_ID>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <COLUMNNAME><![CDATA[AllocatedQty]]></COLUMNNAME>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <NAME><![CDATA[AllocatedQuantity]]></NAME>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <PRINTNAME><![CDATA[AllocatedQuantity]]></PRINTNAME>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
++<!--1E5CB7185CF94CC595BDB2A1C2129C75--></AD_ELEMENT>
++
+ <!--204EED0BC11646F083B7E226CA5E5667--><AD_ELEMENT>
+ <!--204EED0BC11646F083B7E226CA5E5667-->  <AD_ELEMENT_ID><![CDATA[204EED0BC11646F083B7E226CA5E5667]]></AD_ELEMENT_ID>
+ <!--204EED0BC11646F083B7E226CA5E5667-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -25231,6 +25243,22 @@
+ <!--66E1860A46E045D4BD7F018323FA10D4-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
+ <!--66E1860A46E045D4BD7F018323FA10D4--></AD_ELEMENT>
+ 
++<!--67B484CD6E3F425AB3D97E0E4585852D--><AD_ELEMENT>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <AD_ELEMENT_ID><![CDATA[67B484CD6E3F425AB3D97E0E4585852D]]></AD_ELEMENT_ID>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <COLUMNNAME><![CDATA[type]]></COLUMNNAME>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <NAME><![CDATA[Warehouse Rule Type]]></NAME>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <PRINTNAME><![CDATA[Warehouse Rule Type]]></PRINTNAME>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <DESCRIPTION><![CDATA[Defines the type of procedure to be used]]></DESCRIPTION>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <HELP><![CDATA[There are two types:
++- Parameter: This is the one which should be used by default. It receives parameters directly avoiding to use PInstance infrastructure to get performance improvements.
++- PInstance: Deprecated. This was the old way of defining warehouse rules. It was receiving parameters via PInstance para and that was causing performance issues.]]></HELP>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--67B484CD6E3F425AB3D97E0E4585852D-->  <ISGLOSSARY><![CDATA[N]]></ISGLOSSARY>
++<!--67B484CD6E3F425AB3D97E0E4585852D--></AD_ELEMENT>
++
+ <!--682633A6E6A89D31E040007F010061E4--><AD_ELEMENT>
+ <!--682633A6E6A89D31E040007F010061E4-->  <AD_ELEMENT_ID><![CDATA[682633A6E6A89D31E040007F010061E4]]></AD_ELEMENT_ID>
+ <!--682633A6E6A89D31E040007F010061E4-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src-db/database/sourcedata/AD_EXTENSION_POINTS.xml b/src-db/database/sourcedata/AD_EXTENSION_POINTS.xml
+--- a/src-db/database/sourcedata/AD_EXTENSION_POINTS.xml
++++ b/src-db/database/sourcedata/AD_EXTENSION_POINTS.xml
+@@ -70,6 +70,16 @@
+ <!--830A9E22114C4322BBD2144C215C85E4-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--830A9E22114C4322BBD2144C215C85E4--></AD_EXTENSION_POINTS>
+ 
++<!--931282171E0E4E07A946AD80D9A16E08--><AD_EXTENSION_POINTS>
++<!--931282171E0E4E07A946AD80D9A16E08-->  <AD_EXTENSION_POINTS_ID><![CDATA[931282171E0E4E07A946AD80D9A16E08]]></AD_EXTENSION_POINTS_ID>
++<!--931282171E0E4E07A946AD80D9A16E08-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--931282171E0E4E07A946AD80D9A16E08-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--931282171E0E4E07A946AD80D9A16E08-->  <NAME><![CDATA[M_Get_Stock - Finish Process]]></NAME>
++<!--931282171E0E4E07A946AD80D9A16E08-->  <DESCRIPTION><![CDATA[Extension point at the end of the M_Get_Stock. It has 16 available IN parameters: AD_Pinstance_Stock_ID, Record_ID, User, AD_Client_ID, AD_Org_ID, M_Product_ID, C_Uom_ID, M_Product_Uom_ID, M_Warehouse_ID, M_Locator_ID, M_AttributesetInstance_ID, Quantity, Priority_Warehouse_ID, M_Warehouse_Rule_ID, TableId,  AuxID, LineNo, M_Reservation_ID. It also returns 2 OUT parameters: Result and Message.]]></DESCRIPTION>
++<!--931282171E0E4E07A946AD80D9A16E08-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--931282171E0E4E07A946AD80D9A16E08-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--931282171E0E4E07A946AD80D9A16E08--></AD_EXTENSION_POINTS>
++
+ <!--C3A4ABF2DF544F4694142DA9E79495F7--><AD_EXTENSION_POINTS>
+ <!--C3A4ABF2DF544F4694142DA9E79495F7-->  <AD_EXTENSION_POINTS_ID><![CDATA[C3A4ABF2DF544F4694142DA9E79495F7]]></AD_EXTENSION_POINTS_ID>
+ <!--C3A4ABF2DF544F4694142DA9E79495F7-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -164,7 +174,7 @@
+ <!--FF80818132FDD74F0132FDF278430029-->  <AD_EXTENSION_POINTS_ID><![CDATA[FF80818132FDD74F0132FDF278430029]]></AD_EXTENSION_POINTS_ID>
+ <!--FF80818132FDD74F0132FDF278430029-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+ <!--FF80818132FDD74F0132FDF278430029-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+-<!--FF80818132FDD74F0132FDF278430029-->  <NAME><![CDATA[M_Get_Stock - Finish Process]]></NAME>
++<!--FF80818132FDD74F0132FDF278430029-->  <NAME><![CDATA[M_Get_Stock - Finish Process - Deprecated]]></NAME>
+ <!--FF80818132FDD74F0132FDF278430029-->  <DESCRIPTION><![CDATA[Extension point at the end of the M_Get_Stock. It has 4 available parameters AD_Pinstance_Stock_ID, Record_ID, User, Message]]></DESCRIPTION>
+ <!--FF80818132FDD74F0132FDF278430029-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--FF80818132FDD74F0132FDF278430029-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+diff --git a/src-db/database/sourcedata/AD_FIELD.xml b/src-db/database/sourcedata/AD_FIELD.xml
+--- a/src-db/database/sourcedata/AD_FIELD.xml
++++ b/src-db/database/sourcedata/AD_FIELD.xml
+@@ -265791,7 +265791,7 @@
+ <!--CB9E2FD2CC3FDE61E040007F010001E1-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
+ <!--CB9E2FD2CC3FDE61E040007F010001E1-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--CB9E2FD2CC3FDE61E040007F010001E1-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
+-<!--CB9E2FD2CC3FDE61E040007F010001E1-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--CB9E2FD2CC3FDE61E040007F010001E1-->  <STARTNEWLINE><![CDATA[Y]]></STARTNEWLINE>
+ <!--CB9E2FD2CC3FDE61E040007F010001E1-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
+ <!--CB9E2FD2CC3FDE61E040007F010001E1-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--CB9E2FD2CC3FDE61E040007F010001E1--></AD_FIELD>
+@@ -284214,6 +284214,36 @@
+ <!--FD024E09243E483892DCE48562AD1597-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
+ <!--FD024E09243E483892DCE48562AD1597--></AD_FIELD>
+ 
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF--><AD_FIELD>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_FIELD_ID><![CDATA[FD1FAD5E33A345A4A61E64304C7CC3DF]]></AD_FIELD_ID>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <NAME><![CDATA[Warehouse Rule Type]]></NAME>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <DESCRIPTION><![CDATA[Defines the type of procedure to be used]]></DESCRIPTION>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <HELP><![CDATA[There are two types:
++- Parameter: This is the one which should be used by default. It receives parameters directly avoiding to use PInstance infrastructure to get performance improvements.
++- PInstance: Deprecated. This was the old way of defining warehouse rules. It was receiving parameters via PInstance para and that was causing performance issues.]]></HELP>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISCENTRALLYMAINTAINED><![CDATA[Y]]></ISCENTRALLYMAINTAINED>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_TAB_ID><![CDATA[8A7BC392A4D548E1B97E11548E20E5F2]]></AD_TAB_ID>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_COLUMN_ID><![CDATA[5B12293ED6644491AB3E7DED061C6201]]></AD_COLUMN_ID>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <IGNOREINWAD><![CDATA[N]]></IGNOREINWAD>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISDISPLAYED><![CDATA[Y]]></ISDISPLAYED>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <DISPLAYLENGTH><![CDATA[60]]></DISPLAYLENGTH>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISREADONLY><![CDATA[N]]></ISREADONLY>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <SEQNO><![CDATA[25]]></SEQNO>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISSAMELINE><![CDATA[N]]></ISSAMELINE>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISFIELDONLY><![CDATA[N]]></ISFIELDONLY>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISENCRYPTED><![CDATA[N]]></ISENCRYPTED>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <SHOWINRELATION><![CDATA[N]]></SHOWINRELATION>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISFIRSTFOCUSEDFIELD><![CDATA[N]]></ISFIRSTFOCUSEDFIELD>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <STARTINODDCOLUMN><![CDATA[N]]></STARTINODDCOLUMN>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <STARTNEWLINE><![CDATA[N]]></STARTNEWLINE>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <ISSHOWNINSTATUSBAR><![CDATA[N]]></ISSHOWNINSTATUSBAR>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF-->  <EM_OBUIAPP_SHOWSUMMARY><![CDATA[N]]></EM_OBUIAPP_SHOWSUMMARY>
++<!--FD1FAD5E33A345A4A61E64304C7CC3DF--></AD_FIELD>
++
+ <!--FD339410474C47CEBEC6D4071EF8FB4A--><AD_FIELD>
+ <!--FD339410474C47CEBEC6D4071EF8FB4A-->  <AD_FIELD_ID><![CDATA[FD339410474C47CEBEC6D4071EF8FB4A]]></AD_FIELD_ID>
+ <!--FD339410474C47CEBEC6D4071EF8FB4A-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src-db/database/sourcedata/AD_REFERENCE.xml b/src-db/database/sourcedata/AD_REFERENCE.xml
+--- a/src-db/database/sourcedata/AD_REFERENCE.xml
++++ b/src-db/database/sourcedata/AD_REFERENCE.xml
+@@ -4980,6 +4980,18 @@
+ <!--4FE370EC4A194C0EA1AE50D91B8CCD1B-->  <ISVALUEDISPLAYED><![CDATA[N]]></ISVALUEDISPLAYED>
+ <!--4FE370EC4A194C0EA1AE50D91B8CCD1B--></AD_REFERENCE>
+ 
++<!--511000BCCFAF486CBC76A5B8CEEDCE38--><AD_REFERENCE>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <AD_REFERENCE_ID><![CDATA[511000BCCFAF486CBC76A5B8CEEDCE38]]></AD_REFERENCE_ID>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <NAME><![CDATA[Warehouse Rule Type]]></NAME>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <ISBASEREFERENCE><![CDATA[N]]></ISBASEREFERENCE>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <PARENTREFERENCE_ID><![CDATA[17]]></PARENTREFERENCE_ID>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38-->  <ISVALUEDISPLAYED><![CDATA[N]]></ISVALUEDISPLAYED>
++<!--511000BCCFAF486CBC76A5B8CEEDCE38--></AD_REFERENCE>
++
+ <!--531F166E5A7C437F9438A94AD8DDF212--><AD_REFERENCE>
+ <!--531F166E5A7C437F9438A94AD8DDF212-->  <AD_REFERENCE_ID><![CDATA[531F166E5A7C437F9438A94AD8DDF212]]></AD_REFERENCE_ID>
+ <!--531F166E5A7C437F9438A94AD8DDF212-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src-db/database/sourcedata/AD_REF_LIST.xml b/src-db/database/sourcedata/AD_REF_LIST.xml
+--- a/src-db/database/sourcedata/AD_REF_LIST.xml
++++ b/src-db/database/sourcedata/AD_REF_LIST.xml
+@@ -8196,6 +8196,18 @@
+ <!--0F8100DC1DF74E94879D551E1E3194BC-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--0F8100DC1DF74E94879D551E1E3194BC--></AD_REF_LIST>
+ 
++<!--0FF10A84A9DB4C7F893977C16E5F234B--><AD_REF_LIST>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <AD_REF_LIST_ID><![CDATA[0FF10A84A9DB4C7F893977C16E5F234B]]></AD_REF_LIST_ID>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <VALUE><![CDATA[P]]></VALUE>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <NAME><![CDATA[Parameter]]></NAME>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <AD_REFERENCE_ID><![CDATA[511000BCCFAF486CBC76A5B8CEEDCE38]]></AD_REFERENCE_ID>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--0FF10A84A9DB4C7F893977C16E5F234B-->  <SEQNO><![CDATA[10]]></SEQNO>
++<!--0FF10A84A9DB4C7F893977C16E5F234B--></AD_REF_LIST>
++
+ <!--103282B22851417DB0CD6541D9FCBCF0--><AD_REF_LIST>
+ <!--103282B22851417DB0CD6541D9FCBCF0-->  <AD_REF_LIST_ID><![CDATA[103282B22851417DB0CD6541D9FCBCF0]]></AD_REF_LIST_ID>
+ <!--103282B22851417DB0CD6541D9FCBCF0-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -12089,6 +12101,19 @@
+ <!--E249380AE2814BC7B0E5B8F267F387AC-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
+ <!--E249380AE2814BC7B0E5B8F267F387AC--></AD_REF_LIST>
+ 
++<!--E292108DE6CC4E5EBACA042EB45ECEF4--><AD_REF_LIST>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <AD_REF_LIST_ID><![CDATA[E292108DE6CC4E5EBACA042EB45ECEF4]]></AD_REF_LIST_ID>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <ISACTIVE><![CDATA[N]]></ISACTIVE>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <VALUE><![CDATA[I]]></VALUE>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <NAME><![CDATA[PInstance]]></NAME>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <DESCRIPTION><![CDATA[This type is deprecated. Use parameter type to avoid performance problems]]></DESCRIPTION>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <AD_REFERENCE_ID><![CDATA[511000BCCFAF486CBC76A5B8CEEDCE38]]></AD_REFERENCE_ID>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <AD_MODULE_ID><![CDATA[0]]></AD_MODULE_ID>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4-->  <SEQNO><![CDATA[20]]></SEQNO>
++<!--E292108DE6CC4E5EBACA042EB45ECEF4--></AD_REF_LIST>
++
+ <!--E2B06CEADF4F4528BDB55A1FA694CBEB--><AD_REF_LIST>
+ <!--E2B06CEADF4F4528BDB55A1FA694CBEB-->  <AD_REF_LIST_ID><![CDATA[E2B06CEADF4F4528BDB55A1FA694CBEB]]></AD_REF_LIST_ID>
+ <!--E2B06CEADF4F4528BDB55A1FA694CBEB-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src-util/modulescript/build/classes/org/openbravo/modulescript/CreateDoctypeTemplate.class b/src-util/modulescript/build/classes/org/openbravo/modulescript/CreateDoctypeTemplate.class
+index cec9bfd4540dc973c8969e65651895fa73e805f1..038723877cf4ff15018fa7611888fbf471dfb6ca
+GIT binary patch
+literal 2333
+zc$~df-BTM?6#rfFv0>Skc3UjeQtL-)LVzHx1xZD0LfdEpmGEId6gRt<Wa(yix!F*3
+ze9#%EGxSAYef6c!opB=i&>3I-iyX(Pp1XhoMMwJ3%;ap&xxf26ANSm|`St0~PXLUd
+zsp1SqRlJNb6>np_okTW)D=OZ>L;~+heKLXf61b`&hrAS130zCyx`f=2qR@f&@qt7Z
+zr6@@;oxn^2HzntXQp_qSOD}T@<`pb3#IM+{9ZWDpk||Q7InUw@okiQ_)6IH?i#em>
+zkVP+grr|6Y!j}5BF&fnD2E$0v6V;68bGIUlH7`^5tfs>orm+1WlM~zsc-}LE&wM_|
+z>%K#3mO<g`+-wHKa=a0US?+rxxMn+i+Ng)_R*W?x;}~u=Qx1gfR%uHY0rwFt*%kw{
+z>04lEGku2izF;gPFe*laXL6qFax<_!_ondHY>Nw`jLKz((L0AuAx|5LfKjkryMmos
+zH@PpJ(Atr5V3_wxh98zo!J>je1s~B7FsNm(DNHUiW;lJIhat(Tp%-U0+`?@IcQo9^
+z#~MCCA2}W-Dh*5cl%e~&=UI(&<(lo+xf={l68Dne%aa-miH(#>vka%UP_x|Rl+`~V
+z1r-e@EDapXL_Ej<4OP@M*jT2pHLT#C1_yl_>QcCp^!%hOtHm33)t$`jEgu*D)`?Pg
+z9Gmrn(o(^lX$C_pV!iHY@Zf7$g<v>wK;<+v5HJiM_Cy#i{KuA3sFXv6A@#qTgc8`_
+zige;t9vlQ6Or{RiewUu7>*&%pxI<hFR`L+;QqSGw@wJ@Sbje?wuQm;b4z(+}tLJAb
+zE95Ghy3NpGd8YI)Nf?fXm}X!*nfdubp1NKbuI1IY6rGB-7eKBOfwxoSlRN8sr+^|j
+z#by$Hes>VLnjy**9(PTi{Wtr8gdKr5@B3WjC~ms6dybZF%}x}JRcBXKX`gCXImf2^
+zR-hTAn%kw5O4JR9SeNZKxCowU(_fMYG9Kb6pH1UMT2h6-bDOFgwv*?}@+A_MtNKE6
+zlM!^(sFxf*C4@&euX}ed%+-W<U(VcYY5}j(>+THXrwvR_Q<ATcmZ2w2I>h>a1bZAV
+zpCcI$jb~|_oPr?$ui<riGQ6>~ncYG=A%SoETWBk$H)+I1CVB^+e2@DBy(2#$s>fQ0
+ze+N@n#-pJnp|^(?MOVk8o9Jjk(~sy!Tj*@z*mx}c6OPl%t0xwM^-!J&<w?D(C#t`+
+ziBpT)pe;yGY!ls!Uq{%ZKQ|tsz1W{_;q>D$;s@A34<cbc6X+y)p0enJiVM(@B6~mO
+zlBWM11GtPK+`upm_KWzE)*sNngbj@1A;$0xvSA%=Kq35HV(CMav@yc<5u=9BktDtd
+z{r-wL)8t*n7sNV9)qF_Sp|H$Ur|lXJ)3+D#r_dC<sbGZtfs}%azoYOQVpkPhiV^&+
+I@Gvg_1!9tp6aWAK
+
+diff --git a/src-util/modulescript/build/classes/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail.class b/src-util/modulescript/build/classes/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail.class
+new file mode 100644
+index 0000000000000000000000000000000000000000..a1c89a6898b8447b080abab3d20062bd70bffd1d
+GIT binary patch
+literal 2248
+zc$~FXT~`}L7=8veEG!FcNhwsTM%0oIU<+2PhN3h;jZG*v6tws?*-Vqg&2F6CVAWfH
+zMK8VSHR?f*7rpfyf04%v>pQ!lMr}Rj9K6_PX5PH>yk9f#<d@%ndI(?vpBgxec>`lu
+zFz_laD|l^)U{S&A3a%)4L&2L0@=9e%!Brj0L$vd)LA-5X1=kc!LC30Etm#;1NVtCe
+z@*czak}vBPZ*jXJtVm{+{CZu;Jj1|}<2m6nLw`E6&7c+hnqW9pay+roZdQfd;#HR<
+zV<q3_?lzZ>T6ct6*l+@dV#M#agjbb(-?y56t?i1ymQE|QibU^l*ZE4^5`mEWJal}o
+z;JfXn7p(iT68e(Y#i|Io<B~tRxF_s(NaW0+uSiB}Jmd@;yC-F3mH5a~pWR}}{f$)F
+zs`5Zs1>f_8tyngtzwgwdWEoCScIuLcqDH>mp^y9=FYWPtZn@m6TWj}h(Ndd8d886@
+z`?E4{MaiPV=(w(9ips_?xMaJXyc-q2Ep4&xsD#e<633jfYhnVECf-3&$Gaw8!3`57
+zluc~lrio1j?<u&YprT+)!EJ1t*unb@$tQSkVjSlv<!e&<G8I?E@#?AWl&2oM%2Qpw
+zraI21?$XYVyQ$b;9UqvugIyCJ;v<IZCsa-oALA2->3^XsM~h0dV95OEl2dW(B7Bm3
+zHl69|<lH#Hv&%4-?!kD5&go<zToQNjuQdI(7t-bZx+kuazJ$Xv(iFAN!!K2n`SUPV
+zLP<xCR7~!=)O*5?&O~!1q@SwPBLYFEG6=b6iy~b}qp5ln8HpF<bggZNYB6Bn_M2*w
+zY_}*p@fS}R?)Q>{f4cbpNix*_PTNwD%bQZ%6;e>By_TOiCZ5v&>4^~PiqknycUiw#
+z-6N8`dJl#h+^e}_E!LXs*4k=F{|nXHBE=!PD95BT-D(Aw2SGmb)F%ip(z|t*o<oLb
+zRNJ9hKh3GD5uT@&MI)mzk^K?ufF^yU2n<BR7w{~h87trdo{NZ{Ki<ryFi3L1$sVGw
+zlsiKI)eHBbCfY{-qBgG0KKvF}a<k*w!VgHq!$3Uf@h}(<L-Al7VR+{ojXikuGjW(Z
+z4{)aR9Y)7a9pZF0cZf3wkt;jY=SC<F<>(^KK#e(pi!d;aQKXSXhFr~3r_NAko+15t
+z+A)V+iq^&@H0aNP3T&CeJclI;GX;%ytx~q8h&MsIUc$>{%Rrg9FH%x=$<8!!EBj6-
+z6`3eSiAO||(2>=VV>)I?<2U4gg?3HH><DFO?s2lGqV0f@#Mlv%-(&QkQ<~$9rwFa6
+H3YY!>q}qGE
+
+diff --git a/src-util/modulescript/build/classes/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetailData.class b/src-util/modulescript/build/classes/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetailData.class
+new file mode 100644
+index 0000000000000000000000000000000000000000..bd5929167619a32a4b540dc63fa237f6a8e2add7
+GIT binary patch
+literal 8932
+zc$~Fa3w%`7ng5^6<KE2N1Q<wQ0P%_fc|o9RkRiMbp+u8_NdS>YoXlLpgvm^}GlNju
+z?z(EbZQUYDyQ}T)R_m79+LrgDR8jlT)xJgB-9Gl!ZMUx7m%Ccq+Vp?Uy)&5!iNf#a
+z26FCq&iT%FzVn^`_c-v}@4x&6fOm;G0c^y>IzC;FIy|D|ZvyxX4(Zq`zn_(ZkLviG
+zj%||sypG3oY?tI0bbL`quOz>u<5u}StRpJFM`UwU!?6ISO3}yV_k?Ut25<_e1Drmi
+z<I6hE>iCL|$8|iR<D8BsH9Qr-96TMwSMjwVzK(AM@eH2T@V9c!!vQ>p=L7gAz9qT7
+zE$6-?S--2{djTxM_cgqr<GhX+<z_F*&3>TahdTZ)fUEKMI({U-KMvqJ{6xo3b^L=|
+z^<ydQA7%4TI{sP5zv%dxj(^qha~;2sTmGBW<d-^L*75H;UeWO@9si-@KXv?<j{ny2
+zKRRBOd;PD5|I_fAfG?Tuzh*!n+@7}k8>2(f*iNfajWxEX`}-|>slddxR3h7D#nN`X
+zGdI|0*#e>Vf#{xSV=|iRZ|u(6iBv!N0)y-AbUYW!w#8+qJspc?)3)qP9bA<qS6?n`
+zWvpx>mB~g^F-y+)V;j<gk_g(IviDf=-PwHtMl_j}%iXTOIYAYc3wUa3Hwt)L(s4^*
+zLVF@*IU4mu`;wMai;I#Qqjo~}-9c}5XCfoep-z|{vQm9^bWgf*kg6uFOw3LUWgF!Q
+z6VYViJyw@eBbrU5Q!VLaZZMTuleW8gj%dHN+R8=~$<@(pl&78CZ)Gnu%#@niu}q_r
+zc}>Df@}P5TE@T*UP5BPFpfftiGgNeEqp@8b(INLt(=t}lie-zGT{W1_rLsKd?KPtg
+z8mGQ}(TvsDl1`<#h|IjFJ&8Ckw|2`rY?V;#f=vYKFF_+Br*&`48j^!N&HFCpG;M9~
+z_<5SreFNO(QdbhsF?k;jI0VEEglo}A_pZc{KqZYuZ^%iZxn!1Xw-D=z{#4rL9aj~B
+zqF@rLBse$Knak`>Hg@0CUOZc7?Im1xB<u{g>Q7{{@&ZH~w@)dE<_Bq8e<o{p?@p4i
+z-TkMGh;>xzwz8Dz-$N6mN8CP_O(YvPsxi4^hAU@|tXywfLs8p`6S7%r&`L=Oo$vI$
+zRF``CzM;Ig&%Hp!<{~?;Q@6Qv`BDw9YxuQ>HyFn?{Dx7P0a?Ru`IoMp8zRiCl6?gp
+zyc8&2=+OUvBelHUprdk&gcw~Yu|8@uaHz|l7_%)-@mh9Rw#B$Bu;7wnM4J?t=}7e3
+zG9X{-YC<~Dmrf_UtZdFsF%&k(l5R8)bf<H6%vzI>7kBNYqF{kEgn>T92=IjlZow8N
+zj=|m`Ckgc?;=Ex4zr&jbeve@TTU~~vlbFb0V4EBZ5B5gK$WMx4yJXN~y}9(D>i1%c
+zfm>x0mCeoAOm7^0CD-Q?Nfr63RnRx%X)9x<(pl5mOXrK21~nFjD8qmzJcjTJpMf-Z
+zaS*u2bbp)>Z`uorkJMn=nFYm1a0kZGpR)_{x;L2J8#-#py*n3W*valQ=gYM=x8dE%
+zL|bb{GiFg9ZZHJ~^6JRNEvvd)%}r}tJLSSerjVq~W#+ui^UNMO^ENxQwo}AHv$b=z
+z+O0ItUz6W#hn*fY2Yc-iAeeST=|FELn~v==Wgu(HFS~6g5w0v&%$Sh+DJzwZ3fz)k
+z*l(wELuTK;ch1@bbYA$*=pJI?BCOxM++0Y19UZ`kap7mcGK3~{1}j69ivUBHA%X-E
+zZhQwLt0pQ8Q7I;9Vj|%wCK)0`Y>LT<8Dfg4VrU#ACmEtz`e4<VDTzsiUDLAdv~4C*
+z=I)$j?~9nlX+9#|VX7gf37^0$DP?b?R5od48@ruvkvRX#mUXLJml+}~rgPm&L(IT{
+zG|^0MRp2YxN^_Qw^)fNt5VOSP0$cL8;{;B#qt`V?uVW3mU$)p62%&7c*U6zZD{31`
+zkUMIU6;CN5$3+Ymu3+-ab4OEgvlwn;PLIITnVwcWorj+@b=BA_U6ur6QZAV^gek5t
+z#B6EKx#q}ETW5D`R}Viu>&$4Ji}U%ztPxmI#8@(^+<+qt@=X2t9wDko#tf#1JywIj
+z(jo~?hKlzw;<#jkdoOCtB^wGxB-n~p*P0twwQp$cmU<<N##wXs=5mR64R34S!g={-
+zbDrv4x2Z7Y(DN?EU*_?i3ww39wzszQn5x99sZ*g%#d?8Bd6qR@>pINU8&<UoEXt2D
+zmUgw8tv9!I_fUOT$RdZe#H<3F%rSo)2?fi@NPMY>@F`6VaizE_AAO37B_8s^Y~QHz
+z+DL_8d(j0!$qr7oWL<e-*(or6{ED(94)yG`)3-Ur-$aYiHJNEs6?6*~AW+77Zpkv+
+zVI9Tb)`yBAI>hrZj?cfS2b-Jn<y$YC&Yx@QIFD-DJZ|;n`p4N_K5=W><Yx*oJjUr4
+zj<3>q6}VyTwPFOwO)@C5FsZ2>yVm!nti4(F(54Nhk8$%Gn3&Y7LB44>Mw2-jIZ`v0
+zu#0@>P8u0&OJyx(o+=)H%zt8t#^bF?*9yK^GA*xonwvz&Fx2HWZ)Fu};R!<&omJ24
+z9y=->ZT?tS@)q~)Q@M>6raf9E>HO;iEhr0T4t7|X3>|J9EXvEy&{t)ZnI76l6Qt$!
+zY#AFDdZu9X*0(%cTiZoF9eBwVE;2T#C@WA-mGdxdDAu?o8O>y9it+xX2qx;VktOUV
+z=={Ud7(kh<%OMNft?qZ5``zw-d)@D??l-Ew<@{x7&wiZL63St9j9}d<h`LbO33!eu
+z;TGEfzrX}|F$p_J84fG@u~P|5V89jA$giC9)g6cDa6y1y4Nfmw>?<tZg`~4sRKTM)
+zy1zc;Jqh1~FzQ48lh7W3PI3C-`cQd(I8Yc4a@fcZR}_XTIXodhJh3o5iNhfdJH5&5
+zO)2!M4j)DJSxnu03e!U2lbBx5-;<be5;KK7ibowKf=aft5W?k{$_uH*6<C1TScxmq
+zimP}vb9fPR$vcl$sX>Mudr^-AXi&$mc8=&CUs8j-4uO<1O(5i*r2bS?@Pg79BDb{b
+zBJM8Drqy{or*YY6%PuOitcKmN`OWax%aQAppsXXvyOd)SXzQPbW_7w}ozG*2E|-ld
+zn=529TQ*n9<|@YsWS+Cxa|&}KJ`wTP%|C;AWr+C0{xe`v5b>5T)&h&my-mUD@)>s@
+z{3NDV1s_0F*n0-de{wVsU0i->_-AtX1MctxcyG1FaqTSXs7QUp2peH<$a@+MC!j03
+zT+u;A8;Y(}^aMpuQgleslNCKh(N$q%#%atahQq!v!LguPn|b%aParV!0r)*l!9&Bh
+zOBEUg>f`|ymf;Y-64AoiNxbV2jz+X1AY8-qD+^uAMshSMNGv{!>o(_kmbg<9ZYo)q
+zy8ULycBioHT#3x(7a?<nJGHV%M#YG_fk<VzlIn&l&V_v^vFdTu@c=%#;`*?57=GdB
+zGh-5wv5eFVT&=!ow||TXI3XSvPhydnLF$;oip0|sbYb9H!mSAlv4U`4iDhWP8iIQr
+z+b+Bt8?ctKr;YqK5VkksHgw<v=)^tb_!!pXA>4#7kn;?>@pbgzdtC7o#;u>zIex{J
+zZ!m8Cj-VgLR^f*wDzTHA?%*S+Ura-S+HMn<VY^s~UTS=+*o~+-$oI!F#Kj5nKTiH9
+z$^SI@pCSDm2E=*n5<g-jk$&(nCQ^@n<mh4s^*D|_)KQ}rN9c;T(I0Nc7qJiTL6Cd;
+za68@$jXQSXeRw~q-MAiqq{g0hXDg-0xPB$6KgJ!>*GT;dsWN!D_nkbE2kXRs+=aVo
+z&4_q}R{0<$EE5mmPw^q%$$5s-96n54KH~bT!*vh2WB~X}1c#{{-=2Ragocl5*stMU
+z4F|klZa3?<xT|cKF<84`9_-yW%##(SFfwuf>*(h6>uAw%aG2Xxj%HFn8jU8!_=kC-
+zF}5fTDIdq5J0Zohipom^<wCO}nhRfv!|9<G*{qgLt8CWD=H0Sc>wr3<d75+)Dfcu5
+z>cW~6Qp)cNh;VsTfY0Ol(`ef?(rqa1&M)nTy`%cRQGLJchs)341_mU(PEyK~o`?j)
+zLFM?zBf(LQ?;JyUX>fec503KuV5#Q^M|u9+3SHq&6}!GMqHrKm5w4J~Z=9>rA7ci1
+zj0itP&u%956g{0^QSI~vGria*EU}aQr$}unB(nE2fq@CeOI%+~Z)l=FEFspLIkSfN
+z-$0bdiS7(BekcFjPh5YRSbYrpx!--<@m_lP0Y;4bx$6h<Rbu=X_z-vgFunLAq8aya
+zw~vZ#*e@*HM-A>312{mBzE9XVs66#An2XN1J|_S3u3LFvkn3BN2L`#qnXQljD|lc|
+z)iOd+vYIJV)OO{8l9CmWS5dMi@+nGIL4J7Y-O^JvG>H}5{|?qsOQ@^#&vG=2CCo~9
+z&`YH^?u0hXV+QF8$`MBYrF$F@%4OP=ll3SkTkSeo#ak~cc-tG)zSyxI#3vlbDqF)b
+zjk=eGX0^N6kR?gzM%lE>rb9NJvRUU~rQNekbk@}?SL&Rvu)a(tYXzLM5pUS5kbWfM
+z9fkDz0w%rV1Km3c=-yJGdq)BN?PRWSr;2gzD`*>#)rEw)@7zp@^5x7xYl-4UQe8x>
+z{C>vmzfAkRf>-ex`(317E}*;*(-h7;yw`es3iFwr8u17gbM10`i87B;>S1QGBg|gM
+zxcU$?)@PX|9wo=;NPQm96Z0=KW4uECSIPex`F~CRH*u5@Jg$)3MI7DWV%19tPA>6s
+zy^~A4T;a_6<&C;X_Am$DsgOJ$FDf*aQM(ru8a)bw*Gmkph1UU-$cOs23!-`u{vw`n
+z(e+8@7zbUCa!jW#b4H<Sy=-ohO_yxC^T1jzB3>6+5=W};>u7Kbxv34I9+qCAGFI9T
+zLh~Mi*R#CAEwQ|X63ZuR6;)#S#>Jm+eEj)F;m=o!Ki|0c8(ZcIcd8hF{t<NpZbcaO
+zpSw%~u$Lvp00CA{DoX&$@3T%{7&K(1s1{-Nv!sjy08^O3_B4BE_$qjkFM_AI;%m4D
+z-(aYHh5&q)<<N7K^#bL;#2wDFjCqj&`2lx%o~6q-Y2R;=>)Yh|4hyL7Qu_B<G`+x3
+z`x19N&w}YiVUoTQKU84c%8O3AaPv`u14bX$J7Dy2g<JMW0OY|aX1ic)#xGS7Q$}sy
+z#9uKnc&PJl6fC_8mPrJLS<U(KF>b#?9aajgcMB1B3Szt>L@Q<}sXazZEdsEPzb-sk
+gXRGH9U#F8%cN!axq56n=P>wu{CbIpMdMZ8i2PudXh5!Hn
+
+diff --git a/src-util/modulescript/build/classes/org/openbravo/modulescript/OpenbravoVersion.class b/src-util/modulescript/build/classes/org/openbravo/modulescript/OpenbravoVersion.class
+index b57eea27bcf415410222a4ff0d2d8683b1b636c3..9e8b679ede9c2365dc4fab5e06e80abdbe1a975c
+GIT binary patch
+literal 2139
+zc$}3~T~pgu5Ixtjk!=J4L!e1WYm(9!8*BpU7vCREQl}=gH6_rbGnMUIM^u(PvdpBv
+zrc7V*l81DrKqi?<``jPZc2|;JFz$31kMF&^+H?2p*_HnM>-Adzvv?fGFy>=OV1buK
+zUY4R*j$;L@D%PS{k3+>q9G~GXFZWd3k3+*e8=vzjAH@USzfe(#6MR#}Lls*BJvDvb
+zc5VxZe9M>>h|~<rcF3`4Scbbyhg3eFpWG1$Z`c(naH(Ke@?o=9lFqhXGRc!D*k#?^
+z(H(>Bz!`R*8V!Nzg6&juc3oN}M?bK0HM`O@WuxpEbvL)wa_>l|Vc6D!z~xk7Uq8@u
+zrfyYpMb|N`>H;TM5Bw0$b}oP(TOJ`wIP|#N^S+|1mw(*U>mEB&LdBOVCIn(t>23x(
+zD5=T(DG!Me<+HCxtZdinx+Ax3ftl2Ws^VJ(!J@A16A~CsO?IPsruwbYzAU>QI`nMj
+zY~jH(qE$4imhLtklKj#6fK#3gk3W~ccp>)7lqFuYn@(BYGq|&tJ43RZM8j2lrC|i4
+z8s6dM3Py?elPoE%;cFBHZv0CoZ<?~In`=(BS(BD~_gPuiU9Y`&f=iRNX2VUEZL49>
+zZdgh8sUu}F=yS3mxfoYglBJ)LSx!E#Vq3#E*wOF^8G+GGeb<|YS&@#0+t}5xhi|DX
+zS+=OrnF}bQA&Z>AK&RN$)oyB^iEQ<sMvaC#(x{sT;cj&s`mS?4cuGRcl~w8RtD&1s
+zx%I<;+*3FQp?ji+<?b+yXD;7$7JKwM6<(oN_<wFaqwWI6=^HZ)x)%yUJP-6C3-L&J
+z`xS4G((|jhM(Y?^Ci%m(52sHc($|g<N{<~uNnbxg_*V~goz@XVXq}?SX~d`n{m5Ym
+zGkBN0X&;aGkOaIF=M~<GGl#qr=T^MT<3VQ1LO)=GGiMT!WAtoJz3urKeQ%)dC88&Y
+z{hppuW?vzGj9w--6>b|!dMeU3Jfez6^ahm&d_t7w(Thb4Vu?y!K?<w*5NlYcACpe{
+zsoSJC2zir;^%C}dOc3c0$eV!po8XFyTPjj2CdntL;7m|Lj&?3IlKu^$7j3nAJm&*1
+zk>&>ki3Dlb4Xkv6i(SFfUBTf_@RP3KtOsK7ON!>M>@w{P{SUFiB<QFd;wE27$M7#u
+zL(ehPG7q6D&k+v4XodREeTR2V+tF@^KR4f#tU8@b_y`r;N7dsu;&W)XV3+18Neo%|
+ze#9pFR|Q&s!C#7i{da`p%I4lc+dDxYXMctMV_ZrM(8BD_nql8O#^B2ip=zgun)8Va
+ttdUT2L8_%ds8~Al2NK5^>Qs8{R3))?B{AHgVWST))ywf8(@^pL=|3P1yL|uv
+
+diff --git a/src-util/modulescript/build/classes/org/openbravo/modulescript/UpdateEmailPasswords.class b/src-util/modulescript/build/classes/org/openbravo/modulescript/UpdateEmailPasswords.class
+index b59706c875e3a13633875b0010f84e90cd86ebbb..22fe31b1242ddc42acc112fa2dbdd89463b5de8f
+GIT binary patch
+literal 2959
+zc$}S9O?MMj7=CV>WYRDc+R{QnW%y8%ex(#zphZy97OP1c=?4NTPA9kNlr$43lLDeB
+zif&oD(Ty9<aV6qud+a%|5f`rA_)lDk&z+=FO6akilid5>_ul)w-|yT%{`vI*fF67k
+z!Cst=U=QBXFcQJrcqf8dB-N0rBYQNAu?W(5SHrmoA~+kyxSA)_iAhCGhB2iU=fij}
+zf(y7<$Kg^0@8bhSeW-Ys!}v&pspL#+u+;1e%_wN8VMZXBbFxS01X`1hn~j?V)0&lW
+zpBGO$*{pO21VSh6yzQM5sEx*^1Of>sBL%i4?YtZ<%}+~r!ko^L)0lKDGdE?rwpv%1
+z0dLkW3LN(For26yyXJxupLa5)oGe<dUGU<Qg^cORp?TBJrOjgTs^eygl&i^W(kgib
+z2}-pm(7RcbLDMsd6fj-)pg`ZH7rmd8dEOTz0yQ>?kgpHTs<8?J?dwnpV@{hz8BaL*
+zytF*q$){as!Or;JtY46Bk*q|?b!FZY=-f!Du~qg|`PLeMp5E?M`tWh8MGrM6=gb8&
+zo-^~=_|P>=7QFJ|t>d0)T}hb*KO9T~4Oym~hE6614Wk`-ftKi{HTTCo*Uo1L{8*cA
+zmS#3p*`{17A3ka2D%lYkcS^1$hiw)1)@t7DQXo3^<A9D?*!0{cEY~on;|g->{=6FU
+zIt=U+I7$;;k182unZ|f(B5f3<OFtQfRoO-v+$f`WX>fED@Ug(o^_HC}**S(vprH~X
+zqvG&>Lx+o^4i6<}drwzyx1l2N-@c9oTopJpl(*dL1z)A{RC;2)F2;;4bM%IWYs#YQ
+zIzGV-4WH`x3^#RrjvG3@z%7CJsAJ@%%ov_y$TDVC<5mF~s47{Y<4b%+uuZ1Ej+lzm
+zZG26OHn^Me7vugyAojmYfjOI%UNwGaG`6XV+Q_oRthBBq99LGdNEI~ew<vRj5jY*)
+zgrr!tB500QubfbHWMo7UJD<~7+0`;~x|Cf9F*ZF%v1JIeK)o``Ays5N!>Z&hbqae<
+znI*6zT2<>h%b72juAFcLy4U+);|3IC6Fl+)ZB)S8l(S#7S2q^ty+XM_R_jB3nyNVA
+zz|#Us9$R{R*m37gZ<4g_*^<4lzEXLE(w|riRibgRs+XIrv}4h>89Q5YO=aE)bqSSx
+z<ps`d#vjk(SIG&6X3MOZ&*bEg>pD!aU2Aonn01}2>NDVHR~@TwH4{759!uotwt?7l
+z9|YLPC&XU9V+3}q4ooUQnq8gaL9XJQ1?OPf62v_cHF%X{$Y;KS*Es6s12}}J4-{Ly
+zEdC<5j=V>0i>OJip!P!hG6G8orW76A-qSExvxLy-&(Ipfi>Twgg2;s>Y-!XNv9)6n
+z^_&*5?diSkWOlCI>)@*4dyFZZMy@HPsXx#f=nu9AAM}N4`?O}QIrIbCTZ7G7Pk*>I
+z{0nycj+S<x2rQ#n5iQHudH%L0?mqtWF19GFUBtSJx@24XB6i>N&0N6)wDPH@oG^+e
+zjvX|z3k~$tUL2+qdXT^oTt+Xl=!1h}DB(En-~_%!KYk?r6Henk-XPWx(GqxwLHvec
+z-<dOf4&Gr*+R%<LuJd*WIw|2Mal0rZgj*cD`PYa$K#84<SP+ZcKSB)~DB&n&*HD}9
+zD8HAwKIHx}%2oP5s)XqT|NYP&6E3WwU&DZglm72@{sfOkAM;vZ?H+^wH?%VvPN}e-
+zrUm638KJZq&RbWohXHyiNq4>cBv<OG0+6IRDdx(kZ)QvR0^Y<K&S6SQP%U;lx?(l;
+d_WKG0ktXa}#w+)s-ShM7N&XoehkQB1{{o_1Dz5+l
+
+diff --git a/src-util/modulescript/src/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail.java b/src-util/modulescript/src/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail.java
+new file mode 100644
+--- /dev/null
++++ b/src-util/modulescript/src/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail.java
+@@ -0,0 +1,51 @@
++/*
++ *************************************************************************
++ * The contents of this file are subject to the Openbravo  Public  License
++ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
++ * Version 1.1  with a permitted attribution clause; you may not  use this
++ * file except in compliance with the License. You  may  obtain  a copy of
++ * the License at http://www.openbravo.com/legal/license.html
++ * Software distributed under the License  is  distributed  on  an "AS IS"
++ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
++ * License for the specific  language  governing  rights  and  limitations
++ * under the License.
++ * The Original Code is Openbravo ERP.
++ * The Initial Developer of the Original Code is Openbravo SLU
++ * All portions are Copyright (C) 2014 Openbravo SLU
++ * All Rights Reserved.
++ * Contributor(s):  ______________________________________.
++ *************************************************************************
++ */
++package org.openbravo.modulescript;
++
++import java.sql.Connection;
++import java.sql.SQLException;
++import java.util.UUID;
++import org.apache.log4j.Logger;
++
++import javax.servlet.ServletException;
++
++import org.openbravo.database.ConnectionProvider;
++import org.openbravo.modulescript.ModuleScript;
++
++public class InitializeReservationColumnsForStorageDetail extends ModuleScript {
++  private static final Logger log4j = Logger.getLogger(InitializeReservationColumnsForStorageDetail.class);
++
++  @Override
++  public void execute() {
++    try {
++      ConnectionProvider cp = getConnectionProvider();
++      boolean isMigrated = InitializeReservationColumnsForStorageDetailData.isMigrated(cp);
++      if (!isMigrated) {
++        InitializeReservationColumnsForStorageDetailData [] data = InitializeReservationColumnsForStorageDetailData.selectReservationAmounts(cp);
++        for(int i =0; i< data.length;i++){
++          InitializeReservationColumnsForStorageDetailData.updateStorageDetail(cp, data[i].reservedqty, data[i].allocatedqty, data[i].mAttributesetinstanceId, data[i].mLocatorId, data[i].mProductId, data[i].cUomId);
++        }
++        InitializeReservationColumnsForStorageDetailData.createPreference(cp);
++      }
++    } catch (Exception e) {
++      log4j.error("Error executing modulescript Initializa Reservation Columns for Storage Detail");
++      handleError(e);
++    }
++  }
++}
+diff --git a/src-util/modulescript/src/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail_data.xsql b/src-util/modulescript/src/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail_data.xsql
+new file mode 100644
+--- /dev/null
++++ b/src-util/modulescript/src/org/openbravo/modulescript/InitializeReservationColumnsForStorageDetail_data.xsql
+@@ -0,0 +1,77 @@
++<?xml version="1.0" encoding="UTF-8" ?>
++<!--
++ *************************************************************************
++ * The contents of this file are subject to the Openbravo  Public  License
++ * Version  1.0  (the  "License"),  being   the  Mozilla   Public  License
++ * Version 1.1  with a permitted attribution clause; you may not  use this
++ * file except in compliance with the License. You  may  obtain  a copy of
++ * the License at http://www.openbravo.com/legal/license.html
++ * Software distributed under the License  is  distributed  on  an "AS IS"
++ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
++ * License for the specific  language  governing  rights  and  limitations
++ * under the License.
++ * The Original Code is Openbravo ERP.
++ * The Initial Developer of the Original Code is Openbravo SLU
++ * All portions are Copyright (C) 2014 Openbravo SLU
++ * All Rights Reserved.
++ * Contributor(s):  ______________________________________.
++ *************************************************************************
++-->
++<SqlClass name="InitializeReservationColumnsForStorageDetailData" package="org.openbravo.modulescript">
++   <SqlClassComment></SqlClassComment>
++   <SqlMethod name="selectReservationAmounts" type="preparedStatement" return="multiple">
++    <SqlMethodComment></SqlMethodComment>
++    <Sql>
++      <![CDATA[
++        select r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id, SUM(rs.quantity - rs.releasedqty) as reservedqty, 
++        SUM(CASE WHEN rs.isallocated = 'Y' THEN (rs.quantity - rs.releasedqty) ELSE 0 END) as allocatedqty
++        from m_reservation r, m_reservation_stock rs
++        where r.m_reservation_id = rs.m_reservation_id
++        group by r.m_product_id, rs.m_locator_id, rs.m_attributesetinstance_id, r.c_uom_id
++        having SUM(rs.quantity - rs.releasedqty) <> 0
++      ]]>
++    </Sql>
++  </SqlMethod>
++  <SqlMethod name="updateStorageDetail" type="preparedStatement" return="rowCount">
++    <SqlMethodComment></SqlMethodComment>
++    <Sql>
++      <![CDATA[
++        update M_Storage_Detail set reservedqty = to_number(?), allocatedqty = to_number(?)
++        where m_attributesetinstance_id = ?
++        and m_locator_id = ?
++        and m_product_id = ?
++        and c_uom_id = ?
++        and m_product_uom_id is null
++      ]]>
++    </Sql>
++    <Parameter name="reservedqty"/>
++    <Parameter name="allocatedqty"/>
++    <Parameter name="mAttributesetinstanceId"/>
++    <Parameter name="mLocatorId"/>
++    <Parameter name="mProductId"/>
++    <Parameter name="cUomId"/>
++  </SqlMethod>
++   <SqlMethod name="createPreference" type="preparedStatement" return="rowcount">
++      <SqlMethodComment></SqlMethodComment>
++       <Sql> 
++       <![CDATA[ 
++           INSERT INTO ad_preference (
++           ad_preference_id, ad_client_id, ad_org_id, isactive,
++           createdby, created, updatedby, updated,attribute
++           ) VALUES (
++           get_uuid(), '0', '0', 'Y', '0', NOW(), '0', NOW(),'InitializeReservationColumnsForStorageDetail')
++         ]]>
++        </Sql>
++   </SqlMethod>
++     <SqlMethod name="isMigrated" type="preparedStatement" return="boolean">
++    <SqlMethodComment></SqlMethodComment>
++    <Sql>
++      <![CDATA[
++        SELECT count(*) as exist
++        FROM DUAL
++        WHERE EXISTS (SELECT 1 FROM ad_preference
++                      WHERE attribute = 'InitializeReservationColumnsForStorageDetail')
++      ]]>
++    </Sql>
++  </SqlMethod>
++</SqlClass>
+diff --git a/src/org/openbravo/dal/core/OBContext.java b/src/org/openbravo/dal/core/OBContext.java
+--- a/src/org/openbravo/dal/core/OBContext.java
++++ b/src/org/openbravo/dal/core/OBContext.java
+@@ -1145,7 +1145,7 @@
+     this.isRTL = isRTL;
+   }
+ 
+-  private boolean isTranslationInstalled() {
++  public boolean isTranslationInstalled() {
+     return translationInstalled;
+   }
+ 
+diff --git a/src/org/openbravo/erpCommon/utility/OBMessageUtils.java b/src/org/openbravo/erpCommon/utility/OBMessageUtils.java
+--- a/src/org/openbravo/erpCommon/utility/OBMessageUtils.java
++++ b/src/org/openbravo/erpCommon/utility/OBMessageUtils.java
+@@ -51,23 +51,34 @@
+    *          String with the search key to search.
+    * @return String with the translated message.
+    */
++
+   public static String messageBD(String strCode) {
++    return messageBD(strCode, true);
++  }
++
++  public static String messageBD(String strCode, boolean ignoreCase) {
+     String strMessage = "";
+     final String strLanguageId = OBContext.getOBContext().getLanguage().getId();
+-
+     // Search strCode in AD_Message table.
+     try {
+       OBContext.setAdminMode(false);
+       log4j.debug("messageBD - Message Code: " + strCode);
+       OBCriteria<Message> obcMessage = OBDal.getInstance().createCriteria(Message.class);
+-      obcMessage.add(Restrictions.eq(Message.PROPERTY_SEARCHKEY, strCode).ignoreCase());
+-      if (obcMessage.count() > 0) {
+-        Message msg = obcMessage.list().get(0);
++      if (ignoreCase) {
++        obcMessage.add(Restrictions.eq(Message.PROPERTY_SEARCHKEY, strCode).ignoreCase());
++      } else {
++        obcMessage.add(Restrictions.eq(Message.PROPERTY_SEARCHKEY, strCode));
++      }
++      obcMessage.setMaxResults(1);
++      Message msg = (Message) obcMessage.uniqueResult();
++      if (msg != null) {
+         strMessage = msg.getMessageText();
+-        for (MessageTrl msgTrl : msg.getADMessageTrlList()) {
+-          if (DalUtil.getId(msgTrl.getLanguage()).equals(strLanguageId)) {
+-            strMessage = msgTrl.getMessageText();
+-            break;
++        if (OBContext.getOBContext().isTranslationInstalled()) {
++          for (MessageTrl msgTrl : msg.getADMessageTrlList()) {
++            if (DalUtil.getId(msgTrl.getLanguage()).equals(strLanguageId)) {
++              strMessage = msgTrl.getMessageText();
++              break;
++            }
+           }
+         }
+       }
+diff --git a/src/org/openbravo/materialmgmt/ReservationUtils.java b/src/org/openbravo/materialmgmt/ReservationUtils.java
+--- a/src/org/openbravo/materialmgmt/ReservationUtils.java
++++ b/src/org/openbravo/materialmgmt/ReservationUtils.java
+@@ -50,11 +50,11 @@
+   public static Reservation createReserveFromSalesOrderLine(OrderLine soLine, boolean doProcess)
+       throws OBException {
+     if (!soLine.getSalesOrder().isSalesTransaction()) {
+-      throw new OBException(OBMessageUtils.messageBD("cannotReservePurchaseOrder"));
++      throw new OBException(OBMessageUtils.messageBD("cannotReservePurchaseOrder", false));
+     }
+     if (soLine.getOrderedQuantity().subtract(soLine.getDeliveredQuantity())
+         .compareTo(BigDecimal.ZERO) == 0) {
+-      throw new OBException(OBMessageUtils.messageBD("cannotReserveDeliveredSalesOrderLine"));
++      throw new OBException(OBMessageUtils.messageBD("cannotReserveDeliveredSalesOrderLine", false));
+     }
+ 
+     OBDal.getInstance().flush();
+@@ -202,10 +202,10 @@
+ 
+     OBError result = new OBError();
+     if (cs == null || StringUtils.isEmpty(cs.returnValue)) {
+-      throw new OBException(OBMessageUtils.messageBD("Error"));
++      throw new OBException(OBMessageUtils.messageBD("Error", false));
+     }
+     result.setType("Success");
+-    result.setMessage(OBMessageUtils.messageBD("Success"));
++    result.setMessage(OBMessageUtils.messageBD("Success", false));
+     if (cs.returnValue == "0") {
+       result.setType("Error");
+     } else if (cs.returnValue == "2") {

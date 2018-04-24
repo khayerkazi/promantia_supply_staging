@@ -1,0 +1,13 @@
+diff -r a18ae800dc21 dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OrderLoader.java
+--- a/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OrderLoader.java	Tue Dec 02 11:27:26 2014 +0530
++++ b/dependantModules/org.openbravo.retail.posterminal/src/org/openbravo/retail/posterminal/OrderLoader.java	Tue Dec 02 11:55:07 2014 +0530
+@@ -836,7 +836,8 @@
+ 
+           OBCriteria<StockProposed> stockProposed = OBDal.getInstance().createCriteria(
+               StockProposed.class);
+-          stockProposed.add(Restrictions.eq(StockProposed.PROPERTY_PROCESSINSTANCE, pInstance));
++          stockProposed.add(Restrictions.eq(StockProposed.PROPERTY_PROCESSINSTANCE,
++              pInstance.getId()));
+           stockProposed.addOrderBy(StockProposed.PROPERTY_PRIORITY, true);
+ 
+           ScrollableResults bins = stockProposed.scroll(ScrollMode.FORWARD_ONLY);

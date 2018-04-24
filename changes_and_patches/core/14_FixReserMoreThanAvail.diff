@@ -1,0 +1,79 @@
+diff -r 63b0000f187d src-db/database/model/functions/M_GET_STOCK_PARAM.xml
+--- a/src-db/database/model/functions/M_GET_STOCK_PARAM.xml	Mon Dec 08 15:40:02 2014 +0530
++++ b/src-db/database/model/functions/M_GET_STOCK_PARAM.xml	Tue May 05 15:43:37 2015 +0530
+@@ -230,9 +230,9 @@
+ 
+   -- Insert Values from Storage Detail
+   FOR Cur_Stock  IN (
+-      SELECT t.m_storage_detail_id, t.qtyonhand - (CASE WHEN v_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END) AS qty, 
++      SELECT t.m_storage_detail_id, t.qtyonhand - (CASE WHEN COUNT(rs.m_reservation_id) > 0 THEN t.allocatedqty ELSE t.reservedqty END) AS qty, 
+       t.qtyorderonhand AS qtyorder, l.priorityno, t.UPDATED AS lastupdated, t.qtyonhand, 
+-      (CASE WHEN v_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END) as reservedqty
++      (CASE WHEN COUNT(rs.m_reservation_id) > 0 THEN t.allocatedqty ELSE t.reservedqty END) as reservedqty
+       FROM m_storage_detail t 
+           JOIN m_locator l ON t.m_locator_id=l.m_locator_id
+           JOIN m_warehouse w ON l.m_warehouse_id = w.m_warehouse_id
+@@ -241,6 +241,7 @@
+           LEFT JOIN m_product_uom pu ON t.m_product_uom_id = pu.m_product_uom_id
+           LEFT JOIN c_uom u ON pu.c_uom_id = u.c_uom_id
+           LEFT JOIN m_reservation r ON r.m_reservation_id = v_reservation_id AND r.m_product_id = t.m_product_id AND r.c_uom_id = t.c_uom_id
++          LEFT JOIN m_reservation_stock rs ON rs.m_reservation_id = v_reservation_id AND rs.m_attributesetinstance_id = t.m_attributesetinstance_id AND rs.m_locator_id = t.m_locator_id
+       WHERE t.m_product_id=v_productid
+         AND t.c_uom_id = COALESCE(v_uomid, t.c_uom_id)
+         AND COALESCE(t.m_product_uom_id, '-1') = COALESCE(v_productuomid, t.m_product_uom_id, '-1')
+@@ -249,10 +250,12 @@
+         AND w.m_warehouse_id = COALESCE(v_warehouseid, w.m_warehouse_id)
+         AND ow.ad_org_id = v_orgid
+         AND COALESCE(t.qtyonhand, 0)>0
+-        AND t.qtyonhand - (CASE WHEN v_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END)  > 0
++        AND t.qtyonhand >= t.reservedqty
++        AND t.qtyonhand - (CASE WHEN rs.m_reservation_id IS NOT NULL THEN t.allocatedqty ELSE t.reservedqty END)  > 0
+         AND w.m_warehouse_id = COALESCE(r.m_warehouse_id, w.m_warehouse_id)
+         AND l.m_locator_id = COALESCE(r.m_locator_id, l.m_locator_id)
+         AND asi.m_attributesetinstance_id = COALESCE(r.m_attributesetinstance_id, asi.m_attributesetinstance_id)
++      GROUP BY w.m_warehouse_id, ow.priority, l.priorityno, asi.created, t.created, t.m_storage_detail_id, t.qtyonhand, t.allocatedqty, t.reservedqty, t.qtyorderonhand, t.updated
+       ORDER BY CASE w.m_warehouse_id WHEN COALESCE(v_PriorityWarehouseID, '-1') THEN 0 ELSE 1 END, ow.priority, l.priorityno, asi.created, t.created
+   ) LOOP
+     IF (cur_stock.qtyonhand > cur_stock.reservedqty) THEN
+@@ -558,13 +561,13 @@
+     FROM m_stock_proposed
+     WHERE ad_pinstance_id = p_uuid;
+     IF (v_totalqty < v_quantity AND v_availableqty >= v_quantity) THEN
+-      IF (v_message IS NULL OR v_message = '') THEN
++      --IF (v_message IS NULL OR v_message = '') THEN
+         SELECT name INTO v_productname
+         FROM m_product
+         WHERE m_product_id = v_productid;
+-        v_message := '@NotEnoughStockedDueWHRule@';
+-      END IF;
+-      RAISE_APPLICATION_ERROR(-20000, v_message);
++        v_message := '@NotEnoughStockedDueWHRule@ ' || '@Product@: ' || v_productname;
++      --END IF;
++   --RAISE_APPLICATION_ERROR(-20000, v_message);
+     END IF;
+     IF (v_totalqty > v_finalqty) THEN
+       -- IF these quantities are different there is some proposed stock with the isFinal flag = 'N'
+diff -r 63b0000f187d src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml
+--- a/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml	Mon Dec 08 15:40:02 2014 +0530
++++ b/src-db/database/model/functions/M_RESERVATION_REALLOCATE.xml	Tue May 05 15:43:37 2015 +0530
+@@ -293,7 +293,7 @@
+     SELECT * INTO  v_Result, v_Message from m_get_stock_param(v_pinstance_ID, p_reservation_id, cur_not_allocated_stock.quantitytoreserve, 
+     cur_not_allocated_stock.m_product_id, cur_not_allocated_stock.m_locator_id, cur_not_allocated_stock.m_warehouse_id, 
+     null, cur_not_allocated_stock.ad_org_id, cur_not_allocated_stock.m_attributesetinstance_id,p_User_ID,cur_not_allocated_stock.ad_client_id, 
+-    v_warehouse_rule_id, cur_not_allocated_stock.c_uom_id, null, null, null, null, '---',  null, 'N');
++    v_warehouse_rule_id, cur_not_allocated_stock.c_uom_id, null, null, null, null, '---',  p_reservation_id, 'N');
+     IF (v_Result = 0) THEN
+       -- Error on m_get_stock
+       RAISE_APPLICATION_ERROR(-20000, v_Message);
+diff -r 63b0000f187d src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml
+--- a/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml	Mon Dec 08 15:40:02 2014 +0530
++++ b/src-db/database/model/functions/M_RESERVE_STOCK_AUTO.xml	Tue May 05 15:43:37 2015 +0530
+@@ -76,7 +76,7 @@
+     END IF;
+ 
+     SELECT * INTO v_pinstance_result, v_pinstance_msg FROM M_GET_STOCK_PARAM(v_pinstance_id, p_reservation_id, v_pendingtoreserveqty, v_product_id, v_locator_id, v_warehouse_id, null, v_org_id, v_asi_id, p_User_ID,
+-    v_client_id, v_warehouse_rule_id, v_uom_id, null, null, null, null, '---', null, 'N');
++    v_client_id, v_warehouse_rule_id, v_uom_id, null, null, null, null, '---', p_reservation_id, 'N');
+     -- Check result
+     IF (v_pinstance_result = 0) THEN
+       -- Error on m_get_stock

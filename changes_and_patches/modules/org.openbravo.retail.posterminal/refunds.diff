@@ -1,0 +1,276 @@
+diff -r b4b15bb5aeb0 src/org/openbravo/retail/posterminal/OBPOSComponentProvider.java
+--- a/src/org/openbravo/retail/posterminal/OBPOSComponentProvider.java	Fri Dec 26 10:39:05 2014 +0000
++++ b/src/org/openbravo/retail/posterminal/OBPOSComponentProvider.java	Tue Mar 31 11:37:35 2015 +0530
+@@ -119,6 +119,7 @@
+         "main",
+         // Web POS window
+         "utils/cashUpReportUtils",
++        "utils/cashManagementUtils",
+         "components/keypadcoins",
+         "data/dataordersave",
+         "data/dataordertaxes",
+diff -r b4b15bb5aeb0 src/org/openbravo/retail/posterminal/term/CashMgmtDepositEvents.java
+--- a/src/org/openbravo/retail/posterminal/term/CashMgmtDepositEvents.java	Fri Dec 26 10:39:05 2014 +0000
++++ b/src/org/openbravo/retail/posterminal/term/CashMgmtDepositEvents.java	Tue Mar 31 11:37:35 2015 +0530
+@@ -20,7 +20,7 @@
+   @Override
+   protected List<String> getQuery(JSONObject jsonsent) throws JSONException {
+     return Arrays
+-        .asList(new String[] { "select c.id as id, c.name as name from OBRETCO_CashManagementEvents c "
++        .asList(new String[] { "select c.id as id, c.name as name, 'deposit' as type from OBRETCO_CashManagementEvents c "
+             + "where  c.$naturalOrgCriteria and c.eventtype like '%IN%' order by c.name  " });
+   }
+ 
+@@ -29,4 +29,3 @@
+     return true;
+   }
+ }
+-
+diff -r b4b15bb5aeb0 src/org/openbravo/retail/posterminal/term/CashMgmtDropEvents.java
+--- a/src/org/openbravo/retail/posterminal/term/CashMgmtDropEvents.java	Fri Dec 26 10:39:05 2014 +0000
++++ b/src/org/openbravo/retail/posterminal/term/CashMgmtDropEvents.java	Tue Mar 31 11:37:35 2015 +0530
+@@ -20,7 +20,7 @@
+   @Override
+   protected List<String> getQuery(JSONObject jsonsent) throws JSONException {
+     return Arrays
+-        .asList(new String[] { "select c.id as id, c.name as name from OBRETCO_CashManagementEvents c "
++        .asList(new String[] { "select c.id as id, c.name as name, 'drop' as type from OBRETCO_CashManagementEvents c "
+             + "where  c.$naturalOrgCriteria and c.eventtype like '%OUT%' order by c.name " });
+   }
+ 
+@@ -29,4 +29,3 @@
+     return true;
+   }
+ }
+-
+diff -r b4b15bb5aeb0 web/org.openbravo.retail.posterminal/js/utils/cashManagementUtils.js
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/web/org.openbravo.retail.posterminal/js/utils/cashManagementUtils.js	Tue Mar 31 11:37:35 2015 +0530
+@@ -0,0 +1,196 @@
++/*
++ ************************************************************************************
++ * Copyright (C) 2012 Openbravo S.L.U.
++ * Licensed under the Openbravo Commercial License version 1.0
++ * You may obtain a copy of the License at http://www.openbravo.com/legal/obcl.html
++ * or in the legal folder of this module distribution.
++ ************************************************************************************
++ */
++
++/*global B,_*/
++
++(function () {
++
++  OB = window.OB || {};
++  OB.UTILS = window.OB.UTILS || {};
++  OB.UTILS.CashManagementUtils = window.OB.UTILS.CashManagementUtils || {};
++
++  OB.UTILS.CashManagementUtils.addCashManagementTransaction = function (newCashManagementTransaction, successCallback, errorCallback, options) {
++    //Doc:
++    //newCashMangmentTransaction is a backbone model which includes the following fields
++    //amount -> the amount to be drop or deposited.
++    //cashManagementEvent -> An item from OB.MobileApp.model.get('cashMgmtDropEvents') or OB.MobileApp.model.get('cashMgmtDepEvents')
++    //                      including type = drop or deposit
++    //paymentMethod -> An item from OB.MobileApp.model.get('payments') which will be used to drop or deposit the amount.
++    var cashUp = null;
++    var paymentMethodCashUp = null;
++    var warns = [];
++    var errors = [];
++    var glItem;
++    var cashManagementTransactionToAdd = null;
++
++    var availableAmountToDrop, startingAmt, salesAmt, returnsAmt, totalDrops, totalDeposits;
++    //Manage default values
++    var optionsObj = options || {};
++    if (options && !OB.UTIL.isNullOrUndefined(options.printTicket)) {
++      optionsObj.printTicket = options.printTicket;
++    } else {
++      optionsObj.printTicket = true;
++    }
++    if (options && !OB.UTIL.isNullOrUndefined(options.ticketTemplate)) {
++      optionsObj.ticketTemplate = options.ticketTemplate;
++    } else {
++      optionsObj.ticketTemplate = new OB.OBPOSCashMgmt.Print.CashMgmt();
++    }
++    if (options && !OB.UTIL.isNullOrUndefined(options.executeSync)) {
++      optionsObj.executeSync = options.executeSync;
++    } else {
++      optionsObj.executeSync = true;
++    }
++
++    //execute cash management event
++    //1st load current cash up
++    OB.Dal.find(OB.Model.CashUp, {
++      'isbeingprocessed': 'N'
++    }, function (cashUpResults) {
++      if (cashUpResults.length !== 1) {
++        errorCallback("Zero or more than one cash ups found.");
++        return;
++      } else {
++        cashUp = cashUpResults.at(0);
++
++        //validate
++        if (newCashManagementTransaction.get('cashManagementEvent').type === 'drop' && !newCashManagementTransaction.get('paymentMethod').paymentMethod.allowdrops) {
++          errorCallback('Current payment method doesn\'t allow drops');
++        } else if (newCashManagementTransaction.get('cashManagementEvent').type === 'deposit' && !newCashManagementTransaction.get('paymentMethod').paymentMethod.allowdeposits) {
++          errorCallback('Current payment method doesn\'t allow deposits');
++          return;
++        } else if (newCashManagementTransaction.get('cashManagementEvent').type !== 'deposit' && newCashManagementTransaction.get('cashManagementEvent').type !== 'drop') {
++          errorCallback('Action cannot be done');
++          return;
++        }
++        //calculate available cash taking into account starting cash, sales, return, cashMgm Drops and CashMgm Deposits
++        OB.UTIL.calculateCurrentCash(null, function () {
++          if (newCashManagementTransaction.get('cashManagementEvent').type === 'drop') {
++            if (OB.DEC.sub(newCashManagementTransaction.get('paymentMethod').currentCash, newCashManagementTransaction.get('amount')) < 0) {
++              errorCallback('Amount to drop is greater than available amount (' + OB.I18N.formatCurrency(newCashManagementTransaction.get('paymentMethod').currentCash) + ')');
++              return;
++            }
++          }
++
++          if (newCashManagementTransaction.get('cashManagementEvent').type === 'drop') {
++            glItem = newCashManagementTransaction.get('paymentMethod').paymentMethod.gLItemForDrops;
++          } else if (newCashManagementTransaction.get('cashManagementEvent').type === 'deposit') {
++            glItem = newCashManagementTransaction.get('paymentMethod').paymentMethod.gLItemForDeposits;
++          } else {
++            errorCallback('Error while getting the G/L item');
++            return;
++          }
++
++          //execute cash management operation
++          cashManagementTransactionToAdd = new OB.Model.CashManagement({
++            id: OB.Dal.get_uuid(),
++            description: newCashManagementTransaction.get('paymentMethod').payment._identifier + ' - ' + newCashManagementTransaction.get('cashManagementEvent').name,
++            amount: newCashManagementTransaction.get('amount'),
++            origAmount: OB.DEC.mul(newCashManagementTransaction.get('amount'), newCashManagementTransaction.get('paymentMethod').rate),
++            type: newCashManagementTransaction.get('cashManagementEvent').type,
++            reasonId: newCashManagementTransaction.get('cashManagementEvent').id,
++            paymentMethodId: newCashManagementTransaction.get('paymentMethod').payment.id,
++            user: OB.MobileApp.model.get('context').user._identifier,
++            userId: OB.MobileApp.model.get('context').user.id,
++            time: new Date().toString().substring(16, 21),
++            isocode: newCashManagementTransaction.get('paymentMethod').isocode,
++            glItem: glItem,
++            cashup_id: cashUp.get('id'),
++            isbeingprocessed: 'N'
++          });
++
++          OB.MobileApp.model.hookManager.executeHooks('OBPOS_cashManagementTransactionHook', {
++            newCashManagementTransaction: newCashManagementTransaction,
++            cashManagementTransactionToAdd: cashManagementTransactionToAdd
++          }, function (args) {
++            if (args && args.cancelOperation) {
++              errorCallback(args.errorMessage);
++            }
++          });
++
++          OB.Dal.save(cashManagementTransactionToAdd, function () {
++            if (optionsObj.executeSync) {
++              OB.MobileApp.model.runSyncProcess(function () {
++                if (optionsObj.printTicket) {
++                  if (OB.MobileApp.model.hasPermission('OBPOS_print.cashmanagement')) {
++                    var toPrint = new Backbone.Collection();
++                    toPrint.add(cashManagementTransactionToAdd);
++                    printCashManagementModel = optionsObj.ticketTemplate;
++                    printCashManagementModel.print(toPrint.toJSON());
++                    successCallback();
++                  } else {
++                    warns.push({
++                      msg: 'Ticket has not been printed. Permission needed (OBPOS_print.cashmanagement)',
++                      errObj: {}
++                    });
++                    successCallback({
++                      warnings: warns
++                    });
++                  }
++                } else {
++                  successCallback();
++                }
++              }, function (error) {
++                warns.push({
++                  msg: 'Cash Management event has not been sync. It will be synched later',
++                  errObj: error
++                });
++                if (optionsObj.printTicket) {
++                  if (OB.MobileApp.model.hasPermission('OBPOS_print.cashmanagement')) {
++                    var toPrint = new Backbone.Collection();
++                    toPrint.add(cashManagementTransactionToAdd);
++                    printCashManagementModel = optionsObj.ticketTemplate;
++                    printCashManagementModel.print(toPrint.toJSON());
++                    successCallback();
++                  } else {
++                    warns.push({
++                      msg: 'Ticket has not been printed. Permission needed (OBPOS_print.cashmanagement)',
++                      errObj: {}
++                    });
++                    successCallback({
++                      warnings: warns
++                    });
++                  }
++                } else {
++                  successCallback();
++                }
++              });
++            } else {
++              if (optionsObj.printTicket) {
++                if (OB.MobileApp.model.hasPermission('OBPOS_print.cashmanagement')) {
++                  var toPrint = new Backbone.Collection();
++                  toPrint.add(cashManagementTransactionToAdd);
++                  printCashManagementModel = optionsObj.ticketTemplate;
++                  printCashManagementModel.print(toPrint.toJSON());
++                  successCallback();
++                } else {
++                  warns.push({
++                    msg: 'Ticket has not been printed. Permission needed (OBPOS_print.cashmanagement)',
++                    errObj: {}
++                  });
++                  successCallback({
++                    warnings: warns
++                  });
++                }
++              } else {
++                successCallback();
++              }
++            }
++          }, function (error) {
++            errorCallback('error while saving cash management transaction');
++          }, true);
++        });
++      }
++    }, function () {
++      errorCallback("Error while retrieving current cash up info");
++      return;
++    }, null);
++  };
++
++}());
+\ No newline at end of file
+diff -r b4b15bb5aeb0 web/org.openbravo.retail.posterminal/js/utils/cashUpReportUtils.js
+--- a/web/org.openbravo.retail.posterminal/js/utils/cashUpReportUtils.js	Fri Dec 26 10:39:05 2014 +0000
++++ b/web/org.openbravo.retail.posterminal/js/utils/cashUpReportUtils.js	Tue Mar 31 11:37:35 2015 +0530
+@@ -256,7 +256,7 @@
+     });
+   };
+ 
+-  OB.UTIL.calculateCurrentCash = function (callback) {
++  OB.UTIL.calculateCurrentCash = function (callback, callbackFinal) {
+     var me = this;
+     OB.Dal.find(OB.Model.CashUp, {
+       'isbeingprocessed': 'N'
+@@ -265,6 +265,7 @@
+         'cashup_id': cashUp.at(0).get('id')
+       }, function (payMthds) { //OB.Dal.find success
+         var payMthdsCash;
++        var tot = OB.POS.modelterminal.get('payments').length;
+         _.each(OB.POS.modelterminal.get('payments'), function (paymentType, index) {
+           var cash = 0,
+               auxPay = payMthds.filter(function (payMthd) {
+@@ -301,6 +302,9 @@
+             if (typeof callback === 'function') {
+               callback();
+             }
++            if (index === tot - 1 && typeof callbackFinal === 'function') {
++              callbackFinal();
++            }
+           }, null, {
+             me: me
+           });
