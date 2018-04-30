@@ -23,7 +23,6 @@ import org.openbravo.base.session.OBPropertiesProvider;
 import org.openbravo.client.application.process.BaseProcessActionHandler;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.service.OBDal;
-import org.openbravo.model.common.order.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,9 +52,12 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
       Date StartDate = sdf.parse(SDate);
       Date EndDate = sdf.parse(EDate);
 
+      log.info("CSV Export Process Started...!!");
+
       if (EndDate.before(StartDate)) {
         try {
           result = generateJSONMessage("error", "End Date must be greater than Start Date", "");
+          log.error("End Date must be greater than Start Date.");
           return result;
         } catch (JSONException e) {
           // TODO Auto-generated catch block
@@ -69,7 +71,8 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
       if (daysBetween >= 31) {
         try {
           result = generateJSONMessage("error",
-              "The difference between Start Date and End Date should not exceed 31", "");
+              "The difference between Start Date and End Date should not exceed 31 days", "");
+          log.error("The difference between Start Date and End Date should not exceed 31 days.");
           return result;
         } catch (JSONException e) {
           // TODO Auto-generated catch block
@@ -77,24 +80,29 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         }
       }
 
-      ExportFixturesInvoiceReport.extract(StartDate, EndDate);
+      ExportFixturesInvoiceReport.extract(SDate, EDate);
 
     } catch (JSONException e) {
       try {
         result = generateJSONMessage("error", "Error in Excel Export Transaction ", e.getMessage());
+        log.error("Error in Excel Export Transaction" + e.getMessage());
       } catch (JSONException e1) {
         result = new JSONObject();
       }
       // TODO Auto-generated catch block
       e.printStackTrace();
+
     } catch (IOException e) {
       OBDal.getInstance().rollbackAndClose();
+
       try {
         result = generateJSONMessage("error", "Error in Transaction Generation", e.getMessage());
+        log.error("Error in Transaction Generation" + e.getMessage());
       } catch (JSONException e1) {
         result = new JSONObject();
       }
       // TODO Auto-generated catch block
+
     } catch (ParseException e) {
       result = new JSONObject();
       // TODO Auto-generated catch block
@@ -102,22 +110,27 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
     }
 
     finally {
+      log.info("CSV Export Process Finished...!!");
       OBContext.restorePreviousMode();
     }
-    return result;
 
-    // return jsonRequest;
+    return result;
   }
 
-  public static JSONObject extract(Date StartDate, Date EndDate)
-      throws FileNotFoundException, IOException, JSONException, ParseException {
+  @SuppressWarnings("hiding")
+  public static JSONObject extract(String SDate, String EDate) throws FileNotFoundException,
+      IOException, JSONException, ParseException {
 
-    String sql = "select " + "mw.name as WHName,mw.value as WHCode,mw.em_gs_gstin as WHGSTINNo, "
+    String sql = "select "
+        + "mw.name as WHName,mw.value as WHCode,mw.em_gs_gstin as WHGSTINNo, "
         + "org.name as OrgName,org.value as OrgCode, "
         + "ingst.uidno as StoreGSTINUniqueID,os.documentno as INVOICENUMBER,  "
-        + "to_char(os.shipment_date,'YYYY-mm-dd') as DateofInvoice, " + "mp.name as ProductName,  "
-        + "gst.value as ProductHSNCode, " + "mp.em_cl_modelname as ModelName,  "
-        + "ml.movementqty as ShipmentQty, " + "ml.em_obwship_cessionprice as CessionPrice, "
+        + "to_char(os.shipment_date,'YYYY-mm-dd') as DateofInvoice, "
+        + "mp.name as ProductName,  "
+        + "gst.value as ProductHSNCode, "
+        + "mp.em_cl_modelname as ModelName,  "
+        + "ml.movementqty as ShipmentQty, "
+        + "ml.em_obwship_cessionprice as CessionPrice, "
         + "(ml.movementqty*ml.em_obwship_cessionprice) as TaxableValue, "
         + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !=0 then ct.rate else 0 end)end) as INGSTRATE, "
         + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !='0' then "
@@ -144,17 +157,24 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "left join c_orderline orl on orl.c_orderline_id = ml.c_orderline_id "
         + "left join c_orderlinetax olt on olt.c_orderline_id = orl.c_orderline_id "
         + "left join c_tax ct on ct.c_tax_id = olt.c_tax_id "
-        + "where to_char(os.shipment_date,'YYYY-mm-dd')<='2018-02-01' and  to_char(os.shipment_date,'YYYY-mm-dd')>='2018-02-01'  "
-        + " and mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' "
+        + "where to_char(os.shipment_date,'YYYY-mm-dd')<= '"
+        + EDate
+        + "' and  to_char(os.shipment_date,'YYYY-mm-dd')>= '"
+        + SDate
+        + "' and "
+        + "mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' "
         + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.documentno  ,"
         + " os.shipment_date,  mp.name , gst.value ,mp.em_cl_modelname , ct.rate, ml.movementqty ,"
         + "ml.em_obwship_cessionprice ,ml.movementqty,ml.em_obwship_cessionprice" + "";
+
     SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(sql);
+    @SuppressWarnings("unchecked")
     List<Object[]> queryList = query.list();
 
     if (queryList.size() == 0) {
       try {
         result = generateJSONMessage("warning", "No Invoice to Export", "");
+        log.info("No Invoice to Export.");
         return result;
       } catch (JSONException e) {
         // TODO Auto-generated catch block
@@ -164,14 +184,10 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
 
     else {
 
-      List<Order> OrderList = null;
       XSSFWorkbook workbook = new XSSFWorkbook();
-
       CreationHelper createHelper = workbook.getCreationHelper();
-
       CellStyle cellStyle = workbook.createCellStyle();
       cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MMM-yyyy"));
-
       XSSFSheet sheet = workbook.createSheet("sheet1");
 
       Object[] cellData = { "Name of the Store/Warehouse from where goods are transferred",
@@ -179,32 +195,116 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
           "Name of the Store/Warehouse to where goods are transferred (Receipient)",
           "Store/Warehouse Code (Receipient)", "Store/Warehouse GSTIN No. (Receipient)",
           "Invoice No.", "Invoice date", "Item Code", "HSN", "Nature of Product", "Qty", "Rate",
-          "Qty*Rate", "IGST - Rate", "IGST - Amount", "CGST - Rate", "CGST - Amount", "SGST - Rate",
-          "SGST - Amount", "VALUE INCLUDING TAX", "CC", "ICA", "Purchase Sub ICA", "Sale Sub ICA",
-          "Debit", "Amount", "Credit ICA", "Amount" };
+          "Qty*Rate", "IGST - Rate", "IGST - Amount", "CGST - Rate", "CGST - Amount",
+          "SGST - Rate", "SGST - Amount", "VALUE INCLUDING TAX", "CC", "ICA", "Purchase Sub ICA",
+          "Sale Sub ICA", "Debit", "Amount", "Credit ICA", "Amount" };
 
       int rowNum = 2;
       int colNum = 0;
-      System.out.println("Creating excel");
 
+      log.info("Creating Excel.");
       Row row = sheet.createRow(rowNum++);
       for (Object field : cellData) {
         Cell cell = row.createCell(colNum++);
         cell.setCellValue((String) field);
       }
-      // for (Object[] queryListObj : queryList) {
-      // paymentMethodId = queryListObj[1].toString();
-      // paymentName = queryListObj[0].toString();
-      // }
-      // put the record in the sheet
-      // modify the following logic according to the requirement........
 
-      int colNum1 = 0;
-      Row row1 = sheet.createRow(rowNum++);
+      for (Object[] queryListObj : queryList) {
 
-      row1.createCell(colNum1++).setCellValue(StartDate);
-      row1.createCell(colNum1++).setCellValue(EndDate);
-      // Cell cell = row1.createCell(colNum1++);
+        int colNum1 = 0;
+        Row row1 = sheet.createRow(rowNum++);
+
+        if (queryListObj[0] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[0].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[1] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[1].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[2] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[2].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[3] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[3].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[4] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[4].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[5] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[5].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[6] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[6].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[7] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[7].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[8] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[8].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[9] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[9].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[10] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[10].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[11] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[11].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[12] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[12].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[13] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[13].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[14] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[14].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[15] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[15].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+        row1.createCell(colNum1++).setCellValue("");
+        row1.createCell(colNum1++).setCellValue("");
+        row1.createCell(colNum1++).setCellValue("");
+        row1.createCell(colNum1++).setCellValue("");
+
+        if (queryListObj[16] != null)
+          row1.createCell(colNum1++).setCellValue(queryListObj[16].toString());
+        else
+          row1.createCell(colNum1++).setCellValue("");
+
+      }
 
       FILE_NAME = new Date() + ".xlsx";
 
@@ -217,6 +317,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
   private static JSONObject generateJSONMessage(String msgType, String title, String text)
       throws JSONException {
 
+    @SuppressWarnings("hiding")
     JSONObject result = new JSONObject();
     JSONObject returnMessage = new JSONObject();
     JSONArray actions = new JSONArray();
@@ -224,18 +325,19 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
     returnMessage.put("msgType", msgType);
     returnMessage.put("msgTitle", title);
     returnMessage.put("msgText", text);
+
     JSONObject msgInAction = new JSONObject();
     msgInAction.put("showMsgInProcessView", returnMessage);
     actions.put(msgInAction);
     result.put("responseActions", actions);
     result.put("retryExecution", true);
+
     return result;
   }
 
-  private static void DownloadFile(XSSFWorkbook workbook)
-      throws FileNotFoundException, IOException, JSONException {
-    String contextURL = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("context.url");
+  private static void DownloadFile(XSSFWorkbook workbook) throws FileNotFoundException,
+      IOException, JSONException {
+
     String attachpath = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("attach.path");
 
@@ -248,14 +350,16 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
 
     JSONObject msgTotal = new JSONObject();
     msgTotal.put("msgType", "info");
-    msgTotal.put("msgTitle",
-        "Excel Report Generated!!" + " Click " + linkdocument + " to download ");
+    msgTotal.put("msgTitle", "Excel Report Generated!!" + " Click " + linkdocument
+        + " to download ");
     JSONObject msgTotalAction = new JSONObject();
     msgTotalAction.put("showMsgInProcessView", msgTotal);
 
     actions.put(msgTotalAction);
     result.put("responseActions", actions);
     result.put("retryExecution", true);
+
+    log.info("Excel Report '" + FILE_NAME + "' Generated...!!");
   }
 
   private static String getDownloadUrl(String fullFileName) {
@@ -263,6 +367,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         .getProperty("context.name");
     String linkdocument = "/" + contextName
         + "/org.openbravo.warehouse.shipping.print/DownloadExcelFile.html?param=" + fullFileName;
+    // log.info("The final URL to download the Export Sheet: " + linkdocument);
 
     return "<a href='" + linkdocument + "'target='_blank' >here</a>";
   }
