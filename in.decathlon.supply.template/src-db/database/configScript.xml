@@ -133,6 +133,10 @@
       <oldValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false]]></oldValue>
       <newValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false and exists (select org.id from Organization org where org.facstIsExternal = false and org.id = @#AD_Org_ID@ ) or e.organization.id in ( select org.id from Organization org where org.facstIsExternal = true and org.id = @#AD_Org_ID@ and e.warehouse.id in (select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@))]]></newValue>
     </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="AD_PROCESS_ID" pkRow="259">
+      <oldValue/>
+      <newValue><![CDATA[3607286F5C084203AE51C3D64051C0F0]]></newValue>
+    </columnDataChange>
     <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="294">
       <oldValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false  and e.businessPartner.id!='35586321F375451389832DD198CA1DC7']]></oldValue>
       <newValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false  and e.businessPartner.id!='35586321F375451389832DD198CA1DC7' and e.documentStatus!='VO']]></newValue>
@@ -164,3 +168,4 @@
       <newValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false and exists (select org.id from Organization org where org.facstIsExternal = false and org.id = @#AD_Org_ID@ ) or e.organization.id in ( select org.id from Organization org where org.facstIsExternal = true and org.id = @#AD_Org_ID@ and e.warehouse.id in (select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@))]]></newValue>
     </columnDataChange>
   </vector>
+
