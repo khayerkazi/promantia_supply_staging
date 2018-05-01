@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_MOVEMENTLINE">
+    <table name="M_MOVEMENTLINE" primaryKey="M_MOVEMENTLINE_KEY">
+      <column name="EM_OBWSHIP_CESSIONPRICE" primaryKey="false" required="true" type="DECIMAL" size="12,2" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWSHIP_TAXABLEAMOUNT" primaryKey="false" required="true" type="DECIMAL" size="12,2" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWSHIP_TAXAMOUNT" primaryKey="false" required="true" type="DECIMAL" size="12,2" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_OBWSHIP_TAXRATE" primaryKey="false" required="true" type="DECIMAL" size="12,2" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>
