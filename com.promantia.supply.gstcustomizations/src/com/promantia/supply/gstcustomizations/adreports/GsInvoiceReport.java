@@ -8,6 +8,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
+
+
+
+
+
+
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
@@ -31,10 +38,10 @@ public class GsInvoiceReport extends HttpSecureAppServlet {
 
     if (vars.commandIn("DEFAULT")) {
       String strShippingId = vars.getSessionValue("GS_InvoiceReport.inpobwshipShippingId");
-      //GS_InvoiceReport
+      // GS_InvoiceReport
       log4j.debug("strShippingId------------>" + strShippingId);
       if (strShippingId.equals(""))
-    	  strShippingId = vars.getSessionValue("GS_InvoiceReport.inpobwshipShippingId");
+        strShippingId = vars.getSessionValue("GS_InvoiceReport.inpobwshipShippingId");
       // strcBpartnerId = vars.getSessionValue("PrintRfQ.inpcBpartnerId");
       printPagePartePDF(response, vars, strShippingId);
     } else
@@ -43,15 +50,21 @@ public class GsInvoiceReport extends HttpSecureAppServlet {
 
   private void printPagePartePDF(HttpServletResponse response, VariablesSecureApp vars,
       String strShippingId) throws IOException, ServletException {
-
+    
+	  
+	  
+	  
     String strBaseDesign = getBaseDesignPath(vars.getLanguage());
     HashMap<String, Object> parameters = new HashMap<String, Object>();
 
     JasperReport jasperReportLines;
     try {
-      JasperDesign jasperDesignLines = JRXmlLoader.load(strBaseDesign
+ /*JasperCompileManager.compileReportToFile(strBaseDesign
+                + "/com/promantia/supply/gstcustomizations/adreports/InvoiceRe.jrxml");
+*/
+     JasperDesign jasperDesignLines = JRXmlLoader.load(strBaseDesign
           + "/com/promantia/supply/gstcustomizations/adreports/InvoiceRe.jrxml");
-      jasperReportLines = JasperCompileManager.compileReport(jasperDesignLines);
+      jasperReportLines = JasperCompileManager.compileReport(jasperDesignLines); 
     } catch (JRException e) {
       e.printStackTrace();
       throw new ServletException(e.getMessage());
@@ -61,9 +74,16 @@ public class GsInvoiceReport extends HttpSecureAppServlet {
     parameters.put("BASE_DESIGN", strBaseDesign);
     parameters.put("DOCUMENT_ID", strShippingId);
     renderJR(vars, response, null, "pdf", parameters, null, null);
+    
+    
+    
+    
   }
 
   public String getServletInfo() {
     return "Servlet that presents the RptMRequisitions seeker";
   } // End of getServletInfo() method
+  
+  
+  
 }

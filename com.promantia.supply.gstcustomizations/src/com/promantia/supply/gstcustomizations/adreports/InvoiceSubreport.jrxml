@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2018-04-30T18:16:13 -->
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2018-05-03T16:48:55 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -804,7 +804,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</textField>
 			<textField pattern="###0.00;-###0.00" isBlankWhenNull="true">
 				<reportElement x="425" y="0" width="55" height="25" uuid="62130b76-3583-468a-917e-9a54ffb70865"/>
-				<box rightPadding="2">
+				<box rightPadding="5">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -818,7 +818,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
 				<reportElement x="190" y="0" width="60" height="25" uuid="cdc61819-fe08-4710-b50d-41b46af7e6b9"/>
-				<box leftPadding="0" rightPadding="2">
+				<box leftPadding="0" rightPadding="3">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -860,7 +860,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</textField>
 			<textField pattern="###0.00;-###0.00" isBlankWhenNull="true">
 				<reportElement x="480" y="0" width="60" height="25" uuid="f9be350e-d978-4633-b5b4-8e920707ac67"/>
-				<box rightPadding="2">
+				<box rightPadding="5">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -874,7 +874,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="30" y="0" width="60" height="25" uuid="da74e312-8be5-440e-bf18-2ac8d2261b5b"/>
-				<box leftPadding="0" rightPadding="3">
+				<box leftPadding="0" rightPadding="15">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -888,7 +888,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</textField>
 			<textField pattern="###0.00;-###0.00" isBlankWhenNull="true">
 				<reportElement x="395" y="0" width="30" height="25" uuid="38a027e4-7421-481c-8df9-7059375b7900"/>
-				<box rightPadding="2">
+				<box rightPadding="5">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -902,7 +902,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="90" y="0" width="100" height="25" uuid="f074985c-8e88-4301-be98-b317a26529fd"/>
-				<box leftPadding="2">
+				<box leftPadding="1" rightPadding="3">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -958,7 +958,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</staticText>
 			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
 				<reportElement x="480" y="0" width="60" height="20" uuid="73c18d47-4b65-4ac2-983a-adef677866bc"/>
-				<box rightPadding="2">
+				<box rightPadding="5">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -972,7 +972,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="340" y="20" width="200" height="29" uuid="778be08b-f636-477f-af9e-88b836a8c721"/>
-				<box leftPadding="2">
+				<box leftPadding="2" bottomPadding="0">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -984,8 +984,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				</textElement>
 				<textFieldExpression><![CDATA[(($V{grandtotal}).doubleValue()*100.0 - ($V{grandtotal}).intValue()*100) == 0 ?
 "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}) + " only "
-: "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}) + " paise only "
-]]></textFieldExpression>
+: "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}) + " paise only "]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="190" y="49" width="150" height="29" uuid="bbabe254-ee33-4221-bdf5-e8a99dca93eb"/>
