@@ -118,19 +118,15 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
   }
 
   @SuppressWarnings("hiding")
-  public static JSONObject extract(String SDate, String EDate) throws FileNotFoundException,
-      IOException, JSONException, ParseException {
+  public static JSONObject extract(String SDate, String EDate)
+      throws FileNotFoundException, IOException, JSONException, ParseException {
 
-    String sql = "select "
-        + "mw.name as WHName,mw.value as WHCode,mw.em_gs_gstin as WHGSTINNo, "
+    String sql = "select " + "mw.name as WHName,mw.value as WHCode,mw.em_gs_gstin as WHGSTINNo, "
         + "org.name as OrgName,org.value as OrgCode, "
         + "ingst.uidno as StoreGSTINUniqueID,os.documentno as INVOICENUMBER,  "
-        + "to_char(os.shipment_date,'YYYY-mm-dd') as DateofInvoice, "
-        + "mp.name as ProductName,  "
-        + "gst.value as ProductHSNCode, "
-        + "mp.em_cl_modelname as ModelName,  "
-        + "ml.movementqty as ShipmentQty, "
-        + "ml.em_obwship_cessionprice as CessionPrice, "
+        + "to_char(os.shipment_date,'YYYY-mm-dd') as DateofInvoice, " + "mp.name as ProductName,  "
+        + "gst.value as ProductHSNCode, " + "mp.em_cl_modelname as ModelName,  "
+        + "ml.movementqty as ShipmentQty, " + "ml.em_obwship_cessionprice as CessionPrice, "
         + "(ml.movementqty*ml.em_obwship_cessionprice) as TaxableValue, "
         + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !=0 then ct.rate else 0 end)end) as INGSTRATE, "
         + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !='0' then "
@@ -157,11 +153,8 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "left join c_orderline orl on orl.c_orderline_id = ml.c_orderline_id "
         + "left join c_orderlinetax olt on olt.c_orderline_id = orl.c_orderline_id "
         + "left join c_tax ct on ct.c_tax_id = olt.c_tax_id "
-        + "where to_char(os.shipment_date,'YYYY-mm-dd')<= '"
-        + EDate
-        + "' and  to_char(os.shipment_date,'YYYY-mm-dd')>= '"
-        + SDate
-        + "' and "
+        + "where to_char(os.shipment_date,'YYYY-mm-dd')<= '" + EDate
+        + "' and  to_char(os.shipment_date,'YYYY-mm-dd')>= '" + SDate + "' and "
         + "mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' "
         + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.documentno  ,"
         + " os.shipment_date,  mp.name , gst.value ,mp.em_cl_modelname , ct.rate, ml.movementqty ,"
@@ -195,11 +188,11 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
           "Name of the Store/Warehouse to where goods are transferred (Receipient)",
           "Store/Warehouse Code (Receipient)", "Store/Warehouse GSTIN No. (Receipient)",
           "Invoice No.", "Invoice date", "Item Code", "HSN", "Nature of Product", "Qty", "Rate",
-          "Qty*Rate", "IGST - Rate", "IGST - Amount", "CGST - Rate", "CGST - Amount",
-          "SGST - Rate", "SGST - Amount", "VALUE INCLUDING TAX", "CC", "ICA", "Purchase Sub ICA",
-          "Sale Sub ICA", "Debit", "Amount", "Credit ICA", "Amount" };
+          "Qty*Rate", "IGST - Rate", "IGST - Amount", "CGST - Rate", "CGST - Amount", "SGST - Rate",
+          "SGST - Amount", "VALUE INCLUDING TAX", "CC", "ICA", "Purchase Sub ICA", "Sale Sub ICA",
+          "Debit", "Amount", "Credit ICA", "Amount" };
 
-      int rowNum = 2;
+      int rowNum = 0;
       int colNum = 0;
 
       log.info("Creating Excel.");
@@ -302,7 +295,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         if (queryListObj[16] != null)
           row1.createCell(colNum1++).setCellValue(queryListObj[16].toString());
         else
-          row1.createCell(colNum1++).setCellValue("");
+          row1.createCell(colNum1++).setCellValue(0.00);
 
       }
 
@@ -335,8 +328,8 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
     return result;
   }
 
-  private static void DownloadFile(XSSFWorkbook workbook) throws FileNotFoundException,
-      IOException, JSONException {
+  private static void DownloadFile(XSSFWorkbook workbook)
+      throws FileNotFoundException, IOException, JSONException {
 
     String attachpath = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("attach.path");
@@ -350,8 +343,8 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
 
     JSONObject msgTotal = new JSONObject();
     msgTotal.put("msgType", "info");
-    msgTotal.put("msgTitle", "Excel Report Generated!!" + " Click " + linkdocument
-        + " to download ");
+    msgTotal.put("msgTitle",
+        "Excel Report Generated!!" + " Click " + linkdocument + " to download ");
     JSONObject msgTotalAction = new JSONObject();
     msgTotalAction.put("showMsgInProcessView", msgTotal);
 

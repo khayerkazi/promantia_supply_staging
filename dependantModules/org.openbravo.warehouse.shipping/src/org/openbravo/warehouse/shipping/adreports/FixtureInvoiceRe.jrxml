@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2018-05-04T18:37:01 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="15" rightMargin="25" topMargin="20" bottomMargin="20" uuid="179eabf9-ef34-4b6d-b0f0-f9a99c890093">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/swathi/src/supply/app/modules/com.promantia.supply.gstcustomizations/src"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[(Select 'Original' as copy, 1 as sequence
+UNION
+SELECT 'Duplicate' as copy, 2 as sequence
+UNION
+SELECT 'Triplicate' as copy, 3 as sequence)
+order by sequence]]>
+	</queryString>
+	<field name="copy" class="java.lang.String"/>
+	<field name="sequence" class="java.lang.Integer"/>
+	<group name="Group_sequence" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{sequence}]]></groupExpression>
+	</group>
+	<background>
+		<band height="802" splitType="Stretch">
+			<rectangle>
+				<reportElement x="5" y="80" width="567" height="722" uuid="b93d1308-8278-446c-8cde-d7c4ef7a71a2"/>
+			</rectangle>
+		</band>
+	</background>
+	<pageHeader>
+		<band height="64" splitType="Stretch">
+			<textField>
+				<reportElement x="455" y="1" width="100" height="20" uuid="5fbfc7ec-3fe8-4b50-84c8-7fa74ea26780"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{copy}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<subreport>
+				<reportElement x="1" y="0" width="544" height="125" uuid="71d727aa-0d6a-44fa-9db4-c35b4cd461af"/>
+				<subreportParameter name="DOCUMENT_ID">
+					<subreportParameterExpression><![CDATA[$P{DOCUMENT_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{BASE_DESIGN}+"/org/openbravo/warehouse/shipping/adreports/FixtureInvoiceSubreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
