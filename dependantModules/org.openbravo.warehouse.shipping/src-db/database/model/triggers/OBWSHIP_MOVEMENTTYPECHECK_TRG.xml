@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER OBWSHIP_MOVEMENTTYPECHECK_TRG">
+    <trigger name="OBWSHIP_MOVEMENTTYPECHECK_TRG" table="M_MOVEMENT" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+  v_ID VARCHAR(32);
+  v_count NUMBER;
+  v_status VARCHAR(30);
+  Cur_Movementline RECORD;
+  v_locator VARCHAR(32);
+  v_locatorto VARCHAR(32);
+
+
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+  IF(UPDATING OR INSERTING) THEN
+                  v_ID:=:new.M_Movement_ID;
+                  select em_sw_movementtypegm into v_status from m_movement where m_movement_id=v_ID; 
+                  select count(*) into v_count from m_movementline where m_movement_id=v_id; 
+                  IF(v_count!=0 and v_status='Saleable Fixture WH-WH')THEN  
+                  FOR Cur_Movementline IN
+                  (select mw.m_warehouse_id as from_warehouse, mwl.m_warehouse_id as to_warehouse
+                  from m_movementline
+                  join m_locator ml on ml.m_locator_id=m_movementline.m_locator_id
+                  join m_locator mlto on mlto.m_locator_id=m_movementline.m_locatorto_id
+                  join m_warehouse mw on mw.m_warehouse_id=ml.m_warehouse_id
+                  join m_warehouse mwl on mwl.m_warehouse_id=mlto.m_warehouse_id
+                  where m_movementline.m_movement_id=v_ID)
+                  loop
+                  if(Cur_Movementline.from_warehouse=Cur_Movementline.to_warehouse)then
+                  RAISE EXCEPTION 'Saving failed for status Saleable Fixture WH-WH as From_Warehouse and To_Warehouse is same.';
+                  end if;
+                  end loop;
+                  END IF;
+  END IF;
+END OBWSHIP_MOVEMENTTYPECHECK_TRG
+]]></body>
+    </trigger>
+  </database>

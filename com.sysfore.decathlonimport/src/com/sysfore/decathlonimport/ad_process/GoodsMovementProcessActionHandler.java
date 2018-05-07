@@ -23,6 +23,9 @@ import org.openbravo.dal.service.OBDal;
 import org.openbravo.erpCommon.utility.OBMessageUtils;
 import org.openbravo.model.ad.access.User;
 import org.openbravo.model.ad.process.ProcessInstance;
+import org.openbravo.model.common.enterprise.Locator;
+import org.openbravo.model.common.enterprise.Warehouse;
+import org.openbravo.model.common.plm.ProductCategory;
 import org.openbravo.model.materialmgmt.onhandquantity.StorageDetail;
 import org.openbravo.model.materialmgmt.transaction.InternalMovement;
 import org.openbravo.service.db.CallStoredProcedure;
@@ -69,8 +72,8 @@ private JSONObject validatemovement(String createdby) throws Exception {
 		String imMovementId ;
 		String warehouse;
 		String product;
-		String fromlocator;
-		String tolocator;
+		String fromlocator=null;
+		String tolocator=null;
 		String frombox;
 		long qty;
 		String tobox;
@@ -85,11 +88,24 @@ private JSONObject validatemovement(String createdby) throws Exception {
 		criteriamovement.add(Restrictions.eq(IM_Movement.PROPERTY_VALIDATED, false));
 		criteriamovement.add(Restrictions.eq(IM_Movement.PROPERTY_CREATEDBY, cuser));
 		log4j.error(cuser);
-		
+		StorageDetail storage=null;
+		String newStorage=null;
+		String status=null;
+		List unMatchedWarehouse=new ArrayList();
 		if(criteriamovement.count() > 0){
 			
 			populatevalues();
-			
+			for(IM_Movement imIterator : criteriamovement.list()){
+				comapreWarehoue(imIterator.getLocator(), imIterator.getLocatorto(),unMatchedWarehouse);
+				
+			}
+			if(unMatchedWarehouse.size()==criteriamovement.list().size()){
+				status="Saleable Fixture WH-WH";
+			}
+			else{
+				status="IWM";
+
+			}
 			for(IM_Movement imIterator : criteriamovement.list()){
 				
 				errormsg = new StringBuilder();
@@ -104,13 +120,14 @@ private JSONObject validatemovement(String createdby) throws Exception {
 				tobox = imIterator.getBoxto();
 				
 				String adOrg = checkWarehouseExists(warehouse);
-				StorageDetail storage = checkFromMovement(imMovementId,product,fromlocator,frombox,qty);
-				String newStorage = checkNewStorageExists(tolocator);
+				 storage = checkFromMovement(imMovementId,product,fromlocator,frombox,qty);
+				 newStorage = checkNewStorageExists(tolocator);
 				
 				log4j.error(" newStorage : "+newStorage);
 				
 				
-				// Hard coded only for Saleable Whitefield since doesnt have box numbers (Incase if this needs to eliminated remove the if block)
+				// Hard coded only for Saleable Whitefield since doesnt have box numbers 
+				//(Incase if this needs to eliminated remove the if block)
 				
 				if(null != fromlocator && null != tolocator){
 					
@@ -165,7 +182,7 @@ private JSONObject validatemovement(String createdby) throws Exception {
 				return JsonResult;
 			} else {
 				
-				headerId = insertHeader(createdby);
+				headerId = insertHeader(createdby,status);
 				log4j.error("headerId : " + headerId);
 				
 				if(headerId != null){
@@ -387,8 +404,7 @@ private Boolean callProcedure(String pInstanceId) throws Exception {
 
 
 
-private String insertHeader(String createdby) throws Exception {
-	
+private String insertHeader(String createdby, String status) throws Exception {
 	Date formattedDate = new Date();
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddhhmmss");
     String currentDate = sdf.format(formattedDate);
@@ -396,8 +412,11 @@ private String insertHeader(String createdby) throws Exception {
 	String orgId = "603C6A266B4C40BCAD87C5C43DDF53EE";
 	String name = currentDate;
 	String documentno = "IWM-"+currentDate;
-	String description = "INTER WAREHOUSE REPLENISHMENT";
-	String typegm = "IWM";
+	String description = "INTER WAREHOUSE REPLENISHMENT";	
+	//String typegm = "IWM";
+	String typegm = status;
+	
+	
 	
     String query = "insert into m_movement (m_movement_id,ad_client_id,ad_org_id,isactive,createdby,updatedby," +
     			   "name,description,posted,processed,processing,ad_orgtrx_id,c_project_id,c_campaign_id,c_activity_id," +
@@ -429,6 +448,52 @@ private String insertHeader(String createdby) throws Exception {
 	} finally {
 		stmt.close();
 	}
+}
+
+private void checkSaleableFixtureWH_WH(String cuser, String fromlocator, String tolocator) {
+	User userlObj = OBDal.getInstance().get(User.class,
+			cuser);
+	OBCriteria<IM_Movement> criteriamovement = OBDal.getInstance().createCriteria(IM_Movement.class);
+	criteriamovement.add(Restrictions.eq(IM_Movement.PROPERTY_VALIDATED, false));
+	criteriamovement.add(Restrictions.eq(IM_Movement.PROPERTY_CREATEDBY, userlObj));
+	if(criteriamovement.list().size()>0){
+		for(IM_Movement movementObj: criteriamovement.list()){
+			//comapreWarehoue(fromlocator,tolocator);
+		}
+	}
+}
+
+private void comapreWarehoue(String fromlocator, String tolocator, List unMatchedWarehouse) {
+	Warehouse ob1=null;
+	Warehouse ob2=null;
+	
+	OBCriteria<Locator> criteriafromlocation = OBDal.getInstance().createCriteria(Locator.class);
+	criteriafromlocation.add(Restrictions.eq(Locator.PROPERTY_SEARCHKEY, fromlocator));
+	criteriafromlocation.add(Restrictions .eq(Locator.PROPERTY_CLIENT, OBContext.getOBContext().getCurrentClient()));
+	if(criteriafromlocation.list().size()>0){
+		 ob1=criteriafromlocation.list().get(0).getWarehouse();
+	}
+	else{
+		throw new OBException ("Storage Bin is not preset  " +fromlocator);
+	}
+	OBCriteria<Locator> criteriatolocation = OBDal.getInstance().createCriteria(Locator.class);
+	criteriatolocation.add(Restrictions.eq(Locator.PROPERTY_SEARCHKEY, tolocator))
+	.add(Restrictions.eq(Locator.PROPERTY_CLIENT, OBContext.getOBContext().getCurrentClient()));
+	if(criteriatolocation.list().size()>0){
+		 ob2=criteriatolocation.list().get(0).getWarehouse();
+
+	}
+	else{
+		throw new OBException ("New Storage Bin is not preset  " +tolocator);
+	
+	}
+	if(!(ob1.getId().equalsIgnoreCase(ob2.getId()))){
+		unMatchedWarehouse.add(tolocator);	
+
+		
+	}
+
+	
 }
 
 private void updateErrorMsg(String imMovementId, StringBuilder errormsg) throws Exception {
