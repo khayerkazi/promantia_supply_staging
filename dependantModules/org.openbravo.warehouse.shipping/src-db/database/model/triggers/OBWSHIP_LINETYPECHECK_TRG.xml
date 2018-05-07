@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER OBWSHIP_LINETYPECHECK_TRG">
+    <trigger name="OBWSHIP_LINETYPECHECK_TRG" table="M_MOVEMENTLINE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+  v_ID VARCHAR(32);         
+  v_count NUMBER;
+  v_status VARCHAR(30);
+  Cur_Movementline RECORD;
+  v_locator VARCHAR(32);
+  v_locatorto VARCHAR(32);
+  l_id VARCHAR(32);
+  v_warehouse VARCHAR (32);
+  v_warehouseto VARCHAR (32);
+  v_cessionprice NUMBER;
+  v_taxcategory VARCHAR(32);
+  v_rate NUMBER;
+  v_movementline_id VARCHAR(32);
+  v_taxable NUMBER;
+  v_taxamount NUMBER;
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+  IF(UPDATING) THEN
+                  v_ID =:new.m_movement_id;
+                  select em_sw_movementtypegm into v_status from m_movement where m_movement_id=v_ID;
+                  IF(v_status='Saleable Fixture WH-WH')THEN
+                  v_locator=:new.m_locator_id;
+                  v_locatorto=:new.m_locatorto_id;
+                  select m_warehouse_id into v_warehouse from m_locator where m_locator_id=v_locator;
+                  select m_warehouse_id into v_warehouseto from m_locator where m_locator_id=v_locatorto;
+                  if(v_warehouse=v_warehouseto) then
+                  RAISE EXCEPTION 'Saving Failed.Both the storage bins are from same warehouse.';
+                  end if; 
+                  END IF;
+  END IF;
+IF(INSERTING) then
+v_ID =:new.m_movement_id;
+                  select em_sw_movementtypegm into v_status from m_movement where m_movement_id=v_ID;
+                  IF(v_status='Saleable Fixture WH-WH')THEN
+                  v_locator=:new.m_locator_id;
+                  v_locatorto=:new.m_locatorto_id;
+                  select m_warehouse_id into v_warehouse from m_locator where m_locator_id=v_locator;
+                  select m_warehouse_id into v_warehouseto from m_locator where m_locator_id=v_locatorto;
+                  if(v_warehouse=v_warehouseto) then
+                  RAISE EXCEPTION 'Saving Failed.Both the storage bins are from same warehouse.';
+                  else
+                  select em_cl_cessionprice into v_cessionprice from m_productprice  where m_product_id =:new.m_product_id;
+                  v_cessionprice=v_cessionprice*:new.MovementQty;
+                  
+                  select c_taxcategory_id into v_taxcategory from m_product where m_product_id=:new.m_product_id;
+                  select rate into v_rate from c_tax where  c_tax.c_taxcategory_id  =v_taxcategory 
+                  and c_tax.em_intx_indian_taxcategory ='GS_IGST';
+                  v_taxable=  round((v_cessionprice*100)/(100 + v_rate),2);
+                  v_taxamount=v_cessionprice-v_taxable;
+
+                 update m_movementline  set em_obwship_cessionprice =v_cessionprice,
+                 em_obwship_taxableamount=v_taxable,em_obwship_taxamount=v_taxamount,
+                 em_obwship_taxrate=v_rate 
+                 where  m_movementline_id=:new.m_movementline_id;
+                  
+                  --RAISE exception '%',v_taxamount;
+                  
+                  end if;
+                  end if;
+
+
+end if;
+  
+END OBWSHIP_LINETYPECHECK_TRG
+]]></body>
+    </trigger>
+  </database>
