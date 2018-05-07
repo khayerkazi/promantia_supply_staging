@@ -8,8 +8,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.openbravo.base.exception.OBException;
 import org.openbravo.base.secureApp.HttpSecureAppServlet;
 import org.openbravo.base.secureApp.VariablesSecureApp;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.model.materialmgmt.transaction.InternalMovement;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -35,8 +38,19 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
       log4j.debug("strShippingId------------>" + strMovementId);
       if (strMovementId.equals(""))
         strMovementId = vars.getSessionValue("Goods_Movements_Invoice_Print.inpmMovementId");
+
+      String trimmedmovementID = strMovementId.substring(2, strMovementId.length() - 2);
+
+      InternalMovement movementObj = OBDal.getInstance().get(InternalMovement.class,
+          trimmedmovementID);
+      if (!movementObj.getSWMovementtypegm().equalsIgnoreCase("Saleable Fixture WH-WH")
+          || movementObj.getSWMovementtypegm() == null)
+        throw new OBException(
+            "Print Button works only with the 'Saleable Fixture WH-WH' " + " Movement Type");
       // strcBpartnerId = vars.getSessionValue("PrintRfQ.inpcBpartnerId");
-      printPagePartePDF(response, vars, strMovementId);
+      else
+        printPagePartePDF(response, vars, strMovementId);
+
     } else
       pageError(response);
   }
