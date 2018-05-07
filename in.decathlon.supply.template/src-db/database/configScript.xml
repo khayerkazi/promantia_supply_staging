@@ -85,6 +85,10 @@
       <oldValue/>
       <newValue><![CDATA[@Processed@='Y']]></newValue>
     </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3594">
+      <oldValue/>
+      <newValue><![CDATA[137565C8A34F49B8BDE60860EAEB73A5]]></newValue>
+    </columnDataChange>
     <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="01B5BEFECF8C479C9944D62C577C0ECC">
       <oldValue><![CDATA[@EM_SW_POStatus@='CD']]></oldValue>
       <newValue><![CDATA[@EM_SW_POStatus@='CD' | @Processed@='Y']]></newValue>
