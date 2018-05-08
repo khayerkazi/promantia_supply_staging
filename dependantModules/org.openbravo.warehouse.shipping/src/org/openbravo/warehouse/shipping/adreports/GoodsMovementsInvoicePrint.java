@@ -43,14 +43,17 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
 
       InternalMovement movementObj = OBDal.getInstance().get(InternalMovement.class,
           trimmedmovementID);
-      if (!movementObj.getSWMovementtypegm().equalsIgnoreCase("Saleable Fixture WH-WH")
-          || movementObj.getSWMovementtypegm() == null)
+      try {
+        if (!movementObj.getSWMovementtypegm().equalsIgnoreCase("Saleable Fixture WH-WH"))
+          throw new OBException(
+              "Print Button works only with the 'Saleable Fixture WH-WH' " + " Movement Type");
+        // strcBpartnerId = vars.getSessionValue("PrintRfQ.inpcBpartnerId");
+        else
+          printPagePartePDF(response, vars, strMovementId);
+      } catch (Exception e) {
         throw new OBException(
             "Print Button works only with the 'Saleable Fixture WH-WH' " + " Movement Type");
-      // strcBpartnerId = vars.getSessionValue("PrintRfQ.inpcBpartnerId");
-      else
-        printPagePartePDF(response, vars, strMovementId);
-
+      }
     } else
       pageError(response);
   }
