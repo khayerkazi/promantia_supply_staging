@@ -30,8 +30,8 @@ BEGIN
                   where m_movementline.m_movement_id=v_ID)
                   loop
                   if(Cur_Movementline.from_warehouse=Cur_Movementline.to_warehouse)then
-                  RAISE EXCEPTION 'Saving failed for status Saleable Fixture WH-WH as From_Warehouse and To_Warehouse is same.';
-                  end if;
+                  RAISE_APPLICATION_ERROR(-20000, '@OBWSHIP_Saleable Fixture WH-WH-status@');             
+                   end if;
                   end loop;
                   END IF;
   END IF;
