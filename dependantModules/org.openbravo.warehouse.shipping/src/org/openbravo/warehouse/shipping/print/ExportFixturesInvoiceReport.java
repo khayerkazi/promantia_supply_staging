@@ -123,7 +123,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
 
     String sql = "select " + "mw.name as WHName,mw.value as WHCode,mw.em_gs_gstin as WHGSTINNo, "
         + "org.name as OrgName,org.value as OrgCode, "
-        + "ingst.uidno as StoreGSTINUniqueID,os.documentno as INVOICENUMBER,  "
+        + "ingst.uidno as StoreGSTINUniqueID,os.EM_Gs_Uniqueno as INVOICENUMBER,  "
         + "to_char(os.shipment_date,'YYYY-mm-dd') as DateofInvoice, " + "mp.name as ProductName,  "
         + "gst.value as ProductHSNCode, " + "mp.em_cl_modelname as ModelName,  "
         + "ml.movementqty as ShipmentQty, " + "ml.em_obwship_cessionprice as CessionPrice, "
@@ -156,7 +156,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "where to_char(os.shipment_date,'YYYY-mm-dd')<= '" + EDate
         + "' and  to_char(os.shipment_date,'YYYY-mm-dd')>= '" + SDate + "' and "
         + "mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' "
-        + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.documentno  ,"
+        + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.EM_Gs_Uniqueno ,"
         + " os.shipment_date,  mp.name , gst.value ,mp.em_cl_modelname , ct.rate, ml.movementqty ,"
         + "ml.em_obwship_cessionprice ,ml.movementqty,ml.em_obwship_cessionprice" + "";
 
@@ -204,101 +204,103 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
 
       for (Object[] queryListObj : queryList) {
 
-        int colNum1 = 0;
-        Row row1 = sheet.createRow(rowNum++);
+        if (queryListObj[6] != null) {
 
-        if (queryListObj[0] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[0].toString());
-        else
+          int colNum1 = 0;
+          Row row1 = sheet.createRow(rowNum++);
+
+          if (queryListObj[0] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[0].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[1] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[1].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[2] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[2].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[3] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[3].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[4] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[4].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[5] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[5].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[6] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[6].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[7] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[7].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[8] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[8].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[9] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[9].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[10] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[10].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[11] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[11].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[12] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[12].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[13] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[13].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[14] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[14].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          if (queryListObj[15] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[15].toString());
+          else
+            row1.createCell(colNum1++).setCellValue("");
+
+          row1.createCell(colNum1++).setCellValue("");
+          row1.createCell(colNum1++).setCellValue("");
+          row1.createCell(colNum1++).setCellValue("");
           row1.createCell(colNum1++).setCellValue("");
 
-        if (queryListObj[1] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[1].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
+          if (queryListObj[16] != null)
+            row1.createCell(colNum1++).setCellValue(queryListObj[16].toString());
+          else
+            row1.createCell(colNum1++).setCellValue(0.00);
 
-        if (queryListObj[2] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[2].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[3] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[3].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[4] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[4].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[5] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[5].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[6] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[6].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[7] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[7].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[8] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[8].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[9] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[9].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[10] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[10].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[11] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[11].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[12] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[12].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[13] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[13].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[14] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[14].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[15] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[15].toString());
-        else
-          row1.createCell(colNum1++).setCellValue("");
-
-        row1.createCell(colNum1++).setCellValue("");
-        row1.createCell(colNum1++).setCellValue("");
-        row1.createCell(colNum1++).setCellValue("");
-        row1.createCell(colNum1++).setCellValue("");
-
-        if (queryListObj[16] != null)
-          row1.createCell(colNum1++).setCellValue(queryListObj[16].toString());
-        else
-          row1.createCell(colNum1++).setCellValue(0.00);
-
+        }
       }
-
       FILE_NAME = new Date() + ".xlsx";
 
       DownloadFile(workbook);
