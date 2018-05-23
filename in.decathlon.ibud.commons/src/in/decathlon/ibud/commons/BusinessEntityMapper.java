@@ -192,7 +192,7 @@ public class BusinessEntityMapper {
 
   public static int setLastUpdatedTime(String newDate, String serviceKey) {
     String qry = "update Ibud_ServerTime set lastupdated = '" + newDate
-        + "' where serviceKey= :serviceKey ";
+        + "' where serviceKey= :serviceKey and client='"+OBContext.getOBContext().getCurrentClient().getId()+"'";
     log.info("executing " + qry);
     Query query = OBDal.getInstance().getSession().createQuery(qry);
     query.setParameter("serviceKey", serviceKey);

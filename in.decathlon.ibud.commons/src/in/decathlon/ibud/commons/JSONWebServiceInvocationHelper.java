@@ -42,6 +42,7 @@ public class JSONWebServiceInvocationHelper {
     OBCriteria<IbudServerTime> ibudServerTimeCriteria = OBDal.getInstance().createCriteria(
         IbudServerTime.class);
     ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_SERVICEKEY, serviceKey));
+    ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_CLIENT ,OBContext .getOBContext().getCurrentClient()));
     ibudServerTimeCriteria.setMaxResults(1);
     List<IbudServerTime> ibudServerTimeList = ibudServerTimeCriteria.list();
 
