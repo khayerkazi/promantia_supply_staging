@@ -40,6 +40,8 @@ import org.openbravo.erpCommon.utility.OBMessageUtils;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
 import org.openbravo.model.common.enterprise.Warehouse;
 import org.openbravo.model.common.plm.Product;
+import org.openbravo.model.financialmgmt.tax.TaxCategory;
+import org.openbravo.model.financialmgmt.tax.TaxRate;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOut;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
 import org.openbravo.model.pricing.pricelist.PriceList;
@@ -203,8 +205,38 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
         mapObj.put(inoutLine.getProduct(), getCessionPrice(inoutLine.getProduct()));
       }
       for (ShipmentInOutLine inoutLine : inoutLineList) {
-        if (mapObj.containsKey(inoutLine.getProduct()))
-          inoutLine.setOBWSHIPCessionPrice(mapObj.get(inoutLine.getProduct()));
+        if (mapObj.containsKey(inoutLine.getProduct())) {
+
+          BigDecimal movementQty = inoutLine.getMovementQuantity();
+
+          // Set Cession Price
+          BigDecimal cessionPrice = mapObj.get(inoutLine.getProduct());
+          inoutLine.setOBWSHIPCessionPrice(cessionPrice);
+
+          // Set Tax Rate
+          TaxCategory taxCategory = inoutLine.getProduct().getTaxCategory();
+
+          OBCriteria<TaxRate> taxRateCriteria = OBDal.getInstance().createCriteria(TaxRate.class);
+          taxRateCriteria.add(Restrictions.eq(TaxRate.PROPERTY_TAXCATEGORY, taxCategory));
+          taxRateCriteria.add(Restrictions.eq(TaxRate.PROPERTY_INTXINDIANTAXCATEGORY, "GS_IGST"));
+          if (taxRateCriteria.list().size() < 0) {
+            throw new OBException("Error in IGST Tax Configuration");
+          } else {
+            inoutLine.setObwshipTaxrate(taxRateCriteria.list().get(0).getRate());
+          }
+
+          // Set Taxable Amount
+          BigDecimal expression1 = cessionPrice.multiply(movementQty).multiply(new BigDecimal(100));
+          BigDecimal expression2 = taxRateCriteria.list().get(0).getRate().add(new BigDecimal(100));
+          BigDecimal taxableAmt = expression1.divide(expression2, 2, BigDecimal.ROUND_HALF_UP);
+
+          inoutLine.setObwshipTaxableamount(taxableAmt);
+
+          // set Tax Amount
+          BigDecimal taxAmount = (cessionPrice.multiply(movementQty)).subtract(taxableAmt);
+          inoutLine.setObwshipTaxamount(taxAmount);
+
+        }
         OBDal.getInstance().save(inoutLine);
         // OBDal.getInstance().flush();
       }
