@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_MOVEMENT">
+    <table name="M_MOVEMENT" primaryKey="M_MOVEMENT_KEY">
+      <column name="EM_OBWSHIP_UNIQUENO" primaryKey="false" required="false" type="VARCHAR" size="12" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>
