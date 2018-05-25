@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2018-05-03T16:48:55 -->
+<!-- 2018-05-24T17:09:47 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="150"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="NEW_DATAADAPTER.xml"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
 	<parameter name="BASE_DESIGN" class="java.lang.String"/>
 	<queryString>
@@ -16,11 +16,10 @@ os.em_gs_uniqueno as SerialNoOfInvoice, os.shipment_date as DateofInvoice,
 reg1.name as State1, reg.name as State, reg.value as StateCode, ingst.uidno as GSTINUniqueID,
 mp.name as ProductName, mp.em_cl_modelname as ModelName, gst.value as ProductHSNCode,
 ml.movementqty as ShipmentQty, round(ml.em_obwship_cessionprice,2) as CessionPrice,
-round((ml.movementqty*ml.em_obwship_cessionprice),2) as TaxableValue,
-(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !=0 then ct.rate else 0 end)end) as INGSTRATE,
-(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !='0' then
-round((((ml.movementqty*ml.em_obwship_cessionprice)*ct.rate)/100),2) else 0 end)end)
-as TotalTaxValue,round((case when mw.em_gs_gstin=ingst.uidno then ml.movementqty*ml.em_obwship_cessionprice else (case when ct.rate !='0' then
+round(ml.em_OBWSHIP_TaxableAmount,2) as TaxableValue,
+round(ml.em_obwship_taxamount,2) as TotalTaxValue,
+round(ml.em_obwship_taxrate,2) as INGSTRATE,
+round((case when mw.em_gs_gstin=ingst.uidno then ml.movementqty*ml.em_obwship_cessionprice else (case when ct.rate !='0' then
 (ml.movementqty*ml.em_obwship_cessionprice)+(round((((ml.movementqty*ml.em_obwship_cessionprice)*ct.rate)/100),2))
 else (ml.movementqty*ml.em_obwship_cessionprice) end)end),2) as Total
 from obwship_shipping os
