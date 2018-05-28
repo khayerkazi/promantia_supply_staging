@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION OBWSHIP_INSERT_INVOICENO">
+    <function name="OBWSHIP_INSERT_INVOICENO" type="NULL">
+      <parameter name="p_ep_instance" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_message VARCHAR(2000);
+p_record_id VARCHAR(60);
+p_user VARCHAR(60);
+p_result NUMBER;
+
+v_movementline_count NUMBER;
+v_movement_type m_movement.em_sw_movementtypegm%TYPE;
+v_fromWH_seqId m_warehouse.em_gs_sequence%TYPE;
+
+TYPE RECORD IS REF CURSOR;
+Cur_Params    RECORD;
+cur_lines     RECORD;
+
+BEGIN
+
+  FOR Cur_Params IN (
+    SELECT *
+    FROM ad_ep_instance_para
+    WHERE ad_ep_instance_id = p_ep_instance
+    ) LOOP
+    IF (cur_params.parametername LIKE 'Record_ID') THEN
+      p_record_id := cur_params.p_string;
+    ELSIF (cur_params.parametername LIKE 'User') THEN
+      p_user := cur_params.p_string;
+    ELSIF (cur_params.parametername LIKE 'Message') THEN
+      p_message := cur_params.p_text;
+    ELSIF (cur_params.parametername LIKE 'Result') THEN
+      p_result := cur_params.p_number;
+    END IF;
+  END LOOP;
+
+  SELECT em_sw_movementtypegm  INTO v_movement_type  
+  FROM m_movement  
+  WHERE m_movement_id = p_record_id;
+  IF (v_movement_type <>'Saleable Fixture WH-WH') THEN
+	return;
+  END IF;
+  
+  SELECT count(*) INTO v_movementline_count  
+  FROM m_movementline  
+  WHERE m_movement_id = p_record_id;
+  IF (v_movementline_count = 0) THEN
+	RAISE_APPLICATION_ERROR(-20000, '@obwship_movementLine_notFound@');
+  END IF;
+
+  SELECT DISTINCT fromwh.em_gs_sequence INTO v_fromWH_seqId
+  FROM m_movement m 
+  JOIN m_movementLine ml ON m.m_movement_id = ml.m_movement_id 
+  JOIN m_locator fromloc ON fromloc.m_locator_id = ml.m_locator_id
+  JOIN m_warehouse fromwh ON fromwh.m_warehouse_id = fromloc.m_warehouse_id 
+  WHERE m.processed = 'N' AND m.m_movement_id =p_record_id ;
+
+  UPDATE m_movement 
+  SET em_obwship_uniqueno = (SELECT prefix||currentnext 
+                             FROM ad_sequence 
+                             WHERE ad_sequence_id = v_fromWH_seqId)
+  WHERE m_movement_id =p_record_id;
+  
+  UPDATE ad_sequence 
+  SET currentnext = currentnext+1  
+  WHERE ad_sequence_id =v_fromWH_seqId;
+END OBWSHIP_INSERT_INVOICENO
+]]></body>
+    </function>
+  </database>
