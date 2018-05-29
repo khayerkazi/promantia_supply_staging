@@ -24,14 +24,12 @@ import org.openbravo.model.ad.access.Role;
 import org.openbravo.model.ad.access.User;
 import org.openbravo.model.ad.utility.Tree;
 import org.openbravo.model.ad.utility.TreeNode;
-import org.openbravo.model.common.businesspartner.BusinessPartner;
-import org.openbravo.model.common.currency.Currency;
+import org.openbravo.model.common.enterprise.DocumentType;
 import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.enterprise.OrganizationAcctSchema;
 import org.openbravo.model.common.enterprise.OrganizationInformation;
 import org.openbravo.model.common.enterprise.Warehouse;
 import org.openbravo.model.financialmgmt.accounting.coa.AcctSchema;
-import org.openbravo.scheduling.ProcessLogger;
 import org.openbravo.service.json.DataResolvingMode;
 import org.openbravo.service.json.DataToJsonConverter;
 import org.openbravo.service.json.JsonConstants;
@@ -39,7 +37,7 @@ import org.openbravo.service.json.JsonToDataConverter;
 
 public class JSONHelper {
   public static final Logger log = Logger.getLogger(JSONHelper.class);
-  
+
   @SuppressWarnings("unchecked")
   public static boolean saveJSONObject(JSONArray jsonArrayContent) throws Exception {
     SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -67,12 +65,12 @@ public class JSONHelper {
     String dsidefStorephonedesc = null;
     String dsidefStoremanagermail = null;
     Boolean existingIsReady = false;
-    //Currency existingCurrency = null;
-    
+    // Currency existingCurrency = null;
+
     Boolean isSummaryLevel = false;
     String legalName = null;
     Boolean allowPeriodControl = null;
-    AcctSchema generalLedgar =null;
+    AcctSchema generalLedgar = null;
     String emdsTelephoneNo = null;
     Boolean emFacstIsExternal = null;
     Long emIbdrepOrgreppriority = null;
@@ -105,7 +103,7 @@ public class JSONHelper {
           // object is present in store so update and save it
           log.debug(entityName + " with this id exists");
           if (entityName.equals("Organization")) {
-            
+
             OBContext.setAdminMode(true);
             OBContext.getOBContext().addWritableOrganization(id);
             Organization existingOrg = OBDal.getInstance().get(Organization.class, id);
@@ -147,15 +145,15 @@ public class JSONHelper {
             OBContext.setAdminMode(true);
             if (id != null) {
               OBContext.getOBContext().addWritableOrganization(id);
-              OrganizationInformation existingOrginfo = OBDal.getInstance().get(
-                  OrganizationInformation.class, id);
+              OrganizationInformation existingOrginfo = OBDal.getInstance()
+                  .get(OrganizationInformation.class, id);
               // existingPosInvoiceBPartner = existingOrginfo.getDsidefPosinvoicebp();
               gstUniqueID = existingOrginfo.getIngstGstidentifirmaster();
               userContact = existingOrginfo.getUserContact();
-              //isTaxNotDeductible = existingOrginfo.isNotTaxDeductable();
+              // isTaxNotDeductible = existingOrginfo.isNotTaxDeductable();
             }
             OBContext.restorePreviousMode();
-            
+
           }
           if (entityName.equals("ADUser")) {
 
@@ -182,7 +180,7 @@ public class JSONHelper {
             bob.setValue("prmiProcess", null);
             bob.setValue("prmiComponentlabel", null);
           }
-          
+
           if (entityName.equals("Organization")) {
 
             OBContext.setAdminMode(true);
@@ -233,7 +231,7 @@ public class JSONHelper {
             log.info(entityName + " with id=" + id + " pulling........");
 
           }
-          
+
           if (entityName.equals("ADUser")) {
 
             OBContext.setAdminMode(true);
@@ -252,6 +250,16 @@ public class JSONHelper {
             log.info(entityName + " with id=" + id + " pulling........");
 
           }
+
+          if (entityName.equals("DocumentType")) {
+            OBContext.setAdminMode(true);
+            OBContext.getOBContext().addWritableOrganization(id);
+            DocumentType existingDocType = OBDal.getInstance().get(DocumentType.class, id);
+            if (!existingDocType.getName().contains("Store Requisition")) {
+              continue;
+            }
+          }
+
           OBContext.setAdminMode(true);
           OBDal.getInstance().save(bob);
           if (entityName.equals("FinancialMgmtTaxRate")) {
@@ -282,54 +290,54 @@ public class JSONHelper {
           }
 
           bob.setValue("id", id);
-          if (entityName.equals("Organization") || entityName.equals("OrganizationInformation")) {        	  
-        	  
+          if (entityName.equals("Organization") || entityName.equals("OrganizationInformation")) {
+
             // OBContext.getOBContext().addWritableOrganization((String) bob.getId());
             if (entityName.equals("Organization")) {
-            OBContext.setAdminMode(true);
+              OBContext.setAdminMode(true);
 
-            bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
-            bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
-            bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
-            bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
-            bob.setValue("dsidefPospayterms", dsidefPospayterms);
-            bob.setValue("dsidefPospricelist", dsidefPospricelist);
-            bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
-            bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
-            bob.setValue("dsidefShiptime", dsidefShiptime);
-            bob.setValue("dsidefIsautodc", dsidefIsautodc);
-            bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
-            bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
-            bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
-            bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
+              bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
+              bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
+              bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
+              bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
+              bob.setValue("dsidefPospayterms", dsidefPospayterms);
+              bob.setValue("dsidefPospricelist", dsidefPospricelist);
+              bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
+              bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
+              bob.setValue("dsidefShiptime", dsidefShiptime);
+              bob.setValue("dsidefIsautodc", dsidefIsautodc);
+              bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
+              bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
+              bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
+              bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
 
-            bob.setValue("summaryLevel", isSummaryLevel);
-            bob.setValue("socialName", legalName);
-            bob.setValue("allowPeriodControl", allowPeriodControl);
-            bob.setValue("generalLedger", generalLedgar);
-            bob.setValue("dSTelephoneNo", emdsTelephoneNo);
-            bob.setValue("facstIsExternal", emFacstIsExternal);
-            bob.setValue("ibdrepOrgreppriority", emIbdrepOrgreppriority);
-            OBContext.restorePreviousMode();
-            log.info(entityName + " with id=" + id + " pulling........");
+              bob.setValue("summaryLevel", isSummaryLevel);
+              bob.setValue("socialName", legalName);
+              bob.setValue("allowPeriodControl", allowPeriodControl);
+              bob.setValue("generalLedger", generalLedgar);
+              bob.setValue("dSTelephoneNo", emdsTelephoneNo);
+              bob.setValue("facstIsExternal", emFacstIsExternal);
+              bob.setValue("ibdrepOrgreppriority", emIbdrepOrgreppriority);
+              OBContext.restorePreviousMode();
+              log.info(entityName + " with id=" + id + " pulling........");
 
             }
-            
+
             if (entityName.equals("OrganizationInformation")) {
-                OBContext.setAdminMode(true);
-                // OBContext.getOBContext().addWritableOrganization((String) bob.getId());
-                bob.setValue("yourCompanyDocumentImage", null);
-                // bob.setValue("dsidefPosinvoicebp", null);
-                bob.setValue("ingstGstidentifirmaster", gstUniqueID);
-                bob.setValue("userContact", userContact);
-                bob.setValue("notTaxDeductable", isTaxNotDeductible);
-                OBContext.restorePreviousMode();
-                
-                log.info(entityName + " with id=" + id + " pulling........");
+              OBContext.setAdminMode(true);
+              // OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+              bob.setValue("yourCompanyDocumentImage", null);
+              // bob.setValue("dsidefPosinvoicebp", null);
+              bob.setValue("ingstGstidentifirmaster", gstUniqueID);
+              bob.setValue("userContact", userContact);
+              bob.setValue("notTaxDeductable", isTaxNotDeductible);
+              OBContext.restorePreviousMode();
 
-              }
+              log.info(entityName + " with id=" + id + " pulling........");
+
             }
-         
+          }
+
           bob.setValue("updated", date);
           bob.setValue("creationDate", date);
           // bob.setValue("createdBy", OBContext.getOBContext().getUser());
@@ -369,6 +377,15 @@ public class JSONHelper {
             log.info(entityName + " with id=" + id + " pulling........");
 
           }
+
+          if (entityName.equals("DocumentType")) {
+            OBContext.setAdminMode(true);
+            String docName = entityJson.getString("name");
+            if (!docName.contains("Store Requisition")) {
+              continue;
+            }
+          }
+
           OBContext.setAdminMode(false);
           OBDal.getInstance().save(bob);
           log.info(entityName + " with id=" + id + " saved/updated");
@@ -394,7 +411,7 @@ public class JSONHelper {
         OBContext.setAdminMode(true);
         OBDal.getInstance().commitAndClose();
       } catch (Exception e) {
-    	log.error(objectName + " failed during pulling.....<<<<<<<>>>>>>>.....");
+        log.error(objectName + " failed during pulling.....<<<<<<<>>>>>>>.....");
         throw new Exception("Entity:[" + objectName + "] Identifier : [" + objectID + "] ," + e);
       } finally {
         OBContext.restorePreviousMode();
@@ -450,10 +467,10 @@ public class JSONHelper {
   }
 
   private static String getTaxAcctRecord() {
-    OBCriteria<OrganizationAcctSchema> orgActSchemaCrit = OBDal.getInstance().createCriteria(
-        OrganizationAcctSchema.class);
-    orgActSchemaCrit.add(Restrictions.eq(OrganizationAcctSchema.PROPERTY_CLIENT, OBContext
-        .getOBContext().getCurrentClient()));
+    OBCriteria<OrganizationAcctSchema> orgActSchemaCrit = OBDal.getInstance()
+        .createCriteria(OrganizationAcctSchema.class);
+    orgActSchemaCrit.add(Restrictions.eq(OrganizationAcctSchema.PROPERTY_CLIENT,
+        OBContext.getOBContext().getCurrentClient()));
     orgActSchemaCrit.setMaxResults(1);
     List<OrganizationAcctSchema> orgAcctList = orgActSchemaCrit.list();
     if (orgAcctList.size() > 0)
