@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2018-05-04T19:14:21 -->
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2018-05-30T10:54:58 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="150"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Supply_Invoice.xml"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
 	<parameter name="BASE_DESIGN" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[select mm.m_movement_id, mm.documentno as INVOICENUMBER, mw1.em_gs_gstin as GSTINNo, 
+		<![CDATA[select mm.m_movement_id, mm.documentno as INVOICENUMBER, mw1.em_gs_gstin as GSTINNo, mm.em_obwship_uniqueno as SerialNoOfInvoice,
 (loc1.address1 || ' ' || loc1.address2  || ' ' || loc1.city || ' ' || loc1.postal) as ADDRESS, --os.em_gs_uniqueno as SerialNoOfInvoice, 
 mm.movementDate as DateofInvoice, (loc2.address1 || ' ' || loc2.address2  || ' ' || loc2.city || ' ' || loc2.postal) as SupplyAddress,
 reg1.name as State1, reg2.name as State, reg2.value as StateCode, mw2.em_gs_gstin as GSTINUniqueID,
@@ -47,6 +47,7 @@ mm.m_movement_id, mm.documentno, mw1.em_gs_gstin,mw2.em_gs_gstin, loc1.address1,
 	<field name="m_movement_id" class="java.lang.String"/>
 	<field name="invoicenumber" class="java.lang.String"/>
 	<field name="gstinno" class="java.lang.String"/>
+	<field name="serialnoofinvoice" class="java.lang.String"/>
 	<field name="address" class="java.lang.String"/>
 	<field name="dateofinvoice" class="java.sql.Timestamp"/>
 	<field name="supplyaddress" class="java.lang.String"/>
@@ -371,7 +372,7 @@ mm.m_movement_id, mm.documentno, mw1.em_gs_gstin,mw2.em_gs_gstin, loc1.address1,
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{invoicenumber}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{serialnoofinvoice}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="80" y="285" width="200" height="20" uuid="6811948a-6dd0-4a86-a90f-40bb4ad56e6c"/>
