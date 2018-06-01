@@ -146,9 +146,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !=0 then ct.rate else 0 end)end) as INGSTRATE, "
         + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !='0' then "
         + "round((((ml.movementqty*ml.em_obwship_cessionprice)*ct.rate)/100),2) else 0 end)end) "
-        + "as TotalTaxValue,(case when mw.em_gs_gstin=ingst.uidno then ml.movementqty*ml.em_obwship_cessionprice else (case when ct.rate !='0' then "
-        + "(ml.movementqty*ml.em_obwship_cessionprice)+(round((((ml.movementqty*ml.em_obwship_cessionprice)*ct.rate)/100),2)) "
-        + "else (ml.movementqty*ml.em_obwship_cessionprice) end)end) as Total "
+        + "as TotalTaxValue,  (ml.em_obwship_taxableamount+ml.em_obwship_taxamount) as Total "
         + "from obwship_shipping os "
         + "left join obwship_shipping_details osd on os.obwship_shipping_id = osd.obwship_shipping_id "
         + "left join m_inout mi on mi.m_inout_id = osd.m_inout_id "
@@ -176,7 +174,8 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' "
         + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.EM_Gs_Uniqueno ,"
         + " os.shipment_date,  mp.name , gst.value ,mp.em_cl_modelname , ct.rate, ml.movementqty ,"
-        + "ml.em_obwship_cessionprice ,ml.movementqty,ml.em_obwship_cessionprice" + "";
+        + "ml.em_obwship_cessionprice ,ml.movementqty,ml.em_obwship_cessionprice, ml.em_obwship_taxableamount, ml.em_obwship_taxamount "
+        + "";
 
     SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(sql);
     @SuppressWarnings("unchecked")
@@ -337,21 +336,19 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "mp.name product_name, gst.value as HSN, mp.em_cl_modelname as ModelName, ml.movementqty as Qty, "
         + "ml.em_obwship_cessionprice as rate, (ml.movementqty*ml.em_obwship_cessionprice) as QtyRate, "
         + "ml.em_obwship_taxrate as IGST_rate, ml.em_obwship_taxamount as IGST_amount, "
-        + "(case when ml.em_obwship_taxrate !='0' then "
-        + "(ml.movementqty*ml.em_obwship_cessionprice)+(round((((ml.movementqty*ml.em_obwship_cessionprice)*ml.em_obwship_taxrate)/100),2)) "
-        + "else (ml.movementqty*ml.em_obwship_cessionprice) end) as valueincludingTax "
+        + "(ml.em_obwship_taxableamount+ml.em_obwship_taxamount) as valueincludingTax "
         + "FROM m_movement m "
         + "left JOIN m_movementLine ml ON m.m_movement_id = ml.m_movement_id "
-        + "left JOIN m_locator fromloc ON fromloc.m_locator_id = ml.m_locator_id "
-        + "left JOIN m_warehouse fromwh ON fromwh.m_warehouse_id = fromloc.m_warehouse_id "
-        + "left JOIN m_locator toloc ON toloc.m_locator_id = ml.m_locatorto_id "
-        + "left JOIN m_warehouse towh ON towh.m_warehouse_id = toloc.m_warehouse_id "
-        + "left JOIN m_product mp ON  mp.m_product_id = ml.m_product_id "
+        + "JOIN m_locator fromloc ON fromloc.m_locator_id = ml.m_locator_id "
+        + "JOIN m_warehouse fromwh ON fromwh.m_warehouse_id = fromloc.m_warehouse_id "
+        + "JOIN m_locator toloc ON toloc.m_locator_id = ml.m_locatorto_id "
+        + "JOIN m_warehouse towh ON towh.m_warehouse_id = toloc.m_warehouse_id "
+        + "JOIN m_product mp ON  mp.m_product_id = ml.m_product_id "
         + "left join INGST_GSTProductCode gst on gst.INGST_GSTProductCode_id = mp.EM_Ingst_Gstproductcode_ID "
-        + "left join m_productprice mpp on mpp.m_product_id = mp.m_product_id  "
-        + "where to_char(m.MovementDate,'YYYY-mm-dd')<= '"
+        + "join m_productprice mpp on mpp.m_product_id = mp.m_product_id  "
+        + "where m.movementdate <= '"
         + EDate
-        + "' and  to_char(m.MovementDate,'YYYY-mm-dd')>= '"
+        + "' and  m.movementdate >= '"
         + SDate
         + "' and "
         + "mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' and m.em_obwship_uniqueno != '' ";
