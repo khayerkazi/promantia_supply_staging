@@ -143,10 +143,8 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "ml.movementqty as ShipmentQty, "
         + "ml.em_obwship_cessionprice as CessionPrice, "
         + "(ml.movementqty*ml.em_obwship_cessionprice) as TaxableValue, "
-        + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !=0 then ct.rate else 0 end)end) as INGSTRATE, "
-        + "(case when mw.em_gs_gstin=ingst.uidno then 0 else(case when ct.rate !='0' then "
-        + "round((((ml.movementqty*ml.em_obwship_cessionprice)*ct.rate)/100),2) else 0 end)end) "
-        + "as TotalTaxValue,  (ml.em_obwship_taxableamount+ml.em_obwship_taxamount) as Total "
+        + " ml.em_obwship_taxrate as INGSTRATE, "
+        + " ml.em_obwship_taxamount as TotalTaxValue,  (ml.em_obwship_taxableamount+ml.em_obwship_taxamount) as Total "
         + "from obwship_shipping os "
         + "left join obwship_shipping_details osd on os.obwship_shipping_id = osd.obwship_shipping_id "
         + "left join m_inout mi on mi.m_inout_id = osd.m_inout_id "
@@ -172,9 +170,9 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + SDate
         + "' and "
         + "mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' "
-        + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.EM_Gs_Uniqueno ,"
-        + " os.shipment_date,  mp.name , gst.value ,mp.em_cl_modelname , ct.rate, ml.movementqty ,"
-        + "ml.em_obwship_cessionprice ,ml.movementqty,ml.em_obwship_cessionprice, ml.em_obwship_taxableamount, ml.em_obwship_taxamount "
+        + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.EM_Gs_Uniqueno , "
+        + " os.shipment_date,  mp.name , gst.value ,mp.em_cl_modelname , ct.rate, ml.movementqty , "
+        + "ml.em_obwship_cessionprice ,ml.movementqty,ml.em_obwship_cessionprice, ml.em_obwship_taxableamount, ml.em_obwship_taxamount, ml.em_obwship_taxrate "
         + "";
 
     SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(sql);
