@@ -57,7 +57,7 @@ BEGIN
   WHERE m.processed = 'N' AND m.m_movement_id =p_record_id ;
 
   UPDATE m_movement 
-  SET em_obwship_uniqueno = (SELECT prefix||currentnext 
+  SET em_obwship_uniqueno = (SELECT prefix||currentnext +1
                              FROM ad_sequence 
                              WHERE ad_sequence_id = v_fromWH_seqId)
   WHERE m_movement_id =p_record_id;
