@@ -226,14 +226,18 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
           }
 
           // Set Taxable Amount
-          BigDecimal expression1 = cessionPrice.multiply(movementQty).multiply(new BigDecimal(100));
-          BigDecimal expression2 = taxRateCriteria.list().get(0).getRate().add(new BigDecimal(100));
-          BigDecimal taxableAmt = expression1.divide(expression2, 2, BigDecimal.ROUND_HALF_UP);
-
+           // BigDecimal expression1 = cessionPrice.multiply(movementQty).multiply(new BigDecimal(100));
+           //BigDecimal expression2 = taxRateCriteria.list().get(0).getRate().add(new BigDecimal(100));
+           //BigDecimal taxableAmt = expression1.divide(expression2, 2, BigDecimal.ROUND_HALF_UP);
+          BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
+     
           inoutLine.setObwshipTaxableamount(taxableAmt);
 
           // set Tax Amount
-          BigDecimal taxAmount = (cessionPrice.multiply(movementQty)).subtract(taxableAmt);
+           //BigDecimal taxAmount = (cessionPrice.multiply(movementQty)).subtract(taxableAmt);
+          BigDecimal expression1 = taxRateCriteria.list().get(0).getRate().divide(new BigDecimal(100)); 
+          BigDecimal taxAmount = taxableAmt.multiply(expression1);
+          
           inoutLine.setObwshipTaxamount(taxAmount);
 
         }

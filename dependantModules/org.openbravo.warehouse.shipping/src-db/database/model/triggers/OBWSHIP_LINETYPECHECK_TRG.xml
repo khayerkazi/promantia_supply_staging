@@ -65,8 +65,8 @@ v_ID =:new.m_movement_id;
                   RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
 
                   end if;
-                  v_taxable=  round((v_cessionprice*100)/(100 + v_rate),2);
-                  v_taxamount=v_cessionprice-v_taxable;
+                  v_taxable=  :new.MovementQty*v_unit_cessionprice;
+                  v_taxamount= v_taxable*(v_rate/100);
 
                  update m_movementline  set em_obwship_cessionprice =v_unit_cessionprice,
                  em_obwship_taxableamount=v_taxable,em_obwship_taxamount=v_taxamount,
