@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2018-05-30T10:54:58 -->
+<!-- 2018-06-05T18:29:59 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -9,7 +9,7 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
 	<parameter name="BASE_DESIGN" class="java.lang.String"/>
-	<queryString>
+	<queryString language="SQL">
 		<![CDATA[select mm.m_movement_id, mm.documentno as INVOICENUMBER, mw1.em_gs_gstin as GSTINNo, mm.em_obwship_uniqueno as SerialNoOfInvoice,
 (loc1.address1 || ' ' || loc1.address2  || ' ' || loc1.city || ' ' || loc1.postal) as ADDRESS, --os.em_gs_uniqueno as SerialNoOfInvoice, 
 mm.movementDate as DateofInvoice, (loc2.address1 || ' ' || loc2.address2  || ' ' || loc2.city || ' ' || loc2.postal) as SupplyAddress,
@@ -19,9 +19,7 @@ mml.movementqty as movementQty, round(mml.em_obwship_cessionprice,2) as CessionP
 ,round(mml.em_obwship_taxrate,2) as INGSTRATE,
 round(mml.em_obwship_taxamount,2) as TotalTaxValue,
 round(mml.em_OBWSHIP_TaxableAmount,2) as TaxableValue,
-round((case when mw1.em_gs_gstin=mw2.em_gs_gstin then mml.movementqty*mml.em_obwship_cessionprice else (case when mml.em_obwship_taxrate !='0' then
-(mml.movementqty*mml.em_obwship_cessionprice)+(round((((mml.movementqty*mml.em_obwship_cessionprice)*mml.em_obwship_taxrate)/100),2))
-else (mml.movementqty*mml.em_obwship_cessionprice) end)end),2) as Total
+(mml.em_obwship_taxableamount+mml.em_obwship_taxamount) as Total
 from m_movement mm
 left join m_movementline mml on mml.m_movement_id = mm.m_movement_id  
 left join m_locator mloc1 on mloc1.m_locator_id = mml.m_locator_id
@@ -63,7 +61,9 @@ mm.m_movement_id, mm.documentno, mw1.em_gs_gstin,mw2.em_gs_gstin, loc1.address1,
 	<field name="ingstrate" class="java.math.BigDecimal"/>
 	<field name="totaltaxvalue" class="java.math.BigDecimal"/>
 	<field name="taxablevalue" class="java.math.BigDecimal"/>
-	<field name="total" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
 	<variable name="finaltotal" class="java.math.BigDecimal" calculation="Sum">
 		<variableExpression><![CDATA[$F{taxablevalue}]]></variableExpression>
 		<initialValueExpression><![CDATA[new BigDecimal("0")]]></initialValueExpression>

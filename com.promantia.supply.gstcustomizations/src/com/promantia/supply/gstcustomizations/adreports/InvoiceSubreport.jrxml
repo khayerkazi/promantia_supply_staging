@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2018-05-24T17:09:47 -->
+<!-- 2018-06-05T18:30:12 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -9,7 +9,7 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
 	<parameter name="BASE_DESIGN" class="java.lang.String"/>
-	<queryString>
+	<queryString language="SQL">
 		<![CDATA[select ml.m_inoutline_id ,orl.c_orderline_id, os.documentno as INVOICENUMBER, mw.em_gs_gstin as GSTINNo, (loc.address1 || ' ' || loc.address2  || ' ' || loc.city || ' ' || loc.postal) as ADDRESS,
 os.em_gs_uniqueno as SerialNoOfInvoice, os.shipment_date as DateofInvoice,
  (cloc.address1 || ' ' || cloc.address2  || ' ' || cloc.city || ' ' || cloc.postal) as SupplyAddress,
@@ -19,9 +19,7 @@ ml.movementqty as ShipmentQty, round(ml.em_obwship_cessionprice,2) as CessionPri
 round(ml.em_OBWSHIP_TaxableAmount,2) as TaxableValue,
 round(ml.em_obwship_taxamount,2) as TotalTaxValue,
 round(ml.em_obwship_taxrate,2) as INGSTRATE,
-round((case when mw.em_gs_gstin=ingst.uidno then ml.movementqty*ml.em_obwship_cessionprice else (case when ct.rate !='0' then
-(ml.movementqty*ml.em_obwship_cessionprice)+(round((((ml.movementqty*ml.em_obwship_cessionprice)*ct.rate)/100),2))
-else (ml.movementqty*ml.em_obwship_cessionprice) end)end),2) as Total
+(mml.em_obwship_taxableamount+mml.em_obwship_taxamount) as Total
 from obwship_shipping os
 left join obwship_shipping_details osd on os.obwship_shipping_id = osd.obwship_shipping_id
 left join m_inout mi on mi.m_inout_id = osd.m_inout_id
