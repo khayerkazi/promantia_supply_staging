@@ -8,8 +8,10 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONObject;
@@ -35,6 +37,9 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
 
   static Logger log4j = Logger.getLogger(GoodsMovementProcessActionHandler.class);
   Integer updatederror = 0;
+  Set<String> fromWarehouseId = new HashSet<String>();
+  Set<String> toWarehouseId = new HashSet<String>();
+
   long lineno = 0;
   String jseverity, jtext, jtitle = "";
 
@@ -99,12 +104,39 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
           comapreWarehoue(imIterator.getLocator(), imIterator.getLocatorto(), unMatchedWarehouse);
 
         }
+
+        if (fromWarehouseId.size() > 1) {
+          throw new OBException("All 'Storage Bin' do not belong to the one Warehouse");
+        }
+        if (toWarehouseId.size() > 1) {
+          throw new OBException("All 'New Storage Bin' do not belong to the one Warehouse");
+        }
+
+        String locator = criteriamovement.list().get(0).getLocator();
+        String locatorTo = criteriamovement.list().get(0).getLocatorto();
+
+        OBCriteria<Locator> locatorCriteria = OBDal.getInstance().createCriteria(Locator.class);
+        locatorCriteria.add(Restrictions.eq(Locator.PROPERTY_SEARCHKEY, locator));
+        String fromWH = locatorCriteria.list().get(0).getWarehouse().getName();
+
+        OBCriteria<Locator> locatorToCriteria = OBDal.getInstance().createCriteria(Locator.class);
+        locatorToCriteria.add(Restrictions.eq(Locator.PROPERTY_SEARCHKEY, locatorTo));
+        String toWH = locatorToCriteria.list().get(0).getWarehouse().getName();
+
         if (unMatchedWarehouse.size() == criteriamovement.list().size()) {
-          status = "Saleable Fixture WH-WH";
+          if ((fromWH.equalsIgnoreCase("Saleable Fixture") && toWH
+              .equalsIgnoreCase("Saleable Fixture North"))
+              || fromWH.equalsIgnoreCase("Saleable Fixture North")
+              && toWH.equalsIgnoreCase("Saleable Fixture")) {
+            status = "Saleable Fixture WH-WH";
+
+          } else {
+            status = "IWM";
+          }
         } else {
           status = "IWM";
-
         }
+
         for (IM_Movement imIterator : criteriamovement.list()) {
 
           errormsg = new StringBuilder();
@@ -188,7 +220,7 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
 
           if (headerId != null) {
 
-            insertLinesbulk(headerId, createdby);
+            insertLinesbulk(headerId, createdby, status);
             log4j.error("All Lines inserted ");
 
             Boolean callProcedure = PinstanceAndProcess(headerId);
@@ -244,16 +276,18 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
     return JsonResult;
   }
 
-  private void insertLinesbulk(String headerId, String createdby) throws Exception {
+  private void insertLinesbulk(String headerId, String createdby, String status) throws Exception {
 
     String clientId = "187D8FC945A5481CB41B3EE767F80DBB";
     String orgId = "603C6A266B4C40BCAD87C5C43DDF53EE";
+    String description = "INTER WAREHOUSE REPLENISHMENT";
+    String descriptionWHtoWH = "Fixture movement Warehouse to Warehouse REPLENISHMENT";
 
     String query = "insert into m_movementline(m_movementline_id,ad_client_id,ad_org_id,isActive,created,createdby,"
         + "updated,updatedby,m_movement_id,m_locator_id,m_locatorto_id,m_product_id,movementqty,description,"
         + "m_attributesetinstance_id, m_product_uom_id,quantityorder,c_uom_id,em_sw_size,em_sw_color_id,em_sw_model_id,"
         + "em_sw_mod_id,em_sw_boxto) select get_uuid(),?,?,'Y',now(),?,now(),?,?,im.m_locator_id,im.m_locatorto_id,"
-        + "im.m_product_id,movementqty,'INTER WAREHOUSE MOVEMENT',im.m_attributesetinstance_id,NULL,NULL,'100',"
+        + "im.m_product_id,movementqty,?,im.m_attributesetinstance_id,NULL,NULL,'100',"
         + "mp.em_cl_size,mp.em_cl_color_id,mp.em_cl_model_id,NULL,im.boxto from im_movement im, m_product mp "
         + "where mp.m_product_id = im.m_product_id and im.createdby= ? ";
 
@@ -266,7 +300,13 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
       stmt.setString(3, createdby);
       stmt.setString(4, createdby);
       stmt.setString(5, headerId);
-      stmt.setString(6, createdby);
+
+      if (status.equalsIgnoreCase("Saleable Fixture WH-WH"))
+        stmt.setString(6, descriptionWHtoWH);
+      else
+        stmt.setString(6, description);
+
+      stmt.setString(7, createdby);
       stmt.executeUpdate();
     } catch (SQLException e) {
       throw new OBException("Cannot insert movementline", e);
@@ -411,6 +451,7 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
     String name = currentDate;
     String documentno = "IWM-" + currentDate;
     String description = "INTER WAREHOUSE REPLENISHMENT";
+    String descriptionWHtoWH = "Fixture movement Warehouse to Warehouse REPLENISHMENT";
     // String typegm = "IWM";
     String typegm = status;
 
@@ -430,7 +471,12 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
       stmt.setString(3, createdby);
       stmt.setString(4, createdby);
       stmt.setString(5, name);
-      stmt.setString(6, description);
+
+      if (status.equalsIgnoreCase("Saleable Fixture WH-WH"))
+        stmt.setString(6, descriptionWHtoWH);
+      else
+        stmt.setString(6, description);
+
       stmt.setString(7, documentno);
       stmt.setString(8, typegm);
       stmt.executeUpdate();
@@ -472,21 +518,23 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
     if (criteriafromlocation.list().size() > 0) {
       ob1 = criteriafromlocation.list().get(0).getWarehouse();
     } else {
-      throw new OBException("Storage Bin is not preset  " + fromlocator);
+      throw new OBException("Storage Bin is not present  " + fromlocator);
     }
     OBCriteria<Locator> criteriatolocation = OBDal.getInstance().createCriteria(Locator.class);
-    criteriatolocation.add(Restrictions.eq(Locator.PROPERTY_SEARCHKEY, tolocator)).add(
-        Restrictions.eq(Locator.PROPERTY_CLIENT, OBContext.getOBContext().getCurrentClient()));
+    criteriatolocation.add(Restrictions.eq(Locator.PROPERTY_SEARCHKEY, tolocator));
+    criteriatolocation.add(Restrictions.eq(Locator.PROPERTY_CLIENT, OBContext.getOBContext()
+        .getCurrentClient()));
     if (criteriatolocation.list().size() > 0) {
       ob2 = criteriatolocation.list().get(0).getWarehouse();
 
     } else {
-      throw new OBException("New Storage Bin is not preset  " + tolocator);
+      throw new OBException("New Storage Bin is not present  " + tolocator);
 
     }
     if (!(ob1.getId().equalsIgnoreCase(ob2.getId()))) {
+      fromWarehouseId.add(ob1.getId());
+      toWarehouseId.add(ob2.getId());
       unMatchedWarehouse.add(tolocator);
-
     }
 
   }
