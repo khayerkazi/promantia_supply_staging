@@ -11,8 +11,8 @@
   l_id VARCHAR(32);
   v_warehouse VARCHAR (32);
   v_warehouseto VARCHAR (32);
-  v_currentFromWH VARCHAR (32);
-  v_currentToWH VARCHAR (32);
+  v_existingFromWH VARCHAR (32);
+  v_existingToWH VARCHAR (32);
   v_cessionprice NUMBER;
   v_taxcategory VARCHAR(32);
   v_unit_cessionprice NUMBER;
@@ -32,12 +32,11 @@ BEGIN
                   IF(v_status='Saleable Fixture WH-WH')THEN
                   v_locator=:new.m_locator_id;
                   v_locatorto=:new.m_locatorto_id;
-         
                   select m_warehouse_id into v_warehouse from m_locator where m_locator_id=v_locator;
                   select m_warehouse_id into v_warehouseto from m_locator where m_locator_id=v_locatorto;
                   
                   if(v_warehouse=v_warehouseto) then
-			RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_Saleable Fixture WH-WH-status@');
+                  RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_Saleable Fixture WH-WH-status@');
                   end if; 
                   
                   select c_taxcategory_id into v_taxcategory from m_product where m_product_id=:new.m_product_id;
@@ -45,19 +44,27 @@ BEGIN
                   and c_tax.em_intx_indian_taxcategory ='GS_IGST';
                   
                   if(v_rate is null) then
-			RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
+                  RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
                   end if;
+                  
+  		  select distinct fromloc.m_warehouse_id, toloc.m_warehouse_id  INTO v_existingFromWH, v_existingToWH
+		  from m_movement mm 
+	  	  join m_movementline mml on mm.m_movement_id = mml.m_movement_id
+		  join m_locator fromloc on mml.m_locator_id = fromloc.m_locator_id
+		  join m_locator toloc on mml.m_locatorto_id = toloc.m_locator_id
+		  where mm.m_movement_id =v_ID;
 
-                  select mloc.m_warehouse_id INTO v_currentFromWH FROM m_locator mloc where mloc.m_locator_id = v_locator;
-                  select mloc.m_warehouse_id INTO v_currentToWH FROM m_locator mloc where mloc.m_locator_id = v_locatorto;
-
-                  IF(v_warehouse<>v_currentFromWH) THEN
+                  IF(v_warehouse<>v_existingFromWH) THEN
 			RAISE_APPLICATION_ERROR(-20000,'@obwship_fromWH_validation@');
 		  END IF;
-		  
-		  IF (v_warehouseto<>v_currentToWH) THEN
+
+		  IF (v_warehouseto<>v_existingToWH) THEN
 			RAISE_APPLICATION_ERROR(-20000,'@obwship_toWH_validation@');
 		  END IF;
+
+
+
+                  
           END IF;
   END IF;
   
@@ -72,9 +79,8 @@ v_ID =:new.m_movement_id;
                   select m_warehouse_id into v_warehouseto from m_locator where m_locator_id=v_locatorto;
                   
                   if(v_warehouse=v_warehouseto) then
-			RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_Saleable Fixture WH-WH-status@');
+                  RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_Saleable Fixture WH-WH-status@');
                   else
-                  
                   select em_cl_cessionprice into v_cessionprice from m_productprice  where m_product_id =:new.m_product_id;
                   v_unit_cessionprice=v_cessionprice;
                   v_cessionprice=v_cessionprice*:new.MovementQty;
@@ -84,17 +90,21 @@ v_ID =:new.m_movement_id;
                   and c_tax.em_intx_indian_taxcategory ='GS_IGST';
                   
                   if(v_rate is null) then
-			RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
+                  RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
                   end if;
 
-		  select mloc.m_warehouse_id INTO v_currentFromWH FROM m_locator mloc where mloc.m_locator_id = v_locator;
-                  select mloc.m_warehouse_id INTO v_currentToWH FROM m_locator mloc where mloc.m_locator_id = v_locatorto;
+		  select distinct fromloc.m_warehouse_id, toloc.m_warehouse_id  INTO v_existingFromWH, v_existingToWH
+		  from m_movement mm 
+		  join m_movementline mml on mm.m_movement_id = mml.m_movement_id
+		  join m_locator fromloc on mml.m_locator_id = fromloc.m_locator_id
+		  join m_locator toloc on mml.m_locatorto_id = toloc.m_locator_id
+		  where mm.m_movement_id =v_ID;
 
-                  IF(v_warehouse<>v_currentFromWH) THEN
+                  IF(v_warehouse<>v_existingFromWH) THEN
 			RAISE_APPLICATION_ERROR(-20000,'@obwship_fromWH_validation@');
 		  END IF;
-		  
-		  IF (v_warehouseto<>v_currentToWH) THEN
+
+		  IF (v_warehouseto<>v_existingToWH) THEN
 			RAISE_APPLICATION_ERROR(-20000,'@obwship_toWH_validation@');
 		  END IF;
 
