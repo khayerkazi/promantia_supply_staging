@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
   <database name="TRIGGER OBWSHIP_LINETYPECHECK_TRG">
-    <trigger name="OBWSHIP_LINETYPECHECK_TRG" table="M_MOVEMENTLINE" fires="after" insert="true" update="true" delete="false" foreach="row">
+    <trigger name="OBWSHIP_LINETYPECHECK_TRG" table="M_MOVEMENTLINE" fires="before" insert="true" update="true" delete="false" foreach="row">
       <body><![CDATA[
   v_ID VARCHAR(32);         
   v_count NUMBER;
@@ -8,11 +8,14 @@
   Cur_Movementline RECORD;
   v_locator VARCHAR(32);
   v_locatorto VARCHAR(32);
-  l_id VARCHAR(32);
+  v_ml_id VARCHAR(32);
   v_warehouse VARCHAR (32);
   v_warehouseto VARCHAR (32);
+  v_warehouse_name VARCHAR (32);
+  v_warehouseto_name VARCHAR (32);
   v_existingFromWH VARCHAR (32);
   v_existingToWH VARCHAR (32);
+  v_noOfLines INTEGER;
   v_cessionprice NUMBER;
   v_taxcategory VARCHAR(32);
   v_unit_cessionprice NUMBER;
@@ -27,13 +30,19 @@ BEGIN
 
   IF(UPDATING) THEN
                   v_ID =:new.m_movement_id;
+                  v_ml_id = :new.m_movementline_id;
+                  
                   select em_sw_movementtypegm into v_status from m_movement where m_movement_id=v_ID;
 
                   IF(v_status='Saleable Fixture WH-WH')THEN
                   v_locator=:new.m_locator_id;
                   v_locatorto=:new.m_locatorto_id;
+                  
                   select m_warehouse_id into v_warehouse from m_locator where m_locator_id=v_locator;
                   select m_warehouse_id into v_warehouseto from m_locator where m_locator_id=v_locatorto;
+                  
+                  select name into v_warehouse_name from m_warehouse where m_warehouse_id=v_warehouse;
+                  select name into v_warehouseto_name from m_warehouse where m_warehouse_id=v_warehouseto;
                   
                   if(v_warehouse=v_warehouseto) then
                   RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_Saleable Fixture WH-WH-status@');
@@ -46,7 +55,23 @@ BEGIN
                   if(v_rate is null) then
                   RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
                   end if;
-                  
+
+                  select count(*) into v_noOfLines from m_movementline ml where m_movement_id =v_ID;
+
+		  if(v_noOfLines > 0 AND v_status='Saleable Fixture WH-WH')THEN
+		  
+			  IF(v_warehouse_name='Saleable Fixture' OR v_warehouse_name='Saleable Fixture North') THEN
+			  ELSE
+				RAISE_APPLICATION_ERROR(-20000,'@obwship_wrongBin_for_WHtoWH@');
+			  END IF;
+
+			  IF(v_warehouseto_name='Saleable Fixture' OR v_warehouseto_name='Saleable Fixture North') THEN
+			  ELSE
+				RAISE_APPLICATION_ERROR(-20000,'@obwship_wrongBin_for_WHtoWH@');
+			  END IF;
+		  
+		   end if; 
+		   
   		  select distinct fromloc.m_warehouse_id, toloc.m_warehouse_id  INTO v_existingFromWH, v_existingToWH
 		  from m_movement mm 
 	  	  join m_movementline mml on mm.m_movement_id = mml.m_movement_id
@@ -60,16 +85,14 @@ BEGIN
 
 		  IF (v_warehouseto<>v_existingToWH) THEN
 			RAISE_APPLICATION_ERROR(-20000,'@obwship_toWH_validation@');
-		  END IF;
-
-
-
-                  
+		  END IF;                  
           END IF;
   END IF;
   
 IF(INSERTING) then
-v_ID =:new.m_movement_id;
+                  v_ID =:new.m_movement_id;
+                  v_ml_id = :new.m_movementline_id;
+
                   select em_sw_movementtypegm into v_status from m_movement where m_movement_id=v_ID;
                   IF(v_status='Saleable Fixture WH-WH')THEN
                   v_locator=:new.m_locator_id;
@@ -77,6 +100,9 @@ v_ID =:new.m_movement_id;
 
                   select m_warehouse_id into v_warehouse from m_locator where m_locator_id=v_locator;
                   select m_warehouse_id into v_warehouseto from m_locator where m_locator_id=v_locatorto;
+
+                  select name into v_warehouse_name from m_warehouse where m_warehouse_id=v_warehouse;
+                  select name into v_warehouseto_name from m_warehouse where m_warehouse_id=v_warehouseto;
                   
                   if(v_warehouse=v_warehouseto) then
                   RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_Saleable Fixture WH-WH-status@');
@@ -93,6 +119,22 @@ v_ID =:new.m_movement_id;
                   RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
                   end if;
 
+		  select count(*) into v_noOfLines from m_movementline ml where m_movement_id =v_ID;
+
+		  if(v_noOfLines = 0 AND v_status='Saleable Fixture WH-WH')THEN
+		  
+			  IF(v_warehouse_name='Saleable Fixture' OR v_warehouse_name='Saleable Fixture North') THEN
+			  ELSE
+				RAISE_APPLICATION_ERROR(-20000,'@obwship_wrongBin_for_WHtoWH@');
+			  END IF;
+
+			  IF(v_warehouseto_name='Saleable Fixture' OR v_warehouseto_name='Saleable Fixture North') THEN
+			  ELSE
+				RAISE_APPLICATION_ERROR(-20000,'@obwship_wrongBin_for_WHtoWH@');
+			  END IF;
+		  
+		   end if; 
+		   
 		  select distinct fromloc.m_warehouse_id, toloc.m_warehouse_id  INTO v_existingFromWH, v_existingToWH
 		  from m_movement mm 
 		  join m_movementline mml on mm.m_movement_id = mml.m_movement_id
