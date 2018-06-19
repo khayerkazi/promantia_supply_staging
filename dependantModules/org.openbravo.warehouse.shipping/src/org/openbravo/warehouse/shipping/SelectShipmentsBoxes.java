@@ -237,7 +237,7 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
 
             if (orgInfo.getIngstGstidentifirmaster() == null) {
               throw new OBException(
-                  "GSTIN is not configured for selected Organization in Shipping Header");
+                  "GSTIN is not configured for selected Organization/BusinessPartner");
             } else {
               bpGSTIN = orgInfo.getIngstGstidentifirmaster().getUidno();
             }
