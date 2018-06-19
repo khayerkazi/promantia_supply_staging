@@ -38,10 +38,11 @@ import org.openbravo.dal.service.OBDal;
 import org.openbravo.dal.service.OBDao;
 import org.openbravo.erpCommon.utility.OBMessageUtils;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
+import org.openbravo.model.common.enterprise.Organization;
+import org.openbravo.model.common.enterprise.OrganizationInformation;
 import org.openbravo.model.common.enterprise.Warehouse;
+import org.openbravo.model.common.order.OrderLine;
 import org.openbravo.model.common.plm.Product;
-import org.openbravo.model.financialmgmt.tax.TaxCategory;
-import org.openbravo.model.financialmgmt.tax.TaxRate;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOut;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
 import org.openbravo.model.pricing.pricelist.PriceList;
@@ -209,36 +210,61 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
 
           BigDecimal movementQty = inoutLine.getMovementQuantity();
 
-          // Set Cession Price
+          // ----- Set Cession Price
           BigDecimal cessionPrice = mapObj.get(inoutLine.getProduct());
           inoutLine.setOBWSHIPCessionPrice(cessionPrice);
+          // Set Cession Price completed -----
 
-          // Set Tax Rate
-          TaxCategory taxCategory = inoutLine.getProduct().getTaxCategory();
+          // ----- Set Taxable Amount
+          BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
+          inoutLine.setObwshipTaxableamount(taxableAmt);
+          // Set Taxable Amount completed -----
 
-          OBCriteria<TaxRate> taxRateCriteria = OBDal.getInstance().createCriteria(TaxRate.class);
-          taxRateCriteria.add(Restrictions.eq(TaxRate.PROPERTY_TAXCATEGORY, taxCategory));
-          taxRateCriteria.add(Restrictions.eq(TaxRate.PROPERTY_INTXINDIANTAXCATEGORY, "GS_IGST"));
-          if (taxRateCriteria.list().size() < 0) {
-            throw new OBException("Error in IGST Tax Configuration");
+          String bpName = null;
+          String bpGSTIN = null;
+          String ShipmentGSTIN = null;
+
+          bpName = newShippingDetail.getObwshipShipping().getBusinessPartner().getName();
+
+          OBCriteria<Organization> orgCriteria = OBDal.getInstance().createCriteria(
+              Organization.class);
+          orgCriteria.add(Restrictions.eq(Organization.PROPERTY_NAME, bpName));
+          if (orgCriteria.list().size() <= 0) {
+            throw new OBException("Organization is not found for selected BP in Shipping Header");
           } else {
-            inoutLine.setObwshipTaxrate(taxRateCriteria.list().get(0).getRate());
+            OrganizationInformation orgInfo = orgCriteria.list().get(0)
+                .getOrganizationInformationList().get(0);
+
+            if (orgInfo.getIngstGstidentifirmaster() == null) {
+              throw new OBException(
+                  "GSTIN is not configured for selected Organization in Shipping Header");
+            } else {
+              bpGSTIN = orgInfo.getIngstGstidentifirmaster().getUidno();
+            }
           }
 
-          // Set Taxable Amount
-           // BigDecimal expression1 = cessionPrice.multiply(movementQty).multiply(new BigDecimal(100));
-           //BigDecimal expression2 = taxRateCriteria.list().get(0).getRate().add(new BigDecimal(100));
-           //BigDecimal taxableAmt = expression1.divide(expression2, 2, BigDecimal.ROUND_HALF_UP);
-          BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
-     
-          inoutLine.setObwshipTaxableamount(taxableAmt);
+          ShipmentGSTIN = newShippingDetail.getGoodsShipment().getWarehouse().getGsGstin();
 
-          // set Tax Amount
-           //BigDecimal taxAmount = (cessionPrice.multiply(movementQty)).subtract(taxableAmt);
-          BigDecimal expression1 = taxRateCriteria.list().get(0).getRate().divide(new BigDecimal(100)); 
+          // ----- Set Tax Rate
+          BigDecimal taxRate = BigDecimal.ZERO;
+          if (bpGSTIN.equalsIgnoreCase(ShipmentGSTIN)) {
+            inoutLine.setObwshipTaxrate(BigDecimal.ZERO);
+          } else {
+            if (inoutLine.getSalesOrderLine() != null) {
+              OrderLine orderlineObj = inoutLine.getSalesOrderLine();
+              if (orderlineObj.getOrderLineTaxList().size() > 0) {
+                taxRate = orderlineObj.getOrderLineTaxList().get(0).getTax().getRate();
+                inoutLine.setObwshipTaxrate(taxRate);
+              }
+            }
+          }
+          // Set Tax Rate Completed -----
+
+          // ----- Set Tax Amount
+          BigDecimal expression1 = taxRate.divide(new BigDecimal(100));
           BigDecimal taxAmount = taxableAmt.multiply(expression1);
-          
           inoutLine.setObwshipTaxamount(taxAmount);
+          // Set Tax Amount Completed -----
 
         }
         OBDal.getInstance().save(inoutLine);
@@ -256,7 +282,6 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
   }
 
   private BigDecimal getCessionPrice(Product product) {
-    // TODO Auto-generated method stub
     OBCriteria<PriceListVersion> priceListVersionCriteria = OBDal.getInstance().createCriteria(
         PriceListVersion.class);
     priceListVersionCriteria.add(Restrictions.eq(PriceList.PROPERTY_NAME, "DMI CATALOGUE"));
