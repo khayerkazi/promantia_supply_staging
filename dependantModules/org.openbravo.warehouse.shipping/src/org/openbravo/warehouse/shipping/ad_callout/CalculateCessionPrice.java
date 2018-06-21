@@ -42,14 +42,18 @@ public class CalculateCessionPrice extends SimpleCallout {
         if (cessionPrice == "") {
           String taxRate = info.getStringParameter("inpemObwshipTaxrate");
           BigDecimal price = getCessionprice(productyObj);
-          BigDecimal unitPrice = price;
-          price = price.multiply(new BigDecimal(movementQty));
-          BigDecimal amt = price.multiply(new BigDecimal(100.0));
-          BigDecimal divideFactor = rate.add(new BigDecimal(100.0));
-          BigDecimal taxableAmount = amt.divide(divideFactor, 2, BigDecimal.ROUND_HALF_UP);
-          BigDecimal taxAmount = price.subtract(taxableAmount);
+          // BigDecimal unitPrice = price;
+          // price = price.multiply(new BigDecimal(movementQty));
+          // BigDecimal amt = price.multiply(new BigDecimal(100.0));
+          // BigDecimal divideFactor = rate.add(new BigDecimal(100.0));
+          // BigDecimal taxableAmount = amt.divide(divideFactor, 2, BigDecimal.ROUND_HALF_UP);
+          // BigDecimal taxAmount = price.subtract(taxableAmount);
 
-          info.addResult("inpemObwshipCessionprice", unitPrice);
+          BigDecimal taxableAmount = price.multiply(new BigDecimal(movementQty));
+          BigDecimal taxAmount = taxableAmount.multiply((rate.divide(new BigDecimal(100.0), 2,
+              BigDecimal.ROUND_HALF_UP)));
+
+          info.addResult("inpemObwshipCessionprice", price);
           info.addResult("inpemObwshipTaxamount", taxAmount);
           info.addResult("inpemObwshipTaxableamount", taxableAmount);
           info.addResult("inpemObwshipTaxrate", rate);
