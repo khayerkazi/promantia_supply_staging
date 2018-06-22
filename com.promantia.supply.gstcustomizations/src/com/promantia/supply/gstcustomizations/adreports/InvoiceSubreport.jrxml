@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2018-06-06T12:24:30 -->
+<!-- 2018-06-22T16:21:06 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -968,7 +968,7 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textFieldExpression><![CDATA[$V{grandtotal}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="340" y="20" width="200" height="29" uuid="778be08b-f636-477f-af9e-88b836a8c721"/>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="340" y="20" width="200" height="29" uuid="778be08b-f636-477f-af9e-88b836a8c721"/>
 				<box leftPadding="2" bottomPadding="0">
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -979,9 +979,9 @@ group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, l
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[(($V{grandtotal}).doubleValue()*100.0 - ($V{grandtotal}).intValue()*100) == 0 ?
+				<textFieldExpression><![CDATA[($V{grandtotal}.doubleValue()*100.0 - $V{grandtotal}.intValue()*100) == 0 ?
 "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}) + " only "
-: "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}) + " paise only "]]></textFieldExpression>
+: "" + new com.ibm.icu.text.RuleBasedNumberFormat("-x: minus >>;x.x: << and  >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred [ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}.subtract($V{grandtotal}.remainder((new BigDecimal(1.00))))) + " " +" and "+" " + new com.ibm.icu.text.RuleBasedNumberFormat("-x: >>;x.x: << and >>;Zero; One; Two; Three; Four; Five; Six; Seven; Eight; Nine; Ten; Eleven; Twelve; Thirteen; Fourteen; Fifteen; Sixteen; Seventeen; Eighteen; Nineteen;20: Twenty[->>];30: Thirty[->>];40: Forty[->>];50: Fifty[->>];60: Sixty[->>];70: Seventy[->>];80: Eighty[->>];90: Ninety[->>]; 100: << Hundred[ >>];1000: << Thousand[ >>];100000: << Lakh[ >>];10000000: << Crore[ >>];\n").format($V{grandtotal}.remainder(new BigDecimal(1.00)).multiply(new BigDecimal(100))).concat(" ").concat("paise only")]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="190" y="49" width="150" height="29" uuid="bbabe254-ee33-4221-bdf5-e8a99dca93eb"/>
