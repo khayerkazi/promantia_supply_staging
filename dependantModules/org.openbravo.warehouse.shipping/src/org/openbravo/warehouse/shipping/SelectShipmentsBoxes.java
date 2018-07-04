@@ -214,7 +214,14 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
           BigDecimal cessionPrice = mapObj.get(inoutLine.getProduct());
           inoutLine.setOBWSHIPCessionPrice(cessionPrice);
           // Set Cession Price completed -----
-
+          if (inoutLine.getProduct() != null) {
+            if (inoutLine.getProduct().getIngstGstproductcode() != null) {
+              if (inoutLine.getProduct().getIngstGstproductcode().getName() != null) {
+                inoutLine.setObwshipHsncode(inoutLine.getProduct().getIngstGstproductcode()
+                    .getValue());
+              }
+            }
+          }
           // ----- Set Taxable Amount
           BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
           inoutLine.setObwshipTaxableamount(taxableAmt);
