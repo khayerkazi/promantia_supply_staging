@@ -17,5 +17,9 @@
         <default><![CDATA[0.00]]></default>
         <onCreateDefault/>
       </column>
+      <column name="EM_OBWSHIP_HSNCODE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
     </table>
   </database>
