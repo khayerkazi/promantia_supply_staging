@@ -171,7 +171,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + SDate
         + "' and "
         + "mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1' "
-        + "group by  mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.EM_Gs_Uniqueno , "
+        + "group by ml.em_obwship_hsncode, mw.name  ,mw.value ,mw.em_gs_gstin  , org.name  ,org.value  ,ingst.uidno  ,os.EM_Gs_Uniqueno , "
         + " os.shipment_date,  mp.name , gst.value ,mp.em_cl_modelname , ct.rate, ml.movementqty , "
         + "ml.em_obwship_cessionprice ,ml.movementqty,ml.em_obwship_cessionprice, ml.em_obwship_taxableamount, ml.em_obwship_taxamount, ml.em_obwship_taxrate "
         + "";
