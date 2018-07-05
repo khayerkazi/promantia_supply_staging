@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2018-07-05T15:27:57 -->
+<!-- 2018-07-05T15:59:03 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -41,7 +41,7 @@ left join c_orderlinetax olt on olt.c_orderline_id = orl.c_orderline_id
 left join c_tax ct on ct.c_tax_id = olt.c_tax_id
 where os.obwship_shipping_id =$P{DOCUMENT_ID}
 and mpp.m_pricelist_version_id ='0F39C05C15EE4E5BB50BD5FEC1645DA1'
-group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, loc.address1,loc.address2,loc.city,loc.postal, os.em_gs_uniqueno, os.shipment_date, cloc.address1,cloc.address2,cloc.city,cloc.postal, reg1.name, reg.name, reg.value, ingst.uidno, mp.name, mp.em_cl_modelname, gst.value, ml.movementqty, ml.em_obwship_cessionprice,ct.rate]]>
+group by ml.m_inoutline_id ,orl.c_orderline_id, os.documentno, mw.em_gs_gstin, loc.address1,loc.address2,loc.city,loc.postal, os.em_gs_uniqueno, os.shipment_date, cloc.address1,cloc.address2,cloc.city,cloc.postal, reg1.name, reg.name, reg.value, ingst.uidno, mp.name, mp.em_cl_modelname, gst.value, ml.movementqty, ml.em_obwship_cessionprice,ct.rate,ml.em_obwship_hsncode]]>
 	</queryString>
 	<field name="m_inoutline_id" class="java.lang.String"/>
 	<field name="c_orderline_id" class="java.lang.String"/>

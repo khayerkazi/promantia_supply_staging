@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2018-07-05T15:28:21 -->
+<!-- 2018-07-05T15:58:12 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -40,7 +40,7 @@ group by
 mm.m_movement_id, mm.documentno, mw1.em_gs_gstin,mw2.em_gs_gstin, loc1.address1,loc1.address2,loc1.city,loc1.postal,--os.em_gs_uniqueno,
  mm.movementdate , loc2.address1, loc2.address2,loc2.city, loc2.postal, reg1.name, reg2.name, reg2.value, mml.em_OBWSHIP_TaxableAmount,
   mml.em_obwship_taxrate,mml.em_obwship_taxamount, ingst.uidno, 
- mp.name, mp.em_cl_modelname, gst.value, mml.movementqty, mml.em_obwship_cessionprice]]>
+ mp.name, mp.em_cl_modelname, gst.value, mml.movementqty, mml.em_obwship_cessionprice,mml.em_obwship_hsncode]]>
 	</queryString>
 	<field name="m_movement_id" class="java.lang.String"/>
 	<field name="invoicenumber" class="java.lang.String"/>
