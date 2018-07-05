@@ -40,7 +40,8 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
   @Override
   protected JSONObject doExecute(Map<String, Object> parameters, String content) {
     // TODO Auto-generated method stub
-
+    // select value into v_hsncode from ingst_gstproductcode where ingst_gstproductcode_id =(select
+    // em_ingst_gstproductcode_id from m_product where m_product_id=new.m_product_id);
     JSONObject jsonRequest = null;
     // String message = new String();
     OBContext.setAdminMode(true);
@@ -138,7 +139,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         + "ingst.uidno as StoreGSTINUniqueID,os.EM_Gs_Uniqueno as INVOICENUMBER,  "
         + "to_char(os.shipment_date,'YYYY-mm-dd') as DateofInvoice, "
         + "mp.name as ProductName,  "
-        + "gst.value as ProductHSNCode, "
+        + "COALESCE(ml.em_obwship_hsncode,gst.value) as ProductHSNCode, "
         + "mp.em_cl_modelname as ModelName,  "
         + "ml.movementqty as ShipmentQty, "
         + "ml.em_obwship_cessionprice as CessionPrice, "
@@ -331,7 +332,9 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
     String sql = "SELECT fromwh.name as fromwhname, fromwh.value as fromwhcode,fromwh.EM_Gs_Gstin as v_fromWH_GSTIN, "
         + "towh.name as towhname, towh.value as towhcode, towh.EM_Gs_Gstin as v_toWH_GSTIN, "
         + "m.em_obwship_uniqueno as invoiceno, to_char(m.MovementDate,'YYYY-mm-dd')  as invoicedate, "
-        + "mp.name product_name, gst.value as HSN, mp.em_cl_modelname as ModelName, ml.movementqty as Qty, "
+        + "mp.name product_name, "
+        + "COALESCE(ml.em_obwship_hsncode,gst.value) as HSN, "
+        + "mp.em_cl_modelname as ModelName, ml.movementqty as Qty, "
         + "ml.em_obwship_cessionprice as rate, (ml.movementqty*ml.em_obwship_cessionprice) as QtyRate, "
         + "ml.em_obwship_taxrate as IGST_rate, ml.em_obwship_taxamount as IGST_amount, "
         + "(ml.em_obwship_taxableamount+ml.em_obwship_taxamount) as valueincludingTax "
