@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2018-06-22T16:21:06 -->
+<!-- 2018-07-05T15:27:57 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b34a23e6-c4f4-446a-a584-8322a2bdc902">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -14,7 +14,7 @@
 os.em_gs_uniqueno as SerialNoOfInvoice, os.shipment_date as DateofInvoice,
  (cloc.address1 || ' ' || cloc.address2  || ' ' || cloc.city || ' ' || cloc.postal) as SupplyAddress,
 reg1.name as State1, reg.name as State, reg.value as StateCode, ingst.uidno as GSTINUniqueID,
-mp.name as ProductName, mp.em_cl_modelname as ModelName, gst.value as ProductHSNCode,
+mp.name as ProductName, mp.em_cl_modelname as ModelName, coalesce(ml.em_obwship_hsncode,gst.value) as ProductHSNCode,
 ml.movementqty as ShipmentQty, round(ml.em_obwship_cessionprice,2) as CessionPrice,
 round(ml.em_OBWSHIP_TaxableAmount,2) as TaxableValue,
 round(ml.em_obwship_taxamount,2) as TotalTaxValue,
