@@ -22,6 +22,7 @@ public class CalculateCessionPrice extends SimpleCallout {
   protected void execute(CalloutInfo info) throws ServletException {
     BigDecimal existingCessionPrice = null;
     String movementid = info.getStringParameter("inpmMovementId");
+    // getpara("hsn")
     InternalMovement movementObj = OBDal.getInstance().get(InternalMovement.class, movementid);
     if (movementObj.getSWMovementtypegm().equalsIgnoreCase("Saleable Fixture WH-WH")) {
 
@@ -39,6 +40,19 @@ public class CalculateCessionPrice extends SimpleCallout {
       if (rate == null) {
         rate = BigDecimal.ZERO;
       } else {
+        if (productyObj != null) {
+          if (productyObj.getIngstGstproductcode() != null) {
+            if (productyObj.getIngstGstproductcode().getValue() != null) {
+              info.addResult("inpemObwshipHsncode", productyObj.getIngstGstproductcode().getValue());
+            } else {
+              info.addResult("inpemObwshipHsncode", "");
+            }
+          } else {
+            info.addResult("inpemObwshipHsncode", "");
+
+          }
+        }
+
         if (cessionPrice == "") {
           String taxRate = info.getStringParameter("inpemObwshipTaxrate");
           BigDecimal price = getCessionprice(productyObj);
@@ -58,8 +72,7 @@ public class CalculateCessionPrice extends SimpleCallout {
           info.addResult("inpemObwshipTaxableamount", taxableAmount);
           info.addResult("inpemObwshipTaxrate", rate);
 
-        }
-        if (cessionPrice != "") {
+        } else {
           BigDecimal taxableAmount = existingCessionPrice.multiply(new BigDecimal(movementQty));
 
           BigDecimal taxAmount = taxableAmount.multiply(rate.divide(new BigDecimal(100.0), 2,

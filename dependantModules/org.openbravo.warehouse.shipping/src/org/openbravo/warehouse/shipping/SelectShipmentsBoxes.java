@@ -216,7 +216,7 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
           // Set Cession Price completed -----
           if (inoutLine.getProduct() != null) {
             if (inoutLine.getProduct().getIngstGstproductcode() != null) {
-              if (inoutLine.getProduct().getIngstGstproductcode().getName() != null) {
+              if (inoutLine.getProduct().getIngstGstproductcode().getValue() != null) {
                 inoutLine.setObwshipHsncode(inoutLine.getProduct().getIngstGstproductcode()
                     .getValue());
               }

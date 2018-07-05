@@ -16,6 +16,7 @@
   v_movementline_id VARCHAR(32);
   v_taxable NUMBER;
   v_taxamount NUMBER;
+v_hsncode VARCHAR (60);
 BEGIN
     
     IF AD_isTriggerEnabled()='N' THEN IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF; 
@@ -54,7 +55,8 @@ v_ID =new.m_movement_id;
                   v_taxable=  round((v_cessionprice*100)/(100 + v_rate),2);
                   v_taxamount=v_cessionprice-v_taxable;
 
-                 update m_movementline  set em_obwship_cessionprice =v_cessionprice,
+                select value into v_hsncode from ingst_gstproductcode where ingst_gstproductcode_id =(select em_ingst_gstproductcode_id from m_product 			where   m_product_id=new.m_product_id);
+                 update m_movementline  set em_obwship_cessionprice =v_cessionprice,em_obwship_hsncode =v_hsncode,
                  em_obwship_taxableamount=v_taxable,em_obwship_taxamount=v_taxamount,
                  em_obwship_taxrate=v_rate 
                  where  m_movementline_id=new.m_movementline_id;

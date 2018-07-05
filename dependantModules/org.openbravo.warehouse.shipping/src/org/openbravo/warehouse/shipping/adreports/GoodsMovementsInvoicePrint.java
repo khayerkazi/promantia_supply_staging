@@ -8,17 +8,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openbravo.base.exception.OBException;
-import org.openbravo.base.secureApp.HttpSecureAppServlet;
-import org.openbravo.base.secureApp.VariablesSecureApp;
-import org.openbravo.dal.service.OBDal;
-import org.openbravo.model.materialmgmt.transaction.InternalMovement;
-
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
+
+import org.openbravo.base.exception.OBException;
+import org.openbravo.base.secureApp.HttpSecureAppServlet;
+import org.openbravo.base.secureApp.VariablesSecureApp;
+import org.openbravo.dal.service.OBDal;
+import org.openbravo.model.materialmgmt.transaction.InternalMovement;
+import org.openbravo.model.materialmgmt.transaction.InternalMovementLine;
 
 public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
   private static final long serialVersionUID = 1L;
@@ -28,8 +29,8 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
     boolHist = false;
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException,
+      ServletException {
     VariablesSecureApp vars = new VariablesSecureApp(request);
 
     if (vars.commandIn("DEFAULT")) {
@@ -49,6 +50,22 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
               "Goods movement transaction can be printed only for records having Movement Type as 'Fixture movement WH to WH'");
         else
           printPagePartePDF(response, vars, strMovementId);
+        // update the hsncode
+        for (InternalMovementLine movementlineObj : movementObj
+            .getMaterialMgmtInternalMovementLineList()) {
+          if (movementlineObj.getOBWSHIPHSNCode() == null) {
+            if (movementlineObj.getProduct() != null) {
+              if (movementlineObj.getProduct().getIngstGstproductcode() != null) {
+                if (movementlineObj.getProduct().getIngstGstproductcode().getValue() != null) {
+                  movementlineObj.setOBWSHIPHSNCode(movementlineObj.getProduct()
+                      .getIngstGstproductcode().getValue());
+                  OBDal.getInstance().save(movementlineObj);
+                  OBDal.getInstance().flush();
+                }
+              }
+            }
+          }
+        }
       } catch (Exception e) {
         throw new OBException(
             "Goods movement transaction can be printed only for records having Movement Type as 'Fixture movement WH to WH'");
@@ -65,8 +82,8 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
 
     JasperReport jasperReportLines;
     try {
-      JasperDesign jasperDesignLines = JRXmlLoader.load(
-          strBaseDesign + "/org/openbravo/warehouse/shipping/adreports/FixtureInvoiceRe.jrxml");
+      JasperDesign jasperDesignLines = JRXmlLoader.load(strBaseDesign
+          + "/org/openbravo/warehouse/shipping/adreports/FixtureInvoiceRe.jrxml");
       jasperReportLines = JasperCompileManager.compileReport(jasperDesignLines);
     } catch (JRException e) {
       e.printStackTrace();
