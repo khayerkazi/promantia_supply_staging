@@ -286,9 +286,12 @@ public class GoodsMovementProcessActionHandler extends BaseActionHandler {
     String query = "insert into m_movementline(m_movementline_id,ad_client_id,ad_org_id,isActive,created,createdby,"
         + "updated,updatedby,m_movement_id,m_locator_id,m_locatorto_id,m_product_id,movementqty,description,"
         + "m_attributesetinstance_id, m_product_uom_id,quantityorder,c_uom_id,em_sw_size,em_sw_color_id,em_sw_model_id,"
-        + "em_sw_mod_id,em_sw_boxto) select get_uuid(),?,?,'Y',now(),?,now(),?,?,im.m_locator_id,im.m_locatorto_id,"
+        + "em_sw_mod_id,em_sw_boxto,em_obwship_hsncode) select get_uuid(),?,?,'Y',now(),?,now(),?,?,im.m_locator_id,im.m_locatorto_id,"
         + "im.m_product_id,movementqty,?,im.m_attributesetinstance_id,NULL,NULL,'100',"
-        + "mp.em_cl_size,mp.em_cl_color_id,mp.em_cl_model_id,NULL,im.boxto from im_movement im, m_product mp "
+        + "mp.em_cl_size,mp.em_cl_color_id,mp.em_cl_model_id,NULL,im.boxto ,"
+        + "(select coalesce(value,'')  from ingst_gstproductcode where ingst_gstproductcode_id =("
+        + "select em_ingst_gstproductcode_id from m_product where   m_product_id=im.m_product_id) ) "
+        + "from im_movement im, m_product mp "
         + "where mp.m_product_id = im.m_product_id and im.createdby= ? ";
 
     PreparedStatement stmt = null;

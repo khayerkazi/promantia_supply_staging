@@ -23,6 +23,7 @@
   v_movementline_id VARCHAR(32);
   v_taxable NUMBER;
   v_taxamount NUMBER;
+v_hsncode VARCHAR (60);
 BEGIN
     
     IF AD_isTriggerEnabled()='N' THEN RETURN;
@@ -52,6 +53,11 @@ BEGIN
                   select rate into v_rate from c_tax where  c_tax.c_taxcategory_id  =v_taxcategory 
                   and c_tax.em_intx_indian_taxcategory ='GS_IGST';
                   
+		select value into v_hsncode from ingst_gstproductcode where ingst_gstproductcode_id =(select em_ingst_gstproductcode_id from m_product 			where   m_product_id=new.m_product_id);  
+
+		update m_movementline  set em_obwship_hsncode   =v_hsncode 
+		where m_product_id=new.m_product_id and m_movementline_id=:new.m_movementline_id;
+
                   if(v_rate is null) then
                   RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
                   end if;
@@ -114,7 +120,9 @@ IF(INSERTING) then
                   select c_taxcategory_id into v_taxcategory from m_product where m_product_id=:new.m_product_id;
                   select rate into v_rate from c_tax where  c_tax.c_taxcategory_id  =v_taxcategory 
                   and c_tax.em_intx_indian_taxcategory ='GS_IGST';
-                  
+
+		select value into v_hsncode from ingst_gstproductcode where ingst_gstproductcode_id =(select em_ingst_gstproductcode_id from m_product 			where   m_product_id=new.m_product_id);                  
+
                   if(v_rate is null) then
                   RAISE_APPLICATION_ERROR(-20000,'@OBWSHIP_IGST_RATE@');
                   end if;
@@ -154,7 +162,7 @@ IF(INSERTING) then
                   v_taxable=  :new.MovementQty*v_unit_cessionprice;
                   v_taxamount= v_taxable*(v_rate/100);
 
-                 update m_movementline  set em_obwship_cessionprice =v_unit_cessionprice,
+                 update m_movementline  set em_obwship_cessionprice =v_unit_cessionprice,em_obwship_hsncode =v_hsncode,
                  em_obwship_taxableamount=v_taxable,em_obwship_taxamount=v_taxamount,
                  em_obwship_taxrate=v_rate 
                  where  m_movementline_id=:new.m_movementline_id;
