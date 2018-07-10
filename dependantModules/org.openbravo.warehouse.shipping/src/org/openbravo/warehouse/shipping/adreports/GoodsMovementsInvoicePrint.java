@@ -104,7 +104,7 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
     strShippingId = strShippingId.replaceAll("\\(|\\)|'", "");
     parameters.put("BASE_DESIGN", strBaseDesign);
     parameters.put("DOCUMENT_ID", strShippingId);
-    renderJR(vars, response, reportName, "pdf", parameters, null, null);
+    renderJR(vars, response, null, "pdf", parameters, null, null);
   }
 
   public String getServletInfo() {

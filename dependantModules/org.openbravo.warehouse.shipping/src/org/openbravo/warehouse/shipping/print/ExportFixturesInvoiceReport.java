@@ -85,7 +85,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         }
       }
 
-      SimpleDateFormat sdf = new SimpleDateFormat("ddmmyyyy");
+      SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
       String endDateStr = sdf.format(EndDate);
       String startDateStr = sdf.format(StartDate);
       if (IType.equalsIgnoreCase("shipping")) {
