@@ -1,6 +1,7 @@
 package org.openbravo.warehouse.shipping.adreports;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.ServletConfig;
@@ -45,22 +46,32 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
       InternalMovement movementObj = OBDal.getInstance().get(InternalMovement.class,
           trimmedmovementID);
       try {
-        if (!movementObj.getSWMovementtypegm().equalsIgnoreCase("Saleable Fixture WH-WH"))
-          throw new OBException(
-              "Goods movement transaction can be printed only for records having Movement Type as 'Fixture movement WH to WH'");
-        else
-          printPagePartePDF(response, vars, strMovementId);
-        // update the hsncode
-        for (InternalMovementLine movementlineObj : movementObj
-            .getMaterialMgmtInternalMovementLineList()) {
-          if (movementlineObj.getOBWSHIPHSNCode() == null) {
-            if (movementlineObj.getProduct() != null) {
-              if (movementlineObj.getProduct().getIngstGstproductcode() != null) {
-                if (movementlineObj.getProduct().getIngstGstproductcode().getValue() != null) {
-                  movementlineObj.setOBWSHIPHSNCode(movementlineObj.getProduct()
-                      .getIngstGstproductcode().getValue());
-                  OBDal.getInstance().save(movementlineObj);
-                  OBDal.getInstance().flush();
+        String reportName = "GoodsMovementReport_";
+        if (movementObj != null) {
+          if (movementObj.getObwshipUniqueno() != null) {
+            reportName = reportName + movementObj.getObwshipUniqueno();
+          } else {
+            reportName = reportName + movementObj.getDocumentNo();
+
+          }
+          reportName = reportName + new Date();
+          if (!movementObj.getSWMovementtypegm().equalsIgnoreCase("Saleable Fixture WH-WH"))
+            throw new OBException(
+                "Goods movement transaction can be printed only for records having Movement Type as 'Fixture movement WH to WH'");
+          else
+            printPagePartePDF(response, vars, strMovementId, reportName);
+          // update the hsncode
+          for (InternalMovementLine movementlineObj : movementObj
+              .getMaterialMgmtInternalMovementLineList()) {
+            if (movementlineObj.getOBWSHIPHSNCode() == null) {
+              if (movementlineObj.getProduct() != null) {
+                if (movementlineObj.getProduct().getIngstGstproductcode() != null) {
+                  if (movementlineObj.getProduct().getIngstGstproductcode().getValue() != null) {
+                    movementlineObj.setOBWSHIPHSNCode(movementlineObj.getProduct()
+                        .getIngstGstproductcode().getValue());
+                    OBDal.getInstance().save(movementlineObj);
+                    OBDal.getInstance().flush();
+                  }
                 }
               }
             }
@@ -75,7 +86,7 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
   }
 
   private void printPagePartePDF(HttpServletResponse response, VariablesSecureApp vars,
-      String strShippingId) throws IOException, ServletException {
+      String strShippingId, String reportName) throws IOException, ServletException {
 
     String strBaseDesign = getBaseDesignPath(vars.getLanguage());
     HashMap<String, Object> parameters = new HashMap<String, Object>();
@@ -93,7 +104,7 @@ public class GoodsMovementsInvoicePrint extends HttpSecureAppServlet {
     strShippingId = strShippingId.replaceAll("\\(|\\)|'", "");
     parameters.put("BASE_DESIGN", strBaseDesign);
     parameters.put("DOCUMENT_ID", strShippingId);
-    renderJR(vars, response, null, "pdf", parameters, null, null);
+    renderJR(vars, response, reportName, "pdf", parameters, null, null);
   }
 
   public String getServletInfo() {

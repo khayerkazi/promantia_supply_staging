@@ -1,6 +1,7 @@
 package com.promantia.supply.gstcustomizations.adreports;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.ServletConfig;
@@ -41,24 +42,34 @@ public class GsInvoiceReport extends HttpSecureAppServlet {
         strShippingId = vars.getSessionValue("GS_InvoiceReport.inpobwshipShippingId");
       // strcBpartnerId = vars.getSessionValue("PrintRfQ.inpcBpartnerId");
 
-      printPagePartePDF(response, vars, strShippingId);
-
       String trimmedShippingID = strShippingId.substring(2, strShippingId.length() - 2);
       OBWSHIPShipping shippingObj = OBDal.getInstance().get(OBWSHIPShipping.class,
           trimmedShippingID);
+      if (shippingObj != null) {
+        String reportName = "ShippingReport_";
+        if (shippingObj.getGsUniqueno() != null) {
+          reportName = reportName + shippingObj.getGsUniqueno();
+        } else {
+          reportName = reportName + shippingObj.getDocumentNo();
 
-      for (OBWSHIPShippingDetails shippinglineObj : shippingObj.getOBWSHIPShippingDetailsList()) {
-        if (shippinglineObj.getGoodsShipment() != null) {
-          for (ShipmentInOutLine inoutLineObj : shippinglineObj.getGoodsShipment()
-              .getMaterialMgmtShipmentInOutLineList()) {
-            if (inoutLineObj.getObwshipHsncode() == null) {
-              if (inoutLineObj.getProduct() != null) {
-                if (inoutLineObj.getProduct().getIngstGstproductcode() != null) {
-                  if (inoutLineObj.getProduct().getIngstGstproductcode().getValue() != null) {
-                    inoutLineObj.setObwshipHsncode(inoutLineObj.getProduct()
-                        .getIngstGstproductcode().getValue());
-                    OBDal.getInstance().save(inoutLineObj);
-                    OBDal.getInstance().flush();
+        }
+        reportName = reportName + new Date();
+
+        printPagePartePDF(response, vars, strShippingId, reportName);
+
+        for (OBWSHIPShippingDetails shippinglineObj : shippingObj.getOBWSHIPShippingDetailsList()) {
+          if (shippinglineObj.getGoodsShipment() != null) {
+            for (ShipmentInOutLine inoutLineObj : shippinglineObj.getGoodsShipment()
+                .getMaterialMgmtShipmentInOutLineList()) {
+              if (inoutLineObj.getObwshipHsncode() == null) {
+                if (inoutLineObj.getProduct() != null) {
+                  if (inoutLineObj.getProduct().getIngstGstproductcode() != null) {
+                    if (inoutLineObj.getProduct().getIngstGstproductcode().getValue() != null) {
+                      inoutLineObj.setObwshipHsncode(inoutLineObj.getProduct()
+                          .getIngstGstproductcode().getValue());
+                      OBDal.getInstance().save(inoutLineObj);
+                      OBDal.getInstance().flush();
+                    }
                   }
                 }
               }
@@ -66,13 +77,12 @@ public class GsInvoiceReport extends HttpSecureAppServlet {
           }
         }
       }
-
     } else
       pageError(response);
   }
 
   private void printPagePartePDF(HttpServletResponse response, VariablesSecureApp vars,
-      String strShippingId) throws IOException, ServletException {
+      String strShippingId, String reportName) throws IOException, ServletException {
 
     String strBaseDesign = getBaseDesignPath(vars.getLanguage());
     HashMap<String, Object> parameters = new HashMap<String, Object>();
@@ -94,7 +104,7 @@ public class GsInvoiceReport extends HttpSecureAppServlet {
     strShippingId = strShippingId.replaceAll("\\(|\\)|'", "");
     parameters.put("BASE_DESIGN", strBaseDesign);
     parameters.put("DOCUMENT_ID", strShippingId);
-    renderJR(vars, response, null, "pdf", parameters, null, null);
+    renderJR(vars, response, reportName, "pdf", parameters, null, null);
 
   }
 

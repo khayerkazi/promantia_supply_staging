@@ -85,11 +85,17 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
         }
       }
 
+      SimpleDateFormat sdf = new SimpleDateFormat("ddmmyyyy");
+      String endDateStr = sdf.format(EndDate);
+      String startDateStr = sdf.format(StartDate);
       if (IType.equalsIgnoreCase("shipping")) {
-        ExportFixturesInvoiceReport.extractForShipping(SDate, EDate);
+        String fileName = "ShippingSalesReport_From-" + startDateStr + "_To-" + endDateStr;
+        ExportFixturesInvoiceReport.extractForShipping(SDate, EDate, fileName);
       }
       if (IType.equalsIgnoreCase("goodsMovements")) {
-        ExportFixturesInvoiceReport.extractForGoodsMovements(SDate, EDate);
+        String fileName = "GoodsMovementSalesReport_From-" + startDateStr + "_To-" + endDateStr;
+
+        ExportFixturesInvoiceReport.extractForGoodsMovements(SDate, EDate, fileName);
       }
 
       // ExportFixturesInvoiceReport.extract(SDate, EDate);
@@ -130,7 +136,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
   }
 
   @SuppressWarnings("hiding")
-  public static JSONObject extractForShipping(String SDate, String EDate)
+  public static JSONObject extractForShipping(String SDate, String EDate, String fileName)
       throws FileNotFoundException, IOException, JSONException, ParseException {
 
     String sql = "select "
@@ -317,7 +323,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
 
         }
       }
-      FILE_NAME = new Date() + ".xlsx";
+      FILE_NAME = fileName + ".xlsx";
 
       DownloadFile(workbook);
 
@@ -326,7 +332,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
   }
 
   @SuppressWarnings("hiding")
-  private static JSONObject extractForGoodsMovements(String SDate, String EDate)
+  private static JSONObject extractForGoodsMovements(String SDate, String EDate, String fileName)
       throws FileNotFoundException, IOException, JSONException {
 
     String sql = "SELECT fromwh.name as fromwhname, fromwh.value as fromwhcode,fromwh.EM_Gs_Gstin as v_fromWH_GSTIN, "
@@ -494,7 +500,7 @@ public class ExportFixturesInvoiceReport extends BaseProcessActionHandler {
             row1.createCell(colNum1++).setCellValue(0.00);
         }
       }
-      FILE_NAME = new Date() + ".xlsx";
+      FILE_NAME = fileName + ".xlsx";
 
       DownloadFile(workbookforgoodsshipments);
 
