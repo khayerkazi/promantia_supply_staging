@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.openbravo.dal.core.OBContext;
 import org.openbravo.model.common.order.Order;
 import org.openbravo.service.web.WebService;
 
@@ -29,6 +30,7 @@ import org.openbravo.service.web.WebService;
  * 
  */
 public class SalesOrderListner implements WebService {
+  public static boolean IsSriLankaOrder = false;
 
   public static final Logger log = Logger.getLogger(SalesOrderListner.class);
   public JSONArray responseOrders = new JSONArray();
@@ -74,7 +76,7 @@ public class SalesOrderListner implements WebService {
       log.info("Orders from Store to create sales orders" + orders.length());
 
       Map<String, List<Order>> retailSupply = new HashMap<String, List<Order>>();
-      
+
       JSONArray ordersArray = getOrders(orders);
       for (short i = 0; i < ordersArray.length(); i++) {
         JSONObject ordObj = (JSONObject) ordersArray.get(i);
@@ -82,8 +84,13 @@ public class SalesOrderListner implements WebService {
         DocNo = ordHeader.getString(SOConstants.jsonDocNo);
         JSONArray ordLines = ordObj.getJSONArray("Lines");
 
+        if (!(ordHeader.get("client").equals(OBContext.getOBContext().getCurrentClient().getId()))) {
+          IsSriLankaOrder = true;
+          ordHeader = saveSuppData.updateOrderJsonWithCurrectIdForSL(ordHeader);
+        }
+
         JSONObject responseOrd = saveSuppData.distributeSalesOrder(ordHeader, ordLines,
-            retailSupply);
+            retailSupply, IsSriLankaOrder);
 
         log.debug("json object " + responseOrd);
         response.setHeader("orders", responseOrd.toString());
