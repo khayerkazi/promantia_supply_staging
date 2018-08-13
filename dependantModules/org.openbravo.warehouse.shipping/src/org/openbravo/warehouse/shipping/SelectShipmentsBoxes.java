@@ -227,9 +227,10 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
           inoutLine.setObwshipTaxableamount(taxableAmt);
           // Set Taxable Amount completed -----
 
-          String bpName = null;
-          String bpGSTIN = null;
-          String ShipmentGSTIN = null;
+          String bpName = "";
+          String bpGSTIN = "";
+          String ShipmentGSTIN = "";
+          BigDecimal taxRate = BigDecimal.ZERO;
 
           bpName = newShippingDetail.getObwshipShipping().getBusinessPartner().getName();
 
@@ -239,33 +240,33 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
           if (orgCriteria.list().size() <= 0) {
             throw new OBException("Organization is not found for selected BP in Shipping Header");
           } else {
-            OrganizationInformation orgInfo = orgCriteria.list().get(0)
-                .getOrganizationInformationList().get(0);
+            if (orgCriteria.list().get(0).getOrganizationInformationList().size() > 0) {
+              OrganizationInformation orgInfo = orgCriteria.list().get(0)
+                  .getOrganizationInformationList().get(0);
+              if (orgInfo.getLocationAddress().getCountry().getName().equals("India")) {
+                if (orgInfo.getIngstGstidentifirmaster() == null) {
+                  throw new OBException(
+                      "GSTIN is not configured for selected Organization/BusinessPartner");
+                } else {
+                  bpGSTIN = orgInfo.getIngstGstidentifirmaster().getUidno();
 
-            if (orgInfo.getIngstGstidentifirmaster() == null) {
-              throw new OBException(
-                  "GSTIN is not configured for selected Organization/BusinessPartner");
-            } else {
-              bpGSTIN = orgInfo.getIngstGstidentifirmaster().getUidno();
-            }
-          }
+                  ShipmentGSTIN = newShippingDetail.getGoodsShipment().getWarehouse().getGsGstin();
 
-          ShipmentGSTIN = newShippingDetail.getGoodsShipment().getWarehouse().getGsGstin();
-
-          // ----- Set Tax Rate
-          BigDecimal taxRate = BigDecimal.ZERO;
-          if (bpGSTIN.equalsIgnoreCase(ShipmentGSTIN)) {
-            inoutLine.setObwshipTaxrate(BigDecimal.ZERO);
-          } else {
-            if (inoutLine.getSalesOrderLine() != null) {
-              OrderLine orderlineObj = inoutLine.getSalesOrderLine();
-              if (orderlineObj.getOrderLineTaxList().size() > 0) {
-                taxRate = orderlineObj.getOrderLineTaxList().get(0).getTax().getRate();
-                inoutLine.setObwshipTaxrate(taxRate);
+                  // ----- Set Tax Rate
+                  if (!bpGSTIN.equalsIgnoreCase(ShipmentGSTIN)) {
+                    if (inoutLine.getSalesOrderLine() != null) {
+                      OrderLine orderlineObj = inoutLine.getSalesOrderLine();
+                      if (orderlineObj.getOrderLineTaxList().size() > 0) {
+                        taxRate = orderlineObj.getOrderLineTaxList().get(0).getTax().getRate();
+                      }
+                    }
+                  }
+                }
               }
             }
-          }
-          // Set Tax Rate Completed -----
+
+          }// Set Tax Rate Completed -----
+          inoutLine.setObwshipTaxrate(taxRate);
 
           // ----- Set Tax Amount
           BigDecimal expression1 = taxRate.divide(new BigDecimal(100));
