@@ -2,17 +2,23 @@
   <database name="TRIGGER RC_C_LOCATION_TRG">
     <trigger name="RC_C_LOCATION_TRG" table="C_LOCATION" fires="after" insert="true" update="true" delete="false" foreach="row">
       <body><![CDATA[v_postal NUMBER;
-
+v_postallength NUMBER;
+v_country  character varying;
 BEGIN
 IF AD_isTriggerEnabled()='N' THEN RETURN;
 END IF;
 
 IF INSERTING OR UPDATING THEN
+ SELECT length(postal) INTO v_postal FROM C_LOCATION WHERE postal = :NEW.postal;
+  SELECT c_country_id into v_country FROM C_LOCATION WHERE postal = :NEW.postal;
 
-   SELECT length(postal) INTO v_postal FROM C_LOCATION WHERE postal = :NEW.postal;
-         
-     IF ((v_postal > 6) OR (v_postal < 6)) THEN
-        RAISE EXCEPTION '@Postal Code Length must be 6...@';
+--RAISE EXCEPTION  '%',v_country;
+  SELECT expressionpostal INTO v_postallength FROM c_country WHERE
+	c_country_id in (select c_country_id from C_LOCATION WHERE postal = :NEW.postal) and c_country.c_country_id=v_country;
+           -- RAISE EXCEPTION  '%',v_postallength;
+
+IF (v_postallength!=v_postal) THEN
+       RAISE EXCEPTION '@Enter valid postal code@';
      END IF;   
 
 
@@ -23,3 +29,4 @@ END RC_C_LOCATION_TRG
 ]]></body>
     </trigger>
   </database>
+
