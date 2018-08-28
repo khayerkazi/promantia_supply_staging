@@ -115,7 +115,7 @@
       <index name="OBWSHIP_SHIPPING_DOCNO" unique="false">
         <index-column name="DOCUMENTNO"/>
       </index>
-      <unique name="UNIQUEDOCNO">
+      <unique name="OBWSHIP_UNIQUEDOCNO">
         <unique-column name="DOCUMENTNO"/>
       </unique>
       <check name="OBWSHIP_SHIPPING_ISACTIVE"><![CDATA[ISACTIVE IN ('Y', 'N')]]></check>
