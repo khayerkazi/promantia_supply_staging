@@ -85,15 +85,15 @@
         <default><![CDATA[0.00]]></default>
         <onCreateDefault/>
       </column>
-      <column name="ISSLSHIPPED" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
-        <default><![CDATA[N]]></default>
-        <onCreateDefault/>
-      </column>
       <column name="PACKINGINVOICENO" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
         <default/>
         <onCreateDefault/>
       </column>
-      <column name="ISSLPACKEDED" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+      <column name="ISSLPACKINGINVOICEREPORT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="ISSLSHIPPINGINVOICEREPORT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
         <default><![CDATA[N]]></default>
         <onCreateDefault/>
       </column>
