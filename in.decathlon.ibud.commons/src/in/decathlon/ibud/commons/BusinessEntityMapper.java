@@ -192,7 +192,8 @@ public class BusinessEntityMapper {
 
   public static int setLastUpdatedTime(String newDate, String serviceKey) {
     String qry = "update Ibud_ServerTime set lastupdated = '" + newDate
-        + "' where serviceKey= :serviceKey and client='"+OBContext.getOBContext().getCurrentClient().getId()+"'";
+        + "' where serviceKey= :serviceKey and client='"
+        + OBContext.getOBContext().getCurrentClient().getId() + "'";
     log.info("executing " + qry);
     Query query = OBDal.getInstance().getSession().createQuery(qry);
     query.setParameter("serviceKey", serviceKey);
@@ -706,7 +707,7 @@ public class BusinessEntityMapper {
         // get count of total SO Lines
         poDocNo = docNo.substring(0, docNo.lastIndexOf("*"));
         String qrySO = "select count(ol.id) from OrderLine ol join ol.salesOrder o where co.swPoReference = '"
-            + poDocNo + "and o.salesTransaction = 'Y'  and o.documentType.id = :docId ";
+            + poDocNo + "' and o.salesTransaction = 'Y'  and o.documentType.id = :docId ";
         log.debug("qry to retrieve SO " + qrySO);
         Query querySO = OBDal.getInstance().getSession().createQuery(qrySO);
         querySO.setParameter("docId", SOConstants.SODOCTYPEID);
@@ -720,7 +721,7 @@ public class BusinessEntityMapper {
             + " join mi.materialMgmtShipmentInOutLineList mil "
             + "right join mil.salesOrderLine col  join col.salesOrder co "
             + "where mi.documentStatus = 'CO'  and " + "co.swPoReference = '" + poDocNo
-            + "and co.salesTransaction = 'Y'  and co.documentType.id = :docId ";
+            + "' and co.salesTransaction = 'Y'  and co.documentType.id = :docId ";
         log.debug("retrive qry to get ol to check status " + shipCompleteQry);
         final Query soQry = OBDal.getInstance().getSession().createQuery(shipCompleteQry);
         soQry.setParameter("docId", SOConstants.SODOCTYPEID);
