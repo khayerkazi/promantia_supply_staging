@@ -20,6 +20,9 @@
 package org.openbravo.warehouse.shipping;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +40,10 @@ import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.dal.service.OBDao;
 import org.openbravo.erpCommon.utility.OBMessageUtils;
+import org.openbravo.financial.FinancialUtils;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
+import org.openbravo.model.common.currency.ConversionRate;
+import org.openbravo.model.common.currency.Currency;
 import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.enterprise.OrganizationInformation;
 import org.openbravo.model.common.enterprise.Warehouse;
@@ -48,6 +54,7 @@ import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
 import org.openbravo.model.pricing.pricelist.PriceList;
 import org.openbravo.model.pricing.pricelist.PriceListVersion;
 import org.openbravo.model.pricing.pricelist.ProductPrice;
+import org.openbravo.service.json.JsonUtils;
 
 public class SelectShipmentsBoxes extends BaseProcessActionHandler {
   private static Logger log = Logger.getLogger(SelectShipmentsBoxes.class);
@@ -79,8 +86,14 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
       List<String> idList = OBDao.getIDListFromOBObject(shipping.getOBWSHIPShippingDetailsList());
       // The Selected Shipping Details are going to be created
       // If there is any error, it will be included in the returned HashMap
+
+      boolean isSriLankaRecord = isSrilankaInvoice(bpartner);
+      if (isSriLankaRecord) {
+        shipping = setExchangeRate(shipping);
+      }
+
       HashMap<String, String> map = createShippingDetails(jsonRequest, bpartner, idList, shipping,
-          warehouse);
+          warehouse, isSriLankaRecord);
       jsonRequest = new JSONObject();
 
       JSONObject errorMessage = new JSONObject();
@@ -126,14 +139,15 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
    *          Already existing details for the current Shipping
    * @param shipping
    *          Current Shipping
+   * @param isSriLankaRecord
    * @return HashMap with the number of affected records and a boolean to know if any Details belong
    *         to a different Business Partner than the one selected in the Shipping.
    * @throws JSONException
    * @throws OBException
    */
   private HashMap<String, String> createShippingDetails(JSONObject jsonRequest,
-      BusinessPartner bpartner, List<String> idList, OBWSHIPShipping shipping, Warehouse warehouse)
-      throws JSONException, OBException {
+      BusinessPartner bpartner, List<String> idList, OBWSHIPShipping shipping, Warehouse warehouse,
+      boolean isSriLankaRecord) throws JSONException, OBException {
 
     HashMap<String, String> map = new HashMap<String, String>();
     map.put("DifferentBParner", "false");
@@ -201,62 +215,67 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
       cont++;
 
       List<ShipmentInOutLine> inoutLineList = inout.getMaterialMgmtShipmentInOutLineList();
-      Map<Product, BigDecimal> mapObj = new HashMap<Product, BigDecimal>();
+      /*
+       * Map<Product, BigDecimal> mapObj = new HashMap<Product, BigDecimal>(); for
+       * (ShipmentInOutLine inoutLine : inoutLineList) { mapObj.put(inoutLine.getProduct(),
+       * getCessionPrice(inoutLine.getProduct())); }
+       */
       for (ShipmentInOutLine inoutLine : inoutLineList) {
-        mapObj.put(inoutLine.getProduct(), getCessionPrice(inoutLine.getProduct()));
-      }
-      for (ShipmentInOutLine inoutLine : inoutLineList) {
-        if (mapObj.containsKey(inoutLine.getProduct())) {
+        // if (mapObj.containsKey(inoutLine.getProduct())) {
 
-          BigDecimal movementQty = inoutLine.getMovementQuantity();
+        BigDecimal movementQty = inoutLine.getMovementQuantity();
 
-          // ----- Set Cession Price
-          BigDecimal cessionPrice = mapObj.get(inoutLine.getProduct());
-          inoutLine.setOBWSHIPCessionPrice(cessionPrice);
-          // Set Cession Price completed -----
-          if (inoutLine.getProduct() != null) {
-            if (inoutLine.getProduct().getIngstGstproductcode() != null) {
-              if (inoutLine.getProduct().getIngstGstproductcode().getValue() != null) {
-                inoutLine.setObwshipHsncode(inoutLine.getProduct().getIngstGstproductcode()
-                    .getValue());
-              }
+        // ----- Set Cession Price
+        BigDecimal cessionPrice = getCessionPrice(inoutLine.getProduct()).divide(
+            shipping.getExchangerate()).setScale(2, RoundingMode.HALF_UP);
+
+        inoutLine.setOBWSHIPCessionPrice(cessionPrice);
+        // Set Cession Price completed -----
+        if (inoutLine.getProduct() != null) {
+          if (inoutLine.getProduct().getIngstGstproductcode() != null) {
+            if (inoutLine.getProduct().getIngstGstproductcode().getValue() != null) {
+              inoutLine.setObwshipHsncode(inoutLine.getProduct().getIngstGstproductcode()
+                  .getValue());
             }
           }
-          // ----- Set Taxable Amount
-          BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
-          inoutLine.setObwshipTaxableamount(taxableAmt);
-          // Set Taxable Amount completed -----
+        }
+        // ----- Set Taxable Amount
+        BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
+        inoutLine.setObwshipTaxableamount(taxableAmt.divide(shipping.getExchangerate()).setScale(2,
+            RoundingMode.HALF_UP));
+        // Set Taxable Amount completed -----
 
-          String bpName = "";
-          String bpGSTIN = "";
-          String ShipmentGSTIN = "";
-          BigDecimal taxRate = BigDecimal.ZERO;
+        String bpName = "";
+        String bpGSTIN = "";
+        String ShipmentGSTIN = "";
+        BigDecimal taxRate = BigDecimal.ZERO;
 
-          bpName = newShippingDetail.getObwshipShipping().getBusinessPartner().getName();
+        bpName = newShippingDetail.getObwshipShipping().getBusinessPartner().getName();
 
-          OBCriteria<Organization> orgCriteria = OBDal.getInstance().createCriteria(
-              Organization.class);
-          orgCriteria.add(Restrictions.eq(Organization.PROPERTY_NAME, bpName));
-          if (orgCriteria.list().size() <= 0) {
-            throw new OBException("Organization is not found for selected BP in Shipping Header");
-          } else {
-            if (orgCriteria.list().get(0).getOrganizationInformationList().size() > 0) {
-              OrganizationInformation orgInfo = orgCriteria.list().get(0)
-                  .getOrganizationInformationList().get(0);
-              if (orgInfo.getLocationAddress().getCountry().getName().equals("India")) {
-                if (orgInfo.getIngstGstidentifirmaster() == null) {
-                  throw new OBException(
-                      "GSTIN is not configured for selected Organization/BusinessPartner");
-                } else {
-                  bpGSTIN = orgInfo.getIngstGstidentifirmaster().getUidno();
+        OBCriteria<Organization> orgCriteria = OBDal.getInstance().createCriteria(
+            Organization.class);
+        orgCriteria.add(Restrictions.eq(Organization.PROPERTY_NAME, bpName));
+        if (orgCriteria.list().size() <= 0) {
+          throw new OBException("Organization is not found for selected BP in Shipping Header");
+        } else {
+          if (orgCriteria.list().get(0).getOrganizationInformationList().size() > 0) {
+            OrganizationInformation orgInfo = orgCriteria.list().get(0)
+                .getOrganizationInformationList().get(0);
+            if (orgInfo.getLocationAddress().getCountry().getName().equals("India")) {
+              if (orgInfo.getIngstGstidentifirmaster() == null) {
+                throw new OBException(
+                    "GSTIN is not configured for selected Organization/BusinessPartner");
+              } else {
+                bpGSTIN = orgInfo.getIngstGstidentifirmaster().getUidno();
 
-                  ShipmentGSTIN = newShippingDetail.getGoodsShipment().getWarehouse().getGsGstin();
+                ShipmentGSTIN = newShippingDetail.getGoodsShipment().getWarehouse().getGsGstin();
 
-                  // ----- Set Tax Rate
-                  if (!bpGSTIN.equalsIgnoreCase(ShipmentGSTIN)) {
-                    if (inoutLine.getSalesOrderLine() != null) {
-                      OrderLine orderlineObj = inoutLine.getSalesOrderLine();
-                      if (orderlineObj.getOrderLineTaxList().size() > 0) {
+                // ----- Set Tax Rate
+                if (!bpGSTIN.equalsIgnoreCase(ShipmentGSTIN)) {
+                  if (inoutLine.getSalesOrderLine() != null) {
+                    OrderLine orderlineObj = inoutLine.getSalesOrderLine();
+                    if (orderlineObj.getOrderLineTaxList().size() > 0) {
+                      if (orderlineObj.getOrderLineTaxList().get(0).getTax() != null) {
                         taxRate = orderlineObj.getOrderLineTaxList().get(0).getTax().getRate();
                       }
                     }
@@ -264,17 +283,19 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
                 }
               }
             }
+          }
 
-          }// Set Tax Rate Completed -----
-          inoutLine.setObwshipTaxrate(taxRate);
+        }// Set Tax Rate Completed -----
+        inoutLine.setObwshipTaxrate(taxRate);
 
-          // ----- Set Tax Amount
-          BigDecimal expression1 = taxRate.divide(new BigDecimal(100));
-          BigDecimal taxAmount = taxableAmt.multiply(expression1);
-          inoutLine.setObwshipTaxamount(taxAmount);
-          // Set Tax Amount Completed -----
+        // ----- Set Tax Amount
+        BigDecimal expression1 = taxRate.divide(new BigDecimal(100));
+        BigDecimal taxAmount = taxableAmt.multiply(expression1);
+        inoutLine.setObwshipTaxamount(taxAmount.divide(shipping.getExchangerate()).setScale(2,
+            RoundingMode.HALF_UP));
+        // Set Tax Amount Completed -----
 
-        }
+        // }
         OBDal.getInstance().save(inoutLine);
         // OBDal.getInstance().flush();
       }
@@ -336,4 +357,55 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
       OBDal.getInstance().flush();
     }
   }
+
+  private OBWSHIPShipping setExchangeRate(OBWSHIPShipping shipping) throws Exception {
+    // Date date, Currency fromCurrency,
+    // Currency toCurrency, Organization org, Client client
+    Date shippingDate;
+    try {
+      shippingDate = JsonUtils.createDateFormat().parse(shipping.getShipmentDate().toString());
+      Organization orgObj = OBDal.getInstance().get(Organization.class, "0");
+
+      ConversionRate conversionRate = FinancialUtils.getConversionRate(shippingDate,
+          getCurrency("INR"), getCurrency("USD"), orgObj, orgObj.getClient());
+      if (conversionRate != null) {
+        shipping.setExchangerate(conversionRate.getDivideRateBy());
+        OBDal.getInstance().save(shipping);
+      } else {
+        throw new Exception("Conversion Rate is not Config for Sri Lanka of date: " + shippingDate);
+      }
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      throw new Exception(e);
+    }
+    return shipping;
+  }
+
+  private Currency getCurrency(String currencyCode) {
+    OBCriteria<Currency> orgCriteria = OBDal.getInstance().createCriteria(Currency.class);
+    orgCriteria.add(Restrictions.eq(Currency.PROPERTY_ISOCODE, currencyCode));
+    Currency Currency = null;
+    if (orgCriteria.list().size() > 0) {
+      Currency = orgCriteria.list().get(0);
+    }
+    return Currency;
+  }
+
+  private boolean isSrilankaInvoice(BusinessPartner bpartner) {
+    boolean isSriLankaRecord = false;
+    if (bpartner != null) {
+      if (bpartner.getBusinessPartnerLocationList().size() > 0) {
+        if (bpartner.getBusinessPartnerLocationList().get(0).getLocationAddress() != null) {
+          if (bpartner.getBusinessPartnerLocationList().get(0).getLocationAddress().getCountry() != null) {
+            if (!bpartner.getBusinessPartnerLocationList().get(0).getLocationAddress().getCountry()
+                .getName().equals("India")) {
+              isSriLankaRecord = true;
+            }
+          }
+        }
+      }
+    }
+    return isSriLankaRecord;
+  }
+
 }
