@@ -34,11 +34,8 @@ import org.openbravo.model.common.enterprise.Warehouse;
 import org.openbravo.model.common.enterprise.WarehouseRule;
 import org.openbravo.model.common.order.Order;
 import org.openbravo.model.common.order.OrderLine;
-import org.openbravo.model.common.plm.Brand;
 import org.openbravo.model.common.plm.Product;
 import org.openbravo.service.json.JsonToDataConverter;
-
-import com.sysfore.catalog.CLColor;
 
 public class SaveSupplyData {
 
@@ -497,67 +494,52 @@ public class SaveSupplyData {
         jsonObj.remove("client$_identifier");
         jsonObj.put("client$_identifier", OBContext.getOBContext().getCurrentClient().getName());
 
-      }
-
-      if (jsonObj.has("product") && jsonObj.has("product$_identifier")) {
-        String productId = (String) jsonObj.get("product");
-        String productName = (String) jsonObj.get("product$_identifier");
-
-        OBCriteria<Product> obc = OBDal.getInstance().createCriteria(Product.class);
-        obc.add(Restrictions.or(Restrictions.eq(Product.PROPERTY_ID, productId),
-            Restrictions.eq(Product.PROPERTY_NAME, productName)));
-        List<Product> productList = obc.list();
-        if (productList.size() > 0) {
-          jsonObj.remove("product");
-          jsonObj.put("product", productList.get(0).getId());
-          jsonObj.remove("product$_identifier");
-          jsonObj.put("product$_identifier", productList.get(0).getName());
-        } else {
-          throw new Exception("Product:" + productName + " Not Found!");
-        }
-      }
-
-      if (jsonObj.has("cLColor") && jsonObj.has("cLColor$_identifier")) {
-        String colorId = (String) jsonObj.get("cLColor");
-        String colorName = (String) jsonObj.get("cLColor$_identifier");
-
-        OBCriteria<CLColor> obc = OBDal.getInstance().createCriteria(CLColor.class);
-        obc.add(Restrictions.or(Restrictions.eq(CLColor.PROPERTY_ID, colorId),
-            Restrictions.eq(CLColor.PROPERTY_NAME, colorName)));
-        List<CLColor> colorList = obc.list();
-        if (colorList.size() > 0) {
-          jsonObj.remove("cLColor");
-          jsonObj.put("cLColor", colorList.get(0).getId());
-          jsonObj.remove("cLColor$_identifier");
-          jsonObj.put("cLColor$_identifier", colorList.get(0).getName());
-
-        } else {
-
-          throw new Exception("color:" + colorName + " Not Found!");
-
-        }
-      }
-
-      if (jsonObj.has("clBrand") && jsonObj.has("clBrand$_identifier")) {
-        String brandId = (String) jsonObj.get("clBrand");
-        String brandName = (String) jsonObj.get("clBrand$_identifier");
-
-        OBCriteria<Brand> obc = OBDal.getInstance().createCriteria(Brand.class);
-        obc.add(Restrictions.or(Restrictions.eq(Brand.PROPERTY_ID, brandId),
-            Restrictions.eq(Brand.PROPERTY_NAME, brandName)));
-        List<Brand> brandList = obc.list();
-        if (brandList.size() > 0) {
-          jsonObj.remove("clBrand");
-          jsonObj.put("clBrand", brandList.get(0).getId());
-          jsonObj.remove("clBrand$_identifier");
-          jsonObj.put("clBrand$_identifier", brandList.get(0).getName());
-        } else {
-
-          throw new Exception("brand:" + brandName + " Not Found!");
-
-        }
-      }
-
+      }/*
+        * 
+        * if (jsonObj.has("product") && jsonObj.has("product$_identifier")) { String productId =
+        * (String) jsonObj.get("product"); String productName = (String)
+        * jsonObj.get("product$_identifier");
+        * 
+        * OBCriteria<Product> obc = OBDal.getInstance().createCriteria(Product.class);
+        * obc.add(Restrictions.or(Restrictions.eq(Product.PROPERTY_ID, productId),
+        * Restrictions.eq(Product.PROPERTY_NAME, productName))); List<Product> productList =
+        * obc.list(); if (productList.size() > 0) { jsonObj.remove("product");
+        * jsonObj.put("product", productList.get(0).getId()); jsonObj.remove("product$_identifier");
+        * jsonObj.put("product$_identifier", productList.get(0).getName()); } else { throw new
+        * Exception("Product:" + productName + " Not Found!"); } }
+        * 
+        * if (jsonObj.has("cLColor") && jsonObj.has("cLColor$_identifier")) { String colorId =
+        * (String) jsonObj.get("cLColor"); String colorName = (String)
+        * jsonObj.get("cLColor$_identifier");
+        * 
+        * OBCriteria<CLColor> obc = OBDal.getInstance().createCriteria(CLColor.class);
+        * obc.add(Restrictions.or(Restrictions.eq(CLColor.PROPERTY_ID, colorId),
+        * Restrictions.eq(CLColor.PROPERTY_NAME, colorName))); List<CLColor> colorList = obc.list();
+        * if (colorList.size() > 0) { jsonObj.remove("cLColor"); jsonObj.put("cLColor",
+        * colorList.get(0).getId()); jsonObj.remove("cLColor$_identifier");
+        * jsonObj.put("cLColor$_identifier", colorList.get(0).getName());
+        * 
+        * } else {
+        * 
+        * throw new Exception("color:" + colorName + " Not Found!");
+        * 
+        * } }
+        * 
+        * if (jsonObj.has("clBrand") && jsonObj.has("clBrand$_identifier")) { String brandId =
+        * (String) jsonObj.get("clBrand"); String brandName = (String)
+        * jsonObj.get("clBrand$_identifier");
+        * 
+        * OBCriteria<Brand> obc = OBDal.getInstance().createCriteria(Brand.class);
+        * obc.add(Restrictions.or(Restrictions.eq(Brand.PROPERTY_ID, brandId),
+        * Restrictions.eq(Brand.PROPERTY_NAME, brandName))); List<Brand> brandList = obc.list(); if
+        * (brandList.size() > 0) { jsonObj.remove("clBrand"); jsonObj.put("clBrand",
+        * brandList.get(0).getId()); jsonObj.remove("clBrand$_identifier");
+        * jsonObj.put("clBrand$_identifier", brandList.get(0).getName()); } else {
+        * 
+        * throw new Exception("brand:" + brandName + " Not Found!");
+        * 
+        * } }
+        */
     } catch (JSONException e) {
       // TODO Auto-generated catch block
       throw new Exception("Error While Updating Id's For SL and Error is:" + e);

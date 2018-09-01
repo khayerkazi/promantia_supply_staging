@@ -84,15 +84,17 @@ public class SalesOrderListner implements WebService {
         DocNo = ordHeader.getString(SOConstants.jsonDocNo);
         JSONArray ordLines = ordObj.getJSONArray("Lines");
 
-        if (!(ordHeader.get("client").equals(OBContext.getOBContext().getCurrentClient().getId()))) {
-          IsSriLankaOrder = true;
-          ordHeader = saveSuppData.updateOrderJsonWithCurrectIdForSL(ordHeader);
+        log.error("Request json object " + ordObj);
+        if (ordHeader.has("client")) {
+          if (!(ordHeader.get("client").equals(OBContext.getOBContext().getCurrentClient().getId()))) {
+            IsSriLankaOrder = true;
+            ordHeader = saveSuppData.updateOrderJsonWithCurrectIdForSL(ordHeader);
+          }
         }
-
         JSONObject responseOrd = saveSuppData.distributeSalesOrder(ordHeader, ordLines,
             retailSupply, IsSriLankaOrder);
 
-        log.debug("json object " + responseOrd);
+        log.error("Response json object " + responseOrd);
         response.setHeader("orders", responseOrd.toString());
       }
       Date end = new Date();

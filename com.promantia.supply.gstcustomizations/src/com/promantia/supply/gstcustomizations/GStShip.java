@@ -62,10 +62,10 @@ public class GStShip extends BaseProcessActionHandler {
 
       // Call the process Method. If there is any error, there will be an entry on the HashMap to
       // detail it. If not the HashMap will be empty
-        log.info("Processed Ship Id: "+shipping);
+      log.info("Processed Ship Id: " + shipping);
       HashMap<String, List<String>> map = shipShipping(shipping);
       jsonRequest = new JSONObject();
-        log.info("Processed Ship success ");
+      log.info("Processed Ship success ");
       JSONObject errorMessage = new JSONObject();
       errorMessage.put("severity", "success");
       errorMessage.put("text", OBMessageUtils.messageBD("Success"));
@@ -98,7 +98,7 @@ public class GStShip extends BaseProcessActionHandler {
     return jsonRequest;
   }
 
-  private HashMap<String, List<String>> shipShipping(OBWSHIPShipping shipping) {
+  private HashMap<String, List<String>> shipShipping(OBWSHIPShipping shipping) throws Exception {
     HashMap<String, List<String>> result = new HashMap<String, List<String>>();
 
     try {
@@ -126,12 +126,13 @@ public class GStShip extends BaseProcessActionHandler {
       OBDal.getInstance().save(shipping);
       OBDal.getInstance().flush();
 
-        log.info("hook is executing");
+      log.info("hook is executing");
       executeHooks(shipping);
-        log.info("hook is execute Successfully");
+      log.info("hook is execute Successfully");
     } catch (Exception e) {
-      log.error("An error happened when shipShipping was executed: " + e.getMessage(), e);
       result.put("ErrorWhileProcessing", null);
+      log.error("An error happened when shipShipping was executed: " + e.getMessage(), e);
+      throw new Exception("Error happened when shipShipping was executed: " + e);
     }
     return result;
   }
@@ -154,34 +155,87 @@ public class GStShip extends BaseProcessActionHandler {
   }
 
   private void generateGstInvoiceNumber(OBWSHIPShipping shipping) {
+    try {
+      if (shipping.getBusinessPartner().getBusinessPartnerLocationList().get(0)
+          .getLocationAddress().getRegion().getName().equalsIgnoreCase("India")) {
+        String bpGstinNumber = getBusinessPartnerGstinNumber(shipping);
+        log.info("bp Gstin Number : " + bpGstinNumber);
 
-    String bpGstinNumber = getBusinessPartnerGstinNumber(shipping);
-    log.info("bp Gstin Number : " + bpGstinNumber);
+        String warehouseGstinNumber = getWarehouseGstinNumber(shipping);
+        log.info("warehouse Gstin Number : " + warehouseGstinNumber);
 
-    String warehouseGstinNumber = getWarehouseGstinNumber(shipping);
-    log.info("warehouse Gstin Number : " + warehouseGstinNumber);
+        if (warehouseGstinNumber.equals(bpGstinNumber)) {
+          String intraUniqueInvoiceNumber = getIntraWarehouseDocumentSequence(shipping);
+          shipping.setGsUniqueno(intraUniqueInvoiceNumber);
+        } else {
+          String uniqueInvoiceNumber = getWarehouseDocumentSequence(shipping);
+          shipping.setGsUniqueno(uniqueInvoiceNumber);
+        }
 
-    if (warehouseGstinNumber.equals(bpGstinNumber)) {
-      String intraUniqueInvoiceNumber = getIntraWarehouseDocumentSequence(shipping);
-      shipping.setGsUniqueno(intraUniqueInvoiceNumber);
-    } else {
-      String uniqueInvoiceNumber = getWarehouseDocumentSequence(shipping);
-      shipping.setGsUniqueno(uniqueInvoiceNumber);
+      } else {
+        String intraUniqueInvoiceNumber = getIntraWarehouseDocumentSequence(shipping);
+        shipping.setGsUniqueno(intraUniqueInvoiceNumber);
+
+        String packingInvoiceNumber = getPackingDocumentSequence(shipping);
+        shipping.setPackinginvoiceno(packingInvoiceNumber);
+      }
+    } catch (Exception e) {
+      throw new OBException(" Generating Document Sequence Number and error is: " + e);
     }
+  }
 
+  private String getPackingDocumentSequence(OBWSHIPShipping shipping) {
+    OBWSHIPShippingDetails shipWarehouse = getWarehouse(shipping);
+    if (shipWarehouse.getGoodsShipment().getWarehouse().getObwshipPackingseqno() != null) {
+      String warehousePrefix = shipWarehouse.getGoodsShipment().getWarehouse()
+          .getObwshipPackingseqno().getPrefix();
+      Long warehouseNumber = shipWarehouse.getGoodsShipment().getWarehouse()
+          .getObwshipPackingseqno().getNextAssignedNumber();
+      String uniqueNumber = warehousePrefix.concat(String.valueOf(warehouseNumber));
+      Long newDocNumber = warehouseNumber + 1;
+      shipWarehouse.getGoodsShipment().getWarehouse().getObwshipPackingseqno()
+          .setNextAssignedNumber(newDocNumber);
+      return uniqueNumber;
+    } else {
+      throw new OBException(" Packing Document Sequence is not config for "
+          + shipWarehouse.getGoodsShipment().getWarehouse().getEntityName() + " Warehouse");
+    }
+  }
+
+  private String getWarehouseDocumentSequence(OBWSHIPShipping shipping) {
+    OBWSHIPShippingDetails shipWarehouse = getWarehouse(shipping);
+    if (shipWarehouse.getGoodsShipment().getWarehouse().getGsSequence() != null) {
+      String warehousePrefix = shipWarehouse.getGoodsShipment().getWarehouse().getGsSequence()
+          .getPrefix();
+      Long warehouseNumber = shipWarehouse.getGoodsShipment().getWarehouse().getGsSequence()
+          .getNextAssignedNumber();
+      Long newDocNumber = warehouseNumber + 1;
+      String uniqueNumber = warehousePrefix.concat(String.valueOf(newDocNumber));
+      shipWarehouse.getGoodsShipment().getWarehouse().getGsSequence()
+          .setNextAssignedNumber(newDocNumber);
+      return uniqueNumber;
+    } else {
+      throw new OBException(" Document Sequence is not config for "
+          + shipWarehouse.getGoodsShipment().getWarehouse().getEntityName() + " Warehouse");
+    }
   }
 
   private String getIntraWarehouseDocumentSequence(OBWSHIPShipping shipping) {
     OBWSHIPShippingDetails shipWarehouse = getWarehouse(shipping);
-    String intraWarehousePrefix = shipWarehouse.getGoodsShipment().getWarehouse()
-        .getGsIntrasequence().getPrefix();
-    Long intraWarehouseNumber = shipWarehouse.getGoodsShipment().getWarehouse()
-        .getGsIntrasequence().getNextAssignedNumber();
-    Long intraNewDocNumber = intraWarehouseNumber + 1;
-    String intraUniqueNumber = intraWarehousePrefix.concat(String.valueOf(intraNewDocNumber));
-    shipWarehouse.getGoodsShipment().getWarehouse().getGsIntrasequence()
-        .setNextAssignedNumber(intraNewDocNumber);
-    return intraUniqueNumber;
+    if (shipWarehouse.getGoodsShipment().getWarehouse().getGsIntrasequence() != null) {
+      String intraWarehousePrefix = shipWarehouse.getGoodsShipment().getWarehouse()
+          .getGsIntrasequence().getPrefix();
+      Long intraWarehouseNumber = shipWarehouse.getGoodsShipment().getWarehouse()
+          .getGsIntrasequence().getNextAssignedNumber();
+      Long intraNewDocNumber = intraWarehouseNumber + 1;
+      String intraUniqueNumber = intraWarehousePrefix.concat(String.valueOf(intraNewDocNumber));
+      shipWarehouse.getGoodsShipment().getWarehouse().getGsIntrasequence()
+          .setNextAssignedNumber(intraNewDocNumber);
+      return intraUniqueNumber;
+    } else {
+      throw new OBException(" Inter Warehouse Document Sequence is not config for "
+          + shipWarehouse.getGoodsShipment().getWarehouse().getEntityName() + " Warehouse");
+    }
   }
 
   private String getBusinessPartnerGstinNumber(OBWSHIPShipping shipping) {
@@ -196,19 +250,6 @@ public class GStShip extends BaseProcessActionHandler {
     OBWSHIPShippingDetails shipmentWarehouse = getWarehouse(shipping);
     String warehouseGstin = shipmentWarehouse.getGoodsShipment().getWarehouse().getGsGstin();
     return warehouseGstin;
-  }
-
-  private String getWarehouseDocumentSequence(OBWSHIPShipping shipping) {
-    OBWSHIPShippingDetails shipWarehouse = getWarehouse(shipping);
-    String warehousePrefix = shipWarehouse.getGoodsShipment().getWarehouse().getGsSequence()
-        .getPrefix();
-    Long warehouseNumber = shipWarehouse.getGoodsShipment().getWarehouse().getGsSequence()
-        .getNextAssignedNumber();
-    Long newDocNumber = warehouseNumber + 1;
-    String uniqueNumber = warehousePrefix.concat(String.valueOf(newDocNumber));
-    shipWarehouse.getGoodsShipment().getWarehouse().getGsSequence()
-        .setNextAssignedNumber(newDocNumber);
-    return uniqueNumber;
   }
 
   private Organization getBpInOrganization(String bpName) {

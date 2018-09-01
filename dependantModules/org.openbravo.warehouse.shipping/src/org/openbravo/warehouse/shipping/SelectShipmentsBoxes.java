@@ -227,7 +227,7 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
 
         // ----- Set Cession Price
         BigDecimal cessionPrice = getCessionPrice(inoutLine.getProduct()).divide(
-            shipping.getExchangerate()).setScale(2, RoundingMode.HALF_UP);
+            shipping.getExchangerate(), 2, RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP);
 
         inoutLine.setOBWSHIPCessionPrice(cessionPrice);
         // Set Cession Price completed -----
@@ -241,8 +241,8 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
         }
         // ----- Set Taxable Amount
         BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
-        inoutLine.setObwshipTaxableamount(taxableAmt.divide(shipping.getExchangerate()).setScale(2,
-            RoundingMode.HALF_UP));
+        inoutLine.setObwshipTaxableamount(taxableAmt.divide(shipping.getExchangerate(), 2,
+            RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP));
         // Set Taxable Amount completed -----
 
         String bpName = "";
@@ -250,21 +250,21 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
         String ShipmentGSTIN = "";
         BigDecimal taxRate = BigDecimal.ZERO;
 
-        bpName = newShippingDetail.getObwshipShipping().getBusinessPartner().getName();
-
-        OBCriteria<Organization> orgCriteria = OBDal.getInstance().createCriteria(
-            Organization.class);
-        orgCriteria.add(Restrictions.eq(Organization.PROPERTY_NAME, bpName));
-        if (orgCriteria.list().size() <= 0) {
-          throw new OBException("Organization is not found for selected BP in Shipping Header");
-        } else {
-          if (orgCriteria.list().get(0).getOrganizationInformationList().size() > 0) {
-            OrganizationInformation orgInfo = orgCriteria.list().get(0)
-                .getOrganizationInformationList().get(0);
-            if (orgInfo.getLocationAddress().getCountry().getName().equals("India")) {
+        if (!isSriLankaRecord) {
+          bpName = newShippingDetail.getObwshipShipping().getBusinessPartner().getName();
+          OBCriteria<Organization> orgCriteria = OBDal.getInstance().createCriteria(
+              Organization.class);
+          orgCriteria.add(Restrictions.eq(Organization.PROPERTY_NAME, bpName));
+          if (orgCriteria.list().size() <= 0) {
+            throw new OBException("Organization is not found for " + bpName
+                + " Businee Partner in Shipping Header");
+          } else {
+            if (orgCriteria.list().get(0).getOrganizationInformationList().size() > 0) {
+              OrganizationInformation orgInfo = orgCriteria.list().get(0)
+                  .getOrganizationInformationList().get(0);
               if (orgInfo.getIngstGstidentifirmaster() == null) {
-                throw new OBException(
-                    "GSTIN is not configured for selected Organization/BusinessPartner");
+                throw new OBException("GSTIN is not configured for " + bpName
+                    + " Organization/BusinessPartner");
               } else {
                 bpGSTIN = orgInfo.getIngstGstidentifirmaster().getUidno();
 
@@ -291,8 +291,8 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
         // ----- Set Tax Amount
         BigDecimal expression1 = taxRate.divide(new BigDecimal(100));
         BigDecimal taxAmount = taxableAmt.multiply(expression1);
-        inoutLine.setObwshipTaxamount(taxAmount.divide(shipping.getExchangerate()).setScale(2,
-            RoundingMode.HALF_UP));
+        inoutLine.setObwshipTaxamount(taxAmount.divide(shipping.getExchangerate(), 2,
+            RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP));
         // Set Tax Amount Completed -----
 
         // }
@@ -326,14 +326,13 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
     productPriceCriteria.add(Restrictions.eq(ProductPrice.PROPERTY_PRICELISTVERSION,
         priceListVersionCriteria.list().get(0)));
 
-    BigDecimal clCessionPrice = productPriceCriteria.list().get(0).getClCessionprice();
-
     if (productPriceCriteria.list().size() < 0) {
       throw new OBException(
           "ProductPrice for priceListVersion as DMI CATALOGUE is not present for product: "
               + product.getName());
     } else
-      return clCessionPrice;
+      return productPriceCriteria.list().get(0).getClCessionprice()
+          .setScale(2, RoundingMode.HALF_UP);
 
   }
 
@@ -367,7 +366,8 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
       Organization orgObj = OBDal.getInstance().get(Organization.class, "0");
 
       ConversionRate conversionRate = FinancialUtils.getConversionRate(shippingDate,
-          getCurrency("INR"), getCurrency("USD"), orgObj, orgObj.getClient());
+          getCurrency("INR"), getCurrency("USD"), orgObj, OBContext.getOBContext()
+              .getCurrentClient());
       if (conversionRate != null) {
         shipping.setExchangerate(conversionRate.getDivideRateBy());
         OBDal.getInstance().save(shipping);

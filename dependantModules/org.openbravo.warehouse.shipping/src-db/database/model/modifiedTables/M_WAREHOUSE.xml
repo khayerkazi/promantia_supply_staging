@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_WAREHOUSE">
+    <table name="M_WAREHOUSE" primaryKey="M_WAREHOUSE_KEY">
+      <column name="EM_OBWSHIP_PACKINGSEQNO" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="AD_SEQUENCE" name="EM_OBWSHIP_WH_PACKINGSEQ">
+        <reference local="EM_OBWSHIP_PACKINGSEQNO" foreign="AD_SEQUENCE_ID"/>
+      </foreign-key>
+    </table>
+  </database>
