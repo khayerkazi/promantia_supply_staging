@@ -90,6 +90,9 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
       boolean isSriLankaRecord = isSrilankaInvoice(bpartner);
       if (isSriLankaRecord) {
         shipping = setExchangeRate(shipping);
+      } else {
+        shipping.setExchangerate(BigDecimal.ONE);
+        OBDal.getInstance().save(shipping);
       }
 
       HashMap<String, String> map = createShippingDetails(jsonRequest, bpartner, idList, shipping,
@@ -370,6 +373,7 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
               .getCurrentClient());
       if (conversionRate != null) {
         shipping.setExchangerate(conversionRate.getDivideRateBy());
+        shipping.setSlshippinginvoicereport(true);
         OBDal.getInstance().save(shipping);
       } else {
         throw new Exception("Conversion Rate is not Config for Sri Lanka of date: " + shippingDate);

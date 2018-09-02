@@ -96,7 +96,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       if (IType.equalsIgnoreCase("goodsMovements")) {
         String fileName = "GoodsMovementSalesReport_From-" + startDateStr + "_To-" + endDateStr;
 
-        ExportFixturesInvoiceReport.extractForGoodsMovements(SDate, EDate, fileName);
+//        ExportFixturesInvoiceReport.extractForGoodsMovements(SDate, EDate, fileName);
       }
 
       // ExportFixturesInvoiceReport.extract(SDate, EDate);
