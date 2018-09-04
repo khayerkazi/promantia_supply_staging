@@ -59,9 +59,11 @@ public abstract class WarehouseRuleImplementation {
    */
   public abstract HashMap<String, List<SalesOrderLineInformation>> distribute(
       JSONObject purchaseOrderHeader, JSONObject purcharOrderLine,
-      HashMap<String, List<SalesOrderLineInformation>> salesOrdersMap,DwhrWhruleConfig storeWarehouseRule,WarehouseRule warehouseRule,
-      HashMap<String, BigDecimal> remainigQtyToBook, HashMap<Warehouse, BigDecimal> alreadyReservedStock,
-      HashMap<String,DWHR_DistributeMonitor> monitor);
+      HashMap<String, List<SalesOrderLineInformation>> salesOrdersMap,
+      DwhrWhruleConfig storeWarehouseRule, WarehouseRule warehouseRule,
+      HashMap<String, BigDecimal> remainigQtyToBook,
+      HashMap<Warehouse, BigDecimal> alreadyReservedStock,
+      HashMap<String, DWHR_DistributeMonitor> monitor);
 
   /**
    * @return The actual Warehouse Rule
@@ -136,7 +138,7 @@ public abstract class WarehouseRuleImplementation {
     if (qryResult != null && qryResult.size() > 0) {
       totalQty = qryResult.get(0);
     }
-    if (totalQty != null)
+    if (totalQty == null && totalQty.compareTo(BigDecimal.ZERO) > 0)
       return totalQty;
     else
       return BigDecimal.ZERO;
@@ -157,7 +159,7 @@ public abstract class WarehouseRuleImplementation {
     if (qryResult != null && qryResult.size() > 0) {
       resrvdQty = qryResult.get(0);
     }
-    if (resrvdQty != null)
+    if (resrvdQty != null && resrvdQty.compareTo(BigDecimal.ZERO) > 0)
       return resrvdQty;
     else
       return BigDecimal.ZERO;
