@@ -21,6 +21,7 @@ import org.openbravo.dal.service.OBDal;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
 import org.openbravo.warehouse.shipping.OBWSHIPShipping;
 import org.openbravo.warehouse.shipping.OBWSHIPShippingDetails;
+import org.openbravo.warehouse.shipping.SelectShipmentsBoxes;
 
 public class GsInvoiceReport extends HttpSecureAppServlet {
   private static final long serialVersionUID = 1L;
@@ -46,35 +47,42 @@ public class GsInvoiceReport extends HttpSecureAppServlet {
       OBWSHIPShipping shippingObj = OBDal.getInstance().get(OBWSHIPShipping.class,
           trimmedShippingID);
       if (shippingObj != null) {
-        String reportName = "ShippingReport_";
-        if (shippingObj.getGsUniqueno() != null) {
-          reportName = reportName + shippingObj.getGsUniqueno();
-        } else {
-          reportName = reportName + shippingObj.getDocumentNo();
+        if (!SelectShipmentsBoxes.isSrilankaInvoice(shippingObj.getBusinessPartner())) {
 
-        }
-        reportName = reportName + new Date();
+          String reportName = "ShippingReport_";
+          if (shippingObj.getGsUniqueno() != null) {
+            reportName = reportName + shippingObj.getGsUniqueno();
+          } else {
+            reportName = reportName + shippingObj.getDocumentNo();
 
-        printPagePartePDF(response, vars, strShippingId, reportName);
+          }
+          reportName = reportName + new Date();
 
-        for (OBWSHIPShippingDetails shippinglineObj : shippingObj.getOBWSHIPShippingDetailsList()) {
-          if (shippinglineObj.getGoodsShipment() != null) {
-            for (ShipmentInOutLine inoutLineObj : shippinglineObj.getGoodsShipment()
-                .getMaterialMgmtShipmentInOutLineList()) {
-              if (inoutLineObj.getObwshipHsncode() == null) {
-                if (inoutLineObj.getProduct() != null) {
-                  if (inoutLineObj.getProduct().getIngstGstproductcode() != null) {
-                    if (inoutLineObj.getProduct().getIngstGstproductcode().getValue() != null) {
-                      inoutLineObj.setObwshipHsncode(inoutLineObj.getProduct()
-                          .getIngstGstproductcode().getValue());
-                      OBDal.getInstance().save(inoutLineObj);
-                      OBDal.getInstance().flush();
+          printPagePartePDF(response, vars, strShippingId, reportName);
+
+          for (OBWSHIPShippingDetails shippinglineObj : shippingObj.getOBWSHIPShippingDetailsList()) {
+            if (shippinglineObj.getGoodsShipment() != null) {
+              for (ShipmentInOutLine inoutLineObj : shippinglineObj.getGoodsShipment()
+                  .getMaterialMgmtShipmentInOutLineList()) {
+                if (inoutLineObj.getObwshipHsncode() == null) {
+                  if (inoutLineObj.getProduct() != null) {
+                    if (inoutLineObj.getProduct().getIngstGstproductcode() != null) {
+                      if (inoutLineObj.getProduct().getIngstGstproductcode().getValue() != null) {
+                        inoutLineObj.setObwshipHsncode(inoutLineObj.getProduct()
+                            .getIngstGstproductcode().getValue());
+                        OBDal.getInstance().save(inoutLineObj);
+                        OBDal.getInstance().flush();
+                      }
                     }
                   }
                 }
               }
             }
           }
+        } else {
+          throw new ServletException(
+              "Action is Not Allow, Please Click on Shipping/Packing report Button on window");
+
         }
       }
     } else

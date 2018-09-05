@@ -395,7 +395,7 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
     return Currency;
   }
 
-  private boolean isSrilankaInvoice(BusinessPartner bpartner) {
+  public static boolean isSrilankaInvoice(BusinessPartner bpartner) {
     boolean isSriLankaRecord = false;
     if (bpartner != null) {
       if (bpartner.getBusinessPartnerLocationList().size() > 0) {
