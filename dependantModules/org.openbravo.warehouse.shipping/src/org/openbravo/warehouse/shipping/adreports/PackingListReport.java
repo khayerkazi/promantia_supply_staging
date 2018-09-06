@@ -17,6 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.CellRangeAddress;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -37,34 +38,28 @@ import org.openbravo.warehouse.shipping.OBWSHIPShippingDetails;
 
 public class PackingListReport extends BaseProcessActionHandler {
 
-  private static String SDate = "2018-08-01";
-  private static String EDate = "2018-08-29";
   private static String FILE_NAME = ""; // GSTIN_TAXPERIOD_DateTime.xls
-  private static String IType = "shipping";
-  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-  static JSONObject result = new JSONObject();
-  static JSONObject output = new JSONObject();
+  static SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yy");
 
   @Override
   protected JSONObject doExecute(Map<String, Object> parameters, String content) {
-    // TODO Auto-generated method stub
-    // select value into v_hsncode from ingst_gstproductcode where ingst_gstproductcode_id =(select
-    // em_ingst_gstproductcode_id from m_product where m_product_id=new.m_product_id);
+
     JSONObject jsonRequest = null;
-    // String message = new String();
     OBContext.setAdminMode(true);
+    JSONObject result = new JSONObject();
+
     try {
       jsonRequest = new JSONObject(content);
       String strShippingId = jsonRequest.getString("Obwship_Shipping_ID");
 
       OBWSHIPShipping shippingObj = OBDal.getInstance().get(OBWSHIPShipping.class, strShippingId);
-      String packingInvoiceNo = "";
-      if (shippingObj.getPackinginvoiceno() != null) {
-        packingInvoiceNo = shippingObj.getPackinginvoiceno();
-      } else {
-        packingInvoiceNo = shippingObj.getGsUniqueno();
+      /*
+       * String packingInvoiceNo = ""; if (shippingObj.getPackinginvoiceno() != null) {
+       * packingInvoiceNo = shippingObj.getPackinginvoiceno(); } else {
+       */
+      String shippingInvoiceNo = shippingObj.getGsUniqueno();
 
-      }
+      /* } */
       DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
       Date date = new Date();
 
@@ -72,13 +67,13 @@ public class PackingListReport extends BaseProcessActionHandler {
         if (parameters.containsKey("_action")) {
           if (parameters.get("_action").equals(
               "org.openbravo.warehouse.shipping.adreports.PackingListReport")) {
-            String fileName = "PackingSalesReport_For-" + packingInvoiceNo + "_on_"
+            String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
                 + dateFormat.format(date);
             result = PackingListReport.extractForShipping(shippingObj, fileName);
           } else {
             if (parameters.get("_action").equals(
                 "org.openbravo.warehouse.shipping.adreports.ShippingListReport")) {
-              String fileName = "ShippingSalesReport_For-" + packingInvoiceNo + "_on_"
+              String fileName = "ShippingSalesReport_For-" + shippingInvoiceNo + "_on_"
                   + dateFormat.format(date);
             }
           }
@@ -129,8 +124,6 @@ public class PackingListReport extends BaseProcessActionHandler {
   public static JSONObject extractForShipping(OBWSHIPShipping shippingObj, String fileName)
       throws FileNotFoundException, IOException, JSONException, ParseException {
 
-    List<Object[]> queryList = getPackingReportProductDetailList(shippingObj);
-
     HSSFWorkbook workbook = new HSSFWorkbook();
     HSSFSheet sheet = workbook.createSheet("Style example");
 
@@ -150,16 +143,7 @@ public class PackingListReport extends BaseProcessActionHandler {
      * setRegionBorderWithMedium(mergedCell, sheet); // setCellBolder(workbook, boldFont, row, i); }
      * }
      */
-    String[] cellData = { "Model code", "Item", "Nature of Product", "Size", "Criterion Code",
-        "Country of Origin", "Net Weight (KG)", "Gross Weight", "Quantity", "Box Numbers" };
-
-    int colNum = 0;
-    row = sheet.createRow(18);
-    for (Object field : cellData) {
-      setCellvalueWithAlignment(workbook, boldFont, row, (String) field, true, colNum, true, "");
-      sheet.autoSizeColumn(colNum);
-      colNum++;
-    }
+    setProductDetailsHeader(workbook, sheet, boldFont);
 
     row = sheet.createRow(16);
     setCellvalueWithAlignment(workbook, boldFont, row, "SHIPPED BY", true, 0, false, "");
@@ -177,7 +161,8 @@ public class PackingListReport extends BaseProcessActionHandler {
     setCellvalueWithAlignment(workbook, boldFont, row, "Invoice No", true, 0, false, "");
     sheet.autoSizeColumn(0);
 
-    setCellvalueWithAlignment(workbook, boldFont, row, "123", false, 1, false, "");
+    setCellvalueWithAlignment(workbook, boldFont, row, shippingObj.getGsUniqueno(), false, 1,
+        false, "");
     sheet.autoSizeColumn(1);
 
     setCellvalueWithAlignment(workbook, boldFont, row, "SHIPPER", true, 8, false, "");
@@ -208,8 +193,8 @@ public class PackingListReport extends BaseProcessActionHandler {
     row = sheet.createRow(5);
     setCellvalueWithAlignment(workbook, boldFont, row, "Date", true, 0, false, "");
     sheet.autoSizeColumn(0);
-
-    setCellvalueWithAlignment(workbook, boldFont, row, "12-08-2018", false, 1, false, "");
+    setCellvalueWithAlignment(workbook, boldFont, row,
+        formatter.format(shippingObj.getShipmentDate()), false, 1, false, "");
     sheet.autoSizeColumn(1);
 
     setCellvalueWithAlignment(workbook, boldFont, row, "562157 BANGALORE", false, 9, false, "");
@@ -293,6 +278,7 @@ public class PackingListReport extends BaseProcessActionHandler {
     int rowNum = 19;
     Set<String> boxList = new HashSet<String>();
     int totalQty = 0;
+    List<Object[]> queryList = getPackingReportProductDetailList(shippingObj);
 
     for (Object[] queryListObj : queryList) {
       if (queryListObj[6] != null) {
@@ -350,7 +336,11 @@ public class PackingListReport extends BaseProcessActionHandler {
     }
     row = sheet.createRow(rowNum++);
     setCellvalueWithAlignment(workbook, boldFont, row, "Total", false, 0, true, "");
-
+    /*
+     * cell = row.createCell(0); cell.setCellValue("Total");
+     * cell.setCellStyle(getAlignStyle(workbook, boldFont, true, true));
+     * sheet.addMergedRegion(CellRangeAddress.valueOf("A24:E24"));
+     */
     setCellvalueWithAlignment(workbook, boldFont, row, "", true, 5, true, "0");
     // sheet.addMergedRegion(CellRangeAddress.valueOf("A2:E2"));
     setCellvalueWithAlignment(workbook, boldFont, row, "0", true, 6, true, "");
@@ -371,6 +361,15 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     row = sheet.createRow(rowNum++);
     setCellvalueWithAlignment(workbook, boldFont, row, "TOTAL VOLUME (CBM)", true, 0, true, "");
+    cell = row.createCell(2);
+    cell.setCellValue("SHIPPING MARKS:");
+    cell.setCellStyle(getAlignStyle(workbook, boldFont, true, false));
+    sheet.addMergedRegion(CellRangeAddress.valueOf("C24:D29"));
+
+    cell = row.createCell(4);
+    cell.setCellValue("Signed by");
+    cell.setCellStyle(getAlignStyle(workbook, boldFont, true, true));
+    sheet.addMergedRegion(CellRangeAddress.valueOf("E24:J29"));
 
     row = sheet.createRow(rowNum++);
     setCellvalueWithAlignment(workbook, boldFont, row, "TOTAL NET WEIGHT (Kg)", true, 0, true, "");
@@ -396,9 +395,36 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     FILE_NAME = fileName + ".xlsx";
 
-    DownloadFile(workbook);
+    return DownloadFile(workbook);
 
-    return result;
+  }
+
+  public static void setProductDetailsHeader(HSSFWorkbook workbook, HSSFSheet sheet,
+      HSSFFont boldFont) {
+    Row row;
+    Cell cell;
+    String[] cellData = { "Model code", "Item", "Nature of Product", "Size", "Criterion Code",
+        "Country of Origin", "Net Weight (KG)", "Gross Weight", "Quantity", "Box Numbers" };
+
+    int colNum = 0;
+    row = sheet.createRow(18);
+    for (Object field : cellData) {
+      cell = row.createCell(colNum);
+      cell.setCellValue((String) field);
+      HSSFCellStyle leftAlignStyleWithBold = workbook.createCellStyle();
+      leftAlignStyleWithBold.setFont(boldFont);
+      leftAlignStyleWithBold.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+      leftAlignStyleWithBold.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+      leftAlignStyleWithBold.setAlignment(leftAlignStyleWithBold.ALIGN_CENTER);
+      leftAlignStyleWithBold.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
+      leftAlignStyleWithBold.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
+      leftAlignStyleWithBold.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
+      leftAlignStyleWithBold.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
+      cell.setCellStyle(leftAlignStyleWithBold);
+
+      sheet.autoSizeColumn(colNum);
+      colNum++;
+    }
   }
 
   private static JSONObject generateJSONMessage(String msgType, String title, String text)
@@ -422,7 +448,7 @@ public class PackingListReport extends BaseProcessActionHandler {
     return result;
   }
 
-  private static void DownloadFile(HSSFWorkbook workbook) throws FileNotFoundException,
+  private static JSONObject DownloadFile(HSSFWorkbook workbook) throws FileNotFoundException,
       IOException, JSONException {
 
     String attachpath = OBPropertiesProvider.getInstance().getOpenbravoProperties()
@@ -441,11 +467,13 @@ public class PackingListReport extends BaseProcessActionHandler {
         + " to download ");
     JSONObject msgTotalAction = new JSONObject();
     msgTotalAction.put("showMsgInProcessView", msgTotal);
+    JSONObject result = new JSONObject();
 
     actions.put(msgTotalAction);
     result.put("responseActions", actions);
     result.put("retryExecution", true);
 
+    return result;
     // log.info("Excel Report '" + FILE_NAME + "' Generated...!!");
   }
 
@@ -541,6 +569,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       leftAlignStyleWithBold.setAlignment(leftAlignStyleWithBold.ALIGN_LEFT);
 
     }
+    leftAlignStyleWithBold.setAlignment(leftAlignStyleWithBold.VERTICAL_TOP);
 
     leftAlignStyleWithBold.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
     leftAlignStyleWithBold.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
