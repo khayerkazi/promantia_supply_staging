@@ -173,11 +173,14 @@ public class GStShip extends BaseProcessActionHandler {
         }
 
       } else {
-        String intraUniqueInvoiceNumber = getIntraWarehouseDocumentSequence(shipping);
-        shipping.setGsUniqueno(intraUniqueInvoiceNumber);
-
+        /*
+         * String intraUniqueInvoiceNumber = getIntraWarehouseDocumentSequence(shipping);
+         * shipping.setGsUniqueno(intraUniqueInvoiceNumber);
+         */
         String packingInvoiceNumber = getPackingDocumentSequence(shipping);
-        shipping.setPackinginvoiceno(packingInvoiceNumber);
+        // shipping.setPackinginvoiceno(packingInvoiceNumber);
+        shipping.setGsUniqueno(packingInvoiceNumber);
+
       }
     } catch (Exception e) {
       throw new OBException(" Generating Document Sequence Number and error is: " + e);
