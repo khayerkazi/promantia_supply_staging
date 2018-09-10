@@ -138,7 +138,7 @@ public abstract class WarehouseRuleImplementation {
     if (qryResult != null && qryResult.size() > 0) {
       totalQty = qryResult.get(0);
     }
-    if (totalQty == null && totalQty.compareTo(BigDecimal.ZERO) > 0)
+    if (totalQty != null && totalQty.compareTo(BigDecimal.ZERO) > 0)
       return totalQty;
     else
       return BigDecimal.ZERO;
