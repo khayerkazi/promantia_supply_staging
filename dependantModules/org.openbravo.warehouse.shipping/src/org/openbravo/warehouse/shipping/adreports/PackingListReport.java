@@ -130,6 +130,8 @@ public class PackingListReport extends BaseProcessActionHandler {
     HSSFFont boldFont = workbook.createFont();
     boldFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
     boldFont.setFontName(HSSFFont.FONT_ARIAL);
+    workbook.setSheetName(0, "Packing Report");
+
     // this is for row 0
     Row row = sheet.createRow(1);
     Cell cell = row.createCell(0);
@@ -335,7 +337,8 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     }
     row = sheet.createRow(rowNum++);
-    setCellvalueWithAlignment(workbook, boldFont, row, "Total", false, 0, true, "");
+    setCellvalueWithAlignment(workbook, boldFont, row, "Total", true, 0, true, "");
+    sheet.addMergedRegion(CellRangeAddress.valueOf("A" + rowNum + ":E2" + rowNum));
     /*
      * cell = row.createCell(0); cell.setCellValue("Total");
      * cell.setCellStyle(getAlignStyle(workbook, boldFont, true, true));
