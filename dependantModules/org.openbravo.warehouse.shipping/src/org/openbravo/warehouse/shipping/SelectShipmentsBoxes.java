@@ -244,8 +244,7 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
         }
         // ----- Set Taxable Amount
         BigDecimal taxableAmt = cessionPrice.multiply(movementQty);
-        inoutLine.setObwshipTaxableamount(taxableAmt.divide(shipping.getExchangerate(), 2,
-            RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP));
+        inoutLine.setObwshipTaxableamount(taxableAmt);
         // Set Taxable Amount completed -----
 
         String bpName = "";
