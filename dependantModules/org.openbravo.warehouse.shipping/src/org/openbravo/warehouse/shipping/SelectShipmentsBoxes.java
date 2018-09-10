@@ -293,8 +293,7 @@ public class SelectShipmentsBoxes extends BaseProcessActionHandler {
         // ----- Set Tax Amount
         BigDecimal expression1 = taxRate.divide(new BigDecimal(100));
         BigDecimal taxAmount = taxableAmt.multiply(expression1);
-        inoutLine.setObwshipTaxamount(taxAmount.divide(shipping.getExchangerate(), 2,
-            RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP));
+        inoutLine.setObwshipTaxamount((taxAmount).setScale(2, RoundingMode.HALF_UP));
         // Set Tax Amount Completed -----
 
         // }
