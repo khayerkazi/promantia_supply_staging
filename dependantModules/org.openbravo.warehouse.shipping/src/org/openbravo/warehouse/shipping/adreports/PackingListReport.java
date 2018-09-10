@@ -23,6 +23,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.ss.util.RegionUtil;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -136,14 +137,14 @@ public class PackingListReport extends BaseProcessActionHandler {
     Row row = null;
     Cell cell = null;
 
-    setProductDetailsHeader(workbook, sheet, boldFont, 18);
+    setProductDetailsHeader(workbook, sheet, boldFont, 16);
 
-    for (int rowCount = 1; rowCount <= 17; rowCount++) {
+    for (int rowCount = 0; rowCount <= 15; rowCount++) {
       row = sheet.createRow(rowCount);
       for (int cellCount = 0; cellCount <= 9; cellCount++) {
         cell = row.createCell(cellCount);
 
-        if (rowCount == 16) {
+        if (rowCount == 15) {
           if (cellCount == 0) {
             setCellvalueWithAlignment(workbook, boldFont, row, "SHIPPED BY", true, cell, false, "");
             sheet.autoSizeColumn(cellCount);
@@ -173,7 +174,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           }
 
         }
-        if (rowCount == 2) {
+        if (rowCount == 1) {
 
           if (cellCount == 0) {
 
@@ -204,7 +205,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           }
 
         }
-        if (rowCount == 15) {
+        if (rowCount == 14) {
 
           if (cellCount == 0) {
 
@@ -335,7 +336,7 @@ public class PackingListReport extends BaseProcessActionHandler {
             setCellBolder(workbook, boldFont, row, cellCount);
           }
         }
-        if (rowCount == 10) {
+        if (rowCount == 9) {
 
           if (cellCount == 1) {
             setCellvalueWithAlignment(workbook, boldFont, row, "TEL:  +94 112818345", false, cell,
@@ -352,7 +353,7 @@ public class PackingListReport extends BaseProcessActionHandler {
             setCellBolder(workbook, boldFont, row, cellCount);
           }
         }
-        if (rowCount == 11) {
+        if (rowCount == 10) {
 
           if (cellCount == 1) {
 
@@ -369,7 +370,7 @@ public class PackingListReport extends BaseProcessActionHandler {
             setCellBolder(workbook, boldFont, row, cellCount);
           }
         }
-        if (rowCount == 12) {
+        if (rowCount == 11) {
 
           if (cellCount == 0) {
             setCellvalueWithAlignment(workbook, boldFont, row, "ETD", true, cell, false, "");
@@ -390,7 +391,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           }
         }
 
-        if (rowCount == 13) {
+        if (rowCount == 12) {
 
           if (cellCount == 0) {
             setCellvalueWithAlignment(workbook, boldFont, row, "ATD", true, cell, false, "");
@@ -411,7 +412,7 @@ public class PackingListReport extends BaseProcessActionHandler {
             setCellBolder(workbook, boldFont, row, cellCount);
           }
         }
-        if (rowCount == 14) {
+        if (rowCount == 13) {
 
           if (cellCount == 8) {
             setCellvalueWithAlignment(workbook, boldFont, row, "TERMS OF PAYMENT", true, cell,
@@ -422,19 +423,19 @@ public class PackingListReport extends BaseProcessActionHandler {
             setCellBolder(workbook, boldFont, row, cellCount);
           }
         }
-        if (rowCount == 1) {
+        if (rowCount == 0) {
 
           if (cellCount == 0) {
             cell = row.createCell(0);
             cell.setCellValue("PACKING LIST");
             cell.setCellStyle(getAlignStyle(workbook, boldFont, true, true));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A2:J2"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:J1"));
           }
         }
       }
     }
 
-    int rowNum = 19;
+    int rowNum = 17;
     Set<String> boxList = new HashSet<String>();
     int totalQty = 0;
     List<Object[]> queryList = getPackingReportProductDetailList(shippingObj);
@@ -532,12 +533,19 @@ public class PackingListReport extends BaseProcessActionHandler {
     cell = row.createCell(2);
     cell.setCellValue("SHIPPING MARKS:");
     cell.setCellStyle(getAlignStyle(workbook, boldFont, true, false));
-    sheet.addMergedRegion(CellRangeAddress.valueOf("C24:D29"));
+    int nextFour = rowNum + 4;
+    sheet.addMergedRegion(CellRangeAddress.valueOf("C" + rowNum + ":D" + nextFour + ""));
+    CellUtil.setCellStyleProperty(cell, workbook, CellUtil.VERTICAL_ALIGNMENT,
+        CellStyle.VERTICAL_TOP);
 
     cell = row.createCell(4);
     cell.setCellValue("Signed by");
     cell.setCellStyle(getAlignStyle(workbook, boldFont, true, true));
-    sheet.addMergedRegion(CellRangeAddress.valueOf("E24:J29"));
+    CellUtil.setCellStyleProperty(cell, workbook, CellUtil.VERTICAL_ALIGNMENT,
+        CellStyle.VERTICAL_TOP);
+    sheet.addMergedRegion(CellRangeAddress.valueOf("E" + rowNum + ":J" + nextFour + ""));
+
+    CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
 
     row = sheet.createRow(rowNum++);
     setCellvalueWithAlignment(workbook, boldFont, row, "TOTAL NET WEIGHT (Kg)", true,
