@@ -55,7 +55,9 @@ public class PackingListReport extends BaseProcessActionHandler {
        * String packingInvoiceNo = ""; if (shippingObj.getPackinginvoiceno() != null) {
        * packingInvoiceNo = shippingObj.getPackinginvoiceno(); } else {
        */
-      String shippingInvoiceNo = shippingObj.getGsUniqueno();
+      String shippingInvoiceNo = "";
+      if (shippingObj.getGsUniqueno() != null)
+        shippingInvoiceNo = shippingObj.getGsUniqueno();
 
       /* } */
       DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -63,18 +65,10 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       if (shippingObj != null) {
         if (parameters.containsKey("_action")) {
-          if (parameters.get("_action").equals(
-              "org.openbravo.warehouse.shipping.adreports.PackingListReport")) {
-            String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
-                + dateFormat.format(date);
-            result = PackingListReport.extractForShipping(shippingObj, fileName);
-          } else {
-            if (parameters.get("_action").equals(
-                "org.openbravo.warehouse.shipping.adreports.ShippingListReport")) {
-              String fileName = "ShippingSalesReport_For-" + shippingInvoiceNo + "_on_"
-                  + dateFormat.format(date);
-            }
-          }
+
+          String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
+              + dateFormat.format(date);
+          result = PackingListReport.extractForShipping(shippingObj, fileName, shippingInvoiceNo);
 
         }
       }
@@ -119,8 +113,9 @@ public class PackingListReport extends BaseProcessActionHandler {
   }
 
   @SuppressWarnings("hiding")
-  public static JSONObject extractForShipping(OBWSHIPShipping shippingObj, String fileName)
-      throws FileNotFoundException, IOException, JSONException, ParseException {
+  public static JSONObject extractForShipping(OBWSHIPShipping shippingObj, String fileName,
+      String shippingInvoiceNo) throws FileNotFoundException, IOException, JSONException,
+      ParseException {
 
     HSSFWorkbook workbook = new HSSFWorkbook();
     HSSFSheet sheet = workbook.createSheet("Style example");
@@ -176,13 +171,10 @@ public class PackingListReport extends BaseProcessActionHandler {
             sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 1) {
-            if (shippingObj.getGsUniqueno() != null) {
-              setCellvalueWithAlignment(workbook, boldFont, row, shippingObj.getGsUniqueno(),
-                  false, cell, false);
-              sheet.autoSizeColumn(cellCount);
-            } else {
-              setCellvalueWithAlignment(workbook, boldFont, row, "", false, cell, false);
-            }
+            setCellvalueWithAlignment(workbook, boldFont, row, shippingInvoiceNo, false, cell,
+                false);
+            sheet.autoSizeColumn(cellCount);
+
             continue;
           } else if (cellCount == 8) {
 
