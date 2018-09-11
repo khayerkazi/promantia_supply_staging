@@ -130,7 +130,6 @@ public class PackingListReport extends BaseProcessActionHandler {
     boldFont.setFontName(HSSFFont.FONT_ARIAL);
     workbook.setSheetName(0, "Packing Report");
 
-    // this is for row 0
     Row row = null;
     Cell cell = null;
 
@@ -174,13 +173,13 @@ public class PackingListReport extends BaseProcessActionHandler {
           if (cellCount == 0) {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "Invoice No", true, cell, false);
-            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 1) {
             if (shippingObj.getGsUniqueno() != null) {
               setCellvalueWithAlignment(workbook, boldFont, row, shippingObj.getGsUniqueno(),
                   false, cell, false);
-              sheet.autoSizeColumn(1);
+              sheet.autoSizeColumn(cellCount);
             } else {
               setCellvalueWithAlignment(workbook, boldFont, row, "", false, cell, false);
             }
@@ -188,7 +187,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           } else if (cellCount == 8) {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "SHIPPER", true, cell, false);
-            sheet.autoSizeColumn(8);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 9) {
 
@@ -205,7 +204,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "PLACE OF DISCHARGE", true, cell,
                 false);
-            sheet.autoSizeColumn(1);
+            sheet.autoSizeColumn(cellCount);
             continue;
 
           } else if (cellCount == 1) {
@@ -215,7 +214,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "IN.TRANSPORT REF.", true, cell,
                 false);
-            sheet.autoSizeColumn(2);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else {
             setCellBolder(workbook, boldFont, row, cellCount);
@@ -244,13 +243,13 @@ public class PackingListReport extends BaseProcessActionHandler {
 
           if (cellCount == 0) {
             setCellvalueWithAlignment(workbook, boldFont, row, "Date", true, cell, false);
-            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 1) {
 
             setCellvalueWithAlignment(workbook, boldFont, row,
                 formatter.format(shippingObj.getShipmentDate()), false, cell, false);
-            sheet.autoSizeColumn(1);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 9) {
 
@@ -275,7 +274,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           if (cellCount == 0) {
             setCellvalueWithAlignment(workbook, boldFont, row, "FINAL  DELIVERY ADDRESS", true,
                 cell, false);
-            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 1) {
 
@@ -285,7 +284,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           } else if (cellCount == 8) {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "CONSIGNEE", true, cell, false);
-            sheet.autoSizeColumn(8);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 9) {
 
@@ -360,17 +359,17 @@ public class PackingListReport extends BaseProcessActionHandler {
 
           if (cellCount == 0) {
             setCellvalueWithAlignment(workbook, boldFont, row, "ETD", true, cell, false);
-            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 2) {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "ATD", true, cell, false);
-            sheet.autoSizeColumn(2);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 8) {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "COST CENTER", true, cell, false);
-            sheet.autoSizeColumn(8);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else {
             setCellBolder(workbook, boldFont, row, cellCount);
@@ -379,18 +378,18 @@ public class PackingListReport extends BaseProcessActionHandler {
 
           if (cellCount == 0) {
             setCellvalueWithAlignment(workbook, boldFont, row, "ATD", true, cell, false);
-            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 2) {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "PLACE OF LOADING", true, cell,
                 false);
-            sheet.autoSizeColumn(2);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else if (cellCount == 8) {
 
             setCellvalueWithAlignment(workbook, boldFont, row, "INCOTERM", true, cell, false);
-            sheet.autoSizeColumn(8);
+            sheet.autoSizeColumn(cellCount);
             continue;
           } else {
             setCellBolder(workbook, boldFont, row, cellCount);
@@ -455,6 +454,8 @@ public class PackingListReport extends BaseProcessActionHandler {
       if (queryListObj[3] != null) {
         setCellvalueWithAlignment(workbook, boldFont, row, queryListObj[3].toString(), false, cell,
             true);
+        sheet.autoSizeColumn(3);
+
       } else
         setCellvalueWithAlignment(workbook, boldFont, row, "", false, row.createCell(3), true);
 
@@ -469,6 +470,8 @@ public class PackingListReport extends BaseProcessActionHandler {
       CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
       cell = row.createCell(5);
       setCellvalueWithAlignment(workbook, boldFont, row, "N/A", false, cell, true);
+      CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
+
       cell = row.createCell(6);
 
       setCellvalueWithAlignment(workbook, boldFont, row, "N/A", false, cell, true);
@@ -494,6 +497,7 @@ public class PackingListReport extends BaseProcessActionHandler {
         setCellvalueWithAlignment(workbook, boldFont, row, queryListObj[6].toString(), false, cell,
             true);
         boxList.add(queryListObj[6].toString());
+        sheet.autoSizeColumn(9);
 
       } else {
         setCellvalueWithAlignment(workbook, boldFont, row, "", false, cell, true);
@@ -552,6 +556,7 @@ public class PackingListReport extends BaseProcessActionHandler {
     CellUtil.setCellStyleProperty(cell, workbook, CellUtil.VERTICAL_ALIGNMENT,
         CellStyle.VERTICAL_TOP);
     sheet.addMergedRegion(CellRangeAddress.valueOf("E" + rowNum + ":J" + nextFour + ""));
+    setCellBolderRight(workbook, boldFont, row, 9);
 
     CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
 
@@ -744,6 +749,19 @@ public class PackingListReport extends BaseProcessActionHandler {
     HSSFCellStyle centerAlignStyleWithBold = workbook.createCellStyle();
 
     centerAlignStyleWithBold.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
+
+    cell.setCellStyle(centerAlignStyleWithBold);
+
+  }
+
+  public static void setCellBolderRight(HSSFWorkbook workbook, HSSFFont boldFont, Row row,
+      int cellCount) {
+
+    Cell cell;
+    cell = row.createCell(cellCount);
+    HSSFCellStyle centerAlignStyleWithBold = workbook.createCellStyle();
+
+    centerAlignStyleWithBold.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
 
     cell.setCellStyle(centerAlignStyleWithBold);
 
