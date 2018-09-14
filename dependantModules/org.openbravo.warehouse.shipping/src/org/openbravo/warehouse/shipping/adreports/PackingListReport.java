@@ -31,9 +31,7 @@ import org.openbravo.base.session.OBPropertiesProvider;
 import org.openbravo.client.application.process.BaseProcessActionHandler;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.service.OBDal;
-import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
 import org.openbravo.warehouse.shipping.OBWSHIPShipping;
-import org.openbravo.warehouse.shipping.OBWSHIPShippingDetails;
 
 public class PackingListReport extends BaseProcessActionHandler {
 
@@ -45,7 +43,6 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     JSONObject jsonRequest = null;
     OBContext.setAdminMode(true);
-    JSONObject result = new JSONObject();
 
     try {
       jsonRequest = new JSONObject(content);
@@ -69,52 +66,38 @@ public class PackingListReport extends BaseProcessActionHandler {
 
           String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
               + dateFormat.format(date);
-          result = PackingListReport.extractForShipping(shippingObj, fileName, shippingInvoiceNo);
+          String linkdocument = PackingListReport.extractForShipping(shippingObj, fileName,
+              shippingInvoiceNo);
+          JSONObject msgTotal = new JSONObject();
+          msgTotal.put("msgType", "info");
+          msgTotal
+              .put("msgTitle", "Report Generated!!" + " Click here to download " + linkdocument);
+          JSONObject msgTotalAction = new JSONObject();
+          msgTotalAction.put("showMsgInProcessView", msgTotal);
+          JSONArray actions = new JSONArray();
 
-        }
-      }
-      for (OBWSHIPShippingDetails shippinglineObj : shippingObj.getOBWSHIPShippingDetailsList()) {
-        if (shippinglineObj.getGoodsShipment() != null) {
-          for (ShipmentInOutLine inoutLineObj : shippinglineObj.getGoodsShipment()
-              .getMaterialMgmtShipmentInOutLineList()) {
-            if (inoutLineObj.getObwshipHsncode() == null) {
-              if (inoutLineObj.getProduct() != null) {
-                if (inoutLineObj.getProduct().getIngstGstproductcode() != null) {
-                  if (inoutLineObj.getProduct().getIngstGstproductcode().getValue() != null) {
-                    inoutLineObj.setObwshipHsncode(inoutLineObj.getProduct()
-                        .getIngstGstproductcode().getValue());
-                    OBDal.getInstance().save(inoutLineObj);
-                    OBDal.getInstance().flush();
-                  }
-                }
-              }
-            }
-          }
+          actions.put(msgTotalAction);
+          jsonRequest.put("messege", msgTotal);
+          jsonRequest.put("responseActions", actions);
+
+          return jsonRequest;
+
         }
       }
 
     } catch (Exception e) {
-      try {
-        result = generateJSONMessage("error", "Error in Excel Export Transaction ", e.getMessage());
-        // log.error("Error in Excel Export Transaction" + e.getMessage());
-      } catch (JSONException e1) {
-        result = new JSONObject();
-      }
+
       // TODO Auto-generated catch block
       e.printStackTrace();
 
     }
 
-    finally {
-      // log.info("CSV Export Process Finished...!!");
-      OBContext.restorePreviousMode();
-    }
+    return jsonRequest;
 
-    return result;
   }
 
   @SuppressWarnings("hiding")
-  public static JSONObject extractForShipping(OBWSHIPShipping shippingObj, String fileName,
+  public static String extractForShipping(OBWSHIPShipping shippingObj, String fileName,
       String shippingInvoiceNo) throws FileNotFoundException, IOException, JSONException,
       ParseException {
 
@@ -659,7 +642,7 @@ public class PackingListReport extends BaseProcessActionHandler {
     return result;
   }
 
-  private static JSONObject DownloadFile(HSSFWorkbook workbook) throws FileNotFoundException,
+  private static String DownloadFile(HSSFWorkbook workbook) throws FileNotFoundException,
       IOException, JSONException {
 
     String attachpath = OBPropertiesProvider.getInstance().getOpenbravoProperties()
@@ -669,22 +652,9 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     FileOutputStream outputStream = new FileOutputStream(FILeName);
     workbook.write(outputStream);
-    JSONArray actions = new JSONArray();
     String linkdocument = getDownloadUrl(FILE_NAME);
 
-    JSONObject msgTotal = new JSONObject();
-    msgTotal.put("msgType", "info");
-    msgTotal.put("msgTitle", "Excel Report Generated!!" + " Click " + linkdocument
-        + " to download ");
-    JSONObject msgTotalAction = new JSONObject();
-    msgTotalAction.put("showMsgInProcessView", msgTotal);
-    JSONObject result = new JSONObject();
-
-    actions.put(msgTotalAction);
-    result.put("responseActions", actions);
-    result.put("retryExecution", true);
-
-    return result;
+    return linkdocument;
     // log.info("Excel Report '" + FILE_NAME + "' Generated...!!");
   }
 
