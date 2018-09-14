@@ -31,7 +31,9 @@ import org.openbravo.base.session.OBPropertiesProvider;
 import org.openbravo.client.application.process.BaseProcessActionHandler;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.service.OBDal;
+import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
 import org.openbravo.warehouse.shipping.OBWSHIPShipping;
+import org.openbravo.warehouse.shipping.OBWSHIPShippingDetails;
 
 public class PackingListReport extends BaseProcessActionHandler {
 
@@ -43,25 +45,47 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     JSONObject jsonRequest = null;
     OBContext.setAdminMode(true);
-
+    String strShippingId = "";
     try {
       jsonRequest = new JSONObject(content);
-      String strShippingId = jsonRequest.getString("Obwship_Shipping_ID");
-
+      if (jsonRequest.has("Obwship_Shipping_ID")) {
+        strShippingId = jsonRequest.getString("Obwship_Shipping_ID");
+      }
       OBWSHIPShipping shippingObj = OBDal.getInstance().get(OBWSHIPShipping.class, strShippingId);
-      /*
-       * String packingInvoiceNo = ""; if (shippingObj.getPackinginvoiceno() != null) {
-       * packingInvoiceNo = shippingObj.getPackinginvoiceno(); } else {
-       */
-      String shippingInvoiceNo = "";
-      if (shippingObj.getGsUniqueno() != null)
-        shippingInvoiceNo = shippingObj.getGsUniqueno();
-
-      /* } */
-      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-      Date date = new Date();
-
       if (shippingObj != null) {
+
+        String shippingInvoiceNo = "";
+        if (shippingObj.getGsUniqueno() != null) {
+          shippingInvoiceNo = shippingObj.getGsUniqueno();
+        } else {
+          shippingInvoiceNo = shippingObj.getDocumentNo();
+
+        }
+        /* } */
+
+        for (OBWSHIPShippingDetails shippinglineObj : shippingObj.getOBWSHIPShippingDetailsList()) {
+          if (shippinglineObj.getGoodsShipment() != null) {
+            for (ShipmentInOutLine inoutLineObj : shippinglineObj.getGoodsShipment()
+                .getMaterialMgmtShipmentInOutLineList()) {
+              if (inoutLineObj.getObwshipHsncode() == null) {
+                if (inoutLineObj.getProduct() != null) {
+                  if (inoutLineObj.getProduct().getIngstGstproductcode() != null) {
+                    if (inoutLineObj.getProduct().getIngstGstproductcode().getValue() != null) {
+                      inoutLineObj.setObwshipHsncode(inoutLineObj.getProduct()
+                          .getIngstGstproductcode().getValue());
+                      OBDal.getInstance().save(inoutLineObj);
+                      OBDal.getInstance().flush();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+
         if (parameters.containsKey("_action")) {
 
           String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
@@ -766,9 +790,9 @@ public class PackingListReport extends BaseProcessActionHandler {
     // cellStyle.setRotation((short) 90);
 
     if (isWithBorder) {
-      cellStyle.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
+      // cellStyle.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
       cellStyle.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
-      cellStyle.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
+      // cellStyle.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
       cellStyle.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
     }
     return cellStyle;
