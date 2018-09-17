@@ -12,15 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.CellRangeAddress;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellUtil;
 import org.codehaus.jettison.json.JSONArray;
@@ -90,12 +91,12 @@ public class PackingListReport extends BaseProcessActionHandler {
 
           String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
               + dateFormat.format(date);
-          String linkdocument = PackingListReport.extractForShipping(shippingObj, fileName,
-              shippingInvoiceNo);
+          String linkdocument = extractForShipping(shippingObj, fileName, shippingInvoiceNo);
+
           JSONObject msgTotal = new JSONObject();
           msgTotal.put("msgType", "info");
-          msgTotal
-              .put("msgTitle", "Report Generated!!" + " Click here to download " + linkdocument);
+          msgTotal.put("msgTitle", "Report Generated!!" + " Click " + linkdocument
+              + " to download ");
           JSONObject msgTotalAction = new JSONObject();
           msgTotalAction.put("showMsgInProcessView", msgTotal);
           JSONArray actions = new JSONArray();
@@ -126,14 +127,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       ParseException {
 
     HSSFWorkbook workbook = new HSSFWorkbook();
-    HSSFSheet sheet = workbook.createSheet("Style example");
-
-    PrintSetup ps = sheet.getPrintSetup();
-
-    sheet.setAutobreaks(true);
-
-    ps.setFitHeight((short) 1);
-    ps.setFitWidth((short) 1);
+    HSSFSheet sheet = workbook.createSheet("Packing Report");
 
     HSSFFont boldFont = workbook.createFont();
     boldFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
@@ -143,295 +137,223 @@ public class PackingListReport extends BaseProcessActionHandler {
     Row row = null;
     Cell cell = null;
 
-    setProductDetailsHeader(workbook, sheet, boldFont, 16);
+    setProductDetailsHeader(workbook, sheet, boldFont, 17);
 
-    for (int rowCount = 0; rowCount <= 15; rowCount++) {
-      row = sheet.createRow(rowCount);
-      for (int cellCount = 0; cellCount <= 9; cellCount++) {
-        cell = row.createCell(cellCount);
+    row = sheet.createRow(15);
+    cell = row.createCell(0);
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Shipped by", true, cell, false);
+    sheet.autoSizeColumn(0);
 
-        if (rowCount == 15) {
-          if (cellCount == 0) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Shipped by", true, cell,
-                false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 2) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Equipment NB", true, cell,
-                false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
+    cell = row.createCell(2);
 
-          } else if (cellCount == 6) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Notify Party", true, cell,
-                false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Equipment NB", true, cell, false);
+    sheet.autoSizeColumn(2);
 
-          } else if (cellCount == 7) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Same as Consignee", false,
-                cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
+    cell = row.createCell(5);
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Notify Party", true, cell, false);
+    sheet.autoSizeColumn(5);
 
-          }/*
-            * else { setCellBolder(workbook, boldFont, row, cellCount); continue;
-            * 
-            * }
-            */
+    cell = row.createCell(6);
 
-        }
-        if (rowCount == 1) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Same as Consignee", false, cell,
+        false);
+    sheet.autoSizeColumn(7);
 
-          if (cellCount == 0) {
+    row = sheet.createRow(1);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Invoice No", true, cell,
-                false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 1) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, shippingInvoiceNo, false,
-                cell, false);
-            sheet.autoSizeColumn(cellCount);
+    cell = row.createCell(0);
 
-            continue;
-          } else if (cellCount == 6) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Invoice No", true, cell, false);
+    sheet.autoSizeColumn(0);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Shipper", true, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 7) {
+    cell = row.createCell(1);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row,
-                "Decathlon Sports India Pvt Ltd", false, cell, false);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 14) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, shippingInvoiceNo, false, cell, false);
+    sheet.autoSizeColumn(1);
 
-          if (cellCount == 0) {
+    cell = row.createCell(5);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Place Of Discharge", true,
-                cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Shipper", true, cell, false);
+    sheet.autoSizeColumn(5);
 
-          } else if (cellCount == 1) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Sri Lanka", false, cell,
-                false);
-            continue;
-          } else if (cellCount == 2) {
+    cell = row.createCell(6);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "In.transport Ref.", true,
-                cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Decathlon Sports India Pvt Ltd",
+        false, cell, false);
 
-        if (rowCount == 2) {
+    row = sheet.createRow(14);
 
-          if (cellCount == 7) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Survey No - 78/10", false,
-                cell, false);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 3) {
+    cell = row.createCell(0);
 
-          if (cellCount == 7) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "A2 - Chikkajala Village",
-                false, cell, false);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 4) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Place Of Discharge", true, cell,
+        false);
+    sheet.autoSizeColumn(0);
 
-          if (cellCount == 0) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Date", true, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 1) {
+    cell = row.createCell(1);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row,
-                formatter.format(shippingObj.getShipmentDate()), false, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 7) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Sri Lanka", false, cell, false);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "562157 Bangalore", false,
-                cell, false);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 5) {
+    cell = row.createCell(2);
 
-          if (cellCount == 7) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "India", false, cell, false);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "In.transport Ref.", true, cell,
+        false);
+    sheet.autoSizeColumn(2);
 
-        if (rowCount == 6) {
+    row = sheet.createRow(2);
+    cell = row.createCell(6);
 
-          if (cellCount == 0) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Final Delivery Address",
-                true, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 1) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Survey No - 78/10", false, cell,
+        false);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row,
-                "Decathlon Lanka Sport Access (Pvt) Ltd.", false, cell, false);
-            continue;
-          } else if (cellCount == 6) {
+    row = sheet.createRow(3);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Consignee", true, cell,
-                false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 7) {
+    cell = row.createCell(6);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row,
-                "Decathlon Lanka Sport Access (Pvt) Ltd.", false, cell, false);
-            continue;
-          }/*
-            * else { setCellBolder(workbook, boldFont, row, cellCount); }
-            */
-        } else if (rowCount == 7) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "A2 - Chikkajala Village", false,
+        cell, false);
 
-          if (cellCount == 1) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row,
-                "No. 249, Stanley Thilakarathne Mawatha,", false, cell, false);
-            continue;
-          } else if (cellCount == 7) {
+    row = sheet.createRow(4);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row,
-                "No. 249, Stanley Thilakarathne Mawatha,", false, cell, false);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 8) {
+    cell = row.createCell(0);
 
-          if (cellCount == 1) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Nugegoda, Sri Lanka.",
-                false, cell, false);
-            continue;
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Date", true, cell, false);
+    sheet.autoSizeColumn(0);
 
-          } else if (cellCount == 7) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Nugegoda, Sri Lanka.",
-                false, cell, false);
-            continue;
+    cell = row.createCell(1);
 
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 9) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row,
+        formatter.format(shippingObj.getShipmentDate()), false, cell, false);
+    sheet.autoSizeColumn(1);
 
-          if (cellCount == 1) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "TEL:  +94 112818345", false,
-                cell, false);
-            continue;
+    cell = row.createCell(6);
 
-          } else if (cellCount == 7) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "562157 Bangalore", false, cell,
+        false);
+    row = sheet.createRow(5);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "TEL:  +94 112818345", false,
-                cell, false);
-            continue;
+    cell = row.createCell(6);
 
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 10) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "India", false, cell, false);
+    row = sheet.createRow(6);
 
-          if (cellCount == 1) {
+    cell = row.createCell(0);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Mobile:  +94 77 9446832",
-                false, cell, false);
-            continue;
-          } else if (cellCount == 7) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Final Delivery Address", true, cell,
+        false);
+    sheet.autoSizeColumn(0);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Mobile:  +94 77 9446832",
-                false, cell, false);
-            continue;
+    cell = row.createCell(1);
 
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 11) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row,
+        "Decathlon Lanka Sport Access (Pvt) Ltd.", false, cell, false);
 
-          if (cellCount == 0) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "ETD", true, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 2) {
+    cell = row.createCell(5);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "ATD", true, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 6) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Consignee", true, cell, false);
+    sheet.autoSizeColumn(5);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Cost Center", true, cell,
-                false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 12) {
+    cell = row.createCell(6);
 
-          if (cellCount == 0) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "ATD", true, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 2) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row,
+        "Decathlon Lanka Sport Access (Pvt) Ltd.", false, cell, false);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Place Of Loading", true,
-                cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } else if (cellCount == 6) {
+    row = sheet.createRow(7);
 
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Incoterm", true, cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 13) {
+    cell = row.createCell(1);
 
-          if (cellCount == 6) {
-            setCellvalueWithAlignment(false, workbook, boldFont, row, "Terms Of Payment", true,
-                cell, false);
-            sheet.autoSizeColumn(cellCount);
-            continue;
-          } /*
-             * else { setCellBolder(workbook, boldFont, row, cellCount); }
-             */
-        } else if (rowCount == 0) {
+    setCellvalueWithAlignment(false, workbook, boldFont, row,
+        "No. 249, Stanley Thilakarathne Mawatha,", false, cell, false);
 
-          if (cellCount == 0) {
-            cell = row.createCell(0);
-            cell.setCellValue("PACKING LIST");
-            cell.setCellStyle(getAlignStyle(true, workbook, boldFont, true, true));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:J1"));
-            CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
+    cell = row.createCell(6);
 
-          }
-        }
-      }
-    }
+    setCellvalueWithAlignment(false, workbook, boldFont, row,
+        "No. 249, Stanley Thilakarathne Mawatha,", false, cell, false);
 
-    int rowNum = 17;
+    row = sheet.createRow(8);
+
+    cell = row.createCell(1);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Nugegoda, Sri Lanka.", false, cell,
+        false);
+
+    cell = row.createCell(6);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Nugegoda, Sri Lanka.", false, cell,
+        false);
+
+    row = sheet.createRow(9);
+
+    cell = row.createCell(1);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "TEL:  +94 112818345", false, cell,
+        false);
+
+    cell = row.createCell(6);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "TEL:  +94 112818345", false, cell,
+        false);
+
+    row = sheet.createRow(10);
+
+    cell = row.createCell(1);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Mobile:  +94 77 9446832", false,
+        cell, false);
+
+    cell = row.createCell(6);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Mobile:  +94 77 9446832", false,
+        cell, false);
+
+    row = sheet.createRow(11);
+
+    cell = row.createCell(0);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "ETD", true, cell, false);
+    sheet.autoSizeColumn(0);
+
+    cell = row.createCell(2);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "ATD", true, cell, false);
+    sheet.autoSizeColumn(2);
+
+    cell = row.createCell(5);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Cost Center", true, cell, false);
+    sheet.autoSizeColumn(5);
+
+    row = sheet.createRow(12);
+
+    cell = row.createCell(0);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "ATD", true, cell, false);
+    sheet.autoSizeColumn(0);
+
+    cell = row.createCell(2);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Place Of Loading", true, cell, false);
+    sheet.autoSizeColumn(2);
+
+    cell = row.createCell(5);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Incoterm", true, cell, false);
+    sheet.autoSizeColumn(5);
+
+    row = sheet.createRow(13);
+
+    cell = row.createCell(5);
+
+    setCellvalueWithAlignment(false, workbook, boldFont, row, "Terms Of Payment", true, cell, false);
+    sheet.autoSizeColumn(5);
+
+    row = sheet.createRow(0);
+    cell = row.createCell(0);
+    cell.setCellValue("PACKING LIST");
+    cell.setCellStyle(getAlignStyle(true, workbook, boldFont, true, true));
+    sheet.addMergedRegion(CellRangeAddress.valueOf("A1:J1"));
+    CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
+
+    int rowNum = 18;
     Set<String> boxList = new HashSet<String>();
     int totalQty = 0;
     List<Object[]> queryList = getPackingReportProductDetailList(shippingObj);
@@ -560,7 +482,7 @@ public class PackingListReport extends BaseProcessActionHandler {
     cell.setCellValue("Shipping Remarks:");
     cell.setCellStyle(getAlignStyle(true, workbook, boldFont, true, false));
     int nextFour = rowNum + 5;
-    sheet.addMergedRegion(CellRangeAddress.valueOf("C" + rowNum + ":D" + nextFour + ""));
+    sheet.addMergedRegion(CellRangeAddress.valueOf("C" + rowNum + ":F" + nextFour + ""));
     CellUtil.setCellStyleProperty(cell, workbook, CellUtil.VERTICAL_ALIGNMENT,
         CellStyle.VERTICAL_TOP);
 
@@ -569,7 +491,7 @@ public class PackingListReport extends BaseProcessActionHandler {
     cell.setCellStyle(getAlignStyle(true, workbook, boldFont, true, true));
     CellUtil.setCellStyleProperty(cell, workbook, CellUtil.VERTICAL_ALIGNMENT,
         CellStyle.VERTICAL_TOP);
-    sheet.addMergedRegion(CellRangeAddress.valueOf("E" + rowNum + ":J" + nextFour + ""));
+    sheet.addMergedRegion(CellRangeAddress.valueOf("G" + rowNum + ":J" + nextFour + ""));
     setCellBolderRight(workbook, boldFont, row, 9);
 
     CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
@@ -619,28 +541,32 @@ public class PackingListReport extends BaseProcessActionHandler {
 
   public static void setProductDetailsHeader(HSSFWorkbook workbook, HSSFSheet sheet,
       HSSFFont boldFont, int rowCount) {
-    Row row;
-    Cell cell;
+    HSSFRow row;
     String[] cellData = { "Model code", "Item", "Nature of Product", "Size", "Criterion Code",
         "Country of Origin", "Net Weight (KG)", "Gross Weight", "Quantity", "Box Numbers" };
 
     int colNum = 0;
     row = sheet.createRow(rowCount);
     for (Object field : cellData) {
-      cell = row.createCell(colNum);
-      cell.setCellValue((String) field);
+
+      final HSSFCell cell = row.createCell(colNum);
+      row.setHeight((short) 0);
       HSSFCellStyle cellStyle = workbook.createCellStyle();
+      // int
+
       cellStyle.setFont(boldFont);
       cellStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
       cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
       cellStyle.setAlignment(cellStyle.ALIGN_CENTER);
-      cellStyle.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
+      cellStyle.setVerticalAlignment(CellStyle.ALIGN_FILL);
+      cellStyle.setWrapText(true);
+      // cellStyle.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
       cellStyle.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
-      cellStyle.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
+      // cellStyle.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
       cellStyle.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
       cell.setCellStyle(cellStyle);
-
-      sheet.autoSizeColumn(colNum);
+      cell.setCellValue((String) field);
+      // sheet.autoSizeColumn(colNum);
       colNum++;
     }
   }
@@ -720,12 +646,12 @@ public class PackingListReport extends BaseProcessActionHandler {
     return queryList;
   }
 
-  public static void setCellvalueWithAlignment(Boolean isWithBorder, HSSFWorkbook workbook,
+  public static void setCellvalueWithAlignment(Boolean isRightBorder, HSSFWorkbook workbook,
       HSSFFont boldFont, Row row, String message, Boolean isBold, Cell cell,
       Boolean isCenterAllignment) {
     cell.setCellValue(message);
 
-    cell.setCellStyle(getAlignStyle(isWithBorder, workbook, boldFont, isBold, isCenterAllignment));
+    cell.setCellStyle(getAlignStyle(isRightBorder, workbook, boldFont, isBold, isCenterAllignment));
 
   }
 
@@ -751,7 +677,7 @@ public class PackingListReport extends BaseProcessActionHandler {
     cell = row.createCell(cellCount);
     HSSFCellStyle centerAlignStyleWithBold = workbook.createCellStyle();
 
-    centerAlignStyleWithBold.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
+    // centerAlignStyleWithBold.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
 
     cell.setCellStyle(centerAlignStyleWithBold);
 
@@ -770,7 +696,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
   }
 
-  public static HSSFCellStyle getAlignStyle(Boolean isWithBorder, HSSFWorkbook workbook,
+  public static HSSFCellStyle getAlignStyle(Boolean isRightBorder, HSSFWorkbook workbook,
       HSSFFont boldFont, Boolean isBoldText, Boolean isCenterAllignment) {
     HSSFCellStyle cellStyle = workbook.createCellStyle();
     if (isBoldText) {
@@ -785,15 +711,14 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     } else {
       cellStyle.setAlignment(cellStyle.ALIGN_LEFT);
-
     }
     // cellStyle.setRotation((short) 90);
+    // cellStyle.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
+    // cellStyle.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
+    // cellStyle.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
+    if (isRightBorder) {
 
-    if (isWithBorder) {
-      // cellStyle.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
-      cellStyle.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
       // cellStyle.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
-      cellStyle.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
     }
     return cellStyle;
   }
