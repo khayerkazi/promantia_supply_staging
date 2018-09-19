@@ -115,6 +115,9 @@ public class PackingListReport extends BaseProcessActionHandler {
       // TODO Auto-generated catch block
       e.printStackTrace();
 
+    } finally {
+      // log.info("CSV Export Process Finished...!!");
+      OBContext.restorePreviousMode();
     }
 
     return jsonRequest;
@@ -619,7 +622,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       row.setHeight((short) 0);
       HSSFCellStyle cellStyle = workbook.createCellStyle();
       // int
-
+      cell.setCellValue((String) field);
       cellStyle.setFont(boldFont);
       cellStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
       cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
@@ -633,7 +636,8 @@ public class PackingListReport extends BaseProcessActionHandler {
       }
       cellStyle.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
       cell.setCellStyle(cellStyle);
-      cell.setCellValue((String) field);
+      System.out.println("field==" + field);
+
       sheet.autoSizeColumn(colNum);
       colNum++;
     }
