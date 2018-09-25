@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.openbravo.client.application.process.BaseProcessActionHandler;
@@ -15,6 +16,7 @@ import org.openbravo.warehouse.shipping.OBWSHIPShipping;
 import org.openbravo.warehouse.shipping.OBWSHIPShippingDetails;
 
 public class ShippingReport extends BaseProcessActionHandler {
+  public static final Logger log = Logger.getLogger(ShippingReport.class);
 
   static SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yy");
 
@@ -34,12 +36,12 @@ public class ShippingReport extends BaseProcessActionHandler {
 
         String shippingInvoiceNo = "";
         if (shippingObj.getGsUniqueno() != null) {
-          shippingInvoiceNo = shippingObj.getGsUniqueno();
+          shippingInvoiceNo = shippingObj.getGsUniqueno().replace("/", "_");
         } else {
-          shippingInvoiceNo = shippingObj.getDocumentNo();
+          shippingInvoiceNo = shippingObj.getDocumentNo().replace("/", "_");
 
         }
-        /* } */
+        log.error("Shipping Invoice Report calling for " + shippingInvoiceNo);
 
         for (OBWSHIPShippingDetails shippinglineObj : shippingObj.getOBWSHIPShippingDetailsList()) {
           if (shippinglineObj.getGoodsShipment() != null) {
@@ -70,7 +72,8 @@ public class ShippingReport extends BaseProcessActionHandler {
               + dateFormat.format(date);
           String linkdocument = PackingListReport.extractForShipping(shippingObj, fileName,
               shippingInvoiceNo, false);
-
+          log.error("Shipping Invoice Report Processed Successfully for " + shippingInvoiceNo
+              + " and doc link is: " + linkdocument);
           JSONObject msgTotal = new JSONObject();
           msgTotal.put("msgType", "info");
           msgTotal.put("msgTitle", "Shipping Report Generated!!" + " Click " + linkdocument
@@ -89,15 +92,13 @@ public class ShippingReport extends BaseProcessActionHandler {
       }
 
     } catch (Exception e) {
-
-      // TODO Auto-generated catch block
+      log.error(e);
       e.printStackTrace();
 
     } finally {
       OBContext.restorePreviousMode();
 
     }
-
     return jsonRequest;
 
   }
