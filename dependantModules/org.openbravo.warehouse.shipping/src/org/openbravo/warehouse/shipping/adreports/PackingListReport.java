@@ -91,7 +91,8 @@ public class PackingListReport extends BaseProcessActionHandler {
 
           String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
               + dateFormat.format(date);
-          String linkdocument = extractForShipping(shippingObj, fileName, shippingInvoiceNo, true);
+          String linkdocument = extractForShipping(shippingObj, fileName,
+              shippingObj.getGsUniqueno(), true);
           log.error("Packing Invoice Report Processed Successfully for " + shippingInvoiceNo
               + " and doc link is: " + linkdocument);
 
@@ -579,7 +580,9 @@ public class PackingListReport extends BaseProcessActionHandler {
                 cell, true);
           }
           CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
-
+          if (queryListObj[6] != null) {
+            boxList.add(queryListObj[6].toString());
+          }
           cell = row.createCell(7);
           if (queryListObj[7] != null) {
             setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
@@ -947,7 +950,12 @@ public class PackingListReport extends BaseProcessActionHandler {
       throws Exception {
 
     try {
-      cell.setCellValue(message);
+      if (message != null) {
+        cell.setCellValue(message);
+      } else {
+        cell.setCellValue("");
+
+      }
       cellStyle = workbook.createCellStyle();
       if (message.equals("Final Delivery Address")
           || message.equalsIgnoreCase("Total Net Weight (KG)")

@@ -71,7 +71,7 @@ public class ShippingReport extends BaseProcessActionHandler {
           String fileName = "ShippingSalesReport_For-" + shippingInvoiceNo + "_on_"
               + dateFormat.format(date);
           String linkdocument = PackingListReport.extractForShipping(shippingObj, fileName,
-              shippingInvoiceNo, false);
+              shippingObj.getGsUniqueno(), false);
           log.error("Shipping Invoice Report Processed Successfully for " + shippingInvoiceNo
               + " and doc link is: " + linkdocument);
           JSONObject msgTotal = new JSONObject();
