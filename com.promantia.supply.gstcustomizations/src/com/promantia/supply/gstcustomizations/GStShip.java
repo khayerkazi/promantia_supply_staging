@@ -157,7 +157,7 @@ public class GStShip extends BaseProcessActionHandler {
   private void generateGstInvoiceNumber(OBWSHIPShipping shipping) {
     try {
       if (shipping.getBusinessPartner().getBusinessPartnerLocationList().get(0)
-          .getLocationAddress().getRegion().getName().equalsIgnoreCase("India")) {
+          .getLocationAddress().getCountry().getName().equalsIgnoreCase("India")) {
         String bpGstinNumber = getBusinessPartnerGstinNumber(shipping);
         log.info("bp Gstin Number : " + bpGstinNumber);
 

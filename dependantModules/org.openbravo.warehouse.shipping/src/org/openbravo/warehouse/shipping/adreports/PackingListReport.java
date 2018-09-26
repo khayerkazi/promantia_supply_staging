@@ -132,6 +132,8 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     HSSFWorkbook workbook = new HSSFWorkbook();
     HSSFSheet sheet = null;
+    int TotalRowCount = 0;
+    String strFormula = "";
     try {
       if (isPackingReport) {
         sheet = workbook.createSheet("Packing Report");
@@ -624,15 +626,37 @@ public class PackingListReport extends BaseProcessActionHandler {
       CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
 
       if (isPackingReport) {
+        /*
+         * cell = row.createCell(6); setCellvalueWithAlignment(false, true, true, true, workbook,
+         * boldFont, row, "0", true, cell, true); CellUtil.setAlignment(cell, workbook,
+         * CellStyle.ALIGN_CENTER);
+         */
+        TotalRowCount = rowNum - 1;
         cell = row.createCell(6);
-        setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row, "0", true,
-            cell, true);
+        if (isPackingReport) {
+          strFormula = "SUM(G19:G" + TotalRowCount + ")";
+          cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+          cell.setCellFormula(strFormula);
+        }
         CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
-        cell = row.createCell(7);
-        setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row, "0", true,
-            cell, true);
+        setCellvalueWithAlignment(true, true, true, true, workbook, boldFont, row, "0", true, cell,
+            true);
 
+        cell = row.createCell(7);
+        /*
+         * setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row, "0", true,
+         * cell, true);
+         * 
+         * CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
+         */
+        if (isPackingReport) {
+          strFormula = "SUM(H19:H" + TotalRowCount + ")";
+          cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+          cell.setCellFormula(strFormula);
+        }
         CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
+        setCellvalueWithAlignment(true, true, true, true, workbook, boldFont, row, "0", true, cell,
+            true);
 
         cell = row.createCell(8);
         setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row,
@@ -737,10 +761,21 @@ public class PackingListReport extends BaseProcessActionHandler {
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           "Total Net Weight (KG)", true, cell, false);
       cell = row.createCell(1);
+      /*
+       * setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true,
+       * cell, null);
+       */
+      if (isPackingReport) {
+        strFormula = "SUM(G19:G" + TotalRowCount + ")";
+        cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+        cell.setCellFormula(strFormula);
+      }
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true, cell,
           null);
+      CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
 
       row = sheet.createRow(rowNum++);
+      cell = row.createCell(0);
       if (isPackingReport) {
         setCellBolderleft(workbook, boldFont, row, 10);
       } else {
@@ -748,9 +783,17 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       }
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
-          "Total Gross Weight (KG)", true, row.createCell(0), false);
-      setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true,
-          row.createCell(1), null);
+          "Total Gross Weight (KG)", true, cell, false);
+      cell = row.createCell(1);
+
+      if (isPackingReport) {
+        strFormula = "SUM(H19:H" + TotalRowCount + ")";
+        cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+        cell.setCellFormula(strFormula);
+      }
+      setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true, cell,
+          null);
+      CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
 
       row = sheet.createRow(rowNum++);
       if (isPackingReport) {
@@ -951,7 +994,13 @@ public class PackingListReport extends BaseProcessActionHandler {
 
     try {
       if (message != null) {
-        cell.setCellValue(message);
+        if (message.matches("[0-9]+")) {
+          cell.setCellValue(Integer.parseInt(message));
+
+        } else {
+          cell.setCellValue(message);
+        }
+        // cell.setCellValue(message);
       } else {
         cell.setCellValue("");
 

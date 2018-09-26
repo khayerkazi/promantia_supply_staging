@@ -37,13 +37,13 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
     boolean isStandard = false;
     String orgId;
     Organization purchaseOrg = null;
-	try {
-		orgId = purchaseOrderHeader.getString("organization");
-	    purchaseOrg=OBDal.getInstance().get(Organization.class, orgId);
-	} catch (JSONException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+    try {
+      orgId = purchaseOrderHeader.getString("organization");
+      purchaseOrg = OBDal.getInstance().get(Organization.class, orgId);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
     try {
       isAutoSalesOrder = "true".equals(purchaseOrderHeader.getString("swIsautoOrder"));
@@ -51,14 +51,14 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
           purcharOrderLine.getString("product"));
       if (product.getClPcbQty() != null) {
         isPCBProduct = product.getClPcbQty().compareTo(BigDecimal.ZERO) == 1;
-        //System.out.println(product.getClLogRec());
+        // System.out.println(product.getClLogRec());
         isStandard = STANDARD_LOGISTIC_RECHARGE.equals(product.getClLogRec())
             || SPECIAL_CATEGORY_LOGISTIC_RECHARGE.equals(product.getClLogRec());
       }
     } catch (JSONException e) {
       Log.error(e.getMessage(), e);
     }
-    //if(!isStandard)
+    // if(!isStandard)
     if (!isStandard) {
       return true;
     } else {
@@ -84,9 +84,11 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
    */
   public HashMap<String, List<SalesOrderLineInformation>> distribute(
       JSONObject purchaseOrderHeader, JSONObject purcharOrderLine,
-      HashMap<String, List<SalesOrderLineInformation>> salesOrdersMapParameter,DwhrWhruleConfig storeWarehouseRule,
-      WarehouseRule warehouseRule, HashMap<String, BigDecimal> remainigQtyToBook,
-      HashMap<Warehouse, BigDecimal> alreadyReservedStock, HashMap<String,DWHR_DistributeMonitor> paramMonitor) {
+      HashMap<String, List<SalesOrderLineInformation>> salesOrdersMapParameter,
+      DwhrWhruleConfig storeWarehouseRule, WarehouseRule warehouseRule,
+      HashMap<String, BigDecimal> remainigQtyToBook,
+      HashMap<Warehouse, BigDecimal> alreadyReservedStock,
+      HashMap<String, DWHR_DistributeMonitor> paramMonitor) {
 
     // Initialize some variables
     HashMap<String, List<SalesOrderLineInformation>> salesOrderMap = salesOrdersMapParameter;
@@ -114,10 +116,10 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
 
       // Initialize monitor
       if (paramMonitor.get("monitor") == null) {
-          monitor = createNewMonitor(organization, product, strPurchaseOrderId,
-              purchaseOrderIdentifier, strPurchaseOrderLineId);
-        } else {
-          monitor = paramMonitor.get("monitor");
+        monitor = createNewMonitor(organization, product, strPurchaseOrderId,
+            purchaseOrderIdentifier, strPurchaseOrderLineId);
+      } else {
+        monitor = paramMonitor.get("monitor");
       }
     } catch (JSONException e) {
       Log.error("DefaultWarehouseRule.java distribute method", e);
@@ -135,7 +137,8 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
     this.monitorMessage = this.monitorMessage + "\nRemaining Ordered Quantity of Product: " + qty;
 
     // Retrieve OnHand Warehouses
-    OBCriteria<DwhrWarehouseConfig> obc = OBDal.getInstance().createCriteria(DwhrWarehouseConfig.class);
+    OBCriteria<DwhrWarehouseConfig> obc = OBDal.getInstance().createCriteria(
+        DwhrWarehouseConfig.class);
     obc.add(Restrictions.eq(DwhrWarehouseConfig.PROPERTY_WAREHOUSERULECONFIG, storeWarehouseRule));
     obc.addOrderBy(DwhrWarehouseConfig.PROPERTY_PRIORITY, true);
 
@@ -191,10 +194,10 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
     if (previousMessage != null) {
       this.monitorMessage = monitor.getMonitor() + this.monitorMessage;
     }
-    remainigQtyToBook.put("remainingQty",qty);
+    remainigQtyToBook.put("remainingQty", qty);
     monitor.setMonitor(this.monitorMessage);
     OBDal.getInstance().save(monitor);
-    paramMonitor.put("monitor",monitor);
+    paramMonitor.put("monitor", monitor);
 
     return salesOrderMap;
 
@@ -205,13 +208,17 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
    */
   private BigDecimal getStockAvailable(Warehouse warehouse, Product product,
       BigDecimal alreadyReservedStock) {
+    BigDecimal availableQty = BigDecimal.ZERO;
     BigDecimal reservedQty = getReservedQty(warehouse, product).add(alreadyReservedStock);
     BigDecimal qtyInWarehouse = getActuallQty(warehouse, product);
-    BigDecimal availableQty = qtyInWarehouse.subtract(reservedQty);
-
+    if (reservedQty.compareTo(BigDecimal.ZERO) > 0) {
+      availableQty = qtyInWarehouse.subtract(reservedQty);
+    } else {
+      availableQty = qtyInWarehouse;
+    }
     this.monitorMessage = this.monitorMessage + "\n\t\tTotal Available Stock: " + availableQty
         + "\tOn Hand Stock: " + qtyInWarehouse + "\tReserved Stock: " + reservedQty;
-       getStockPerLocatior(warehouse, product);
+    getStockPerLocatior(warehouse, product);
     return availableQty;
   }
 
@@ -245,7 +252,7 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
       }
 
     } catch (Exception e) {
-       e.printStackTrace();
+      e.printStackTrace();
     }
 
   }
