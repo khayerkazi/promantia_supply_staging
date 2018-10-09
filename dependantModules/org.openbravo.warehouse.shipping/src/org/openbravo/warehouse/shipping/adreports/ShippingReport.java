@@ -69,7 +69,7 @@ public class ShippingReport extends BaseProcessActionHandler {
         if (parameters.containsKey("_action")) {
 
           String fileName = "ShippingSalesReport_For-" + shippingInvoiceNo + "_on_"
-              + dateFormat.format(date);
+              + dateFormat.format(shippingObj.getShipmentDate());
           String linkdocument = PackingListReport.extractForShipping(shippingObj, fileName,
               shippingObj.getGsUniqueno(), false);
           log.error("Shipping Invoice Report Processed Successfully for " + shippingInvoiceNo

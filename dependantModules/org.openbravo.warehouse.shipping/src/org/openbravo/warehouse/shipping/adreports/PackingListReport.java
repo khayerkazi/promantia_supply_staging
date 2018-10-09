@@ -40,6 +40,7 @@ public class PackingListReport extends BaseProcessActionHandler {
   private static String FILE_NAME = ""; // GSTIN_TAXPERIOD_DateTime.xls
   static SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yy");
   static HSSFCellStyle cellStyle = null;
+  static HSSFSheet sheet = null;
 
   @Override
   protected JSONObject doExecute(Map<String, Object> parameters, String content) {
@@ -90,7 +91,7 @@ public class PackingListReport extends BaseProcessActionHandler {
         if (parameters.containsKey("_action")) {
 
           String fileName = "PackingSalesReport_For-" + shippingInvoiceNo + "_on_"
-              + dateFormat.format(date);
+              + dateFormat.format(shippingObj.getShipmentDate());
           String linkdocument = extractForShipping(shippingObj, fileName,
               shippingObj.getGsUniqueno(), true);
           log.error("Packing Invoice Report Processed Successfully for " + shippingInvoiceNo
@@ -107,6 +108,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           actions.put(msgTotalAction);
           jsonRequest.put("messege", msgTotal);
           jsonRequest.put("responseActions", actions);
+          sheet = null;
 
           return jsonRequest;
 
@@ -131,7 +133,6 @@ public class PackingListReport extends BaseProcessActionHandler {
       String shippingInvoiceNo, boolean isPackingReport) throws Exception {
 
     HSSFWorkbook workbook = new HSSFWorkbook();
-    HSSFSheet sheet = null;
     int TotalRowCount = 0;
     String strFormula = "";
     try {
@@ -151,159 +152,143 @@ public class PackingListReport extends BaseProcessActionHandler {
       setProductDetailsHeader(workbook, sheet, boldFont, 17, isPackingReport);
 
       row = sheet.createRow(14);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row,
           "Place Of Discharge", true, cell, false);
-      // sheet.autoSizeColumn(0);
-
       cell = row.createCell(1);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row, "Sri Lanka",
           false, cell, false);
-
       cell = row.createCell(2);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "In.transport Ref.", true, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(15);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "Shipped by",
           true, cell, false);
       sheet.autoSizeColumn(0);
-
       cell = row.createCell(2);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Equipment NB", true, cell, false);
       sheet.autoSizeColumn(2);
-
       cell = row.createCell(5);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Notify Party", true, cell, false);
       sheet.autoSizeColumn(5);
-
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Same as Consignee", false, cell, false);
       // sheet.autoSizeColumn(7);
-      row = sheet.createRow(16);
       if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
+        cell = row.createCell(10);
       } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
+        cell = row.createCell(9);
       }
+      setCellBolderleft(workbook, boldFont, row, cell);
+
+      row = sheet.createRow(16);
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(1);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "Invoice No",
           true, cell, false);
       sheet.autoSizeColumn(0);
-
       cell = row.createCell(1);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           shippingInvoiceNo, false, cell, false);
       sheet.autoSizeColumn(1);
-
       cell = row.createCell(5);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row, "Shipper",
           true, cell, false);
       sheet.autoSizeColumn(5);
-
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Decathlon Sports India Pvt Ltd", false, cell, false);
-
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
       // sheet.autoSizeColumn(2);
 
       row = sheet.createRow(2);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Survey No - 78/10", false, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(3);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "A2 - Chikkajala Village", false, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(4);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "Date", true,
           cell, false);
       sheet.autoSizeColumn(0);
-
       cell = row.createCell(1);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           formatter.format(shippingObj.getShipmentDate()), false, cell, false);
       sheet.autoSizeColumn(1);
-
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "562157 Bangalore", false, cell, false);
-      row = sheet.createRow(5);
       if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
+        cell = row.createCell(10);
       } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
+        cell = row.createCell(9);
       }
+      setCellBolderleft(workbook, boldFont, row, cell);
+
+      row = sheet.createRow(5);
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row, "India",
           false, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(7);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
@@ -314,14 +299,14 @@ public class PackingListReport extends BaseProcessActionHandler {
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "No. 249, Stanley Thilakarathne Mawatha,", false, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(8);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
@@ -332,101 +317,89 @@ public class PackingListReport extends BaseProcessActionHandler {
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Nugegoda, Sri Lanka.", false, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(9);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
       cell = row.createCell(1);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "TEL:  +94 112818345", false, cell, false);
-
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "TEL:  +94 112818345", false, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(10);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
       cell = row.createCell(1);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Mobile:  +94 77 9446832", false, cell, false);
-
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Mobile:  +94 77 9446832", false, cell, false);
       if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
+        cell = row.createCell(10);
       } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
+        cell = row.createCell(9);
       }
+      setCellBolderleft(workbook, boldFont, row, cell);
+
       row = sheet.createRow(11);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "ETD", true,
           cell, false);
       sheet.autoSizeColumn(0);
-
       cell = row.createCell(2);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row, "ATD", true,
           cell, false);
       sheet.autoSizeColumn(2);
-
       cell = row.createCell(5);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row, "Cost Center",
           true, cell, false);
       sheet.autoSizeColumn(5);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(12);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "ATD", true,
           cell, false);
       sheet.autoSizeColumn(0);
-
       cell = row.createCell(2);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Place Of Loading", true, cell, false);
       // sheet.autoSizeColumn(2);
-
       cell = row.createCell(5);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row, "Incoterm",
           true, cell, false);
       sheet.autoSizeColumn(5);
-
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
       // sheet.autoSizeColumn(5);
 
       row = sheet.createRow(0);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       if (isPackingReport) {
         cell.setCellValue("PACKING LIST");
@@ -441,14 +414,14 @@ public class PackingListReport extends BaseProcessActionHandler {
       }
 
       CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(6);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row,
           "Final Delivery Address", true, cell, false);
@@ -466,6 +439,12 @@ public class PackingListReport extends BaseProcessActionHandler {
       cell = row.createCell(6);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Decathlon Lanka Sport Access (Pvt) Ltd.", false, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       int rowNum = 18;
       Set<String> boxList = new HashSet<String>();
@@ -742,21 +721,15 @@ public class PackingListReport extends BaseProcessActionHandler {
         sheet.addMergedRegion(CellRangeAddress.valueOf("F" + rowNum + ":I" + nextFour + ""));
 
       }
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
 
-      }
       CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
-
-      row = sheet.createRow(rowNum++);
       if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
+        cell = row.createCell(10);
       } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
+        cell = row.createCell(9);
       }
+      setCellBolderleft(workbook, boldFont, row, cell);
+      row = sheet.createRow(rowNum++);
       cell = row.createCell(0);
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           "Total Net Weight (KG)", true, cell, false);
@@ -773,15 +746,15 @@ public class PackingListReport extends BaseProcessActionHandler {
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true, cell,
           null);
       CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
-
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
       row = sheet.createRow(rowNum++);
       cell = row.createCell(0);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
 
-      }
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           "Total Gross Weight (KG)", true, cell, false);
       cell = row.createCell(1);
@@ -794,42 +767,49 @@ public class PackingListReport extends BaseProcessActionHandler {
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true, cell,
           null);
       CellUtil.setAlignment(cell, workbook, CellStyle.ALIGN_CENTER);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(rowNum++);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           "Total No. of Packages", true, row.createCell(0), false);
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           String.valueOf(boxList.size()), true, row.createCell(1), null);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(rowNum++);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
 
-      }
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           "Total No. of Pallets", true, row.createCell(0), false);
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true,
           row.createCell(1), null);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(rowNum++);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
-
-      }
       setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row, "Total Pieces",
           true, row.createCell(0), false);
       setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row,
           String.valueOf(totalQty), true, row.createCell(1), null);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       row = sheet.createRow(rowNum++);
       // setCellBolderleft(workbook, boldFont, row, 10);
@@ -845,12 +825,7 @@ public class PackingListReport extends BaseProcessActionHandler {
         setCellBolderTop(workbook, boldFont, row, 9);
       }
       row = sheet.createRow(13);
-      if (isPackingReport) {
-        setCellBolderleft(workbook, boldFont, row, 10);
-      } else {
-        setCellBolderleft(workbook, boldFont, row, 9);
 
-      }
       cell = row.createCell(0);
       setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", true, cell,
           false);
@@ -858,6 +833,12 @@ public class PackingListReport extends BaseProcessActionHandler {
       cell = row.createCell(5);
       setCellvalueWithAlignment(false, false, false, false, workbook, boldFont, row,
           "Terms Of Payment", true, cell, false);
+      if (isPackingReport) {
+        cell = row.createCell(10);
+      } else {
+        cell = row.createCell(9);
+      }
+      setCellBolderleft(workbook, boldFont, row, cell);
 
       FILE_NAME = fileName + ".xls";
 
@@ -887,7 +868,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       for (Object field : cellData) {
 
         final HSSFCell cell = row.createCell(colNum);
-        row.setHeight((short) 0);
+        row.setHeightInPoints((short) 2 * sheet.getDefaultRowHeightInPoints());
         HSSFCellStyle cellStyle = workbook.createCellStyle();
         // int
 
@@ -1010,7 +991,7 @@ public class PackingListReport extends BaseProcessActionHandler {
           || message.equalsIgnoreCase("Total Net Weight (KG)")
           || message.equalsIgnoreCase("Total Gross Weight (KG)")
           || message.equalsIgnoreCase("Total No. of Packages")) {
-        row.setHeight((short) 0);
+        row.setHeightInPoints((short) 2 * sheet.getDefaultRowHeightInPoints());
         cellStyle.setVerticalAlignment(CellStyle.ALIGN_FILL);
         cellStyle.setWrapText(true);
       }
@@ -1086,11 +1067,10 @@ public class PackingListReport extends BaseProcessActionHandler {
     }
   }
 
-  public static void setCellBolderleft(HSSFWorkbook workbook, HSSFFont boldFont, Row row,
-      int cellCount) throws Exception {
+  public static void setCellBolderleft(HSSFWorkbook workbook, HSSFFont boldFont, Row row, Cell cell)
+      throws Exception {
     try {
-      Cell cell;
-      cell = row.createCell(cellCount);
+
       HSSFCellStyle centerAlignStyleWithBold = workbook.createCellStyle();
 
       centerAlignStyleWithBold.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
