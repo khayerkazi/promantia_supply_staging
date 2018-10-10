@@ -322,7 +322,8 @@ public class PackingListReport extends BaseProcessActionHandler {
       } else {
         cell = row.createCell(9);
       }
-      setCellBolderleft(workbook, boldFont, row, cell);
+      setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", false,
+          cell, false);
 
       row = sheet.createRow(9);
       cell = row.createCell(0);
@@ -339,7 +340,8 @@ public class PackingListReport extends BaseProcessActionHandler {
       } else {
         cell = row.createCell(9);
       }
-      setCellBolderleft(workbook, boldFont, row, cell);
+      setCellvalueWithAlignment(true, false, false, false, workbook, boldFont, row, "", false,
+          cell, false);
 
       row = sheet.createRow(10);
       cell = row.createCell(0);
