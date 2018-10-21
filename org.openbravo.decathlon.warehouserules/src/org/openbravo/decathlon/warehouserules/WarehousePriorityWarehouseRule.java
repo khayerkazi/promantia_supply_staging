@@ -208,14 +208,11 @@ public class WarehousePriorityWarehouseRule extends WarehouseRuleImplementation 
    */
   private BigDecimal getStockAvailable(Warehouse warehouse, Product product,
       BigDecimal alreadyReservedStock) {
-    BigDecimal availableQty = BigDecimal.ZERO;
     BigDecimal reservedQty = getReservedQty(warehouse, product).add(alreadyReservedStock);
     BigDecimal qtyInWarehouse = getActuallQty(warehouse, product);
-    if (reservedQty.compareTo(BigDecimal.ZERO) > 0) {
-      availableQty = qtyInWarehouse.subtract(reservedQty);
-    } else {
-      availableQty = qtyInWarehouse;
-    }
+
+    BigDecimal availableQty = qtyInWarehouse.subtract(reservedQty);
+
     this.monitorMessage = this.monitorMessage + "\n\t\tTotal Available Stock: " + availableQty
         + "\tOn Hand Stock: " + qtyInWarehouse + "\tReserved Stock: " + reservedQty;
     getStockPerLocatior(warehouse, product);

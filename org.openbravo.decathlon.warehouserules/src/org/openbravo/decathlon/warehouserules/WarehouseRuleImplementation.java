@@ -138,7 +138,7 @@ public abstract class WarehouseRuleImplementation {
     if (qryResult != null && qryResult.size() > 0) {
       totalQty = qryResult.get(0);
     }
-    if (totalQty != null && totalQty.compareTo(BigDecimal.ZERO) > 0)
+    if (totalQty != null)
       return totalQty;
     else
       return BigDecimal.ZERO;
@@ -149,7 +149,7 @@ public abstract class WarehouseRuleImplementation {
    */
   public BigDecimal getReservedQty(Warehouse warehouse, Product product) {
     BigDecimal resrvdQty = BigDecimal.ZERO;
-    String qry = "select sum(reservedQty) from MaterialMgmtStorageDetail sd where sd.storageBin.warehouse.id="
+    String qry = "select sum(reservedQty) from MaterialMgmtStorageDetail sd where sd.reservedQty>0 and sd.storageBin.warehouse.id="
         + " :warehouseId and sd.product.id= :productId and sd.storageBin.oBWHSType ='ST'  and sd.storageBin.active='Y'";
     Query storageQuery = OBDal.getInstance().getSession().createQuery(qry);
     storageQuery.setParameter("warehouseId", warehouse.getId());
@@ -159,7 +159,7 @@ public abstract class WarehouseRuleImplementation {
     if (qryResult != null && qryResult.size() > 0) {
       resrvdQty = qryResult.get(0);
     }
-    if (resrvdQty != null && resrvdQty.compareTo(BigDecimal.ZERO) > 0)
+    if (resrvdQty != null)
       return resrvdQty;
     else
       return BigDecimal.ZERO;
