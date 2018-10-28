@@ -55,10 +55,10 @@ public class GeneralMasterSerializer {
       genClassCriteria.add(Restrictions.ge(Sequence.PROPERTY_CREATIONDATE, newDate));
     }
 
-    /*if (master.equals("Price")) {
-      genClassCriteria.add(Restrictions.eq(Product.PROPERTY_ORGANIZATION, org));
-    }
-    */
+    /*
+     * if (master.equals("Price")) {
+     * genClassCriteria.add(Restrictions.eq(Product.PROPERTY_ORGANIZATION, org)); }
+     */
     genClassCriteria.setFilterOnActive(false);
     genClassCriteria.setFilterOnReadableOrganization(false);
     genClassCriteria.setFetchSize(100);
@@ -204,16 +204,16 @@ public class GeneralMasterSerializer {
     try {
       OBContext.getOBContext().setAdminMode(true);
       if (master.equals("businessPartner")) {
-    	  String query1 = "bp where bp.updated > '" + newDate + "' and bp.id in (select m." + master
-    	          + ".id from OrganizationInformation " + " as m )  order by bp.updated asc";
+        String query1 = "bp where bp.updated > '" + newDate + "' and bp.id in (select m." + master
+            + ".id from OrganizationInformation " + " as m )  order by bp.updated asc";
         bpCrit = OBDal.getInstance().createQuery(BusinessPartner.class, query1);
       } else if (master.equals("bpLocation")) {
-    	  String query2 = "bp where bp.updated > '"
-    	          + newDate
-    	          + "' and bp.businessPartner.id in (select m.businessPartner.id from OrganizationInformation "
-    	          + " as m ) order by bp.updated asc";
+        String query2 = "bp where bp.updated > '"
+            + newDate
+            + "' and bp.businessPartner.id in (select m.businessPartner.id from OrganizationInformation "
+            + " as m ) order by bp.updated asc";
         bpCrit = OBDal.getInstance().createQuery(Location.class, query2);
-      } 
+      }
       bpCrit.setFilterOnReadableOrganization(false);
       bpCrit.setFilterOnActive(false);
       ScrollableResults genMasterScrollar = bpCrit.scroll(ScrollMode.FORWARD_ONLY);
@@ -271,7 +271,7 @@ public class GeneralMasterSerializer {
     }
   }
 
-public void getLocation(String updatedTime) throws Exception {
+  public void getLocation(String updatedTime) throws Exception {
 
     String updated = updatedTime;
     updated = updated.replace("_", " ");
@@ -286,15 +286,16 @@ public void getLocation(String updatedTime) throws Exception {
     try {
 
       OBContext.getOBContext().setAdminMode(true);
-      String query1 = "bp where bp.updated > '" + newDate + "' and (bp.id in (select m.locationAddress"
-          + ".id from OrganizationInformation as m) or " +
-          		" bp.id in (select b.locationAddress.id from BusinessPartnerLocation as b where b.businessPartner.id in" +
-          		" (select oi.businessPartner.id from OrganizationInformation "
-    	          + " as oi)))" +
-          		"  order by bp.updated asc";
-             bpCrit = OBDal.getInstance().createQuery(
-            org.openbravo.model.common.geography.Location.class, query1);
-    
+      String query1 = "bp where bp.updated > '"
+          + newDate
+          + "' and (bp.id in (select m.locationAddress"
+          + ".id from OrganizationInformation as m) or "
+          + " bp.id in (select b.locationAddress.id from BusinessPartnerLocation as b where b.businessPartner.id in"
+          + " (select oi.businessPartner.id from OrganizationInformation " + " as oi)))"
+          + "  order by bp.updated asc";
+      bpCrit = OBDal.getInstance().createQuery(org.openbravo.model.common.geography.Location.class,
+          query1);
+
       bpCrit.setFilterOnReadableOrganization(false);
       bpCrit.setFilterOnActive(false);
       ScrollableResults genMasterScrollar = bpCrit.scroll(ScrollMode.FORWARD_ONLY);
@@ -317,7 +318,79 @@ public void getLocation(String updatedTime) throws Exception {
     } finally {
       OBContext.getOBContext().restorePreviousMode();
     }
-  	
-}
+
+  }
+
+  public void getUserDataJson(Class<? extends BaseOBObject> userAccess, String updatedTime,
+      String master, boolean isIndiaRequest, boolean isRoleManual) throws Exception {
+    String updated = updatedTime;
+    updated = updated.replace("_", " ");
+    SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    Date newDate = null;
+    StringBuilder stBuilder = new StringBuilder();
+    try {
+      newDate = formater.parse(updated);
+    } catch (Exception e) {
+      newDate = new Date(new Date().getTime() - 2 * 24 * 3600 * 1000);
+    }
+    if (master.equalsIgnoreCase("Role")) {
+      stBuilder
+          .append("orgAccess where orgAccess.id in (select distinct e.role.id from ADUserRoles e "
+              + " where (e.userContact.ibudIsslandinduser='Y' or e.userContact.ibudIssluser="
+              + isIndiaRequest + "))");
+
+    } else if (master.equalsIgnoreCase("User")) {
+      stBuilder
+          .append("orgAccess where (orgAccess.ibudIsslandinduser='Y' or orgAccess.ibudIssluser="
+              + isIndiaRequest + ")");
+
+    } else if (master.equalsIgnoreCase("TabAccess")) {
+      stBuilder
+          .append("orgAccess where orgAccess.windowAccess.id in (select e.id from ADWindowAccess e where  e.role.id in (select distinct r.role.id from ADUserRoles r "
+              + " where (r.userContact.ibudIsslandinduser='Y' or r.userContact.ibudIssluser="
+              + isIndiaRequest + ")))");
+    } else if (master.equalsIgnoreCase("FieldAccess")) {
+      stBuilder
+          .append("orgAccess where orgAccess.tabAccess.id in (select t.id from ADTabAccess t where    t.windowAccess.id in (select e.id from ADWindowAccess e where  e.role.id in (select distinct r.role.id from ADUserRoles r "
+              + " where (r.userContact.ibudIsslandinduser='Y' or r.userContact.ibudIssluser="
+              + isIndiaRequest + "))))");
+    } else {
+      stBuilder
+          .append("orgAccess where orgAccess.role.id in (select distinct e.role.id from ADUserRoles e "
+              + " where (e.userContact.ibudIsslandinduser='Y' or e.userContact.ibudIssluser="
+              + isIndiaRequest + "))");
+
+    }
+    if (master.equalsIgnoreCase("User")) {
+      stBuilder.append(" and orgAccess.creationDate > '" + newDate + "'");
+
+    } else {
+      stBuilder.append(" and orgAccess.updated > '" + newDate + "'");
+
+    }
+    if (isRoleManual) {
+      stBuilder.append(" and orgAccess.role.manual = '" + SOConstants.Manual + "' ");
+    }
+    stBuilder.append(" order by orgAccess.updated asc");
+    OBQuery<? extends BaseOBObject> orgCrit = OBDal.getInstance().createQuery(userAccess,
+        stBuilder.toString());
+    orgCrit.setFilterOnActive(false);
+    orgCrit.setFilterOnReadableOrganization(false);
+    ScrollableResults genMasterScrollar = orgCrit.scroll(ScrollMode.FORWARD_ONLY);
+    int i = 0;
+
+    List<BaseOBObject> bobList = new ArrayList<BaseOBObject>();
+    while (genMasterScrollar.next()) {
+
+      bobList.add((BaseOBObject) genMasterScrollar.get()[0]);
+      transmitter.sendData((BaseOBObject) genMasterScrollar.get()[0]);
+
+      if (i % 100 == 0) {
+        bobList.clear();
+        OBDal.getInstance().getSession().clear();
+      }
+      i++;
+    }
+  }
 
 }
