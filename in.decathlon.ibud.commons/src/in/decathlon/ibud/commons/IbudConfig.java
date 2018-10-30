@@ -50,8 +50,8 @@ public class IbudConfig {
   }
 
   public static String getGrnValidateTime() {
-    return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty(
-        "ibud.getGrnValidateTime");
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.getGrnValidateTime");
   }
 
   public static String getPosHost() {
@@ -72,18 +72,73 @@ public class IbudConfig {
   }
 
   public static String getWebPosUrl() {
-	  return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("crm.webservice.geturl");
-	  }
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("crm.webservice.geturl");
+  }
+
   public static String getErpUrl() {
-	  return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("erpurl");
-	  }
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("erpurl");
+  }
+
   public static String getErpuser() {
-	  return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("username");
-	  }
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("username");
+  }
+
   public static String geterppwd() {
-	  return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("password");
-	  }
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("password");
+  }
+
   public static String getcontextUrl() {
-	  return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("ERPInventoryContextUrl");
-	  }
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ERPInventoryContextUrl");
+  }
+
+  public static String getSupplySLUsername() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slusername").toString();
+  }
+
+  public static String getSupplySLPassword() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slpassword").toString();
+  }
+
+  public static String getSupplySLHost() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("ibud.slhost")
+        .toString();
+  }
+
+  public static int getSupplySLPort() {
+    return Integer.parseInt(OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slport"));
+  }
+
+  public static String getSupplySLRowCount() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slrowCount");
+  }
+
+  public static String getSLDuration() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slduration");
+  }
+
+  public static String getcsvSLFile() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slcsvpath");
+  }
+
+  public static String getSupplySLServer() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("ibud.slserver");
+  }
+
+  public static String getSupplySLContext() {
+    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slcontext");
+  }
+
+  public static int getSLLastUpdatedDays() {
+    return Integer.parseInt(OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.sllastUpdatedDays"));
+  }
 }

@@ -42,7 +42,8 @@ public class JSONWebServiceInvocationHelper {
     OBCriteria<IbudServerTime> ibudServerTimeCriteria = OBDal.getInstance().createCriteria(
         IbudServerTime.class);
     ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_SERVICEKEY, serviceKey));
-    ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_CLIENT ,OBContext .getOBContext().getCurrentClient()));
+    ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_CLIENT, OBContext
+        .getOBContext().getCurrentClient()));
     ibudServerTimeCriteria.setMaxResults(1);
     List<IbudServerTime> ibudServerTimeList = ibudServerTimeCriteria.list();
 
@@ -104,17 +105,32 @@ public class JSONWebServiceInvocationHelper {
       int maxRowCount = 1;
       String host = "";
       int port = 0;
+      String OBpassword = "";
       String url = "";
       int lastUpdatedDays = 0;
+      String OBserName = "";
+      String obContext = "";
       IbudConfig config = new IbudConfig();
-
-      final String userName = config.getSupplyUsername();
-      final String password = config.getSupplyPassword();
-      host = config.getSupplyHost();
-      port = config.getSupplyPort();
-      url = config.getSupplyServer();
-      lastUpdatedDays = config.getLastUpdatedDays();
-      final String context = config.getSupplyContext().concat("/ws/");
+      if (additionalQueryStringParamters.equals("ReqForSL")) {
+        OBserName = config.getSupplySLUsername();
+        OBpassword = config.getSupplySLPassword();
+        host = config.getSupplySLHost();
+        port = config.getSupplySLPort();
+        url = config.getSupplySLServer();
+        lastUpdatedDays = config.getLastUpdatedDays();
+        obContext = config.getSupplySLContext().concat("/ws/");
+      } else {
+        OBserName = config.getSupplyUsername();
+        OBpassword = config.getSupplyPassword();
+        host = config.getSupplyHost();
+        port = config.getSupplyPort();
+        url = config.getSupplyServer();
+        lastUpdatedDays = config.getLastUpdatedDays();
+        obContext = config.getSupplyContext().concat("/ws/");
+      }
+      final String context = obContext;
+      final String userName = OBserName;
+      final String password = OBpassword;
 
       url = "http://" + host + ":" + port + "/" + context + wsName;
 
@@ -132,7 +148,8 @@ public class JSONWebServiceInvocationHelper {
         url = url.concat(firstParam ? "?" : "&").concat("rowCount=" + maxRowCount);
         firstParam = false;
       }
-      if (!additionalQueryStringParamters.equals("")) {
+      if (!additionalQueryStringParamters.equals("")
+          && !additionalQueryStringParamters.equals("ReqForSL")) {
         url = url.concat(firstParam ? "?" : "&").concat(additionalQueryStringParamters);
         firstParam = false;
       }
@@ -229,7 +246,7 @@ public class JSONWebServiceInvocationHelper {
           obj = new JSONObject(output);
 
         }
-        
+
       } catch (Exception e) {
         e.printStackTrace();
         throw e;
