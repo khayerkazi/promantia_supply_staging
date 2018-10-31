@@ -34,7 +34,7 @@ public class OrganizationSyncMaster extends DalBaseProcess {
       log.debug("Inside MasterSyncClient class to GET master data");
       logger.log("Requesting Supply to get data");
       masterHandler.sendGetrequest(true, "Organization", "in.decathlon.ibud.masters.OrgSyncWS",
-          processid);
+          processid, logger);
       BusinessEntityMapper.setLastUpdatedTime(updated, "Organization");
     }
 
@@ -107,19 +107,19 @@ public class OrganizationSyncMaster extends DalBaseProcess {
       log.debug(" Company Image in json " + companyImageJsonArray);
       logger.log(" Total no of companyImage in json" + companyImageJsonArray.length());
 
-      JSONHelper.saveJSONObject(clientJsonArray);
-      JSONHelper.saveJSONObject(generalLedgerJsonArray);
+      JSONHelper.saveJSONObject(clientJsonArray, logger);
+      JSONHelper.saveJSONObject(generalLedgerJsonArray, logger);
       OBContext.setAdminMode(true);
-      JSONHelper.saveJSONObject(organizationJsonArray);
+      JSONHelper.saveJSONObject(organizationJsonArray, logger);
       OBContext.restorePreviousMode();
 
-      JSONHelper.saveJSONObject(locationJsonArray);
-      JSONHelper.saveJSONObject(contactJsonArray);
-      JSONHelper.saveJSONObject(bPartnerCatJsonArray);
-      JSONHelper.saveJSONObject(bPartnerJsonArray);
+      JSONHelper.saveJSONObject(locationJsonArray, logger);
+      JSONHelper.saveJSONObject(contactJsonArray, logger);
+      JSONHelper.saveJSONObject(bPartnerCatJsonArray, logger);
+      JSONHelper.saveJSONObject(bPartnerJsonArray, logger);
 
       OBContext.setAdminMode(true);
-      JSONHelper.saveJSONObject(organizationInfoJsonArray);
+      JSONHelper.saveJSONObject(organizationInfoJsonArray, logger);
       OBContext.restorePreviousMode();
 
       JSONObject lastOrganizationInfo = organizationInfoJsonArray

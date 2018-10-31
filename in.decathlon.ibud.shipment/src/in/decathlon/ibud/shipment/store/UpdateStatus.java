@@ -73,11 +73,11 @@ public class UpdateStatus extends DalBaseProcess {
           if (duration != null) {
             storeJson = statusHandler.sendGetrequest(true, "StatusUpdate",
                 "in.decathlon.ibud.shipment.POStatusUpdateWS", "bPartnerId=" + orgBp.getId()
-                    + "&duration=" + duration, processid);
+                    + "&duration=" + duration, processid, logger);
           } else {
             storeJson = statusHandler.sendGetrequest(true, "StatusUpdate",
                 "in.decathlon.ibud.shipment.POStatusUpdateWS", "bPartnerId=" + orgBp.getId(),
-                processid);
+                processid, logger);
           }
           logger.log("\n documents taken for org: " + org.getName() + " are " + storeJson);
 
@@ -124,7 +124,7 @@ public class UpdateStatus extends DalBaseProcess {
       final JSONWebServiceInvocationHelper shippertHandler = new JSONWebServiceInvocationHelper();
       log.debug("Requesting supply to get shipment of document no starting with " + orgId);
       JSONObject jsonObj = shippertHandler.sendGetrequest(true, "obwship",
-          "in.decathlon.ibud.shipment.CopyTruck", "orgId=" + orgId, processid);
+          "in.decathlon.ibud.shipment.CopyTruck", "orgId=" + orgId, processid, logger);
     }
 
     catch (Exception e) {
@@ -348,7 +348,7 @@ public class UpdateStatus extends DalBaseProcess {
       final JSONWebServiceInvocationHelper shipmentHandler = new JSONWebServiceInvocationHelper();
       log.debug("Requesting supply to get shipment of document no starting with " + orgId);
       JSONObject jsonObj = shipmentHandler.sendGetrequest(true, "ShipmentInOut",
-          "in.decathlon.ibud.shipment.ShipmentWS", "orgId=" + orgId, processid);
+          "in.decathlon.ibud.shipment.ShipmentWS", "orgId=" + orgId, processid, logger);
     } catch (Exception e) {
       BusinessEntityMapper.rollBackNlogError(e, processid, errorObject);
       e.printStackTrace();

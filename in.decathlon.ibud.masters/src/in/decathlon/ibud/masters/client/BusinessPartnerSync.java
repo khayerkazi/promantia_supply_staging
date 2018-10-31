@@ -25,7 +25,7 @@ public class BusinessPartnerSync extends DalBaseProcess {
     try {
       log.debug("Inside MasterSyncClient class to GET master data");
       JSONObject jsonObj = masterHandler.sendGetrequest(true, "Partner",
-          "in.decathlon.ibud.masters.PartnerWS", processid);
+          "in.decathlon.ibud.masters.PartnerWS", processid, logger);
 
       boolean result = processServerData(jsonObj);
     } catch (Exception e) {

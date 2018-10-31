@@ -31,7 +31,8 @@ public class UserSync extends DalBaseProcess {
       String updated = format.format(date);
       log.debug("Inside user sync class to GET master data");
       logger.log("Requesting Supply to get data");
-      masterHandler.sendGetrequest(true, "User", "in.decathlon.ibud.masters.UserSyncWS", processid);
+      masterHandler.sendGetrequest(true, "User", "in.decathlon.ibud.masters.UserSyncWS", processid,
+          logger);
       BusinessEntityMapper.setLastUpdatedTime(updated, "User");
     } catch (Exception e) {
       BusinessEntityMapper.rollBackNlogError(e, processid, null);
@@ -101,23 +102,23 @@ public class UserSync extends DalBaseProcess {
       log.debug(" Company Image in json " + companyImageJsonArray);
       logger.log(" Total no of companyImage in json" + companyImageJsonArray.length());
 
-      boolean client = JSONHelper.saveJSONObject(clientJsonArray);
+      boolean client = JSONHelper.saveJSONObject(clientJsonArray, logger);
 
       // boolean orgType = JSONHelper.saveJSONObject(orgTypeJsonArray);
 
-      boolean generalLedger = JSONHelper.saveJSONObject(generalLedgerJsonArray);
+      boolean generalLedger = JSONHelper.saveJSONObject(generalLedgerJsonArray, logger);
 
-      boolean organization = JSONHelper.saveJSONObject(organizationJsonArray);
+      boolean organization = JSONHelper.saveJSONObject(organizationJsonArray, logger);
 
-      boolean location = JSONHelper.saveJSONObject(locationJsonArray);
+      boolean location = JSONHelper.saveJSONObject(locationJsonArray, logger);
 
-      boolean contact = JSONHelper.saveJSONObject(contactJsonArray);
+      boolean contact = JSONHelper.saveJSONObject(contactJsonArray, logger);
 
-      boolean bpCategory = JSONHelper.saveJSONObject(bPartnerCatJsonArray);
+      boolean bpCategory = JSONHelper.saveJSONObject(bPartnerCatJsonArray, logger);
 
-      boolean bPartner = JSONHelper.saveJSONObject(bPartnerJsonArray);
+      boolean bPartner = JSONHelper.saveJSONObject(bPartnerJsonArray, logger);
 
-      organizationInfo = JSONHelper.saveJSONObject(organizationInfoJsonArray);
+      organizationInfo = JSONHelper.saveJSONObject(organizationInfoJsonArray, logger);
 
       JSONObject lastOrganizationInfo = organizationInfoJsonArray
           .getJSONObject(organizationInfoJsonArray.length() - 1);

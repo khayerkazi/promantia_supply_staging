@@ -32,7 +32,7 @@ public class MasterSyncClient extends DalBaseProcess {
       log.debug("Inside MasterSyncClient class to GET master data");
       logger.log("Requesting Supply to get data");
       JSONObject jsonObj = masterHandler.sendGetrequest(true, "Product",
-          "in.decathlon.ibud.masters.MasterWS", processid);
+          "in.decathlon.ibud.masters.MasterWS", processid, logger);
       BusinessEntityMapper.setLastUpdatedTime(updated, "Product");
     } catch (Exception e) {
       BusinessEntityMapper.rollBackNlogError(e, processid, null);
@@ -143,28 +143,28 @@ public class MasterSyncClient extends DalBaseProcess {
       log.debug("TaxRateAccArray in json  " + taxRateAccArray);
       logger.log(" Total TaxRateAccArray " + taxRateAccArray.length());
 
-      boolean taxCatAddResult = JSONHelper.saveJSONObject(taxCatJsonArray);
-      boolean taxRateAddResult = JSONHelper.saveJSONObject(taxRateArray);
-      boolean taxZoneAddResult = JSONHelper.saveJSONObject(taxZoneArray);
+      boolean taxCatAddResult = JSONHelper.saveJSONObject(taxCatJsonArray, logger);
+      boolean taxRateAddResult = JSONHelper.saveJSONObject(taxRateArray, logger);
+      boolean taxZoneAddResult = JSONHelper.saveJSONObject(taxZoneArray, logger);
       // boolean taxRateAccAddResult = JSONHelper.saveJSONObject(taxRateAccArray);
-      boolean brandAddResult = JSONHelper.saveJSONObject(brandArray);
-      boolean universeAddResult = JSONHelper.saveJSONObject(universeArray);
-      boolean storeDeptAddResult = JSONHelper.saveJSONObject(storeDepArray);
-      boolean deptAddResult = JSONHelper.saveJSONObject(depArray);
-      boolean componentAddResult = JSONHelper.saveJSONObject(componentArray);
-      boolean natOfPrAddResult = JSONHelper.saveJSONObject(natureOfPrArray);
-      boolean colorAddresult = JSONHelper.saveJSONObject(colorJsonArray);
-      boolean modelAddResult = JSONHelper.saveJSONObject(modelJsonArray);
-      boolean productCatAddResult = JSONHelper.saveJSONObject(productCatJsonArray);
-      boolean uomAddResult = JSONHelper.saveJSONObject(uomJsonArray);
-      boolean attrAddResult = JSONHelper.saveJSONObject(attributeArray);
-      boolean attrSetInsAddResult = JSONHelper.saveJSONObject(attributeSetInsArray);
-      boolean attrInsAddResult = JSONHelper.saveJSONObject(attributeInsArray);
-      boolean attrSetAddResult = JSONHelper.saveJSONObject(attributeSetArray);
-      boolean attrUseAddResult = JSONHelper.saveJSONObject(attributeUseArray);
-      boolean attrValueAddResult = JSONHelper.saveJSONObject(attributeValueArray);
+      boolean brandAddResult = JSONHelper.saveJSONObject(brandArray, logger);
+      boolean universeAddResult = JSONHelper.saveJSONObject(universeArray, logger);
+      boolean storeDeptAddResult = JSONHelper.saveJSONObject(storeDepArray, logger);
+      boolean deptAddResult = JSONHelper.saveJSONObject(depArray, logger);
+      boolean componentAddResult = JSONHelper.saveJSONObject(componentArray, logger);
+      boolean natOfPrAddResult = JSONHelper.saveJSONObject(natureOfPrArray, logger);
+      boolean colorAddresult = JSONHelper.saveJSONObject(colorJsonArray, logger);
+      boolean modelAddResult = JSONHelper.saveJSONObject(modelJsonArray, logger);
+      boolean productCatAddResult = JSONHelper.saveJSONObject(productCatJsonArray, logger);
+      boolean uomAddResult = JSONHelper.saveJSONObject(uomJsonArray, logger);
+      boolean attrAddResult = JSONHelper.saveJSONObject(attributeArray, logger);
+      boolean attrSetInsAddResult = JSONHelper.saveJSONObject(attributeSetInsArray, logger);
+      boolean attrInsAddResult = JSONHelper.saveJSONObject(attributeInsArray, logger);
+      boolean attrSetAddResult = JSONHelper.saveJSONObject(attributeSetArray, logger);
+      boolean attrUseAddResult = JSONHelper.saveJSONObject(attributeUseArray, logger);
+      boolean attrValueAddResult = JSONHelper.saveJSONObject(attributeValueArray, logger);
 
-      finalResult = JSONHelper.saveJSONObject(productJsonArray);
+      finalResult = JSONHelper.saveJSONObject(productJsonArray, logger);
       JSONObject lastProduct = productJsonArray.getJSONObject(productJsonArray.length() - 1);
 
       String LastUpdatedTime = lastProduct.getString("updatedTime");

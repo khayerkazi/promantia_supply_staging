@@ -37,7 +37,7 @@ public class ShipmentProcess extends DalBaseProcess {
           log.debug("Pulling GS for organization " + org.getName());
           log.debug("size of org list " + orgList.size());
           jsonObj = shipmentHandler.sendGetrequest(true, "ShipmentInOut",
-              "in.decathlon.ibud.shipment.ShipmentWS", "orgId=" + org.getId(), processid);
+              "in.decathlon.ibud.shipment.ShipmentWS", "orgId=" + org.getId(), processid, logger);
           log.debug(" json object is " + jsonObj);
           logger.log("finished pulling GS for organization " + org.getName());
         }

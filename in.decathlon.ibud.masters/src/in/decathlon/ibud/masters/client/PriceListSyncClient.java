@@ -34,7 +34,7 @@ public class PriceListSyncClient extends DalBaseProcess {
       String updated = format.format(date);
       String wsName = "in.decathlon.ibud.masters.PriceListWS";
       logger.log("Pulling prices \n");
-      jsonWSHandler.sendGetrequest(true, "PriceList", wsName, processid);
+      jsonWSHandler.sendGetrequest(true, "PriceList", wsName, processid, logger);
       logger.log("Pulling prices completed \n");
       BusinessEntityMapper.setLastUpdatedTime(updated, "PriceList");
     } catch (Exception e) {

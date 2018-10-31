@@ -32,6 +32,7 @@ import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
+import org.openbravo.scheduling.ProcessLogger;
 
 public class JSONWebServiceInvocationHelper {
   protected final static Logger log = Logger.getLogger(JSONWebServiceInvocationHelper.class);
@@ -90,13 +91,14 @@ public class JSONWebServiceInvocationHelper {
   }
 
   public JSONObject sendGetrequest(boolean incrementalData, String serviceKey, String wsName,
-      String processid) throws Exception {
-    return sendGetrequest(incrementalData, serviceKey, wsName, "", processid);
+      String processid, ProcessLogger logger) throws Exception {
+    return sendGetrequest(incrementalData, serviceKey, wsName, "", processid, logger);
   }
 
   @SuppressWarnings("static-access")
   public JSONObject sendGetrequest(boolean incrementalData, String serviceKey, String wsName,
-      String additionalQueryStringParamters, String processid) throws Exception {
+      String additionalQueryStringParamters, String processid, ProcessLogger logger)
+      throws Exception {
     ReceiveDataToTruck receiveDataToTruck = new ReceiveDataToTruck();
     CreateGRNService createGRNService = new CreateGRNService();
     JSONObject obj = new JSONObject();
@@ -213,7 +215,7 @@ public class JSONWebServiceInvocationHelper {
             sb.append(ch);
             if ((ch == '}')) {
               if (sb.length() > 2) {
-                JSONReciever.saveData(sb.toString(), processid);
+                JSONReciever.saveData(sb.toString(), processid, logger);
                 sb.setLength(0);
 
               }
