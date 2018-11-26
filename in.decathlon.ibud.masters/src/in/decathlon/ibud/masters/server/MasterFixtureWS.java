@@ -1,5 +1,7 @@
 package in.decathlon.ibud.masters.server;
 
+import in.decathlon.ibud.commons.JSONHelper;
+
 import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,11 +18,19 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.hibernate.SQLQuery;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.criterion.Restrictions;
+import org.openbravo.base.structure.BaseOBObject;
+import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
+import org.openbravo.model.ad.utility.Sequence;
+import org.openbravo.model.common.plm.Product;
 import org.openbravo.service.web.WebService;
 
 public class MasterFixtureWS implements WebService {
   private static final Logger log = Logger.getLogger(MasterFixtureWS.class);
+  SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
   @Override
   public void doDelete(String path, HttpServletRequest request, HttpServletResponse response)
@@ -64,7 +74,7 @@ public class MasterFixtureWS implements WebService {
 
       List<Object[]> subDeptList = getNewEntityData(updatedDate, "cl_subdepartment");
       log.info("subDeptList->" + subDeptList.size());
-      jsonDataObject.put("cl_subdepartment",
+      jsonDataObject.put("cl_subdepartment",// generateJsonWS(CLSubdepartment.class, updated, ""));
           getNewEntityJsonFromList(subDeptList, "cl_subdepartment"));
 
       List<Object[]> deptList = getNewEntityData(updatedDate, "cl_department");
@@ -163,7 +173,7 @@ public class MasterFixtureWS implements WebService {
         jsonObject.put("isactive", m[3]);
         jsonObject.put("created", m[4]);
         jsonObject.put("createdby", m[5]);
-        jsonObject.put("updated", m[6]);
+        jsonObject.put("updated", df.format(new Date()));
         jsonObject.put("updatedby", m[7]);
         jsonObject.put("value", m[8]);
         jsonObject.put("name", m[9]);
@@ -241,7 +251,7 @@ public class MasterFixtureWS implements WebService {
         jsonObject.put("isactive", m[3]);
         jsonObject.put("created", m[4]);
         jsonObject.put("createdby", m[5]);
-        jsonObject.put("updated", m[6]);
+        jsonObject.put("updated", df.format(new Date()));
         jsonObject.put("updatedby", m[7]);
         jsonObject.put("value", m[8]);
         jsonObject.put("name", m[9]);
@@ -379,7 +389,7 @@ public class MasterFixtureWS implements WebService {
         jsonObject.put("isactive", m[5]);
         jsonObject.put("created", m[6]);
         jsonObject.put("createdby", m[7]);
-        jsonObject.put("updated", m[8]);
+        jsonObject.put("updated", df.format(new Date()));
         jsonObject.put("updatedby", m[9]);
         jsonObject.put("pricelist", m[10]);
         jsonObject.put("pricestd", m[11]);
@@ -416,7 +426,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getProductPriceData(Date updatedTime) {
     List<Object[]> priceData = new ArrayList<Object[]>();
     try {
-      String priceSQLQuery = "SELECT pp.m_productprice_id, pp.m_pricelist_version_id, pp.m_product_id, pp.ad_client_id, "
+      String priceSQLQuery = "SELECT DISTINCT pp.m_productprice_id, pp.m_pricelist_version_id, pp.m_product_id, pp.ad_client_id, "
           + " pp.ad_org_id, pp.isactive, pp.created, pp.createdby, pp.updated, pp.updatedby, "
           + "pp.pricelist, pp.pricestd, pp.pricelimit, pp.cost, pp.algorithm, pp.em_cl_fobprice, "
           + "pp.em_cl_mrpprice, pp.em_cl_cessionprice, pp.em_cl_ccunitprice, pp.em_cl_ccueprice, "
@@ -426,7 +436,7 @@ public class MasterFixtureWS implements WebService {
           + "FROM m_productprice pp   join m_product p on p.m_product_id=pp.m_product_id "
           + "join cl_model ml on p.em_cl_model_id=ml.cl_model_id   join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
           + "where b.name in ('FIXTURES','Events','UNKNOWN') "
-          + "and pp.m_pricelist_version_id in (select m_pricelist_version_id from m_pricelist_version where name = 'DMI CATALOGUE') and pp.updated >= ? ";
+          + "and pp.m_pricelist_version_id in (SELECT DISTINCT m_pricelist_version_id from m_pricelist_version where name = 'DMI CATALOGUE') and pp.updated >= ? ";
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(priceSQLQuery);
       query.setDate(0, updatedTime);
       priceData = query.list();
@@ -441,7 +451,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getModelData(Date updatedTime) {
     List<Object[]> modelData = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "SELECT ml.cl_model_id, ml.ad_client_id, ml.ad_org_id, ml.isactive, ml.created, ml.createdby,"
+      String modelSQLQuery = "SELECT DISTINCT ml.cl_model_id, ml.ad_client_id, ml.ad_org_id, ml.isactive, ml.created, ml.createdby,"
           + " ml.updated, ml.updatedby, ml.value, ml.name, ml.cl_subdepartment_id, ml.cl_department_id,"
           + " ml.cl_sport_id, ml.merchandise_category, ml.cl_brand_id, "
           + " ml.typology, ml.cl_natureofproduct_id, ml.cl_component_brand_id, "
@@ -464,7 +474,7 @@ public class MasterFixtureWS implements WebService {
   public List<Object[]> getProductData(Date updatedTime) throws Exception {
     List<Object[]> prdData = new ArrayList<Object[]>();
     try {
-      String productSQLQuery = "SELECT p.m_product_id, p.ad_client_id, p.ad_org_id, p.isactive, p.created, p.createdby, p.updated, p.updatedby, p.value, p.name, "
+      String productSQLQuery = "SELECT DISTINCT p.m_product_id, p.ad_client_id, p.ad_org_id, p.isactive, p.created, p.createdby, p.updated, p.updatedby, p.value, p.name, "
           + " p.upc, p.c_uom_id, p.salesrep_id, p.issummary, p.isstocked, p.ispurchased, p.m_product_category_id, p.volume, p.weight, "
           + " p.c_taxcategory_id, p.producttype, p.m_attributeset_id, p.em_cl_log_rec, p.em_cl_modelname, p.em_cl_modelcode, p.em_cl_size, p.em_cl_pcb_qty, p.em_cl_ue_qty, p.em_cl_grosswt_pcb,"
           + " p.em_cl_volume_pcb, p.em_cl_color_id, p.em_cl_model_id, p.em_cl_age, p.em_cl_gender, p.em_cl_lifestage, p.em_cl_typea, p.em_cl_typeb,"
@@ -486,7 +496,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getProductCategoryData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = " SELECT e.m_product_category_id ,  e.ad_client_id ,  e.ad_org_id  , e. isactive  ,  e.created ,  e.createdby  ,  "
+      String modelSQLQuery = " SELECT DISTINCT e.m_product_category_id ,  e.ad_client_id ,  e.ad_org_id  , e. isactive  ,  e.created ,  e.createdby  ,  "
           + " e.updated  ,  e.updatedby  ,  e.value  ,  e.name  ,  e.description ,  "
           + "e.isdefault  ,e.plannedmargin , e.a_asset_group_id  , e. ad_image_id  , e. issummary  , e. em_ingst_gstproductcode_id    "
           + "FROM m_product_category e   "
@@ -510,7 +520,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getDiscountSchemaData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "  SELECT e.m_discountschema_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
+      String modelSQLQuery = "  SELECT DISTINCT e.m_discountschema_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
           + "   e.createdby, e.updated, e.updatedby, e.name, e.description, e.validfrom,  "
           + " e.discounttype, e.script, e.flatdiscount, e.isquantitybased, e.cumulativelevel,  "
           + " e.processing  "
@@ -537,7 +547,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getPricelistVersionData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "   SELECT e.m_pricelist_version_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,   "
+      String modelSQLQuery = "   SELECT DISTINCT e.m_pricelist_version_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,   "
           + "     e.createdby, e.updated, e.updatedby, e.name, e.description, e.m_pricelist_id,   "
           + " e.m_discountschema_id, e.validfrom, e.proccreate, e.m_pricelist_version_base_id,   "
           + " e.m_pricelist_version_generate  "
@@ -563,7 +573,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getGstProductCodeData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = " SELECT e.ingst_gstproductcode_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,  "
+      String modelSQLQuery = " SELECT DISTINCT e.ingst_gstproductcode_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,  "
           + "       e.createdby, e.updated, e.updatedby, e.value, e.name, e.type, e.description,  "
           + "       e.c_taxcategory_id, e.display, e.isexception   "
           + "    FROM ingst_gstproductcode e    "
@@ -588,7 +598,7 @@ public class MasterFixtureWS implements WebService {
     List<Object[]> modelData = new ArrayList<Object[]>();
     try {
       String keyId = Key + "_id";
-      String modelSQLQuery = "SELECT  e." + keyId
+      String modelSQLQuery = "SELECT DISTINCT  e." + keyId
           + ", e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
           + "     e.updated, e.updatedby, e.name, e.description ";
       if (!(Key.equalsIgnoreCase("cl_storedept") || Key.equalsIgnoreCase("cl_universe"))) {
@@ -635,15 +645,8 @@ public class MasterFixtureWS implements WebService {
     String EntityId = Entity + "_id";
     try {
       for (Object[] Obj : ListObj) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(EntityId, Obj[0].toString());
-        jsonObject.put("ad_client_id", Obj[1].toString());
-        jsonObject.put("ad_org_id", Obj[2].toString());
-        jsonObject.put("isactive", Obj[3].toString());
-        jsonObject.put("created", Obj[4].toString());
-        jsonObject.put("createdby", Obj[5].toString());
-        jsonObject.put("updated", Obj[6].toString());
-        jsonObject.put("updatedby", Obj[7].toString());
+        JSONObject jsonObject = getbasicJson(Obj, EntityId);
+
         if (Obj[8] != null) {
           jsonObject.put("name", Obj[8]);
         } else {
@@ -690,15 +693,9 @@ public class MasterFixtureWS implements WebService {
     JSONArray jsonArray = new JSONArray();
     try {
       for (Object[] Obj : ListObj) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("ingst_gstproductcode", Obj[0].toString());
-        jsonObject.put("ad_client_id", Obj[1].toString());
-        jsonObject.put("ad_org_id", Obj[2].toString());
-        jsonObject.put("isactive", Obj[3].toString());
-        jsonObject.put("created", Obj[4].toString());
-        jsonObject.put("createdby", Obj[5].toString());
-        jsonObject.put("updated", Obj[6].toString());
-        jsonObject.put("updatedby", Obj[7].toString());
+
+        JSONObject jsonObject = getbasicJson(Obj, "ingst_gstproductcode_id");
+
         if (Obj[8] != null) {
           jsonObject.put("value", Obj[8]);
         } else {
@@ -751,15 +748,7 @@ public class MasterFixtureWS implements WebService {
     JSONArray jsonArray = new JSONArray();
     try {
       for (Object[] Obj : ListObj) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("m_product_category_id", Obj[0].toString());
-        jsonObject.put("ad_client_id", Obj[1].toString());
-        jsonObject.put("ad_org_id", Obj[2].toString());
-        jsonObject.put("isactive", Obj[3].toString());
-        jsonObject.put("created", Obj[4].toString());
-        jsonObject.put("createdby", Obj[5].toString());
-        jsonObject.put("updated", Obj[6].toString());
-        jsonObject.put("updatedby", Obj[7].toString());
+        JSONObject jsonObject = getbasicJson(Obj, "m_product_category_id");
         if (Obj[8] != null) {
           jsonObject.put("value", Obj[8]);
         } else {
@@ -772,31 +761,40 @@ public class MasterFixtureWS implements WebService {
         }
 
         if (Obj[10] != null) {
-          jsonObject.put("type", Obj[10]);
-        } else {
-          jsonObject.put("type", "");
-        }
-        if (Obj[11] != null) {
-          jsonObject.put("description", Obj[11].toString());
+          jsonObject.put("description", Obj[10]);
         } else {
           jsonObject.put("description", "");
         }
-        if (Obj[12] != null) {
-          jsonObject.put("c_taxcategory_id", Obj[12]);
+        if (Obj[11] != null) {
+          jsonObject.put("isdefault", Obj[11].toString());
         } else {
-          jsonObject.put("c_taxcategory_id", "");
+          jsonObject.put("isdefault", "");
+        }
+        if (Obj[12] != null) {
+          jsonObject.put("plannedmargin", Obj[12]);
+        } else {
+          jsonObject.put("plannedmargin", "");
         }
         if (Obj[13] != null) {
-          jsonObject.put("display", Obj[13].toString());
+          jsonObject.put("a_asset_group_id", Obj[13].toString());
         } else {
-          jsonObject.put("display", "");
+          jsonObject.put("a_asset_group_id", "");
         }
         if (Obj[14] != null) {
-          jsonObject.put("isexception", Obj[14].toString());
+          jsonObject.put("ad_image_id", Obj[14].toString());
         } else {
-          jsonObject.put("isexception", "");
+          jsonObject.put("ad_image_id", "");
         }
-
+        if (Obj[15] != null) {
+          jsonObject.put("issummary", Obj[15].toString());
+        } else {
+          jsonObject.put("issummary", "");
+        }
+        if (Obj[16] != null) {
+          jsonObject.put("em_ingst_gstproductcode_id", Obj[16].toString());
+        } else {
+          jsonObject.put("em_ingst_gstproductcode_id", "");
+        }
         jsonArray.put(jsonObject);
 
       }
@@ -808,19 +806,27 @@ public class MasterFixtureWS implements WebService {
     return jsonArray;
   }
 
+  public JSONObject getbasicJson(Object[] Obj, String key) throws JSONException {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put(key, Obj[0].toString());
+    jsonObject.put("ad_client_id", Obj[1].toString());
+    jsonObject.put("ad_org_id", Obj[2].toString());
+    jsonObject.put("isactive", Obj[3].toString());
+    jsonObject.put("created", Obj[4].toString());
+    jsonObject.put("createdby", Obj[5].toString());
+    jsonObject.put("updated", df.format(new Date()));
+    jsonObject.put("updatedby", Obj[7].toString());
+    return jsonObject;
+
+  }
+
   private JSONArray getPriceListJsonFromList(List<Object[]> ListObj) throws JSONException {
     JSONArray jsonArray = new JSONArray();
     try {
       for (Object[] Obj : ListObj) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("m_pricelist_id", Obj[0].toString());
-        jsonObject.put("ad_client_id", Obj[1].toString());
-        jsonObject.put("ad_org_id", Obj[2].toString());
-        jsonObject.put("isactive", Obj[3].toString());
-        jsonObject.put("created", Obj[4].toString());
-        jsonObject.put("createdby", Obj[5].toString());
-        jsonObject.put("updated", Obj[6].toString());
-        jsonObject.put("updatedby", Obj[7].toString());
+
+        JSONObject jsonObject = getbasicJson(Obj, "m_pricelist_id");
+
         if (Obj[8] != null) {
           jsonObject.put("name", Obj[8]);
         } else {
@@ -883,16 +889,9 @@ public class MasterFixtureWS implements WebService {
     JSONArray jsonArray = new JSONArray();
     try {
       for (Object[] Obj : ListObj) {
-        JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("m_discountschema_id", Obj[0].toString());
-        jsonObject.put("ad_client_id", Obj[1].toString());
-        jsonObject.put("ad_org_id", Obj[2].toString());
-        jsonObject.put("isactive", Obj[3].toString());
-        jsonObject.put("created", Obj[4].toString());
-        jsonObject.put("createdby", Obj[5].toString());
-        jsonObject.put("updated", Obj[6].toString());
-        jsonObject.put("updatedby", Obj[7].toString());
+        JSONObject jsonObject = getbasicJson(Obj, "m_discountschema_id");
+
         if (Obj[8] != null) {
           jsonObject.put("name", Obj[8]);
         } else {
@@ -954,16 +953,8 @@ public class MasterFixtureWS implements WebService {
     JSONArray jsonArray = new JSONArray();
     try {
       for (Object[] Obj : ListObj) {
-        JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("m_pricelist_version_id", Obj[0].toString());
-        jsonObject.put("ad_client_id", Obj[1].toString());
-        jsonObject.put("ad_org_id", Obj[2].toString());
-        jsonObject.put("isactive", Obj[3].toString());
-        jsonObject.put("created", Obj[4].toString());
-        jsonObject.put("createdby", Obj[5].toString());
-        jsonObject.put("updated", Obj[6].toString());
-        jsonObject.put("updatedby", Obj[7].toString());
+        JSONObject jsonObject = getbasicJson(Obj, "m_pricelist_version_id");
 
         if (Obj[8] != null) {
           jsonObject.put("name", Obj[8]);
@@ -1020,7 +1011,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getPricelistData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "   SELECT e.m_pricelist_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
+      String modelSQLQuery = "   SELECT DISTINCT e.m_pricelist_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
           + "     e.updated, e.updatedby, e.name, e.description, e.basepricelist_id, e.istaxincluded,  "
           + "       e.issopricelist, e.isdefault, e.c_currency_id, e.enforcepricelimit, e.costbased   "
           + "   FROM m_pricelist e  "
@@ -1042,4 +1033,47 @@ public class MasterFixtureWS implements WebService {
     return EntityDataList;
 
   }
+
+  public JSONArray generateJsonWS(Class<? extends BaseOBObject> bob, String updatedTime,
+      String master) throws Exception {
+    JSONArray jsonArray = new JSONArray();
+
+    String updated = updatedTime;
+    updated = updated.replace("_", " ");
+    SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    Date newDate = null;
+
+    try {
+      newDate = formater.parse(updated);
+    } catch (Exception e) {
+      newDate = new Date(new Date().getTime() - 2 * 24 * 3600 * 1000);
+    }
+    OBCriteria<? extends BaseOBObject> genClassCriteria = OBDal.getInstance().createCriteria(bob);
+    if (!master.equals("DocSequence") && !master.equals("User")) {
+      genClassCriteria.add(Restrictions.ge(Product.PROPERTY_UPDATED, newDate));
+    } else {
+      genClassCriteria.add(Restrictions.ge(Sequence.PROPERTY_CREATIONDATE, newDate));
+    }
+    genClassCriteria.setFilterOnActive(false);
+    genClassCriteria.setFilterOnReadableOrganization(false);
+    genClassCriteria.setFetchSize(100);
+    genClassCriteria.addOrderBy(Product.PROPERTY_UPDATED, true);
+    ScrollableResults genMasterScrollar = genClassCriteria.scroll(ScrollMode.FORWARD_ONLY);
+    int i = 0;
+
+    List<BaseOBObject> bobList = new ArrayList<BaseOBObject>();
+    while (genMasterScrollar.next()) {
+
+      bobList.add((BaseOBObject) genMasterScrollar.get()[0]);
+      jsonArray.put(JSONHelper.convetBobToJson((BaseOBObject) genMasterScrollar.get()[0]));
+
+      if (i % 100 == 0) {
+        bobList.clear();
+        OBDal.getInstance().getSession().clear();
+      }
+      i++;
+    }
+    return jsonArray;
+  }
+
 }
