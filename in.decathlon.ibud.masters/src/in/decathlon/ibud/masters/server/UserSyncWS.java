@@ -16,6 +16,7 @@ import org.openbravo.model.ad.access.RoleOrganization;
 import org.openbravo.model.ad.access.TabAccess;
 import org.openbravo.model.ad.access.User;
 import org.openbravo.model.ad.access.WindowAccess;
+import org.openbravo.model.common.businesspartner.Greeting;
 import org.openbravo.service.json.DataToJsonConverter;
 import org.openbravo.service.web.WebService;
 
@@ -63,7 +64,7 @@ public class UserSyncWS implements WebService {
     String updated = request.getParameter("updated");
     boolean isRequestFromSL = true;
 
-    int rowCount = Integer.parseInt(request.getParameter("rowCount"));
+    // int rowCount = Integer.parseInt(request.getParameter("rowCount"));
     updated = updated.replace("_", " ");
     String Country = request.getParameter("Country");
     if (Country.equalsIgnoreCase("IND")) {
@@ -79,6 +80,8 @@ public class UserSyncWS implements WebService {
      * genMaster.generateJsonWS(org.openbravo.model.common.businesspartner.Location.class, updated,
      * rowCount, "", null);
      */
+    genMaster.getUserDataJson(Greeting.class, updated, "Greeting", isRequestFromSL, false);
+
     genMaster.getUserDataJson(Role.class, updated, "Role", isRequestFromSL, false);
 
     genMaster.getUserDataJson(User.class, updated, "User", isRequestFromSL, false);
