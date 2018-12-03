@@ -22,11 +22,7 @@
        <singleton>true</singleton>
    </bean>
    
-   <bean>
-       <name>TestWS</name>
-       <class>in.decathlon.ibud.masters.server.TestMaster</class>
-       <singleton>true</singleton>
-   </bean>
+  
  <bean>
        <name>OrgSyncWS</name>
        <class>in.decathlon.ibud.masters.server.OrgnizationSyncWS</class>
@@ -39,7 +35,33 @@
        <singleton>true</singleton>
    </bean>
    
+    <bean>
+       <name>TestWS</name>
+       <class>in.decathlon.ibud.masters.server.TestMaster</class>
+       <singleton>true</singleton>
+   </bean>
    
+
+
+  
+ <bean>
+       <name>OrgSyncWS_SL</name>
+       <class>in.decathlon.ibud.masters.server.OrgnizationSyncWSForSL</class>
+       <singleton>true</singleton>
+   </bean>
+
+<bean>
+       <name>UserSyncWS_SL</name>
+       <class>in.decathlon.ibud.masters.server.UserSyncWSForSL</class>
+       <singleton>true</singleton>
+   </bean>
+   
+
+<bean>
+       <name>MasterFixtureWS_SL</name>
+       <class>in.decathlon.ibud.masters.server.MasterFixtureWSForSL</class>
+       <singleton>true</singleton>
+   </bean>   
    
 </provider>
 

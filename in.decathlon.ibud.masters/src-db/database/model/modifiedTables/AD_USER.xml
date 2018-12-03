@@ -5,9 +5,5 @@
         <default><![CDATA[N]]></default>
         <onCreateDefault/>
       </column>
-      <column name="EM_IBUD_ISSLANDINDUSER" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
-        <default><![CDATA[N]]></default>
-        <onCreateDefault/>
-      </column>
     </table>
   </database>

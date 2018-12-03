@@ -14,7 +14,7 @@ import org.openbravo.service.web.WebService;
  * Push User related data from supply to store
  * 
  */
-public class UserSyncWS implements WebService {
+public class UserSyncWSForSL implements WebService {
 
   DataToJsonConverter dataToJsonConverter = new DataToJsonConverter();
   final DataToJsonConverter toJsonConverter = OBProvider.getInstance().get(
@@ -68,7 +68,7 @@ public class UserSyncWS implements WebService {
     // genMaster.getUserDataJson(Greeting.class, updated, "Greeting", isRequestFromSL, false);
 
     // genMaster.getUserDataJson(Role.class, updated, "Role", isRequestFromSL, false);
-    genMaster.getUserData(updated, false);
+    genMaster.getUserData(updated, true);
     // genMaster.getUserDataJson(User.class, updated, "User", isRequestFromSL, false);
     // genMaster.getUserDataJson(RoleOrganization.class, updated, "", isRequestFromSL, true);
     // genMaster.getUserDataJson(WindowAccess.class, updated, "", isRequestFromSL, true);

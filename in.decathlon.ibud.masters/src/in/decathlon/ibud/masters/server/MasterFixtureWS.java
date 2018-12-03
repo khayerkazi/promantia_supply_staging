@@ -606,7 +606,6 @@ public class MasterFixtureWS implements WebService {
       }
       if (Key.equalsIgnoreCase("c_taxcategory")) {
         modelSQLQuery = modelSQLQuery + " ,  e.em_ingst_gstproductcode_id, e.asbom  ";
-
       }
 
       modelSQLQuery = modelSQLQuery + "   FROM " + Key + " e     ";
@@ -625,7 +624,10 @@ public class MasterFixtureWS implements WebService {
             + " join m_product p on p.em_cl_model_id=ml.cl_model_id ";
       }
       modelSQLQuery = modelSQLQuery + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and e.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN')  ";
+
+      // modelSQLQuery = modelSQLQuery + " and e.updated >= ? ";
+      modelSQLQuery = modelSQLQuery + " and e.created >= ? ";
 
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
       query.setDate(0, updatedTime);
