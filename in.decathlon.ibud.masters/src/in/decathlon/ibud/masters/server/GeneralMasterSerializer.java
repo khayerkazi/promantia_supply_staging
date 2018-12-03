@@ -18,6 +18,7 @@ import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.dal.service.OBQuery;
+import org.openbravo.model.ad.access.User;
 import org.openbravo.model.ad.utility.Sequence;
 import org.openbravo.model.ad.utility.TreeNode;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
@@ -339,8 +340,7 @@ public class GeneralMasterSerializer {
       String query1 = "bp where bp.creationDate > '" + newDate + "' and bp.ibudIssluser="
           + isSLUser + " order by bp.updated asc";
 
-      bpCrit = OBDal.getInstance().createQuery(org.openbravo.model.common.geography.Location.class,
-          query1);
+      bpCrit = OBDal.getInstance().createQuery(User.class, query1);
 
       bpCrit.setFilterOnReadableOrganization(false);
       bpCrit.setFilterOnActive(false);
