@@ -1,8 +1,6 @@
 package in.decathlon.ibud.masters.server;
 
-import in.decathlon.ibud.commons.BusinessEntityMapper;
 import in.decathlon.ibud.orders.client.SOConstants;
-import in.decathlon.ibud.shipment.supply.CompleteShpmnetWebservice;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -25,15 +23,13 @@ import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.dal.service.OBQuery;
 import org.openbravo.model.common.order.Order;
-import org.openbravo.model.common.order.OrderLine;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOut;
-import org.openbravo.model.materialmgmt.transaction.ShipmentInOutLine;
 import org.openbravo.service.web.WebService;
 import org.openbravo.warehouse.shipping.OBWSHIPShipping;
 
-public class SaveOrganizationSyncMasterData implements WebService {
+public class OrgnizationSyncWSForSL implements WebService {
 
-  public static final Logger log = Logger.getLogger(CompleteShpmnetWebservice.class);
+  public static final Logger log = Logger.getLogger(OrgnizationSyncWSForSL.class);
 
   public JSONArray responseShipMent = new JSONArray();
   public static final String shuttleBin = "Shuttel Bin";
@@ -56,72 +52,15 @@ public class SaveOrganizationSyncMasterData implements WebService {
     try {
       log.info("entered doPOst of completeShipmentWS");
       JSONObject respObj = new JSONObject();
+      String result = processServerResponse(request, response);
+      JSONObject orders = new JSONObject(result);
+
       HashMap<String, String> poStatusMap = new HashMap<String, String>();
       boolean flag = false;
 
-      log.debug("Webservice invocation from store to complete goods shipment and close sales order");
-      String shipmentDocumentno = request.getParameter("shipmentIdfromGRN");
-      log.debug("Shipment document recieved from store is " + shipmentDocumentno);
-
-      ShipmentInOut shipment = getShipment(shipmentDocumentno);
-
-      String shipmentId = shipment.getId();
-
-      shipment.setDocumentStatus("DR");
-      shipment.setDocumentAction("CO");
-
-      OBDal.getInstance().save(shipment);
-      OBDal.getInstance().flush();
-      shipment.setProcessGoodsJava("CO");
-
-      if ("CO".equals(shipment.getDocumentStatus())) {
-
-        flag = true;
-
-      } else {
-
-        shipment.setDocumentStatus("DR");
-        shipment.setDocumentAction("CO");
-
-        OBDal.getInstance().save(shipment);
-        OBDal.getInstance().flush();
-        shipment.setProcessGoodsJava("CO");
-
-        try {
-          flag = BusinessEntityMapper.executeProcess(shipmentId, "104",
-              "SELECT * FROM M_InOut_Post0(?)");
-        } catch (Exception e) {
-          log.error("Error in documentno : " + shipment.getDocumentNo() + " and the error is : "
-              + e.getMessage());
-        }
-
-      }
-
-      completeShipping(shipment);
-
-      OBDal.getInstance().save(shipment);
-      log.debug("completed GS" + shipment.getDocumentNo());
-
-      if (flag) {
-        BusinessEntityMapper.closeSupplySO(shipment, poStatusMap);
-        log.debug("Complete shipment webservice completed ");
-      } else {
-        for (ShipmentInOutLine inoutLine : shipment.getMaterialMgmtShipmentInOutLineList()) {
-          OrderLine ordLine = inoutLine.getSalesOrderLine();
-          if (ordLine != null) {
-
-            Order ord = ordLine.getSalesOrder();
-            if (ord != null) {
-              BusinessEntityMapper.respForPOStatus(poStatusMap, ord);
-            } else
-              throw new OBException("no order reference for orderline " + ordLine);
-          } else {
-            throw new OBException("no orderline for GS line " + inoutLine);
-          }
-        }
-      }
-
       respObj.put("data", poStatusMap);
+      respObj.put("errorMessage", poStatusMap);
+
       log.debug("response to update po " + poStatusMap);
 
       response.setHeader("Result", respObj.toString());
