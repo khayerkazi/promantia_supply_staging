@@ -116,15 +116,16 @@ public class MasterFixtureWS implements WebService {
       log.info("modelList->" + modelList.size());
       jsonDataObject.put("model", getModelJsonFromList(modelList));
 
-      List<Object[]> taxcategoryList = getNewEntityData(updatedDate, "c_taxcategory");
-      log.info("taxcategoryList->" + taxcategoryList.size());
-      jsonDataObject.put("c_taxcategory",
-          getNewEntityJsonFromList(taxcategoryList, "c_taxcategory"));
-
-      List<Object[]> GSTProductCodeList = getGstProductCodeData(updatedDate);
-      log.info("GSTProductCodeList->" + GSTProductCodeList.size());
-      jsonDataObject.put("ingst_gstproductcode", getGSTProdctCodeJsonFromList(GSTProductCodeList));
-
+      /*
+       * List<Object[]> taxcategoryList = getNewEntityData(updatedDate, "c_taxcategory");
+       * log.info("taxcategoryList->" + taxcategoryList.size()); jsonDataObject.put("c_taxcategory",
+       * getNewEntityJsonFromList(taxcategoryList, "c_taxcategory"));
+       * 
+       * List<Object[]> GSTProductCodeList = getGstProductCodeData(updatedDate);
+       * log.info("GSTProductCodeList->" + GSTProductCodeList.size());
+       * jsonDataObject.put("ingst_gstproductcode",
+       * getGSTProdctCodeJsonFromList(GSTProductCodeList));
+       */
       List<Object[]> productCategoryList = getProductCategoryData(updatedDate);
       log.info("productCategoryList->" + productCategoryList.size());
       jsonDataObject.put("m_product_category", getProdctCategoryJsonFromList(productCategoryList));
@@ -451,7 +452,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getModelData(Date updatedTime) {
     List<Object[]> modelData = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "SELECT DISTINCT ml.cl_model_id, ml.ad_client_id, ml.ad_org_id, ml.isactive, ml.created, ml.createdby,"
+      String query = "SELECT DISTINCT ml.cl_model_id, ml.ad_client_id, ml.ad_org_id, ml.isactive, ml.created, ml.createdby,"
           + " ml.updated, ml.updatedby, ml.value, ml.name, ml.cl_subdepartment_id, ml.cl_department_id,"
           + " ml.cl_sport_id, ml.merchandise_category, ml.cl_brand_id, "
           + " ml.typology, ml.cl_natureofproduct_id, ml.cl_component_brand_id, "
@@ -460,9 +461,9 @@ public class MasterFixtureWS implements WebService {
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id"
           + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
 
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
-      query.setDate(0, updatedTime);
-      modelData = query.list();
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      modelData = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Getting the Model Data for pull master process with date: "
@@ -496,18 +497,18 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getProductCategoryData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = " SELECT DISTINCT e.m_product_category_id ,  e.ad_client_id ,  e.ad_org_id  , e. isactive  ,  e.created ,  e.createdby  ,  "
+      String query = " SELECT DISTINCT e.m_product_category_id ,  e.ad_client_id ,  e.ad_org_id  , e. isactive  ,  e.created ,  e.createdby  ,  "
           + " e.updated  ,  e.updatedby  ,  e.value  ,  e.name  ,  e.description ,  "
           + "e.isdefault  ,e.plannedmargin , e.a_asset_group_id  , e. ad_image_id  , e. issummary  , e. em_ingst_gstproductcode_id    "
           + "FROM m_product_category e   "
           + "join m_product p on p.m_product_category_id=e.m_product_category_id  "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + "join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and e.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
 
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
-      query.setDate(0, updatedTime);
-      EntityDataList = query.list();
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Getting the Product Category Data for pull master process with date: "
@@ -520,7 +521,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getDiscountSchemaData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "  SELECT DISTINCT e.m_discountschema_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
+      String query = "  SELECT DISTINCT e.m_discountschema_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
           + "   e.createdby, e.updated, e.updatedby, e.name, e.description, e.validfrom,  "
           + " e.discounttype, e.script, e.flatdiscount, e.isquantitybased, e.cumulativelevel,  "
           + " e.processing  "
@@ -530,11 +531,11 @@ public class MasterFixtureWS implements WebService {
           + "   join m_product p on p.m_product_id=pp.m_product_id "
           + "    join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + "  join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and e.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
 
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
-      query.setDate(0, updatedTime);
-      EntityDataList = query.list();
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Getting the Discount Schema Data for pull master process with date: "
@@ -547,7 +548,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getPricelistVersionData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "   SELECT DISTINCT e.m_pricelist_version_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,   "
+      String query = "   SELECT DISTINCT e.m_pricelist_version_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,   "
           + "     e.createdby, e.updated, e.updatedby, e.name, e.description, e.m_pricelist_id,   "
           + " e.m_discountschema_id, e.validfrom, e.proccreate, e.m_pricelist_version_base_id,   "
           + " e.m_pricelist_version_generate  "
@@ -556,11 +557,11 @@ public class MasterFixtureWS implements WebService {
           + "  join m_product p on p.m_product_id=pp.m_product_id  "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and e.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
 
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
-      query.setDate(0, updatedTime);
-      EntityDataList = query.list();
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Getting the Price List Version Data for pull master process with date: "
@@ -573,7 +574,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getGstProductCodeData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = " SELECT DISTINCT e.ingst_gstproductcode_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,  "
+      String query = " SELECT DISTINCT e.ingst_gstproductcode_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,  "
           + "       e.createdby, e.updated, e.updatedby, e.value, e.name, e.type, e.description,  "
           + "       e.c_taxcategory_id, e.display, e.isexception   "
           + "    FROM ingst_gstproductcode e    "
@@ -582,9 +583,9 @@ public class MasterFixtureWS implements WebService {
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN') and e.updated >= ? ";
 
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
-      query.setDate(0, updatedTime);
-      EntityDataList = query.list();
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Getting the GST Product Code Data for pull master process with date: "
@@ -595,49 +596,49 @@ public class MasterFixtureWS implements WebService {
   }
 
   private List<Object[]> getNewEntityData(Date updatedTime, String Key) {
-    List<Object[]> modelData = new ArrayList<Object[]>();
+    List<Object[]> listDataObj = new ArrayList<Object[]>();
     try {
       String keyId = Key + "_id";
-      String modelSQLQuery = "SELECT DISTINCT  e." + keyId
+      String query = "SELECT DISTINCT  e." + keyId
           + ", e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
           + "     e.updated, e.updatedby, e.name, e.description ";
       if (!(Key.equalsIgnoreCase("cl_storedept") || Key.equalsIgnoreCase("cl_universe"))) {
-        modelSQLQuery = modelSQLQuery + ", e.isdefault  ";
+        query = query + ", e.isdefault  ";
       }
       if (Key.equalsIgnoreCase("c_taxcategory")) {
-        modelSQLQuery = modelSQLQuery + " ,  e.em_ingst_gstproductcode_id, e.asbom  ";
+        query = query + " ,  e.em_ingst_gstproductcode_id, e.asbom  ";
       }
 
-      modelSQLQuery = modelSQLQuery + "   FROM " + Key + " e     ";
+      query = query + "   FROM " + Key + " e     ";
 
       if (Key.equalsIgnoreCase("c_taxcategory")) {
-        modelSQLQuery = modelSQLQuery
+        query = query
             + "  join m_product p on p.c_taxcategory_id=e.c_taxcategory_id join cl_model ml on p.em_cl_model_id=ml.cl_model_id ";
 
       } else if (Key.equalsIgnoreCase("cl_color")) {
 
-        modelSQLQuery = modelSQLQuery
+        query = query
             + " join m_product p on p.em_cl_color_id=e.cl_color_id              join cl_model ml on p.em_cl_model_id=ml.cl_model_id ";
 
       } else {
-        modelSQLQuery = modelSQLQuery + " join cl_model ml on e." + keyId + "=ml." + keyId + " "
+        query = query + " join cl_model ml on e." + keyId + "=ml." + keyId + " "
             + " join m_product p on p.em_cl_model_id=ml.cl_model_id ";
       }
-      modelSQLQuery = modelSQLQuery + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
+      query = query + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN')  ";
 
-      // modelSQLQuery = modelSQLQuery + " and e.updated >= ? ";
-      modelSQLQuery = modelSQLQuery + " and e.created >= ? ";
+      // query = query + " and e.updated >= ? ";
+      query = query + " and ml.updated >= ? ";
 
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
-      query.setDate(0, updatedTime);
-      modelData = query.list();
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      listDataObj = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Getting the " + Key + " Data for pull master process with date: "
           + updatedTime + " and Error is: " + e);
     }
-    return modelData;
+    return listDataObj;
 
   }
 
@@ -1013,7 +1014,7 @@ public class MasterFixtureWS implements WebService {
   private List<Object[]> getPricelistData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String modelSQLQuery = "   SELECT DISTINCT e.m_pricelist_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
+      String query = "   SELECT DISTINCT e.m_pricelist_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
           + "     e.updated, e.updatedby, e.name, e.description, e.basepricelist_id, e.istaxincluded,  "
           + "       e.issopricelist, e.isdefault, e.c_currency_id, e.enforcepricelimit, e.costbased   "
           + "   FROM m_pricelist e  "
@@ -1022,11 +1023,11 @@ public class MasterFixtureWS implements WebService {
           + " join m_product p on p.m_product_id=pp.m_product_id "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and e.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
 
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(modelSQLQuery);
-      query.setDate(0, updatedTime);
-      EntityDataList = query.list();
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Getting the Price list Data for pull master process with date: "
