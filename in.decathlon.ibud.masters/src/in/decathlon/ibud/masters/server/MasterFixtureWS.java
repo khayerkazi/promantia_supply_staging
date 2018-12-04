@@ -531,7 +531,7 @@ public class MasterFixtureWS implements WebService {
           + "   join m_product p on p.m_product_id=pp.m_product_id "
           + "    join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + "  join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and pp.updated >= ? ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
@@ -557,7 +557,7 @@ public class MasterFixtureWS implements WebService {
           + "  join m_product p on p.m_product_id=pp.m_product_id  "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and pp.updated >= ? ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
@@ -1023,7 +1023,7 @@ public class MasterFixtureWS implements WebService {
           + " join m_product p on p.m_product_id=pp.m_product_id "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and pp.updated >= ? ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
