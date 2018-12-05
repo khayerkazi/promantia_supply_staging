@@ -365,6 +365,11 @@ public class MasterFixtureWSForSL implements WebService {
         else
           jsonObject.put("em_cl_ismii", "");
 
+        if (m[39] != null)
+          jsonObject.put("ingst_gstproductcode_id", m[39]);
+        else
+          jsonObject.put("ingst_gstproductcode_id", "");
+
         jsonArray.put(jsonObject);
 
       }
@@ -478,7 +483,7 @@ public class MasterFixtureWSForSL implements WebService {
           + " p.upc, p.c_uom_id, p.salesrep_id, p.issummary, p.isstocked, p.ispurchased, p.m_product_category_id, p.volume, p.weight, "
           + " p.c_taxcategory_id, p.producttype, p.m_attributeset_id, p.em_cl_log_rec, p.em_cl_modelname, p.em_cl_modelcode, p.em_cl_size, p.em_cl_pcb_qty, p.em_cl_ue_qty, p.em_cl_grosswt_pcb,"
           + " p.em_cl_volume_pcb, p.em_cl_color_id, p.em_cl_model_id, p.em_cl_age, p.em_cl_gender, p.em_cl_lifestage, p.em_cl_typea, p.em_cl_typeb,"
-          + " p.em_cl_typec, p.em_cl_ismii "
+          + " p.em_cl_typec, p.em_cl_ismii, p.em_ingst_gstproductcode_id "
           + " FROM m_product p join cl_model ml on p.em_cl_model_id=ml.cl_model_id"
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ?";
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(productSQLQuery);
