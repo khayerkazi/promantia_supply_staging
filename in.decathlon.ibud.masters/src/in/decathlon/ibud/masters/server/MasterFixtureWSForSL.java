@@ -116,16 +116,15 @@ public class MasterFixtureWSForSL implements WebService {
       log.info("modelList->" + modelList.size());
       jsonDataObject.put("model", getModelJsonFromList(modelList));
 
-      /*
-       * List<Object[]> taxcategoryList = getNewEntityData(updatedDate, "c_taxcategory");
-       * log.info("taxcategoryList->" + taxcategoryList.size()); jsonDataObject.put("c_taxcategory",
-       * getNewEntityJsonFromList(taxcategoryList, "c_taxcategory"));
-       * 
-       * List<Object[]> GSTProductCodeList = getGstProductCodeData(updatedDate);
-       * log.info("GSTProductCodeList->" + GSTProductCodeList.size());
-       * jsonDataObject.put("ingst_gstproductcode",
-       * getGSTProdctCodeJsonFromList(GSTProductCodeList));
-       */
+      List<Object[]> taxcategoryList = getTaxCategoryData(updatedDate);
+      log.info("taxcategoryList->" + taxcategoryList.size());
+      jsonDataObject.put("c_taxcategory",
+          getNewEntityJsonFromList(taxcategoryList, "c_taxcategory"));
+
+      List<Object[]> GSTProductCodeList = getGstProductCodeData(updatedDate);
+      log.info("GSTProductCodeList->" + GSTProductCodeList.size());
+      jsonDataObject.put("ingst_gstproductcode", getGSTProdctCodeJsonFromList(GSTProductCodeList));
+
       List<Object[]> productCategoryList = getProductCategoryData(updatedDate);
       log.info("productCategoryList->" + productCategoryList.size());
       jsonDataObject.put("m_product_category", getProdctCategoryJsonFromList(productCategoryList));
@@ -1077,6 +1076,30 @@ public class MasterFixtureWSForSL implements WebService {
       i++;
     }
     return jsonArray;
+  }
+
+  public List<Object[]> getTaxCategoryData(Date updatedTime) throws Exception {
+    List<Object[]> prdData = new ArrayList<Object[]>();
+    try {
+
+      String sQLQuery = "    SELECT DISTINCT  e.c_taxcategory_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby, "
+          + " e.updated, e.updatedby, e.name, e.description , e.isdefault   ,  e.em_ingst_gstproductcode_id, e.asbom     "
+          + " FROM c_taxcategory e       "
+          + "      join m_product p on p.c_taxcategory_id=e.c_taxcategory_id "
+          + "     join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
+          + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
+          + " where b.name in ('FIXTURES','Events','UNKNOWN')   and ml.updated >= ? ";
+
+      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(sQLQuery);
+      query.setDate(0, updatedTime);
+      prdData = query.list();
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error whlie Getting the Product Data for pull master process with date: "
+          + updatedTime + " and Error is: " + e);
+    }
+    return prdData;
+
   }
 
 }
