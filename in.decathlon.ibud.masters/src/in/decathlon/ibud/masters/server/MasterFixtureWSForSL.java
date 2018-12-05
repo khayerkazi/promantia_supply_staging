@@ -585,7 +585,7 @@ public class MasterFixtureWSForSL implements WebService {
           + "     join m_product p on p.em_ingst_gstproductcode_id=e.ingst_gstproductcode_id "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and e.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
