@@ -366,9 +366,9 @@ public class MasterFixtureWSForSL implements WebService {
           jsonObject.put("em_cl_ismii", "");
 
         if (m[39] != null)
-          jsonObject.put("ingst_gstproductcode_id", m[39]);
+          jsonObject.put("em_ingst_gstproductcode_id", m[39]);
         else
-          jsonObject.put("ingst_gstproductcode_id", "");
+          jsonObject.put("em_ingst_gstproductcode_id", "");
 
         jsonArray.put(jsonObject);
 
