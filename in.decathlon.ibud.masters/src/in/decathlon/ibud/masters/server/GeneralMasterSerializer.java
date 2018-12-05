@@ -337,8 +337,8 @@ public class GeneralMasterSerializer {
     try {
 
       OBContext.getOBContext().setAdminMode(true);
-      String query1 = "bp where bp.creationDate > '" + newDate + "' and bp.ibudIssluser="
-          + isSLUser + " order by bp.updated asc";
+      String query1 = "e where e.creationDate >= '" + newDate + "' and e.ibudIssluser=" + isSLUser
+          + " order by e.updated asc";
 
       bpCrit = OBDal.getInstance().createQuery(User.class, query1);
 
