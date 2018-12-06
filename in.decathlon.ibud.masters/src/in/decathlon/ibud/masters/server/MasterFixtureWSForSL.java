@@ -133,6 +133,10 @@ public class MasterFixtureWSForSL implements WebService {
       log.info("CLColorList->" + clColorList.size());
       jsonDataObject.put("cl_color", getNewEntityJsonFromList(clColorList, "cl_color"));
 
+      List<Object[]> clAttibuteSetList = getAttibutesetData(updatedDate);
+      log.info("clAttibuteSetList->" + clAttibuteSetList.size());
+      jsonDataObject.put("m_attributeset", getAttributesetJsonFromList(clAttibuteSetList));
+
       List<Object[]> prdList = getProductData(updatedDate);
       log.info("prdList->" + prdList.size());
       jsonDataObject.put("product", getProductJsonFromList(prdList));
@@ -522,6 +526,31 @@ public class MasterFixtureWSForSL implements WebService {
 
   }
 
+  private List<Object[]> getAttibutesetData(Date updatedTime) {
+    List<Object[]> EntityDataList = new ArrayList<Object[]>();
+    try {
+      String query = " SELECT DISTINCT  e.m_attributeset_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
+          + " e.createdby, e.updated, e.updatedby, e.name, e.description, e.isserno, e.m_sernoctl_id,  "
+          + "   e.islot, e.m_lotctl_id, e.isguaranteedate, e.guaranteedays, e.islockable, "
+          + "   e.isoneattrsetvalrequired "
+          + "    FROM m_attributeset e   "
+          + "join m_product p on p.m_attributeset_id=e.m_attributeset_id  "
+          + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
+          + "join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
+
+      SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
+      sqlQuery.setDate(0, updatedTime);
+      EntityDataList = sqlQuery.list();
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error whlie Getting m_attributeset Data for pull master process with date: "
+          + updatedTime + " and Error is: " + e);
+    }
+    return EntityDataList;
+
+  }
+
   private List<Object[]> getDiscountSchemaData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
@@ -746,6 +775,77 @@ public class MasterFixtureWSForSL implements WebService {
     } catch (Exception e) {
       e.printStackTrace();
       log.error("Error whlie Creating Json for GST Product Code data using pull master process and Error is: "
+          + e);
+    }
+    return jsonArray;
+  }
+
+  private JSONArray getAttributesetJsonFromList(List<Object[]> ListObj) throws JSONException {
+    JSONArray jsonArray = new JSONArray();
+    try {
+      for (Object[] Obj : ListObj) {
+
+        JSONObject jsonObject = getbasicJson(Obj, "m_attributeset_id");
+
+        if (Obj[8] != null) {
+          jsonObject.put("name", Obj[8]);
+        } else {
+          jsonObject.put("name", "");
+        }
+        if (Obj[9] != null) {
+          jsonObject.put("description", Obj[9].toString());
+        } else {
+          jsonObject.put("description", "");
+        }
+
+        if (Obj[10] != null) {
+          jsonObject.put("isserno", Obj[10]);
+        } else {
+          jsonObject.put("isserno", "");
+        }
+        if (Obj[11] != null) {
+          jsonObject.put("m_sernoctl_id", Obj[11].toString());
+        } else {
+          jsonObject.put("m_sernoctl_id", "");
+        }
+        if (Obj[12] != null) {
+          jsonObject.put("islot", Obj[12]);
+        } else {
+          jsonObject.put("islot", "");
+        }
+        if (Obj[13] != null) {
+          jsonObject.put("m_lotctl_id", Obj[13].toString());
+        } else {
+          jsonObject.put("m_lotctl_id", "");
+        }
+        if (Obj[14] != null) {
+          jsonObject.put("isguaranteedate", Obj[14].toString());
+        } else {
+          jsonObject.put("isguaranteedate", "");
+        }
+
+        if (Obj[15] != null) {
+          jsonObject.put("guaranteedays", Obj[15]);
+        } else {
+          jsonObject.put("guaranteedays", "");
+        }
+        if (Obj[16] != null) {
+          jsonObject.put("islockable", Obj[16].toString());
+        } else {
+          jsonObject.put("islockable", "");
+        }
+        if (Obj[17] != null) {
+          jsonObject.put("isoneattrsetvalrequired", Obj[17].toString());
+        } else {
+          jsonObject.put("isoneattrsetvalrequired", "");
+        }
+
+        jsonArray.put(jsonObject);
+
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error whlie Creating Json for attibute set data using pull master process and Error is: "
           + e);
     }
     return jsonArray;
