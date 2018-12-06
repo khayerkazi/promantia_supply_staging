@@ -445,9 +445,12 @@ public class MasterFixtureWSForSL implements WebService {
           + "FROM m_productprice pp   join m_product p on p.m_product_id=pp.m_product_id "
           + "join cl_model ml on p.em_cl_model_id=ml.cl_model_id   join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
           + "where b.name in ('FIXTURES','Events','UNKNOWN') "
-          + "and pp.m_pricelist_version_id in (SELECT DISTINCT m_pricelist_version_id from m_pricelist_version where name = 'DMI CATALOGUE') and pp.updated >= ? ";
+          + "and pp.m_pricelist_version_id in (SELECT DISTINCT m_pricelist_version_id from m_pricelist_version where name = 'DMI CATALOGUE') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(priceSQLQuery);
       query.setDate(0, updatedTime);
+      query.setDate(1, updatedTime);
+      query.setDate(2, updatedTime);
       priceData = query.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -466,11 +469,15 @@ public class MasterFixtureWSForSL implements WebService {
           + " ml.typology, ml.cl_natureofproduct_id, ml.cl_component_brand_id, "
           + " ml.blueproduct, ml.cl_storedept_id, ml.cl_universe_id,  ml.cl_branddepartment_id, imancode "
           + " FROM cl_model ml join m_product p on p.em_cl_model_id=ml.cl_model_id"
+          + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id"
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and ml.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       modelData = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -489,9 +496,14 @@ public class MasterFixtureWSForSL implements WebService {
           + " p.em_cl_volume_pcb, p.em_cl_color_id, p.em_cl_model_id, p.em_cl_age, p.em_cl_gender, p.em_cl_lifestage, p.em_cl_typea, p.em_cl_typeb,"
           + " p.em_cl_typec, p.em_cl_ismii, p.em_ingst_gstproductcode_id "
           + " FROM m_product p join cl_model ml on p.em_cl_model_id=ml.cl_model_id"
-          + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id where b.name in ('FIXTURES','Events','UNKNOWN') and p.updated >= ?";
+          + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
+          + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
+          + "where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? )";
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(productSQLQuery);
       query.setDate(0, updatedTime);
+      query.setDate(1, updatedTime);
+      query.setDate(2, updatedTime);
       prdData = query.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -512,10 +524,15 @@ public class MasterFixtureWSForSL implements WebService {
           + "join m_product p on p.m_product_category_id=e.m_product_category_id  "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + "join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and p.updated >= ? ";
+          + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
+
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -534,13 +551,17 @@ public class MasterFixtureWSForSL implements WebService {
           + "   e.islot, e.m_lotctl_id, e.isguaranteedate, e.guaranteedays, e.islockable, "
           + "   e.isoneattrsetvalrequired "
           + "    FROM m_attributeset e   "
-          + "join m_product p on p.m_attributeset_id=e.m_attributeset_id  "
+          + " join m_product p on p.m_attributeset_id=e.m_attributeset_id  "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
-          + "join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and p.updated >= ? ";
+          + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
+          + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + " and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? )";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -564,10 +585,13 @@ public class MasterFixtureWSForSL implements WebService {
           + "   join m_product p on p.m_product_id=pp.m_product_id "
           + "    join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + "  join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and pp.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -590,10 +614,13 @@ public class MasterFixtureWSForSL implements WebService {
           + "  join m_product p on p.m_product_id=pp.m_product_id  "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and pp.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -614,10 +641,15 @@ public class MasterFixtureWSForSL implements WebService {
           + "     join m_product p on p.em_ingst_gstproductcode_id=e.ingst_gstproductcode_id "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and p.updated >= ? ";
+          + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
+
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -658,18 +690,17 @@ public class MasterFixtureWSForSL implements WebService {
             + " join m_product p on p.em_cl_model_id=ml.cl_model_id ";
       }
       query = query + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
+          + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN')  ";
 
       // query = query + " and e.updated >= ? ";
-      if (Key.equalsIgnoreCase("cl_color")) {
 
-        query = query + " and p.updated >= ? ";
-      } else {
-        query = query + " and ml.updated >= ? ";
+      query = query + " and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? )";
 
-      }
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       listDataObj = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -1132,10 +1163,13 @@ public class MasterFixtureWSForSL implements WebService {
           + " join m_product p on p.m_product_id=pp.m_product_id "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') and pp.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
+      sqlQuery.setDate(1, updatedTime);
+      sqlQuery.setDate(2, updatedTime);
       EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
@@ -1196,12 +1230,16 @@ public class MasterFixtureWSForSL implements WebService {
           + " e.updated, e.updatedby, e.name, e.description , e.isdefault   ,  e.em_ingst_gstproductcode_id, e.asbom     "
           + " FROM c_taxcategory e       "
           + "      join m_product p on p.c_taxcategory_id=e.c_taxcategory_id "
+          + " left join m_productprice pp on p.m_product_id=pp.m_product_id "
           + "     join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN')   and ml.updated >= ? ";
+          + " where b.name in ('FIXTURES','Events','UNKNOWN')   "
+          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(sQLQuery);
       query.setDate(0, updatedTime);
+      query.setDate(1, updatedTime);
+      query.setDate(2, updatedTime);
       prdData = query.list();
     } catch (Exception e) {
       e.printStackTrace();
