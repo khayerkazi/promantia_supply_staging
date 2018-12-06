@@ -386,8 +386,8 @@ public class GeneralMasterSerializer {
 
     } else if (master.equalsIgnoreCase("Greeting")) {
       stBuilder
-          .append("orgAccess where orgAccess.id in (select distinct e.greeting from ADUser e where  e.ibudIssluser="
-              + isIndiaRequest + ")");
+          .append("orgAccess where orgAccess.id in (select distinct e.greeting.id from ADUser e where  e.ibudIssluser="
+              + isIndiaRequest + "");
 
     } else if (master.equalsIgnoreCase("User")) {
       stBuilder.append("orgAccess where ( orgAccess.ibudIssluser=" + isIndiaRequest + ")");
@@ -406,8 +406,11 @@ public class GeneralMasterSerializer {
               + " where ( e.userContact.ibudIssluser=" + isIndiaRequest + "))");
 
     }
-    if (master.equalsIgnoreCase("User") || master.equalsIgnoreCase("Greeting")) {
-      stBuilder.append(" and orgAccess.creationDate > '" + newDate + "'");
+    if (master.equalsIgnoreCase("User")) {
+      stBuilder.append(" and orgAccess.creationDate >= '" + newDate + "'");
+
+    } else if (master.equalsIgnoreCase("Greeting")) {
+      stBuilder.append(" and e.creationDate >= '" + newDate + "')");
 
     } else {
       stBuilder.append(" and orgAccess.updated > '" + newDate + "'");
