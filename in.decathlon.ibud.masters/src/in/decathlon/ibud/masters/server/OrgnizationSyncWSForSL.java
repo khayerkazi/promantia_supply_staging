@@ -4,6 +4,7 @@ import in.decathlon.ibud.orders.client.SOConstants;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +29,6 @@ import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.dal.service.OBQuery;
-import org.openbravo.erpCommon.ad_forms.Role;
 import org.openbravo.model.ad.utility.Tree;
 import org.openbravo.model.ad.utility.TreeNode;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
@@ -36,7 +36,6 @@ import org.openbravo.model.common.currency.Currency;
 import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.enterprise.OrganizationAcctSchema;
 import org.openbravo.model.common.enterprise.OrganizationInformation;
-import org.openbravo.model.common.enterprise.Warehouse;
 import org.openbravo.model.common.order.Order;
 import org.openbravo.model.materialmgmt.transaction.ShipmentInOut;
 import org.openbravo.service.json.DataResolvingMode;
@@ -54,6 +53,7 @@ public class OrgnizationSyncWSForSL implements WebService {
 
   public JSONArray responseShipMent = new JSONArray();
   public static final String shuttleBin = "Shuttel Bin";
+  public static String logger = "";
 
   @Override
   public void doDelete(String path, HttpServletRequest request, HttpServletResponse response)
@@ -79,14 +79,22 @@ public class OrgnizationSyncWSForSL implements WebService {
       HashMap<String, String> poStatusMap = new HashMap<String, String>();
       boolean flag = false;
 
-      JSONArray aa = getJsonData(orders, "org");
+      boolean costcenterFlag = saveJSONObject(getJsonData(orders, "Costcenter"), "Costcenter");
+      boolean organizationFlag = saveJSONObject(getJsonData(orders, "Organization"), "Organization");
+      if (costcenterFlag || organizationFlag) {
+        flag = true;
 
-      respObj.put("data", poStatusMap);
-      respObj.put("errorMessage", poStatusMap);
-
+      }
+      respObj.put("errorMessage", logger);
+      respObj.put("status", flag);
+      logger = "";
       log.debug("response to update po " + poStatusMap);
 
-      response.setHeader("Result", respObj.toString());
+      response.setContentType("text/json");
+      response.setCharacterEncoding("utf-8");
+      final Writer w = response.getWriter();
+      w.write(respObj.toString());
+      w.close();
     } catch (Exception e) {
       e.printStackTrace();
       response.setHeader("Error", e.toString());
@@ -97,10 +105,10 @@ public class OrgnizationSyncWSForSL implements WebService {
   }
 
   @SuppressWarnings("unchecked")
-  public static boolean saveJSONObject(JSONArray jsonArrayContent, String logger) throws Exception {
+  public static boolean saveJSONObject(JSONArray jsonArrayContent, String ProcessentityName)
+      throws Exception {
     SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    boolean isSaved = false;
     JsonToDataConverter fromJsonConverter = new JsonToDataConverter();
     String objectName = "", objectID = "";
     boolean existingOrgActive = false;
@@ -125,11 +133,10 @@ public class OrgnizationSyncWSForSL implements WebService {
     Currency existingCurrency = null;
 
     Organization org = null;
-    Warehouse dwarehouse = null;
-    Role dRole = null;
     BusinessPartner existingPosInvoiceBPartner = null;
 
     Organization dOrg = null;
+    boolean isSaved = true;
     try {
       OBContext.setAdminMode(true);
       // OBDal.getInstance().getSession().beginTransaction();
@@ -137,249 +144,213 @@ public class OrgnizationSyncWSForSL implements WebService {
       Date date = new Date();
       String dateFormat = formater.format(date);
       date = formater.parse(dateFormat);
-
+      int insertCount = 0;
+      int updateCount = 0;
       for (int i = 0; i < jsonArrayContent.length(); i++) {
-        JSONObject entityJson = jsonArrayContent.getJSONObject(i);
-        if (entityJson.has("client") && OBContext.getOBContext().getCurrentClient().getId() != null) {
-          entityJson.remove("client");
-          entityJson.put("client", OBContext.getOBContext().getCurrentClient().getId());
-        }
-        if (entityJson.has("client$_identifier")
-            && OBContext.getOBContext().getCurrentClient().getName() != null) {
-          entityJson.remove("client$_identifier");
-          entityJson.put("client$_identifier", OBContext.getOBContext().getCurrentClient()
-              .getName());
-        }
-        String id = entityJson.getString(JsonConstants.ID);
-        String entityName = entityJson.getString(JsonConstants.ENTITYNAME);
-
-        String query = "from " + entityName + " ent where  ent.id='" + id + "'";
-        log.info("executing query " + query);
-
-        Query qry = OBDal.getInstance().getSession().createQuery(query);
-        List qryList = qry.list();
-        if (qryList != null && qryList.size() > 0) {
-          // object is present in store so update and save it
-
-          log.debug(entityName + " with this id exists");
-          if (entityName.equals("Organization")) {
-            // OBContext.setAdminMode(true);
-            OBContext.getOBContext().addWritableOrganization(id);
-            Organization existingOrg = OBDal.getInstance().get(Organization.class, id);
-            existingOrgActive = existingOrg.isActive();
-            repoPriority = existingOrg.getIbdrepOrgreppriority();
-            poStatusPriority = existingOrg.getIbudsPostatusPriority();
-            existingIsReady = existingOrg.isReady();
-            existingCurrency = existingOrg.getCurrency();
-
-            dSIDEFIslbtapply = existingOrg.isDSIDEFIslbtapply();
-            dsidefPosdoctype = existingOrg.getDsidefPosdoctype();
-            dsidefPostxdoc = existingOrg.getDsidefPostxdoc();
-            dsidefPosinvaddr = existingOrg.getDsidefPosinvaddr();
-            dsidefPospartneraddr = existingOrg.getDsidefPospartneraddr();
-            dsidefPospayterms = existingOrg.getDsidefPospayterms();
-            dsidefPospricelist = existingOrg.getDsidefPospricelist();
-            dsidefPospaymethod = existingOrg.getDsidefPospaymethod();
-            dsidefPoswarehouse = existingOrg.getDsidefPoswarehouse();
-            dsidefShiptime = existingOrg.getDsidefShiptime();
-            dsidefIsautodc = existingOrg.isDsidefIsautodc();
-            dsidefPowarehouse = existingOrg.getDsidefPowarehouse();
-            dsidefStoretimedesc = existingOrg.getDsidefStoretimedesc();
-            dsidefStorephonedesc = existingOrg.getDsidefStorephonedesc();
-            dsidefStoremanagermail = existingOrg.getDsidefStoremanagermail();
-
-            // OBContext.restorePreviousMode();
+        try {
+          JSONObject entityJson = jsonArrayContent.getJSONObject(i);
+          if (entityJson.has("client")
+              && OBContext.getOBContext().getCurrentClient().getId() != null) {
+            entityJson.remove("client");
+            entityJson.put("client", OBContext.getOBContext().getCurrentClient().getId());
           }
-          if (entityName.equals("OrganizationInformation")) {
-            // OBContext.setAdminMode(true);
-            if (id != null) {
+          if (entityJson.has("client$_identifier")
+              && OBContext.getOBContext().getCurrentClient().getName() != null) {
+            entityJson.remove("client$_identifier");
+            entityJson.put("client$_identifier", OBContext.getOBContext().getCurrentClient()
+                .getName());
+          }
+          String id = entityJson.getString(JsonConstants.ID);
+          String entityName = entityJson.getString(JsonConstants.ENTITYNAME);
+
+          String query = "from " + entityName + " ent where  ent.id='" + id + "'";
+          log.info("executing query " + query);
+
+          Query qry = OBDal.getInstance().getSession().createQuery(query);
+          List qryList = qry.list();
+
+          if (qryList != null && qryList.size() > 0) {
+            // object is present in store so update and save it
+
+            log.debug(entityName + " with this id exists");
+            if (entityName.equals("Organization")) {
+              // OBContext.setAdminMode(true);
               OBContext.getOBContext().addWritableOrganization(id);
-              OrganizationInformation existingOrginfo = OBDal.getInstance().get(
-                  OrganizationInformation.class, id);
-              existingPosInvoiceBPartner = existingOrginfo.getDsidefPosinvoicebp();
+              Organization existingOrg = OBDal.getInstance().get(Organization.class, id);
+              existingOrgActive = existingOrg.isActive();
+              repoPriority = existingOrg.getIbdrepOrgreppriority();
+              poStatusPriority = existingOrg.getIbudsPostatusPriority();
+              existingIsReady = existingOrg.isReady();
+              existingCurrency = existingOrg.getCurrency();
+
+              dSIDEFIslbtapply = existingOrg.isDSIDEFIslbtapply();
+              dsidefPosdoctype = existingOrg.getDsidefPosdoctype();
+              dsidefPostxdoc = existingOrg.getDsidefPostxdoc();
+              dsidefPosinvaddr = existingOrg.getDsidefPosinvaddr();
+              dsidefPospartneraddr = existingOrg.getDsidefPospartneraddr();
+              dsidefPospayterms = existingOrg.getDsidefPospayterms();
+              dsidefPospricelist = existingOrg.getDsidefPospricelist();
+              dsidefPospaymethod = existingOrg.getDsidefPospaymethod();
+              dsidefPoswarehouse = existingOrg.getDsidefPoswarehouse();
+              dsidefShiptime = existingOrg.getDsidefShiptime();
+              dsidefIsautodc = existingOrg.isDsidefIsautodc();
+              dsidefPowarehouse = existingOrg.getDsidefPowarehouse();
+              dsidefStoretimedesc = existingOrg.getDsidefStoretimedesc();
+              dsidefStorephonedesc = existingOrg.getDsidefStorephonedesc();
+              dsidefStoremanagermail = existingOrg.getDsidefStoremanagermail();
+
+              // OBContext.restorePreviousMode();
             }
-            // OBContext.restorePreviousMode();
+            if (entityName.equals("OrganizationInformation")) {
+              // OBContext.setAdminMode(true);
+              if (id != null) {
+                OBContext.getOBContext().addWritableOrganization(id);
+                OrganizationInformation existingOrginfo = OBDal.getInstance().get(
+                    OrganizationInformation.class, id);
+                existingPosInvoiceBPartner = existingOrginfo.getDsidefPosinvoicebp();
+              }
+              // OBContext.restorePreviousMode();
 
-          }
+            }
 
-          entityJson.put(JsonConstants.NEW_INDICATOR, false);
-          BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
-          objectName = bob.getEntityName();
-          objectID = bob.getIdentifier();
-          bob.setValue("updated", date);
-          // bob.setValue("creationDate", date);
-          if (entityName.equals("Product")) {
-            bob.setValue("storageBin", null);
-          }
+            entityJson.put(JsonConstants.NEW_INDICATOR, false);
+            BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
+            objectName = bob.getEntityName();
+            objectID = bob.getIdentifier();
+            bob.setValue("updated", date);
+            // bob.setValue("creationDate", date);
+            if (entityName.equals("Product")) {
+              bob.setValue("storageBin", null);
+            }
+            if (entityName.equals("Organization")) {
+              // OBContext.setAdminMode(true);
+              OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+              bob.setValue("active", existingOrgActive);
+              bob.setValue("ibdrepOrgreppriority", repoPriority);
+              bob.setValue("ibudsPostatusPriority", poStatusPriority);
+              bob.setValue("ready", existingIsReady);
+              bob.setValue("currency", existingCurrency);
 
-          if (entityName.equals("CL_Model")) {
-            bob.setValue("prmiProcess", null);
-            bob.setValue("prmiComponentlabel", null);
-          }
-          if (entityName.equals("Organization")) {
+              bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
+              bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
+              bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
+              bob.setValue("dsidefPosinvaddr", dsidefPosinvaddr);
+              bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
+              bob.setValue("dsidefPospayterms", dsidefPospayterms);
+              bob.setValue("dsidefPospricelist", dsidefPospricelist);
+              bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
+              bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
+              bob.setValue("dsidefShiptime", dsidefShiptime);
+              bob.setValue("dsidefIsautodc", dsidefIsautodc);
+              bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
+              bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
+              bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
+              bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
+
+              // OBContext.restorePreviousMode();
+            }
+            if (entityName.equals("OrganizationInformation")) {
+              // OBContext.setAdminMode(true);
+              OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+              bob.setValue("yourCompanyDocumentImage", null);
+              bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
+              // OBContext.restorePreviousMode();
+            }
+
+            if (entityName.equals("BusinessPartner")) {
+              bob.setValue("rCOxylane", null);
+            }
             // OBContext.setAdminMode(true);
-            OBContext.getOBContext().addWritableOrganization((String) bob.getId());
-            bob.setValue("active", existingOrgActive);
-            bob.setValue("ibdrepOrgreppriority", repoPriority);
-            bob.setValue("ibudsPostatusPriority", poStatusPriority);
-            bob.setValue("ready", existingIsReady);
-            bob.setValue("currency", existingCurrency);
+            OBDal.getInstance().save(bob);
+            OBDal.getInstance().flush();
 
-            bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
-            bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
-            bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
-            bob.setValue("dsidefPosinvaddr", dsidefPosinvaddr);
-            bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
-            bob.setValue("dsidefPospayterms", dsidefPospayterms);
-            bob.setValue("dsidefPospricelist", dsidefPospricelist);
-            bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
-            bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
-            bob.setValue("dsidefShiptime", dsidefShiptime);
-            bob.setValue("dsidefIsautodc", dsidefIsautodc);
-            bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
-            bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
-            bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
-            bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
+            if (entityName.equals("FinancialMgmtTaxRate")) {
+              deleteExtraTaxacct(id);
+            }
+            updateCount++;
+          } else {
+            // Object is not present in Store so create it
 
-            // OBContext.restorePreviousMode();
-          }
-          if (entityName.equals("OrganizationInformation")) {
-            // OBContext.setAdminMode(true);
-            OBContext.getOBContext().addWritableOrganization((String) bob.getId());
-            bob.setValue("yourCompanyDocumentImage", null);
-            bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
-            // OBContext.restorePreviousMode();
-          }
-          if (entityName.equals("ADUser")) {
-            // OBContext.setAdminMode(true);
+            log.info(entityName + " with id=" + id + " does not exist, so inserting in DB");
+
+            BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
+            objectName = bob.getEntityName();
+            objectID = bob.getIdentifier();
+
+            if (entityName.equals("Product")) {
+              bob.setValue("storageBin", null);
+            }
+            if (entityName.equals("CL_Model")) {
+              bob.setValue("prmiProcess", null);
+              bob.setValue("prmiComponentlabel", null);
+            }
+
+            bob.setValue("id", id);
+            if (entityName.equals("Organization")) {
+
+              OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+
+              bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
+              bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
+              bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
+              bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
+              bob.setValue("dsidefPospayterms", dsidefPospayterms);
+              bob.setValue("dsidefPospricelist", dsidefPospricelist);
+              bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
+              bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
+              bob.setValue("dsidefShiptime", dsidefShiptime);
+              bob.setValue("dsidefIsautodc", dsidefIsautodc);
+              bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
+              bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
+              bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
+              bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
+            }
+            if (entityName.equals("OrganizationInformation")) {
+              bob.setValue("yourCompanyDocumentImage", null);
+              bob.setValue("dsidefPosinvoicebp", null);
+            }
+            bob.setValue("updated", date);
             bob.setValue("creationDate", date);
+            // bob.setValue("createdBy", OBContext.getOBContext().getUser());
+            // bob.setValue("updatedBy", OBContext.getOBContext().getUser());
 
-            bob.setValue("organization", org);
-            bob.setValue("defaultWarehouse", dwarehouse);
-            bob.setValue("defaultOrganization", dOrg);
-            bob.setValue("defaultRole", dRole);
-            bob.setValue("businessPartner", null);
-            bob.setValue("partnerAddress", null);
+            // Deletion of old tree node in Org pull
 
+            if (entityName.equals("ADSequence")) {
+              String name = entityJson.getString("name");
+              deleteExistingSequence(name);
+            }
+
+            if (entityName.equals("BusinessPartner")) {
+              bob.setValue("rCOxylane", null);
+            }
+            OBDal.getInstance().save(bob);
+            OBDal.getInstance().flush();
+
+            log.info(entityName + " with id=" + id + " saved/updated");
+
+            if (entityName.equals("FinancialMgmtTaxRate")) {
+              deleteExtraTaxacct(id);
+            }
+
+            insertCount++;
           }
-
-          if (entityName.equals("BusinessPartner")) {
-            bob.setValue("rCOxylane", null);
-          }
-          // OBContext.setAdminMode(true);
-          OBDal.getInstance().save(bob);
-          // OBDal.getInstance().flush();
-
-          if (entityName.equals("FinancialMgmtTaxRate")) {
-            deleteExtraTaxacct(id);
-          }
-          // OBContext.restorePreviousMode();
-          isSaved = true;
-          logger = logger + " Updated the Record for " + entityName + " with id: " + id;
-
-        } else {
-          // Object is not present in Store so create it
-
-          log.info(entityName + " with id=" + id + " does not exist");
-          log.debug(entityJson);
-
-          BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
-          objectName = bob.getEntityName();
-          objectID = bob.getIdentifier();
-
-          if (entityName.equals("Product")) {
-            bob.setValue("storageBin", null);
-          }
-          if (entityName.equals("CL_Model")) {
-            bob.setValue("prmiProcess", null);
-            bob.setValue("prmiComponentlabel", null);
-          }
-
-          bob.setValue("id", id);
-          if (entityName.equals("Organization")) {
-            // if (entityName.equals("Organization")){
-            // OBContext.setAdminMode(true);
-            OBContext.getOBContext().addWritableOrganization((String) bob.getId());
-
-            bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
-            bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
-            bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
-            bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
-            bob.setValue("dsidefPospayterms", dsidefPospayterms);
-            bob.setValue("dsidefPospricelist", dsidefPospricelist);
-            bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
-            bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
-            bob.setValue("dsidefShiptime", dsidefShiptime);
-            bob.setValue("dsidefIsautodc", dsidefIsautodc);
-            bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
-            bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
-            bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
-            bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
-          }
-          if (entityName.equals("OrganizationInformation")) {
-            bob.setValue("yourCompanyDocumentImage", null);
-            bob.setValue("dsidefPosinvoicebp", null);
-          }
-          bob.setValue("updated", date);
-          bob.setValue("creationDate", date);
-          // bob.setValue("createdBy", OBContext.getOBContext().getUser());
-          // bob.setValue("updatedBy", OBContext.getOBContext().getUser());
-
-          // Deletion of old tree node in Org pull
-          if (entityName.equals("ADTreeNode")) {
-            // OBDal.getInstance().flush();
-            // OBContext.setAdminMode(true);
-            String treeNodeId = entityJson.getString("tree");
-            String nodeId = entityJson.getString("node");
-            deleteExistingTreeNode(treeNodeId, nodeId);
-
-            // OBContext.restorePreviousMode();
-          }
-          // Delete document sequence created by trigger
-          if (entityName.equals("ADSequence")) {
-            String name = entityJson.getString("name");
-            deleteExistingSequence(name);
-            // OBDal.getInstance().flush();
-          }
-
-          if (entityName.equals("BusinessPartner")) {
-            bob.setValue("rCOxylane", null);
-          }
-          OBDal.getInstance().save(bob);
-
-          log.info(entityName + " with id=" + id + " saved/updated");
-          // OBDal.getInstance().flush();
-
-          if (entityName.equals("FinancialMgmtTaxRate")) {
-            deleteExtraTaxacct(id);
-          }
-
-          isSaved = true;
-          // OBContext.restorePreviousMode();
-          logger = logger + " Inserted the Record for " + entityName + " with id: " + id;
-
+        } catch (Exception e) {
+          isSaved = false;
+          logger = logger + " Error while Processing for Entity:[" + objectName + "]Identifier : ["
+              + objectID + "] ," + e + " \n";
         }
+
       }
+
+      logger = logger + "Record " + ProcessentityName + " and Inserted the Record cound is: "
+          + insertCount + " and update record count id: " + updateCount + " \n";
+
     } catch (Exception e) {
-      log.error("Error while saving/updating - " + e);
       isSaved = false;
-      logger = logger + " Error while Processing for Entity:[" + objectName + "]Identifier : ["
-          + objectID + "] ," + e;
-      throw new OBException("Entity:[" + objectName + "]Identifier : [" + objectID + "] ," + e);
 
     } finally {
-      try {
-        OBDal.getInstance().flush();
-
-      } catch (Exception e) {
-        logger = logger + " Error while Saving the record for Entity:[" + objectName
-            + "] Identifier : [" + objectID + "] ,";
-        isSaved = false;
-
-        throw new Exception("Entity:[" + objectName + "] Identifier : [" + objectID + "] ," + e);
-      } finally {
-        OBContext.restorePreviousMode();
-      }
+      OBContext.restorePreviousMode();
 
     }
     return isSaved;
