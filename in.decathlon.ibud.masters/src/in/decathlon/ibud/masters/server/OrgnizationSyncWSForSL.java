@@ -1,11 +1,8 @@
 package in.decathlon.ibud.masters.server;
 
-import in.decathlon.ibud.orders.client.SOConstants;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,27 +20,19 @@ import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.openbravo.base.exception.OBException;
 import org.openbravo.base.structure.BaseOBObject;
-import org.openbravo.base.util.Check;
 import org.openbravo.dal.core.OBContext;
-import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
-import org.openbravo.dal.service.OBQuery;
-import org.openbravo.model.ad.utility.Tree;
-import org.openbravo.model.ad.utility.TreeNode;
+import org.openbravo.model.ad.access.User;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
 import org.openbravo.model.common.currency.Currency;
 import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.enterprise.OrganizationAcctSchema;
 import org.openbravo.model.common.enterprise.OrganizationInformation;
-import org.openbravo.model.common.order.Order;
-import org.openbravo.model.materialmgmt.transaction.ShipmentInOut;
-import org.openbravo.service.json.DataResolvingMode;
-import org.openbravo.service.json.DataToJsonConverter;
+import org.openbravo.model.financialmgmt.accounting.coa.AcctSchema;
 import org.openbravo.service.json.JsonConstants;
 import org.openbravo.service.json.JsonToDataConverter;
 import org.openbravo.service.web.WebService;
-import org.openbravo.warehouse.shipping.OBWSHIPShipping;
 
 import com.ibm.icu.text.SimpleDateFormat;
 
@@ -78,12 +67,22 @@ public class OrgnizationSyncWSForSL implements WebService {
 
       HashMap<String, String> poStatusMap = new HashMap<String, String>();
       boolean flag = false;
-
-      boolean costcenterFlag = saveJSONObject(getJsonData(orders, "Costcenter"), "Costcenter");
-      boolean organizationFlag = saveJSONObject(getJsonData(orders, "Organization"), "Organization");
-      if (costcenterFlag || organizationFlag) {
+      boolean actschemaFlag = true;
+      boolean organizationFlag = true;
+      if (orders.has("FinancialMgmtAcctSchema")) {
+        actschemaFlag = saveJSONObject(getJsonData(orders, "FinancialMgmtAcctSchema"),
+            "FinancialMgmtAcctSchema");
+      }
+      boolean OrganizationTypeFlag = true;
+      if (orders.has("OrganizationType")) {
+        OrganizationTypeFlag = saveJSONObject(getJsonData(orders, "OrganizationType"),
+            "OrganizationType");
+      }
+      if (orders.has("Organization")) {
+        organizationFlag = saveJSONObject(getJsonData(orders, "Organization"), "Organization");
+      }
+      if (OrganizationTypeFlag && organizationFlag && actschemaFlag) {
         flag = true;
-
       }
       respObj.put("errorMessage", logger);
       respObj.put("status", flag);
@@ -102,6 +101,66 @@ public class OrgnizationSyncWSForSL implements WebService {
       log.error(e);
       throw e;
     }
+  }
+
+  @Override
+  public void doPut(String path, HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
+    throw new NotImplementedException("method not implemented");
+  }
+
+  public String processServerResponse(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    String content = getContentFromRequest(request);
+    return content;
+  }
+
+  private String getContentFromRequest(HttpServletRequest request) throws IOException {
+    StringWriter writer = new StringWriter();
+    IOUtils.copy(request.getInputStream(), writer, "UTF-8");
+    String Orders = writer.toString();
+    return Orders;
+  }
+
+  private static void deleteExistingSequence(String name) {
+    String qry = "delete from ADSequence seq where seq.name='" + name + "'";
+    Query query = OBDal.getInstance().getSession().createQuery(qry);
+    int rowUpdated = query.executeUpdate();
+    log.info("Row Updated=" + rowUpdated);
+  }
+
+  private static void deleteExtraTaxacct(String taxRateId) {
+    String taxAcctId = getTaxAcctRecord();
+    String qry = "delete from FinancialMgmtTaxRateAccounts where tax.id='" + taxRateId
+        + "' and accountingSchema.id='" + taxAcctId + "'";
+    Query query = OBDal.getInstance().getSession().createQuery(qry);
+    int rowUpdated = query.executeUpdate();
+    log.info("Row Updated=" + rowUpdated);
+
+  }
+
+  private static String getTaxAcctRecord() {
+    OBCriteria<OrganizationAcctSchema> orgActSchemaCrit = OBDal.getInstance().createCriteria(
+        OrganizationAcctSchema.class);
+    orgActSchemaCrit.add(Restrictions.eq(OrganizationAcctSchema.PROPERTY_CLIENT, OBContext
+        .getOBContext().getCurrentClient()));
+    orgActSchemaCrit.setMaxResults(1);
+    List<OrganizationAcctSchema> orgAcctList = orgActSchemaCrit.list();
+    if (orgAcctList.size() > 0)
+      return orgActSchemaCrit.list().get(0).getAccountingSchema().getId();
+    else
+      throw new OBException("There is no record in AD_org_AcctSchema with current client");
+  }
+
+  private JSONArray getJsonData(JSONObject orders, String delimeter) throws JSONException {
+    try {
+      JSONArray arr = new JSONArray();
+      arr = orders.getJSONArray(delimeter);
+      return arr;
+    } catch (Exception e) {
+      log.error("Error", e);
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")
@@ -151,14 +210,19 @@ public class OrgnizationSyncWSForSL implements WebService {
           JSONObject entityJson = jsonArrayContent.getJSONObject(i);
           if (entityJson.has("client")
               && OBContext.getOBContext().getCurrentClient().getId() != null) {
-            entityJson.remove("client");
             entityJson.put("client", OBContext.getOBContext().getCurrentClient().getId());
           }
           if (entityJson.has("client$_identifier")
               && OBContext.getOBContext().getCurrentClient().getName() != null) {
-            entityJson.remove("client$_identifier");
             entityJson.put("client$_identifier", OBContext.getOBContext().getCurrentClient()
                 .getName());
+          }
+          if (entityJson.has("createdby")
+              && OBContext.getOBContext().getCurrentClient().getId() != null) {
+            entityJson.put("createdby", getUserId(entityJson.getString("createdby")));
+          }
+          if (entityJson.has("updatedby")) {
+            entityJson.put("updatedby", getUserId(entityJson.getString("updatedby")));
           }
           String id = entityJson.getString(JsonConstants.ID);
           String entityName = entityJson.getString(JsonConstants.ENTITYNAME);
@@ -173,10 +237,71 @@ public class OrgnizationSyncWSForSL implements WebService {
             // object is present in store so update and save it
 
             log.debug(entityName + " with this id exists");
+
+            if (entityName.equals("FinancialMgmtAcctSchema")) {
+              OBCriteria<AcctSchema> Crit = OBDal.getInstance().createCriteria(AcctSchema.class);
+
+              AcctSchema existingUser = OBDal.getInstance().get(AcctSchema.class, id);
+              if (existingUser.getClient().getId() != OBContext.getOBContext().getCurrentClient()
+                  .getId()) {
+                Crit.add(Restrictions.eq(AcctSchema.PROPERTY_CLIENT, existingUser.getClient()));
+                entityJson.put("client", existingUser.getClient().getId());
+                entityJson.put("client$_identifier", existingUser.getClient().getName());
+
+              } else {
+                Crit.add(Restrictions.eq(AcctSchema.PROPERTY_CLIENT, OBContext.getOBContext()
+                    .getCurrentClient()));
+              }
+              Crit.add(Restrictions.eq(AcctSchema.PROPERTY_NAME, entityJson.getString("name")));
+
+              List<AcctSchema> list = Crit.list();
+              if (list != null && list.size() > 0) {
+                AcctSchema Obj = list.get(0);
+                if (!Obj.getId().equals(id)) {
+                  logger = logger + "Acct Schema Name already present in Supply DB with id:"
+                      + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                      + ", So Skip the updation action on record \n";
+                  continue;
+                }
+              }
+
+            }
             if (entityName.equals("Organization")) {
               // OBContext.setAdminMode(true);
               OBContext.getOBContext().addWritableOrganization(id);
               Organization existingOrg = OBDal.getInstance().get(Organization.class, id);
+
+              OBCriteria<Organization> orgCrit = OBDal.getInstance().createCriteria(
+                  Organization.class);
+
+              Organization existingUser = OBDal.getInstance().get(Organization.class, id);
+              if (existingUser.getClient().getId() != OBContext.getOBContext().getCurrentClient()
+                  .getId()) {
+                orgCrit
+                    .add(Restrictions.eq(Organization.PROPERTY_CLIENT, existingUser.getClient()));
+                entityJson.put("client", existingUser.getClient().getId());
+                entityJson.put("client$_identifier", existingUser.getClient().getName());
+
+              } else {
+                orgCrit.add(Restrictions.eq(Organization.PROPERTY_CLIENT, OBContext.getOBContext()
+                    .getCurrentClient()));
+              }
+
+              orgCrit.add(Restrictions.eq(Organization.PROPERTY_SEARCHKEY,
+                  entityJson.getString("searchKey")));
+
+              List<Organization> orgList = orgCrit.list();
+              if (orgList != null && orgList.size() > 0) {
+                Organization orgObj = orgList.get(0);
+                if (!orgObj.getId().equals(id)) {
+                  logger = logger + "Organization Search Key already present with id:"
+                      + orgObj.getId() + " in Supply DB with Search Key is: "
+                      + entityJson.getString("searchKey")
+                      + " , So Skip the updation action on record \n";
+                  continue;
+                }
+              }
+
               existingOrgActive = existingOrg.isActive();
               repoPriority = existingOrg.getIbdrepOrgreppriority();
               poStatusPriority = existingOrg.getIbudsPostatusPriority();
@@ -286,10 +411,47 @@ public class OrgnizationSyncWSForSL implements WebService {
             }
 
             bob.setValue("id", id);
+            if (entityName.equals("FinancialMgmtAcctSchema")) {
+
+              OBCriteria<AcctSchema> Crit = OBDal.getInstance().createCriteria(AcctSchema.class);
+              Crit.add(Restrictions.eq(AcctSchema.PROPERTY_CLIENT, OBContext.getOBContext()
+                  .getCurrentClient()));
+              Crit.add(Restrictions.eq(AcctSchema.PROPERTY_NAME, entityJson.getString("name")));
+
+              List<AcctSchema> list = Crit.list();
+              if (list != null && list.size() > 0) {
+                AcctSchema Obj = list.get(0);
+
+                logger = logger + "Acct Schema Name already present in Supply DB with id:"
+                    + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                    + " , So Skip the Insert action on record \n";
+                continue;
+
+              }
+
+            }
             if (entityName.equals("Organization")) {
 
               OBContext.getOBContext().addWritableOrganization((String) bob.getId());
 
+              OBCriteria<Organization> orgCrit = OBDal.getInstance().createCriteria(
+                  Organization.class);
+              orgCrit.add(Restrictions.eq(Organization.PROPERTY_CLIENT, OBContext.getOBContext()
+                  .getCurrentClient()));
+              orgCrit.add(Restrictions.eq(Organization.PROPERTY_SEARCHKEY,
+                  entityJson.getString("searchKey")));
+
+              List<Organization> orgList = orgCrit.list();
+              if (orgList != null && orgList.size() > 0) {
+                Organization orgObj = orgList.get(0);
+
+                logger = logger + "Organization Search Key already present with id:"
+                    + orgObj.getId() + " in Supply DB with Search Key is: "
+                    + entityJson.getString("searchKey")
+                    + " , So Skip the Insert action on record  \n";
+                continue;
+
+              }
               bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
               bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
               bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
@@ -311,8 +473,8 @@ public class OrgnizationSyncWSForSL implements WebService {
             }
             bob.setValue("updated", date);
             bob.setValue("creationDate", date);
-            // bob.setValue("createdBy", OBContext.getOBContext().getUser());
-            // bob.setValue("updatedBy", OBContext.getOBContext().getUser());
+            bob.setValue("createdBy", OBContext.getOBContext().getUser());
+            bob.setValue("updatedBy", OBContext.getOBContext().getUser());
 
             // Deletion of old tree node in Org pull
 
@@ -357,214 +519,17 @@ public class OrgnizationSyncWSForSL implements WebService {
 
   }
 
-  private void completeShipping(ShipmentInOut shipmentInOut) {
-    String qry = "select shipd.goodsShipment from OBWSHIP_Shipping ship "
-        + " join ship.oBWSHIPShippingDetailsList shipd where ship.id = (select ship.id from OBWSHIP_Shipping ship "
-        + " join ship.oBWSHIPShippingDetailsList shipd where shipd.goodsShipment.id ='"
-        + shipmentInOut.getId() + "')" + " and shipd.goodsShipment.id <>'" + shipmentInOut.getId()
-        + "'";
-    Query query = OBDal.getInstance().getSession().createQuery(qry);
-    List<ShipmentInOut> queryList = query.list();
-    Boolean allRecClosed = true;
-    for (ShipmentInOut shipOut : queryList) {
-      if (shipOut.getDocumentStatus().equals(SOConstants.CompleteDocumentStatus)) {
-        allRecClosed = true;
+  public static String getUserId(String id) throws Exception {
+    String userid = "100";
+    if (!id.equals(userid)) {
+      User existingUser = OBDal.getInstance().get(User.class, id);
+      if (existingUser != null) {
+        userid = existingUser.getId();
       } else {
-        allRecClosed = false;
-        break;
+        logger = logger + "User is not Present in DB with id: " + id + " \n";
       }
     }
-    if (allRecClosed.equals(true)) {
-      OBWSHIPShipping shipping;
-      String shippingQry = "select ship from OBWSHIP_Shipping ship join ship.oBWSHIPShippingDetailsList shipd "
-          + "where shipd.goodsShipment.id =:shipmentId";
-      Query shippingQuery = OBDal.getInstance().getSession().createQuery(shippingQry);
-      shippingQuery.setParameter("shipmentId", shipmentInOut.getId());
-      List<OBWSHIPShipping> shippingList = shippingQuery.list();
-      if (shippingList != null & shippingList.size() > 0) {
-        shipping = shippingList.get(0);
-        shipping.setDocumentStatus(SOConstants.CompleteDocumentStatus);
-        OBDal.getInstance().save(shipping);
-      }
-    }
-  }
+    return userid;
 
-  private ShipmentInOut getShipment(String documentNo) {
-    OBCriteria<ShipmentInOut> shpmntCrit = OBDal.getInstance().createCriteria(ShipmentInOut.class);
-    shpmntCrit.add(Restrictions.eq(ShipmentInOut.PROPERTY_DOCUMENTNO, documentNo));
-    shpmntCrit.add(Restrictions.eq(ShipmentInOut.PROPERTY_SALESTRANSACTION, true));
-    shpmntCrit.add(Restrictions.eq(ShipmentInOut.PROPERTY_CLIENT, OBContext.getOBContext()
-        .getCurrentClient()));
-
-    List<ShipmentInOut> shpmntCritList = shpmntCrit.list();
-    if (shpmntCritList != null && shpmntCritList.size() > 0) {
-      return shpmntCritList.get(0);
-    } else {
-      throw new OBException("shipment " + documentNo + " not found");
-    }
-  }
-
-  private boolean closeSOinSupply(ShipmentInOut io) {
-    try {
-      boolean flag = false;
-      String shipmentDoc = io.getDocumentNo();
-
-      Boolean isSalesTransaction = io.isSalesTransaction();
-      String ordQry = "";
-      ordQry = "id in (select ord.id from Order ord where ord.documentNo = '" + shipmentDoc
-          + "' and ord.salesTransaction = :isSalesTransaction)";
-
-      OBQuery<Order> orderQuery = OBDal.getInstance().createQuery(Order.class, ordQry);
-      orderQuery.setNamedParameter("isSalesTransaction", isSalesTransaction);
-
-      List<Order> orderList = orderQuery.list();
-
-      for (Order ord : orderList) {
-        ord.setDocumentStatus("CL");
-        ord.setDocumentAction("--");
-        ord.setProcessed(true);
-        OBDal.getInstance().save(ord);
-        OBDal.getInstance().flush();
-
-      }
-      return flag;
-    } catch (Exception e) {
-      log.debug("Error closing PO/SO" + e);
-    }
-    return false;
-  }
-
-  @Override
-  public void doPut(String path, HttpServletRequest request, HttpServletResponse response)
-      throws Exception {
-    throw new NotImplementedException("method not implemented");
-  }
-
-  public String processServerResponse(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-    String content = getContentFromRequest(request);
-    return content;
-  }
-
-  private String getContentFromRequest(HttpServletRequest request) throws IOException {
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(request.getInputStream(), writer, "UTF-8");
-    String Orders = writer.toString();
-    return Orders;
-  }
-
-  private static void deleteExistingSequence(String name) {
-    String qry = "delete from ADSequence seq where seq.name='" + name + "'";
-    Query query = OBDal.getInstance().getSession().createQuery(qry);
-    int rowUpdated = query.executeUpdate();
-    log.info("Row Updated=" + rowUpdated);
-  }
-
-  private static void deleteExistingTreeNode(String treeNodeId, String nodeId) {
-    Tree tree = OBDal.getInstance().get(Tree.class, treeNodeId);
-
-    String qry = "id in (select id from ADTreeNode where tree.id='" + treeNodeId + "' and node='"
-        + nodeId + "')";
-    OBQuery<TreeNode> treeQuery = OBDal.getInstance().createQuery(TreeNode.class, qry);
-    treeQuery.setFilterOnActive(false);
-    treeQuery.setFilterOnReadableOrganization(false);
-    List<TreeNode> treeList = treeQuery.list();
-    log.info("adtreenodes size= " + treeList.size());
-    if (treeList.size() > 0) {
-      OBDal.getInstance().remove(treeList.get(0));
-      log.debug("removed");
-    }
-    SessionHandler.getInstance().commitAndStart();
-  }
-
-  private static TreeNode getTreeNode(Organization organization) {
-    OBCriteria<TreeNode> oldTreeNodeCrit = OBDal.getInstance().createCriteria(TreeNode.class);
-    oldTreeNodeCrit.add(Restrictions.eq(TreeNode.PROPERTY_ORGANIZATION, organization));
-    List<TreeNode> treeNodeList = oldTreeNodeCrit.list();
-    if (treeNodeList != null && treeNodeList.size() > 0)
-      return oldTreeNodeCrit.list().get(0);
-    else
-      return null;
-  }
-
-  private static void deleteExtraTaxacct(String taxRateId) {
-    String taxAcctId = getTaxAcctRecord();
-    String qry = "delete from FinancialMgmtTaxRateAccounts where tax.id='" + taxRateId
-        + "' and accountingSchema.id='" + taxAcctId + "'";
-    Query query = OBDal.getInstance().getSession().createQuery(qry);
-    int rowUpdated = query.executeUpdate();
-    log.info("Row Updated=" + rowUpdated);
-
-  }
-
-  private static String getTaxAcctRecord() {
-    OBCriteria<OrganizationAcctSchema> orgActSchemaCrit = OBDal.getInstance().createCriteria(
-        OrganizationAcctSchema.class);
-    orgActSchemaCrit.add(Restrictions.eq(OrganizationAcctSchema.PROPERTY_CLIENT, OBContext
-        .getOBContext().getCurrentClient()));
-    orgActSchemaCrit.setMaxResults(1);
-    List<OrganizationAcctSchema> orgAcctList = orgActSchemaCrit.list();
-    if (orgAcctList.size() > 0)
-      return orgActSchemaCrit.list().get(0).getAccountingSchema().getId();
-    else
-      throw new OBException("There is no record in AD_org_AcctSchema with current client");
-  }
-
-  public static Object getContentAsJSON(String content) throws JSONException {
-    Check.isNotNull(content, "Content must be set");
-    final Object jsonRepresentation;
-    if (content.trim().startsWith("[")) {
-      jsonRepresentation = new JSONArray(content);
-    } else {
-      final JSONObject jsonObject = new JSONObject(content);
-      jsonRepresentation = jsonObject.get(JsonConstants.DATA);
-    }
-    return jsonRepresentation;
-  }
-
-  public static JSONObject convetBobToJson(BaseOBObject bob) throws JSONException {
-    DataToJsonConverter dataToJsonConverter = new DataToJsonConverter();
-
-    JSONObject jsonObj = dataToJsonConverter.toJsonObject(bob, DataResolvingMode.FULL);
-    jsonObj.put(JsonConstants.NEW_INDICATOR, true);
-    jsonObj.put("updatedTime", new Date());
-    jsonObj.put("_idGenerate", "generated");
-    jsonObj.remove("updated");
-    jsonObj.remove("recordTime");
-
-    return jsonObj;
-
-  }
-
-  public static List<JSONObject> convertBobListToJsonList(List<? extends BaseOBObject> boblist)
-      throws JSONException {
-    DataToJsonConverter dataToJsonConverter = new DataToJsonConverter();
-
-    List<JSONObject> jsonObjList = new ArrayList<JSONObject>();
-    BaseOBObject bob;
-    for (int i = 0; i < boblist.size(); i++) {
-      bob = boblist.get(i);
-      JSONObject jsonObj = dataToJsonConverter.toJsonObject(bob, DataResolvingMode.FULL);
-      jsonObj.put(JsonConstants.NEW_INDICATOR, true);
-      jsonObj.put("updatedTime", new Date());
-      jsonObj.put("_idGenerate", "generated");
-      jsonObj.remove("updated");
-      jsonObj.remove("recordTime");
-      jsonObjList.add(jsonObj);
-
-    }
-
-    return jsonObjList;
-  }
-
-  private JSONArray getJsonData(JSONObject orders, String delimeter) throws JSONException {
-    try {
-      JSONArray arr = new JSONArray();
-      arr = orders.getJSONArray(delimeter);
-      return arr;
-    } catch (Exception e) {
-      log.error("Error", e);
-    }
-    return null;
   }
 }
