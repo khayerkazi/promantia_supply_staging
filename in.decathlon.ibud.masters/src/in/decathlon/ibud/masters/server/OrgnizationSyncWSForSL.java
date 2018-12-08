@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,15 +64,16 @@ public class OrgnizationSyncWSForSL implements WebService {
       String result = processServerResponse(request, response);
       JSONObject orders = new JSONObject(result);
 
-      HashMap<String, String> poStatusMap = new HashMap<String, String>();
       boolean flag = false;
       boolean actschemaFlag = true;
       boolean organizationFlag = true;
+      boolean OrganizationTypeFlag = true;
+      boolean locationFlag = true;
+
       if (orders.has("FinancialMgmtAcctSchema")) {
         actschemaFlag = saveJSONObject(getJsonData(orders, "FinancialMgmtAcctSchema"),
             "FinancialMgmtAcctSchema");
       }
-      boolean OrganizationTypeFlag = true;
       if (orders.has("OrganizationType")) {
         OrganizationTypeFlag = saveJSONObject(getJsonData(orders, "OrganizationType"),
             "OrganizationType");
@@ -81,13 +81,16 @@ public class OrgnizationSyncWSForSL implements WebService {
       if (orders.has("Organization")) {
         organizationFlag = saveJSONObject(getJsonData(orders, "Organization"), "Organization");
       }
-      if (OrganizationTypeFlag && organizationFlag && actschemaFlag) {
+
+      if (orders.has("Location")) {
+        locationFlag = saveJSONObject(getJsonData(orders, "Location"), "Location");
+      }
+      if (OrganizationTypeFlag && organizationFlag && actschemaFlag && locationFlag) {
         flag = true;
       }
       respObj.put("errorMessage", logger);
       respObj.put("status", flag);
       logger = "";
-      log.debug("response to update po " + poStatusMap);
 
       response.setContentType("text/json");
       response.setCharacterEncoding("utf-8");
@@ -217,8 +220,7 @@ public class OrgnizationSyncWSForSL implements WebService {
             entityJson.put("client$_identifier", OBContext.getOBContext().getCurrentClient()
                 .getName());
           }
-          if (entityJson.has("createdby")
-              && OBContext.getOBContext().getCurrentClient().getId() != null) {
+          if (entityJson.has("createdby")) {
             entityJson.put("createdby", getUserId(entityJson.getString("createdby")));
           }
           if (entityJson.has("updatedby")) {
@@ -242,6 +244,7 @@ public class OrgnizationSyncWSForSL implements WebService {
               OBCriteria<AcctSchema> Crit = OBDal.getInstance().createCriteria(AcctSchema.class);
 
               AcctSchema existingUser = OBDal.getInstance().get(AcctSchema.class, id);
+
               if (existingUser.getClient().getId() != OBContext.getOBContext().getCurrentClient()
                   .getId()) {
                 Crit.add(Restrictions.eq(AcctSchema.PROPERTY_CLIENT, existingUser.getClient()));
@@ -258,9 +261,9 @@ public class OrgnizationSyncWSForSL implements WebService {
               if (list != null && list.size() > 0) {
                 AcctSchema Obj = list.get(0);
                 if (!Obj.getId().equals(id)) {
-                  logger = logger + "Acct Schema Name already present in Supply DB with id:"
+                  logger = logger + "Acct Schema Name is already present in Supply DB with id:"
                       + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                      + ", So Skip the updation action on record \n";
+                      + ", So Skip the updation action on supply DB \n";
                   continue;
                 }
               }
@@ -294,10 +297,10 @@ public class OrgnizationSyncWSForSL implements WebService {
               if (orgList != null && orgList.size() > 0) {
                 Organization orgObj = orgList.get(0);
                 if (!orgObj.getId().equals(id)) {
-                  logger = logger + "Organization Search Key already present with id:"
+                  logger = logger + "Organization Search Key is already present with id:"
                       + orgObj.getId() + " in Supply DB with Search Key is: "
                       + entityJson.getString("searchKey")
-                      + " , So Skip the updation action on record \n";
+                      + " , So Skip the updation action on SUpply DB \n";
                   continue;
                 }
               }
