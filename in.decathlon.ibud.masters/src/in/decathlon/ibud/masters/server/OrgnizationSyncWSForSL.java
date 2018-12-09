@@ -703,6 +703,8 @@ public class OrgnizationSyncWSForSL implements WebService {
                 if (entityName.equals("Organization")) {
                   // OBContext.setAdminMode(true);
                   OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+                  bob.setValue("calendar", null);
+
                   bob.setValue("active", existingOrgActive);
                   bob.setValue("ibdrepOrgreppriority", repoPriority);
                   bob.setValue("ibudsPostatusPriority", poStatusPriority);
@@ -793,6 +795,7 @@ public class OrgnizationSyncWSForSL implements WebService {
                 } else if (entityName.equals("Organization")) {
 
                   OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+                  bob.setValue("calendar", null);
 
                   OBCriteria<Organization> orgCrit = OBDal.getInstance().createCriteria(
                       Organization.class);
