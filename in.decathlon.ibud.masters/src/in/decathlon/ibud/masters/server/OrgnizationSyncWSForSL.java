@@ -3,6 +3,7 @@ package in.decathlon.ibud.masters.server;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -23,17 +24,27 @@ import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.model.ad.access.User;
+import org.openbravo.model.ad.system.Client;
+import org.openbravo.model.ad.utility.Sequence;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
+import org.openbravo.model.common.businesspartner.Category;
 import org.openbravo.model.common.currency.Currency;
+import org.openbravo.model.common.enterprise.DocumentType;
 import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.enterprise.OrganizationAcctSchema;
 import org.openbravo.model.common.enterprise.OrganizationInformation;
+import org.openbravo.model.common.enterprise.OrganizationType;
+import org.openbravo.model.common.geography.Country;
+import org.openbravo.model.common.geography.Location;
+import org.openbravo.model.common.geography.Region;
+import org.openbravo.model.financialmgmt.accounting.Costcenter;
 import org.openbravo.model.financialmgmt.accounting.coa.AcctSchema;
+import org.openbravo.model.financialmgmt.gl.GLCategory;
+import org.openbravo.model.financialmgmt.payment.PaymentTerm;
+import org.openbravo.model.pricing.pricelist.PriceList;
 import org.openbravo.service.json.JsonConstants;
 import org.openbravo.service.json.JsonToDataConverter;
 import org.openbravo.service.web.WebService;
-
-import com.ibm.icu.text.SimpleDateFormat;
 
 public class OrgnizationSyncWSForSL implements WebService {
 
@@ -69,7 +80,18 @@ public class OrgnizationSyncWSForSL implements WebService {
       boolean organizationFlag = true;
       boolean OrganizationTypeFlag = true;
       boolean locationFlag = true;
-
+      boolean bpCategoryFlag = true;
+      boolean priceListFlag = true;
+      boolean paymenttermFlag = true;
+      boolean bpFlag = true;
+      boolean costcenterFlag = true;
+      boolean bplocationFlag = true;
+      boolean orginfoFlag = true;
+      boolean doctypeFlag = true;
+      boolean glCategoryFlag = true;
+      boolean docSeqFlag = true;
+      boolean countryFlag = true;
+      boolean regionFlag = true;
       if (orders.has("FinancialMgmtAcctSchema")) {
         actschemaFlag = saveJSONObject(getJsonData(orders, "FinancialMgmtAcctSchema"),
             "FinancialMgmtAcctSchema");
@@ -82,10 +104,61 @@ public class OrgnizationSyncWSForSL implements WebService {
         organizationFlag = saveJSONObject(getJsonData(orders, "Organization"), "Organization");
       }
 
+      if (orders.has("Country")) {
+        countryFlag = saveJSONObject(getJsonData(orders, "Country"), "Country");
+      }
+      if (orders.has("Region")) {
+        regionFlag = saveJSONObject(getJsonData(orders, "Region"), "Region");
+      }
       if (orders.has("Location")) {
         locationFlag = saveJSONObject(getJsonData(orders, "Location"), "Location");
       }
-      if (OrganizationTypeFlag && organizationFlag && actschemaFlag && locationFlag) {
+
+      if (orders.has("BusinessPartnerCategory")) {
+        bpCategoryFlag = saveJSONObject(getJsonData(orders, "BusinessPartnerCategory"),
+            "BusinessPartnerCategory");
+      }
+
+      if (orders.has("PricingPriceList")) {
+        priceListFlag = saveJSONObject(getJsonData(orders, "PricingPriceList"), "PricingPriceList");
+      }
+
+      if (orders.has("FinancialMgmtPaymentTerm")) {
+        paymenttermFlag = saveJSONObject(getJsonData(orders, "FinancialMgmtPaymentTerm"),
+            "FinancialMgmtPaymentTerm");
+      }
+      if (orders.has("businessPartner")) {
+        bpFlag = saveJSONObject(getJsonData(orders, "businessPartner"), "businessPartner");
+      }
+      if (orders.has("BusinessPartnerLocation")) {
+        bplocationFlag = saveJSONObject(getJsonData(orders, "BusinessPartnerLocation"),
+            "BusinessPartnerLocation");
+      }
+
+      if (orders.has("Costcenter")) {
+        costcenterFlag = saveJSONObject(getJsonData(orders, "Costcenter"), "Costcenter");
+      }
+      if (orders.has("OrganizationInformation")) {
+        orginfoFlag = saveJSONObject(getJsonData(orders, "OrganizationInformation"),
+            "OrganizationInformation");
+      }
+      if (orders.has("ADSequence")) {
+        docSeqFlag = saveJSONObject(getJsonData(orders, "ADSequence"), "ADSequence");
+      }
+
+      if (orders.has("FinancialMgmtGLCategory")) {
+        glCategoryFlag = saveJSONObject(getJsonData(orders, "FinancialMgmtGLCategory"),
+            "FinancialMgmtGLCategory");
+      }
+
+      if (orders.has("DocumentType")) {
+        doctypeFlag = saveJSONObject(getJsonData(orders, "DocumentType"), "DocumentType");
+      }
+
+      if (actschemaFlag && organizationFlag && countryFlag && regionFlag && OrganizationTypeFlag
+          && locationFlag && bpCategoryFlag && priceListFlag && paymenttermFlag && bpFlag
+          && costcenterFlag && bplocationFlag && orginfoFlag && doctypeFlag && glCategoryFlag
+          && docSeqFlag) {
         flag = true;
       }
       respObj.put("errorMessage", logger);
@@ -194,14 +267,12 @@ public class OrgnizationSyncWSForSL implements WebService {
     Boolean existingIsReady = false;
     Currency existingCurrency = null;
 
-    Organization org = null;
     BusinessPartner existingPosInvoiceBPartner = null;
 
-    Organization dOrg = null;
     boolean isSaved = true;
     try {
       OBContext.setAdminMode(true);
-      // OBDal.getInstance().getSession().beginTransaction();
+      Client currentClient = OBContext.getOBContext().getCurrentClient();
 
       Date date = new Date();
       String dateFormat = formater.format(date);
@@ -220,11 +291,11 @@ public class OrgnizationSyncWSForSL implements WebService {
             entityJson.put("client$_identifier", OBContext.getOBContext().getCurrentClient()
                 .getName());
           }
-          if (entityJson.has("createdby")) {
-            entityJson.put("createdby", getUserId(entityJson.getString("createdby")));
+          if (entityJson.has("createdBy")) {
+            entityJson.put("createdBy", getUserId(entityJson.getString("createdBy")));
           }
-          if (entityJson.has("updatedby")) {
-            entityJson.put("updatedby", getUserId(entityJson.getString("updatedby")));
+          if (entityJson.has("updatedBy")) {
+            entityJson.put("updatedBy", getUserId(entityJson.getString("updatedBy")));
           }
           String id = entityJson.getString(JsonConstants.ID);
           String entityName = entityJson.getString(JsonConstants.ENTITYNAME);
@@ -237,268 +308,742 @@ public class OrgnizationSyncWSForSL implements WebService {
 
           if (qryList != null && qryList.size() > 0) {
             // object is present in store so update and save it
+            try {
+              loop: {
+                Client processedClientObj = null;
 
-            log.debug(entityName + " with this id exists");
+                log.debug(entityName + " with this id exists");
 
-            if (entityName.equals("FinancialMgmtAcctSchema")) {
-              OBCriteria<AcctSchema> Crit = OBDal.getInstance().createCriteria(AcctSchema.class);
+                if (entityName.equals("FinancialMgmtAcctSchema")) {
+                  AcctSchema existingUser = OBDal.getInstance().get(AcctSchema.class, id);
+                  processedClientObj = existingUser.getClient();
 
-              AcctSchema existingUser = OBDal.getInstance().get(AcctSchema.class, id);
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      AcctSchema.class, entityJson.getString("name"), "",
+                      existingUser.getOrganization(), existingUser.getClient());
+                  List<AcctSchema> list = (List<AcctSchema>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    for (AcctSchema Obj : list) {
+                      if (!Obj.getId().equals(id)) {
+                        logger = logger
+                            + "Acct Schema Name is already present in Supply DB with id:"
+                            + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                            + " and organization is:" + existingUser.getOrganization().getName()
+                            + " and Client is: " + existingUser.getClient().getName()
+                            + ", So Skip the updation action on supply DB \n";
+                        break loop;
+                      }
+                    }
+                  }
 
-              if (existingUser.getClient().getId() != OBContext.getOBContext().getCurrentClient()
-                  .getId()) {
-                Crit.add(Restrictions.eq(AcctSchema.PROPERTY_CLIENT, existingUser.getClient()));
-                entityJson.put("client", existingUser.getClient().getId());
-                entityJson.put("client$_identifier", existingUser.getClient().getName());
+                } else if (entityName.equals("Organization")) {
+                  // OBContext.setAdminMode(true);
+                  OBContext.getOBContext().addWritableOrganization(id);
+                  Organization existingOrg = OBDal.getInstance().get(Organization.class, id);
+                  processedClientObj = existingOrg.getClient();
 
-              } else {
-                Crit.add(Restrictions.eq(AcctSchema.PROPERTY_CLIENT, OBContext.getOBContext()
-                    .getCurrentClient()));
-              }
-              Crit.add(Restrictions.eq(AcctSchema.PROPERTY_NAME, entityJson.getString("name")));
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      Organization.class, "", entityJson.getString("searchKey"), null,
+                      existingOrg.getClient());
+                  List<Organization> list = (List<Organization>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    for (Organization Obj : list) {
+                      if (!Obj.getId().equals(id)) {
+                        logger = logger
+                            + "Organization Search Key is already present in Supply DB with id:"
+                            + Obj.getId() + "  and searchKey is: "
+                            + entityJson.getString("searchKey") + " and organization name is:"
+                            + existingOrg.getName() + " and Client is: "
+                            + existingOrg.getClient().getName()
+                            + ", So Skip the updation action on supply DB \n";
+                        break loop;
+                      }
+                    }
+                  }
 
-              List<AcctSchema> list = Crit.list();
-              if (list != null && list.size() > 0) {
-                AcctSchema Obj = list.get(0);
-                if (!Obj.getId().equals(id)) {
-                  logger = logger + "Acct Schema Name is already present in Supply DB with id:"
-                      + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                      + ", So Skip the updation action on supply DB \n";
-                  continue;
+                  existingOrgActive = existingOrg.isActive();
+                  repoPriority = existingOrg.getIbdrepOrgreppriority();
+                  poStatusPriority = existingOrg.getIbudsPostatusPriority();
+                  existingIsReady = existingOrg.isReady();
+                  existingCurrency = existingOrg.getCurrency();
+
+                  dSIDEFIslbtapply = existingOrg.isDSIDEFIslbtapply();
+                  dsidefPosdoctype = existingOrg.getDsidefPosdoctype();
+                  dsidefPostxdoc = existingOrg.getDsidefPostxdoc();
+                  dsidefPosinvaddr = existingOrg.getDsidefPosinvaddr();
+                  dsidefPospartneraddr = existingOrg.getDsidefPospartneraddr();
+                  dsidefPospayterms = existingOrg.getDsidefPospayterms();
+                  dsidefPospricelist = existingOrg.getDsidefPospricelist();
+                  dsidefPospaymethod = existingOrg.getDsidefPospaymethod();
+                  dsidefPoswarehouse = existingOrg.getDsidefPoswarehouse();
+                  dsidefShiptime = existingOrg.getDsidefShiptime();
+                  dsidefIsautodc = existingOrg.isDsidefIsautodc();
+                  dsidefPowarehouse = existingOrg.getDsidefPowarehouse();
+                  dsidefStoretimedesc = existingOrg.getDsidefStoretimedesc();
+                  dsidefStorephonedesc = existingOrg.getDsidefStorephonedesc();
+                  dsidefStoremanagermail = existingOrg.getDsidefStoremanagermail();
+
+                  // OBContext.restorePreviousMode();
+                } else if (entityName.equals("OrganizationType")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    OrganizationType existingobj = OBDal.getInstance().get(OrganizationType.class,
+                        id);
+                    processedClientObj = existingobj.getClient();
+                  }
+                } else if (entityName.equals("OrganizationInformation")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    OrganizationInformation existingOrginfo = OBDal.getInstance().get(
+                        OrganizationInformation.class, id);
+                    processedClientObj = existingOrginfo.getClient();
+
+                    existingPosInvoiceBPartner = existingOrginfo.getDsidefPosinvoicebp();
+                  }
+                } else if (entityName.equals("Location")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    Location existingobj = OBDal.getInstance().get(Location.class, id);
+                    processedClientObj = existingobj.getClient();
+                  }
+                } else if (entityName.equals("BusinessPartnerCategory")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    Category existingobj = OBDal.getInstance().get(Category.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        Category.class, "", entityJson.getString("searchKey"), null,
+                        existingobj.getClient());
+                    List<Category> list = (List<Category>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (Category Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger
+                              + "Business Category Search Key is already present in Supply DB with id:"
+                              + Obj.getId() + "  and searchKey is: "
+                              + entityJson.getString("searchKey") + " and organization is:"
+                              + existingobj.getOrganization().getName() + " and Client is: "
+                              + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+                  }
+                } else if (entityName.equals("PricingPriceList")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    PriceList existingobj = OBDal.getInstance().get(PriceList.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        PriceList.class, entityJson.getString("name"), "", null,
+                        existingobj.getClient());
+
+                    List<PriceList> list = (List<PriceList>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (PriceList Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger
+                              + "Price List Name is already present in Supply DB with id:"
+                              + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                              + " and organization is:" + existingobj.getOrganization().getName()
+                              + " and Client is: " + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+
+                  }
+                } else if (entityName.equals("FinancialMgmtPaymentTerm")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    PaymentTerm existingobj = OBDal.getInstance().get(PaymentTerm.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        PaymentTerm.class, "", entityJson.getString("searchKey"),
+                        existingobj.getOrganization(), existingobj.getClient());
+                    List<PaymentTerm> list = (List<PaymentTerm>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (PaymentTerm Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger + entityName
+                              + " Search Key is already present in Supply DB with id:"
+                              + Obj.getId() + "  and searchKey is: "
+                              + entityJson.getString("searchKey") + " and organization name is:"
+                              + existingobj.getOrganization().getName() + " and Client is: "
+                              + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+
+                  }
+                } else if (entityName.equals("businessPartner")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    BusinessPartner existingobj = OBDal.getInstance()
+                        .get(BusinessPartner.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        BusinessPartner.class, "", entityJson.getString("searchKey"),
+                        existingobj.getOrganization(), existingobj.getClient());
+                    List<BusinessPartner> list = (List<BusinessPartner>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (BusinessPartner Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger + entityName
+                              + " Search Key is already present in Supply DB with id:"
+                              + Obj.getId() + "  and searchKey is: "
+                              + entityJson.getString("searchKey") + " and organization name is:"
+                              + existingobj.getOrganization().getName() + " and Client is: "
+                              + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+
+                  }
+                } else if (entityName.equals("Region")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    Region existingobj = OBDal.getInstance().get(Region.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    Country countryObj = OBDal.getInstance().get(Country.class,
+                        entityJson.getString("country"));
+                    OBCriteria<Region> genClassCriteria = OBDal.getInstance().createCriteria(
+                        Region.class);
+                    genClassCriteria.add(Restrictions.eq(Region.PROPERTY_NAME,
+                        entityJson.getString("name")));
+                    genClassCriteria.add(Restrictions.eq(Region.PROPERTY_COUNTRY, countryObj));
+                    genClassCriteria.setFilterOnActive(false);
+                    genClassCriteria.setFilterOnReadableOrganization(false);
+
+                    List<Region> list = genClassCriteria.list();
+                    if (list != null && list.size() > 0) {
+                      for (Region Obj : list) {
+                        if (!existingobj.getId().equals(Obj.getId()))
+                          logger = logger + "Region is already present in Supply DB with id:"
+                              + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                              + " and Country name is:" + countryObj.getName() + " and Client is: "
+                              + Obj.getClient().getName()
+                              + ", So Skip the insert action on supply DB \n";
+                        break loop;
+                      }
+
+                    }
+
+                  }
+                } else if (entityName.equals("Country")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    Country existingobj = OBDal.getInstance().get(Country.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<Country> genClassCriteria = OBDal.getInstance().createCriteria(
+                        Country.class);
+                    genClassCriteria.add(Restrictions.eq(Country.PROPERTY_ISOCOUNTRYCODE,
+                        entityJson.getString("iSOCountryCode")));
+                    genClassCriteria.setFilterOnActive(false);
+                    genClassCriteria.setFilterOnReadableOrganization(false);
+
+                    List<Country> list = genClassCriteria.list();
+                    if (list != null && list.size() > 0) {
+                      for (Country Obj : list) {
+                        if (!existingobj.getId().equals(Obj.getId()))
+                          logger = logger
+                              + "Country iSO Country Code is already present in Supply DB with id:"
+                              + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                              + " and Country name is:" + Obj.getName() + " and Client is: "
+                              + Obj.getClient().getName()
+                              + ", So Skip the insert action on supply DB \n";
+                        break loop;
+                      }
+
+                    }
+                  }
+                } else if (entityName.equals("DocumentType")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    DocumentType existingobj = OBDal.getInstance().get(DocumentType.class, id);
+                    processedClientObj = existingobj.getClient();
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        DocumentType.class, entityJson.getString("name"), "",
+                        existingobj.getOrganization(), existingobj.getClient());
+                    List<DocumentType> list = (List<DocumentType>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (DocumentType Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger + entityName
+                              + " name is already present in Supply DB with id:" + Obj.getId()
+                              + "  and name is: " + entityJson.getString("name")
+                              + " and organization name is:"
+                              + existingobj.getOrganization().getName() + " and Client is: "
+                              + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+                  }
+                } else if (entityName.equals("FinancialMgmtGLCategory")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    GLCategory existingobj = OBDal.getInstance().get(GLCategory.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        GLCategory.class, entityJson.getString("name"), "",
+                        existingobj.getOrganization(), existingobj.getClient());
+                    List<GLCategory> list = (List<GLCategory>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (GLCategory Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger + entityName
+                              + " name is already present in Supply DB with id:" + Obj.getId()
+                              + "  and name is: " + entityJson.getString("name")
+                              + " and organization name is:"
+                              + existingobj.getOrganization().getName() + " and Client is: "
+                              + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+
+                  }
+                } else if (entityName.equals("ADSequence")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    Sequence existingobj = OBDal.getInstance().get(Sequence.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        Sequence.class, entityJson.getString("name"), "",
+                        existingobj.getOrganization(), existingobj.getClient());
+                    List<Sequence> list = (List<Sequence>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (Sequence Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger + entityName
+                              + " name is already present in Supply DB with id:" + Obj.getId()
+                              + "  and name is: " + entityJson.getString("name")
+                              + " and organization name is:"
+                              + existingobj.getOrganization().getName() + " and Client is: "
+                              + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+
+                  }
+                } else if (entityName.equals("Costcenter")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    Costcenter existingobj = OBDal.getInstance().get(Costcenter.class, id);
+                    processedClientObj = existingobj.getClient();
+
+                    OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                        Costcenter.class, "", entityJson.getString("searchKey"), null,
+                        existingobj.getClient());
+                    List<Costcenter> list = (List<Costcenter>) BaseOBObject.list();
+                    if (list != null && list.size() > 0) {
+                      for (Costcenter Obj : list) {
+                        if (!Obj.getId().equals(id)) {
+                          logger = logger
+                              + "Costcenter Search Key is already present in Supply DB with id:"
+                              + Obj.getId() + "  and searchKey is: "
+                              + entityJson.getString("searchKey") + " and organization is:"
+                              + existingobj.getOrganization().getName() + " and Client is: "
+                              + existingobj.getClient().getName()
+                              + ", So Skip the updation action on supply DB \n";
+                          break loop;
+                        }
+                      }
+                    }
+                  }
+                } else if (entityName.equals("BusinessPartnerLocation")) {
+                  // OBContext.setAdminMode(true);
+                  if (id != null) {
+                    OBContext.getOBContext().addWritableOrganization(id);
+                    org.openbravo.model.common.businesspartner.Location existingobj = OBDal
+                        .getInstance().get(
+                            org.openbravo.model.common.businesspartner.Location.class, id);
+                    processedClientObj = existingobj.getClient();
+                  }
                 }
-              }
+                entityJson.put(JsonConstants.NEW_INDICATOR, false);
+                BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
+                objectName = bob.getEntityName();
+                objectID = bob.getIdentifier();
+                bob.setValue("updated", date);
+                bob.setValue("creationDate", date);
 
-            }
-            if (entityName.equals("Organization")) {
-              // OBContext.setAdminMode(true);
-              OBContext.getOBContext().addWritableOrganization(id);
-              Organization existingOrg = OBDal.getInstance().get(Organization.class, id);
+                if (entityName.equals("Organization")) {
+                  // OBContext.setAdminMode(true);
+                  OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+                  bob.setValue("active", existingOrgActive);
+                  bob.setValue("ibdrepOrgreppriority", repoPriority);
+                  bob.setValue("ibudsPostatusPriority", poStatusPriority);
+                  bob.setValue("ready", existingIsReady);
+                  bob.setValue("currency", existingCurrency);
 
-              OBCriteria<Organization> orgCrit = OBDal.getInstance().createCriteria(
-                  Organization.class);
+                  bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
+                  bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
+                  bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
+                  bob.setValue("dsidefPosinvaddr", dsidefPosinvaddr);
+                  bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
+                  bob.setValue("dsidefPospayterms", dsidefPospayterms);
+                  bob.setValue("dsidefPospricelist", dsidefPospricelist);
+                  bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
+                  bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
+                  bob.setValue("dsidefShiptime", dsidefShiptime);
+                  bob.setValue("dsidefIsautodc", dsidefIsautodc);
+                  bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
+                  bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
+                  bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
+                  bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
 
-              Organization existingUser = OBDal.getInstance().get(Organization.class, id);
-              if (existingUser.getClient().getId() != OBContext.getOBContext().getCurrentClient()
-                  .getId()) {
-                orgCrit
-                    .add(Restrictions.eq(Organization.PROPERTY_CLIENT, existingUser.getClient()));
-                entityJson.put("client", existingUser.getClient().getId());
-                entityJson.put("client$_identifier", existingUser.getClient().getName());
+                  // OBContext.restorePreviousMode();
+                } else if (entityName.equals("OrganizationInformation")) {
+                  // OBContext.setAdminMode(true);
+                  OBContext.getOBContext().addWritableOrganization((String) bob.getId());
+                  bob.setValue("yourCompanyDocumentImage", null);
+                  bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
+                  // OBContext.restorePreviousMode();ingstGstidentifirmaster
+                  bob.setValue("ingstGstidentifirmaster", null);
 
-              } else {
-                orgCrit.add(Restrictions.eq(Organization.PROPERTY_CLIENT, OBContext.getOBContext()
-                    .getCurrentClient()));
-              }
+                } else
 
-              orgCrit.add(Restrictions.eq(Organization.PROPERTY_SEARCHKEY,
-                  entityJson.getString("searchKey")));
-
-              List<Organization> orgList = orgCrit.list();
-              if (orgList != null && orgList.size() > 0) {
-                Organization orgObj = orgList.get(0);
-                if (!orgObj.getId().equals(id)) {
-                  logger = logger + "Organization Search Key is already present with id:"
-                      + orgObj.getId() + " in Supply DB with Search Key is: "
-                      + entityJson.getString("searchKey")
-                      + " , So Skip the updation action on SUpply DB \n";
-                  continue;
+                if (entityName.equals("BusinessPartner")) {
+                  bob.setValue("rCOxylane", null);
                 }
+                OBContext.setAdminMode(true);
+                if (processedClientObj != null) {
+                  OBContext.getOBContext().setCurrentClient(processedClientObj);
+                  bob.setValue("client", processedClientObj);
+                }
+                OBDal.getInstance().save(bob);
+                OBDal.getInstance().flush();
+                OBContext.restorePreviousMode();
+                OBContext.getOBContext().setCurrentClient(currentClient);
+
+                if (entityName.equals("FinancialMgmtTaxRate")) {
+                  deleteExtraTaxacct(id);
+                }
+                updateCount++;
               }
-
-              existingOrgActive = existingOrg.isActive();
-              repoPriority = existingOrg.getIbdrepOrgreppriority();
-              poStatusPriority = existingOrg.getIbudsPostatusPriority();
-              existingIsReady = existingOrg.isReady();
-              existingCurrency = existingOrg.getCurrency();
-
-              dSIDEFIslbtapply = existingOrg.isDSIDEFIslbtapply();
-              dsidefPosdoctype = existingOrg.getDsidefPosdoctype();
-              dsidefPostxdoc = existingOrg.getDsidefPostxdoc();
-              dsidefPosinvaddr = existingOrg.getDsidefPosinvaddr();
-              dsidefPospartneraddr = existingOrg.getDsidefPospartneraddr();
-              dsidefPospayterms = existingOrg.getDsidefPospayterms();
-              dsidefPospricelist = existingOrg.getDsidefPospricelist();
-              dsidefPospaymethod = existingOrg.getDsidefPospaymethod();
-              dsidefPoswarehouse = existingOrg.getDsidefPoswarehouse();
-              dsidefShiptime = existingOrg.getDsidefShiptime();
-              dsidefIsautodc = existingOrg.isDsidefIsautodc();
-              dsidefPowarehouse = existingOrg.getDsidefPowarehouse();
-              dsidefStoretimedesc = existingOrg.getDsidefStoretimedesc();
-              dsidefStorephonedesc = existingOrg.getDsidefStorephonedesc();
-              dsidefStoremanagermail = existingOrg.getDsidefStoremanagermail();
-
-              // OBContext.restorePreviousMode();
-            }
-            if (entityName.equals("OrganizationInformation")) {
-              // OBContext.setAdminMode(true);
-              if (id != null) {
-                OBContext.getOBContext().addWritableOrganization(id);
-                OrganizationInformation existingOrginfo = OBDal.getInstance().get(
-                    OrganizationInformation.class, id);
-                existingPosInvoiceBPartner = existingOrginfo.getDsidefPosinvoicebp();
-              }
-              // OBContext.restorePreviousMode();
+            } catch (Exception e) {
+              isSaved = false;
+              logger = logger + " Error while Updating the Record for Entity:[" + objectName
+                  + "]Identifier : [" + objectID + "] ," + e + " \n";
+            } finally {
+              OBContext.getOBContext().setCurrentClient(currentClient);
 
             }
-
-            entityJson.put(JsonConstants.NEW_INDICATOR, false);
-            BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
-            objectName = bob.getEntityName();
-            objectID = bob.getIdentifier();
-            bob.setValue("updated", date);
-            // bob.setValue("creationDate", date);
-            if (entityName.equals("Product")) {
-              bob.setValue("storageBin", null);
-            }
-            if (entityName.equals("Organization")) {
-              // OBContext.setAdminMode(true);
-              OBContext.getOBContext().addWritableOrganization((String) bob.getId());
-              bob.setValue("active", existingOrgActive);
-              bob.setValue("ibdrepOrgreppriority", repoPriority);
-              bob.setValue("ibudsPostatusPriority", poStatusPriority);
-              bob.setValue("ready", existingIsReady);
-              bob.setValue("currency", existingCurrency);
-
-              bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
-              bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
-              bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
-              bob.setValue("dsidefPosinvaddr", dsidefPosinvaddr);
-              bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
-              bob.setValue("dsidefPospayterms", dsidefPospayterms);
-              bob.setValue("dsidefPospricelist", dsidefPospricelist);
-              bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
-              bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
-              bob.setValue("dsidefShiptime", dsidefShiptime);
-              bob.setValue("dsidefIsautodc", dsidefIsautodc);
-              bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
-              bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
-              bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
-              bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
-
-              // OBContext.restorePreviousMode();
-            }
-            if (entityName.equals("OrganizationInformation")) {
-              // OBContext.setAdminMode(true);
-              OBContext.getOBContext().addWritableOrganization((String) bob.getId());
-              bob.setValue("yourCompanyDocumentImage", null);
-              bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
-              // OBContext.restorePreviousMode();
-            }
-
-            if (entityName.equals("BusinessPartner")) {
-              bob.setValue("rCOxylane", null);
-            }
-            // OBContext.setAdminMode(true);
-            OBDal.getInstance().save(bob);
-            OBDal.getInstance().flush();
-
-            if (entityName.equals("FinancialMgmtTaxRate")) {
-              deleteExtraTaxacct(id);
-            }
-            updateCount++;
           } else {
+
             // Object is not present in Store so create it
+            try {
+              log.info(entityName + " with id=" + id + " does not exist, so inserting in DB");
+              insertLoop: {
+                BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
+                objectName = bob.getEntityName();
+                objectID = bob.getIdentifier();
 
-            log.info(entityName + " with id=" + id + " does not exist, so inserting in DB");
+                bob.setValue("id", id);
+                if (entityName.equals("FinancialMgmtAcctSchema")) {
 
-            BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
-            objectName = bob.getEntityName();
-            objectID = bob.getIdentifier();
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      AcctSchema.class, entityJson.getString("name"), "", null, OBContext
+                          .getOBContext().getCurrentClient());
+                  List<AcctSchema> list = (List<AcctSchema>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    AcctSchema Obj = list.get(0);
+                    logger = logger + "Acct Schema Name already present in Supply DB with id:"
+                        + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                        + " and client name is: "
+                        + OBContext.getOBContext().getCurrentClient().getName()
+                        + " , So Skip the Insert action on record \n";
+                    break insertLoop;
 
-            if (entityName.equals("Product")) {
-              bob.setValue("storageBin", null);
-            }
-            if (entityName.equals("CL_Model")) {
-              bob.setValue("prmiProcess", null);
-              bob.setValue("prmiComponentlabel", null);
-            }
+                  }
 
-            bob.setValue("id", id);
-            if (entityName.equals("FinancialMgmtAcctSchema")) {
+                } else if (entityName.equals("Organization")) {
 
-              OBCriteria<AcctSchema> Crit = OBDal.getInstance().createCriteria(AcctSchema.class);
-              Crit.add(Restrictions.eq(AcctSchema.PROPERTY_CLIENT, OBContext.getOBContext()
-                  .getCurrentClient()));
-              Crit.add(Restrictions.eq(AcctSchema.PROPERTY_NAME, entityJson.getString("name")));
+                  OBContext.getOBContext().addWritableOrganization((String) bob.getId());
 
-              List<AcctSchema> list = Crit.list();
-              if (list != null && list.size() > 0) {
-                AcctSchema Obj = list.get(0);
+                  OBCriteria<Organization> orgCrit = OBDal.getInstance().createCriteria(
+                      Organization.class);
+                  orgCrit.add(Restrictions.eq(Organization.PROPERTY_CLIENT, OBContext
+                      .getOBContext().getCurrentClient()));
+                  orgCrit.add(Restrictions.eq(Organization.PROPERTY_SEARCHKEY,
+                      entityJson.getString("searchKey")));
+                  orgCrit.setFilterOnReadableClients(false);
 
-                logger = logger + "Acct Schema Name already present in Supply DB with id:"
-                    + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                    + " , So Skip the Insert action on record \n";
-                continue;
+                  List<Organization> orgList = orgCrit.list();
+                  if (orgList != null && orgList.size() > 0) {
+                    Organization orgObj = orgList.get(0);
 
+                    logger = logger + "Organization Search Key already present with id:"
+                        + orgObj.getId() + " in Supply DB with Search Key is: "
+                        + entityJson.getString("searchKey")
+                        + " , So Skip the Insert action on record  \n";
+                    break insertLoop;
+
+                  }
+                  bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
+                  bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
+                  bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
+                  bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
+                  bob.setValue("dsidefPospayterms", dsidefPospayterms);
+                  bob.setValue("dsidefPospricelist", dsidefPospricelist);
+                  bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
+                  bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
+                  bob.setValue("dsidefShiptime", dsidefShiptime);
+                  bob.setValue("dsidefIsautodc", dsidefIsautodc);
+                  bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
+                  bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
+                  bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
+                  bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
+                }
+                if (entityName.equals("OrganizationInformation")) {
+                  bob.setValue("yourCompanyDocumentImage", null);
+                  bob.setValue("dsidefPosinvoicebp", null);
+                  bob.setValue("ingstGstidentifirmaster", null);
+
+                }
+                bob.setValue("updated", date);
+                bob.setValue("creationDate", date);
+                bob.setValue("createdBy", OBContext.getOBContext().getUser());
+                bob.setValue("updatedBy", OBContext.getOBContext().getUser());
+
+                // Deletion of old tree node in Org pull
+
+                if (entityName.equals("ADSequence")) {
+                  String name = entityJson.getString("name");
+
+                  Organization orgObj = OBDal.getInstance().get(Organization.class,
+                      entityJson.getString("organization"));
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      Sequence.class, entityJson.getString("name"), "", orgObj, OBContext
+                          .getOBContext().getCurrentClient());
+                  List<Sequence> list = (List<Sequence>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    logger = logger + entityName
+                        + "  Name is already present in Supply DB with id:" + list.get(0).getId()
+                        + "  and name is: " + entityJson.getString("name")
+                        + " and client name is: "
+                        + OBContext.getOBContext().getCurrentClient().getName()
+                        + " and Organization Name is: " + orgObj.getName()
+                        + ", So Skip the Insert action on DB \n";
+                    break insertLoop;
+
+                  }
+                  deleteExistingSequence(name);
+                } else if (entityName.equals("DocumentType")) {
+
+                  Organization orgObj = OBDal.getInstance().get(Organization.class,
+                      entityJson.getString("organization"));
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      DocumentType.class, entityJson.getString("name"), "", orgObj, OBContext
+                          .getOBContext().getCurrentClient());
+                  List<DocumentType> list = (List<DocumentType>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    logger = logger + entityName
+                        + "  Name is already present in Supply DB with id:" + list.get(0).getId()
+                        + "  and name is: " + entityJson.getString("name")
+                        + " and client name is: "
+                        + OBContext.getOBContext().getCurrentClient().getName()
+                        + " and Organization Name is: " + orgObj.getName()
+                        + ", So Skip the Insert action on DB \n";
+                    break insertLoop;
+
+                  }
+                } else if (entityName.equals("FinancialMgmtGLCategory")) {
+
+                  Organization orgObj = OBDal.getInstance().get(Organization.class,
+                      entityJson.getString("organization"));
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      GLCategory.class, entityJson.getString("name"), "", orgObj, OBContext
+                          .getOBContext().getCurrentClient());
+                  List<GLCategory> list = (List<GLCategory>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    logger = logger + entityName
+                        + "  Name is already present in Supply DB with id:" + list.get(0).getId()
+                        + "  and name is: " + entityJson.getString("name")
+                        + " and client name is: "
+                        + OBContext.getOBContext().getCurrentClient().getName()
+                        + " and Organization Name is: " + orgObj.getName()
+                        + ", So Skip the Insert action on DB \n";
+                    break insertLoop;
+
+                  }
+                } else if (entityName.equals("BusinessPartner")) {
+                  bob.setValue("rCOxylane", null);
+                  Organization orgObj = OBDal.getInstance().get(Organization.class,
+                      entityJson.getString("organization"));
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      BusinessPartner.class, "", entityJson.getString("searchKey"), orgObj,
+                      OBContext.getOBContext().getCurrentClient());
+                  List<BusinessPartner> list = (List<BusinessPartner>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    for (BusinessPartner Obj : list) {
+                      logger = logger + entityName
+                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                          + "  and searchKey is: " + entityJson.getString("searchKey")
+                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Client is: "
+                          + OBContext.getOBContext().getCurrentClient().getName()
+                          + ", So Skip the Insert action on supply DB \n";
+                      break insertLoop;
+
+                    }
+                  }
+
+                } else if (entityName.equals("Costcenter")) {
+
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      Costcenter.class, "", entityJson.getString("searchKey"), null, OBContext
+                          .getOBContext().getCurrentClient());
+                  List<Costcenter> list = (List<Costcenter>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    for (Costcenter Obj : list) {
+                      logger = logger + entityName
+                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                          + "  and searchKey is: " + entityJson.getString("searchKey")
+                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Client is: "
+                          + OBContext.getOBContext().getCurrentClient().getName()
+                          + ", So Skip the Insert action on supply DB \n";
+                      break insertLoop;
+
+                    }
+                  }
+                } else if (entityName.equals("FinancialMgmtPaymentTerm")) {
+                  Organization orgObj = OBDal.getInstance().get(Organization.class,
+                      entityJson.getString("organization"));
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      PaymentTerm.class, "", entityJson.getString("searchKey"), orgObj, OBContext
+                          .getOBContext().getCurrentClient());
+                  List<PaymentTerm> list = (List<PaymentTerm>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    for (PaymentTerm Obj : list) {
+                      logger = logger + entityName
+                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                          + "  and searchKey is: " + entityJson.getString("searchKey")
+                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Client is: "
+                          + OBContext.getOBContext().getCurrentClient().getName()
+                          + ", So Skip the Insert action on supply DB \n";
+                      break insertLoop;
+
+                    }
+                  }
+                } else if (entityName.equals("BusinessPartnerCategory")) {
+
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      Category.class, "", entityJson.getString("searchKey"), null, OBContext
+                          .getOBContext().getCurrentClient());
+                  List<Category> list = (List<Category>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    for (Category Obj : list) {
+                      logger = logger + entityName
+                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                          + "  and searchKey is: " + entityJson.getString("searchKey")
+                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Client is: "
+                          + OBContext.getOBContext().getCurrentClient().getName()
+                          + ", So Skip the Insert action on supply DB \n";
+                      break insertLoop;
+
+                    }
+                  }
+                } else if (entityName.equals("PricingPriceList")) {
+
+                  OBCriteria<? extends BaseOBObject> BaseOBObject = getObCreteriaObject(
+                      PriceList.class, entityJson.getString("name"), "", null, OBContext
+                          .getOBContext().getCurrentClient());
+
+                  List<PriceList> list = (List<PriceList>) BaseOBObject.list();
+                  if (list != null && list.size() > 0) {
+                    for (PriceList Obj : list) {
+                      logger = logger + "Price List Name is already present in Supply DB with id:"
+                          + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Client is: " + Obj.getClient().getName()
+                          + ", So Skip the updation action on supply DB \n";
+                      break insertLoop;
+                    }
+
+                  }
+
+                } else if (entityName.equals("Region")) {
+                  Country countryObj = OBDal.getInstance().get(Country.class,
+                      entityJson.getString("country"));
+                  OBCriteria<Region> genClassCriteria = OBDal.getInstance().createCriteria(
+                      Region.class);
+
+                  genClassCriteria.add(Restrictions.eq(Region.PROPERTY_NAME,
+                      entityJson.getString("name")));
+
+                  genClassCriteria.add(Restrictions.eq(Region.PROPERTY_COUNTRY, countryObj));
+
+                  genClassCriteria.setFilterOnActive(false);
+                  genClassCriteria.setFilterOnReadableOrganization(false);
+
+                  List<Region> list = genClassCriteria.list();
+                  if (list != null && list.size() > 0) {
+                    for (Region Obj : list) {
+                      logger = logger + "Region is already present in Supply DB with id:"
+                          + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                          + " and Country name is:" + countryObj.getName() + " and Client is: "
+                          + Obj.getClient().getName()
+                          + ", So Skip the insert action on supply DB \n";
+                      break insertLoop;
+                    }
+
+                  }
+
+                }
+
+                OBDal.getInstance().save(bob);
+                OBDal.getInstance().flush();
+
+                log.info(entityName + " with id=" + id + " saved/updated");
+
+                if (entityName.equals("FinancialMgmtTaxRate")) {
+                  deleteExtraTaxacct(id);
+                }
+
+                insertCount++;
               }
-
+            } catch (Exception e) {
+              isSaved = false;
+              logger = logger + " Error while Inserting the Record for Entity:[" + objectName
+                  + "]Identifier : [" + objectID + "] ," + e + " \n";
             }
-            if (entityName.equals("Organization")) {
-
-              OBContext.getOBContext().addWritableOrganization((String) bob.getId());
-
-              OBCriteria<Organization> orgCrit = OBDal.getInstance().createCriteria(
-                  Organization.class);
-              orgCrit.add(Restrictions.eq(Organization.PROPERTY_CLIENT, OBContext.getOBContext()
-                  .getCurrentClient()));
-              orgCrit.add(Restrictions.eq(Organization.PROPERTY_SEARCHKEY,
-                  entityJson.getString("searchKey")));
-
-              List<Organization> orgList = orgCrit.list();
-              if (orgList != null && orgList.size() > 0) {
-                Organization orgObj = orgList.get(0);
-
-                logger = logger + "Organization Search Key already present with id:"
-                    + orgObj.getId() + " in Supply DB with Search Key is: "
-                    + entityJson.getString("searchKey")
-                    + " , So Skip the Insert action on record  \n";
-                continue;
-
-              }
-              bob.setValue("dSIDEFIslbtapply", dSIDEFIslbtapply);
-              bob.setValue("dsidefPosdoctype", dsidefPosdoctype);
-              bob.setValue("dsidefPostxdoc", dsidefPostxdoc);
-              bob.setValue("dsidefPospartneraddr", dsidefPospartneraddr);
-              bob.setValue("dsidefPospayterms", dsidefPospayterms);
-              bob.setValue("dsidefPospricelist", dsidefPospricelist);
-              bob.setValue("dsidefPospaymethod", dsidefPospaymethod);
-              bob.setValue("dsidefPoswarehouse", dsidefPoswarehouse);
-              bob.setValue("dsidefShiptime", dsidefShiptime);
-              bob.setValue("dsidefIsautodc", dsidefIsautodc);
-              bob.setValue("dsidefPowarehouse", dsidefPowarehouse);
-              bob.setValue("dsidefStoretimedesc", dsidefStoretimedesc);
-              bob.setValue("dsidefStorephonedesc", dsidefStorephonedesc);
-              bob.setValue("dsidefStoremanagermail", dsidefStoremanagermail);
-            }
-            if (entityName.equals("OrganizationInformation")) {
-              bob.setValue("yourCompanyDocumentImage", null);
-              bob.setValue("dsidefPosinvoicebp", null);
-            }
-            bob.setValue("updated", date);
-            bob.setValue("creationDate", date);
-            bob.setValue("createdBy", OBContext.getOBContext().getUser());
-            bob.setValue("updatedBy", OBContext.getOBContext().getUser());
-
-            // Deletion of old tree node in Org pull
-
-            if (entityName.equals("ADSequence")) {
-              String name = entityJson.getString("name");
-              deleteExistingSequence(name);
-            }
-
-            if (entityName.equals("BusinessPartner")) {
-              bob.setValue("rCOxylane", null);
-            }
-            OBDal.getInstance().save(bob);
-            OBDal.getInstance().flush();
-
-            log.info(entityName + " with id=" + id + " saved/updated");
-
-            if (entityName.equals("FinancialMgmtTaxRate")) {
-              deleteExtraTaxacct(id);
-            }
-
-            insertCount++;
           }
         } catch (Exception e) {
           isSaved = false;
@@ -535,4 +1080,26 @@ public class OrgnizationSyncWSForSL implements WebService {
     return userid;
 
   }
+
+  public static OBCriteria<? extends BaseOBObject> getObCreteriaObject(
+      Class<? extends BaseOBObject> bob, String name, String value, Organization orgObj,
+      Client clientObj) throws Exception {
+    OBCriteria<? extends BaseOBObject> genClassCriteria = OBDal.getInstance().createCriteria(bob);
+    if (name != null && !name.equalsIgnoreCase("")) {
+      genClassCriteria.add(Restrictions.eq(BusinessPartner.PROPERTY_NAME, name));
+    }
+    if (value != null && !value.equalsIgnoreCase("")) {
+      genClassCriteria.add(Restrictions.eq(BusinessPartner.PROPERTY_SEARCHKEY, value));
+    }
+    if (clientObj != null) {
+      genClassCriteria.add(Restrictions.eq(BusinessPartner.PROPERTY_CLIENT, clientObj));
+    }
+    if (orgObj != null) {
+      genClassCriteria.add(Restrictions.eq(BusinessPartner.PROPERTY_ORGANIZATION, orgObj));
+    }
+    genClassCriteria.setFilterOnActive(false);
+    genClassCriteria.setFilterOnReadableOrganization(false);
+    return genClassCriteria;
+  }
+
 }

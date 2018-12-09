@@ -386,8 +386,11 @@ public class GeneralMasterSerializer {
 
     } else if (master.equalsIgnoreCase("Greeting")) {
       stBuilder
-          .append("orgAccess where orgAccess.id in (select distinct e.greeting.id from ADUser e where  e.ibudIssluser="
-              + isIndiaRequest + "");
+          .append("orgAccess where orgAccess.id in (select distinct e.greeting.id from ADUser e where   e.creationDate >= '"
+              + newDate
+              + "' and e.ibudIssluser="
+              + isIndiaRequest
+              + " ) or orgAccess.creationDate >= '" + newDate + "'order by orgAccess.updated asc");
 
     } else if (master.equalsIgnoreCase("User")) {
       stBuilder.append("orgAccess where ( orgAccess.ibudIssluser=" + isIndiaRequest + ")");
@@ -409,9 +412,6 @@ public class GeneralMasterSerializer {
     if (master.equalsIgnoreCase("User")) {
       stBuilder.append(" and orgAccess.creationDate >= '" + newDate + "'");
 
-    } else if (master.equalsIgnoreCase("Greeting")) {
-      stBuilder.append(" and e.creationDate >= '" + newDate + "')");
-
     } else {
       stBuilder.append(" and orgAccess.updated > '" + newDate + "'");
 
@@ -419,7 +419,7 @@ public class GeneralMasterSerializer {
     if (isRoleManual) {
       stBuilder.append(" and orgAccess.role.manual = '" + SOConstants.Manual + "' ");
     }
-    stBuilder.append(" order by orgAccess.updated asc");
+    // stBuilder.append(" order by orgAccess.updated asc");
     OBQuery<? extends BaseOBObject> orgCrit = OBDal.getInstance().createQuery(userAccess,
         stBuilder.toString());
     orgCrit.setFilterOnActive(false);
