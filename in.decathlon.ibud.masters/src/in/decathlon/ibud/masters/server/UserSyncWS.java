@@ -6,7 +6,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.HibernateException;
 import org.openbravo.base.provider.OBProvider;
-import org.openbravo.model.common.businesspartner.Greeting;
+import org.openbravo.client.application.ViewRoleAccess;
+import org.openbravo.client.myob.WidgetClassAccess;
+import org.openbravo.model.ad.access.FieldAccess;
+import org.openbravo.model.ad.access.FormAccess;
+import org.openbravo.model.ad.access.ProcessAccess;
+import org.openbravo.model.ad.access.Role;
+import org.openbravo.model.ad.access.RoleOrganization;
+import org.openbravo.model.ad.access.TabAccess;
+import org.openbravo.model.ad.access.WindowAccess;
 import org.openbravo.service.json.DataToJsonConverter;
 import org.openbravo.service.web.WebService;
 
@@ -52,10 +60,8 @@ public class UserSyncWS implements WebService {
       throws HibernateException, Exception {
     genMaster = new GeneralMasterSerializer(response);
     String updated = request.getParameter("updated");
-
-    // int rowCount = Integer.parseInt(request.getParameter("rowCount"));
+    int rowCount = Integer.parseInt(request.getParameter("rowCount"));
     updated = updated.replace("_", " ");
-
     /*
      * dont pull Organization,client, business partner,location
      * genMaster.generateJsonWS(Organization.class, updated, rowCount, "Organization", null);
@@ -65,20 +71,20 @@ public class UserSyncWS implements WebService {
      * genMaster.generateJsonWS(org.openbravo.model.common.businesspartner.Location.class, updated,
      * rowCount, "", null);
      */
-    genMaster.getUserDataJson(Greeting.class, updated, "Greeting", false, false);
-
+    genMaster.generateJsonWS(Role.class, updated, rowCount, "", null);
+    // genMaster.generateJsonWS(User.class, updated, rowCount, "User", null);
     // genMaster.getUserDataJson(Role.class, updated, "Role", isRequestFromSL, false);
     genMaster.getUserData(updated, false, "User");
-    // genMaster.getUserDataJson(User.class, updated, "User", isRequestFromSL, false);
-    // genMaster.getUserDataJson(RoleOrganization.class, updated, "", isRequestFromSL, true);
-    // genMaster.getUserDataJson(WindowAccess.class, updated, "", isRequestFromSL, true);
-    // genMaster.getUserDataJson(TabAccess.class, updated, "TabAccess", isRequestFromSL, false);
-    // genMaster.getUserDataJson(FieldAccess.class, updated, "FieldAccess", isRequestFromSL, false);
-    // genMaster.getUserDataJson(ProcessAccess.class, updated, "", isRequestFromSL, true);
-    // genMaster.getUserDataJson(FormAccess.class, updated, "", isRequestFromSL, true);
-    // genMaster.getUserDataJson(WidgetClassAccess.class, updated, "", isRequestFromSL, true);
-    // genMaster.getUserDataJson(ViewRoleAccess.class, updated, "", isRequestFromSL, true);
-    // genMaster.getUserDataJson(org.openbravo.client.application.ProcessAccess.class, updated, "",
-    // isRequestFromSL, true);
+
+    genMaster.generateJsonWS(Role.class, updated, rowCount, "", null);
+    genMaster.getUserAccess(RoleOrganization.class, updated);
+    genMaster.getUserAccess(WindowAccess.class, updated);
+    genMaster.generateJsonWS(TabAccess.class, updated, rowCount, "", null);
+    genMaster.generateJsonWS(FieldAccess.class, updated, rowCount, "", null);
+    genMaster.getUserAccess(ProcessAccess.class, updated);
+    genMaster.getUserAccess(FormAccess.class, updated);
+    genMaster.getUserAccess(WidgetClassAccess.class, updated);
+    genMaster.getUserAccess(ViewRoleAccess.class, updated);
+    genMaster.getUserAccess(org.openbravo.client.application.ProcessAccess.class, updated);
   }
 }
