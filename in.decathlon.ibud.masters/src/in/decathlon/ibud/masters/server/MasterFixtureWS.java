@@ -64,7 +64,7 @@ public class MasterFixtureWS implements WebService {
     JSONObject jsonDataObject = new JSONObject();
 
     try {
-      String updated = request.getParameter("updated").replace("_", "");
+      String updated = request.getParameter("updated").replace("_", " ");
       SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       Date updatedDate = formater.parse(updated);
 
