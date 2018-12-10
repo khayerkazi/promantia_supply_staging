@@ -337,7 +337,7 @@ public class GeneralMasterSerializer {
     try {
 
       String query = "";
-      if (entityName.equals("user")) {
+      if (entityName.equals("User")) {
         query = "e where e.creationDate >= '" + newDate + "' and e.ibudIssluser=" + isSLUser
             + " order by e.updated asc";
       } else {

@@ -67,7 +67,7 @@ public class UserSyncWSForSL implements WebService {
     genMaster.getUserData(updated, true, "Greeting");
 
     // genMaster.getUserDataJson(Role.class, updated, "Role", isRequestFromSL, false);
-    genMaster.getUserData(updated, true, "user");
+    genMaster.getUserData(updated, true, "User");
     // genMaster.getUserDataJson(User.class, updated, "User", isRequestFromSL, false);
     // genMaster.getUserDataJson(RoleOrganization.class, updated, "", isRequestFromSL, true);
     // genMaster.getUserDataJson(WindowAccess.class, updated, "", isRequestFromSL, true);
