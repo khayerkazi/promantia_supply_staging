@@ -5,7 +5,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +55,7 @@ public class OrgnizationSyncWSForSL implements WebService {
   public JSONArray responseShipMent = new JSONArray();
   public static final String shuttleBin = "Shuttel Bin";
   public static String logger = "";
+  static Set<String> userSet = new HashSet<String>();
 
   @Override
   public void doDelete(String path, HttpServletRequest request, HttpServletResponse response)
@@ -1073,6 +1076,12 @@ public class OrgnizationSyncWSForSL implements WebService {
 
     } finally {
       OBContext.restorePreviousMode();
+      if (userSet.size() > 0) {
+        logger = logger
+            + "User is not Present in DB with id: "
+            + userSet
+            + ",and updated as Openbravo User on same Record, Please use the pull user process to pull the this user data.  \n";
+      }
 
     }
     return isSaved;
@@ -1083,10 +1092,10 @@ public class OrgnizationSyncWSForSL implements WebService {
     String userid = "100";
     if (!id.equals(userid)) {
       User existingUser = OBDal.getInstance().get(User.class, id);
-      if (existingUser != null) {
-        userid = existingUser.getId();
+      if (existingUser == null) {
+        userSet.add(id);
       } else {
-        logger = logger + "User is not Present in DB with id: " + id + " \n";
+        userid = id;
       }
     }
     return userid;

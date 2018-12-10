@@ -615,24 +615,34 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getPricelistVersionData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String query = "   SELECT DISTINCT e.m_pricelist_version_id, e.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id, e.isactive, e.created,   "
-          + "     e.createdby, e.updated, e.updatedby, e.name, e.description, e.m_pricelist_id,   "
-          + " e.m_discountschema_id, e.validfrom, e.proccreate, e.m_pricelist_version_base_id,   "
-          + " e.m_pricelist_version_generate  "
-          + "   FROM   m_pricelist_version e  "
-          + "   join  m_productprice pp  on e.m_pricelist_version_id=pp.m_pricelist_version_id  "
-          + "  join m_product p on p.m_product_id=pp.m_product_id  "
-          + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
-          + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
-          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
-          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
-          + " where b.name in ('FIXTURES','Events','UNKNOWN') "
-          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
+
+      String subQuery = " from m_pricelist_version pv "
+          + "  join  m_productprice pp  on pv.m_pricelist_version_id=pp.m_pricelist_version_id "
+          + "  join m_product p on p.m_product_id=pp.m_product_id   "
+          + "  join cl_model ml on p.em_cl_model_id=ml.cl_model_id   "
+          + "  join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
+          + "  where b.name in ('FIXTURES','Events','UNKNOWN') and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? )  ";
+
+      String query = "SELECT DISTINCT e.m_pricelist_version_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
+          + "  e.createdby, e.updated, e.updatedby, e.name, e.description, e.m_pricelist_id,    "
+          + "  e.m_discountschema_id, e.validfrom, e.proccreate, e.m_pricelist_version_base_id,    "
+          + "  e.m_pricelist_version_generate   "
+          + "  FROM   m_pricelist_version e   "
+          + "  where e.m_pricelist_version_id in ( "
+          + "  select pv.m_pricelist_version_id "
+          + subQuery
+          + " ) or e.m_pricelist_version_id in (  "
+          + "  select pv.m_pricelist_version_base_id "
+          + subQuery
+          + " )       order by e.m_pricelist_version_base_id desc;";
 
       SQLQuery sqlQuery = OBDal.getInstance().getSession().createSQLQuery(query);
       sqlQuery.setDate(0, updatedTime);
       sqlQuery.setDate(1, updatedTime);
       sqlQuery.setDate(2, updatedTime);
+      sqlQuery.setDate(3, updatedTime);
+      sqlQuery.setDate(4, updatedTime);
+      sqlQuery.setDate(5, updatedTime);
       EntityDataList = sqlQuery.list();
     } catch (Exception e) {
       e.printStackTrace();
