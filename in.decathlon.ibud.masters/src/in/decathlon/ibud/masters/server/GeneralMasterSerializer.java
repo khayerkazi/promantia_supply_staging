@@ -322,7 +322,7 @@ public class GeneralMasterSerializer {
 
   }
 
-  public void getUserData(String updatedTime, boolean isSLUser) throws Exception {
+  public void getUserData(String updatedTime, boolean isSLUser, String entityName) throws Exception {
 
     String updated = updatedTime;
     updated = updated.replace("_", " ");
@@ -336,11 +336,20 @@ public class GeneralMasterSerializer {
     }
     try {
 
-      OBContext.getOBContext().setAdminMode(true);
-      String query1 = "e where e.creationDate >= '" + newDate + "' and e.ibudIssluser=" + isSLUser
-          + " order by e.updated asc";
-
-      bpCrit = OBDal.getInstance().createQuery(User.class, query1);
+      String query = "";
+      if (entityName.equals("user")) {
+        query = "e where e.creationDate >= '" + newDate + "' and e.ibudIssluser=" + isSLUser
+            + " order by e.updated asc";
+      } else {
+        query = "e where e.id in (select distinct u.greeting.id from ADUser u where   u.creationDate >= '"
+            + newDate
+            + "' and u.ibudIssluser="
+            + isSLUser
+            + " ) or e.creationDate >= '"
+            + newDate
+            + "'order by e.updated asc";
+      }
+      bpCrit = OBDal.getInstance().createQuery(User.class, query);
 
       bpCrit.setFilterOnReadableOrganization(false);
       bpCrit.setFilterOnActive(false);

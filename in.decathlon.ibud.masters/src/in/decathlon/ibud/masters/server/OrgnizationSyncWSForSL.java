@@ -741,15 +741,24 @@ public class OrgnizationSyncWSForSL implements WebService {
                 if (entityName.equals("BusinessPartner")) {
                   bob.setValue("rCOxylane", null);
                 }
-                OBContext.setAdminMode(true);
                 if (processedClientObj != null) {
                   OBContext.getOBContext().setCurrentClient(processedClientObj);
                   bob.setValue("client", processedClientObj);
+
+                } else {
+                  bob.setValue("client", currentClient);
+
                 }
-                OBDal.getInstance().save(bob);
-                OBDal.getInstance().flush();
-                OBContext.restorePreviousMode();
-                OBContext.getOBContext().setCurrentClient(currentClient);
+                try {
+                  OBDal.getInstance().save(bob);
+                  OBDal.getInstance().flush();
+                } catch (Exception e) {
+                  logger = logger + " Error while Updating the Record for " + entityName
+                      + " with id: " + id + " and error is: " + e + " \n";
+
+                } finally {
+                  OBContext.getOBContext().setCurrentClient(currentClient);
+                }
 
                 if (entityName.equals("FinancialMgmtTaxRate")) {
                   deleteExtraTaxacct(id);
