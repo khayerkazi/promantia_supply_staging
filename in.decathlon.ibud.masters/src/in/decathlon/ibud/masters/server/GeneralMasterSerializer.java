@@ -22,6 +22,7 @@ import org.openbravo.model.ad.access.User;
 import org.openbravo.model.ad.utility.Sequence;
 import org.openbravo.model.ad.utility.TreeNode;
 import org.openbravo.model.common.businesspartner.BusinessPartner;
+import org.openbravo.model.common.businesspartner.Greeting;
 import org.openbravo.model.common.businesspartner.Location;
 import org.openbravo.model.common.enterprise.Organization;
 import org.openbravo.model.common.plm.Product;
@@ -338,8 +339,10 @@ public class GeneralMasterSerializer {
 
       String query = "";
       if (entityName.equals("User")) {
-        query = "e where e.creationDate >= '" + newDate + "' and e.ibudIssluser=" + isSLUser
-            + " order by e.updated asc";
+        query = "e where e.id in (select distinct e1.id from ADUser e1 where e1.creationDate >= '"
+            + newDate + "' and e1.ibudIssluser=" + isSLUser + ") order by e.updated asc";
+        bpCrit = OBDal.getInstance().createQuery(User.class, query);
+
       } else {
         query = "e where e.id in (select distinct u.greeting.id from ADUser u where   u.creationDate >= '"
             + newDate
@@ -348,8 +351,9 @@ public class GeneralMasterSerializer {
             + " ) or e.creationDate >= '"
             + newDate
             + "'order by e.updated asc";
+        bpCrit = OBDal.getInstance().createQuery(Greeting.class, query);
+
       }
-      bpCrit = OBDal.getInstance().createQuery(User.class, query);
 
       bpCrit.setFilterOnReadableOrganization(false);
       bpCrit.setFilterOnActive(false);
