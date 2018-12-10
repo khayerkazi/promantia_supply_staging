@@ -164,6 +164,13 @@ public class OrgnizationSyncWSForSL implements WebService {
           && docSeqFlag) {
         flag = true;
       }
+
+      if (userSet.size() > 0) {
+        logger = logger
+            + "User is not Present in DB with id: "
+            + userSet
+            + ",and updated as Openbravo User on same Record, Please use the pull user process to pull the this user data.  \n";
+      }
       respObj.put("errorMessage", logger);
       respObj.put("status", flag);
       logger = "";
@@ -1076,12 +1083,6 @@ public class OrgnizationSyncWSForSL implements WebService {
 
     } finally {
       OBContext.restorePreviousMode();
-      if (userSet.size() > 0) {
-        logger = logger
-            + "User is not Present in DB with id: "
-            + userSet
-            + ",and updated as Openbravo User on same Record, Please use the pull user process to pull the this user data.  \n";
-      }
 
     }
     return isSaved;
