@@ -3,12 +3,10 @@ package in.decathlon.ibud.masters.server;
 import in.decathlon.ibud.commons.JSONHelper;
 
 import java.io.Writer;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,9 +64,10 @@ public class MasterFixtureWSForSL implements WebService {
     JSONObject jsonDataObject = new JSONObject();
 
     try {
-      String updated = request.getParameter("updated");
-      DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-      Date updatedDate = format.parse(updated);
+
+      String updated = request.getParameter("updated").replace("_", " ");
+      SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      Date updatedDate = formater.parse(updated);
 
       log.info("Inside Pull Master Webservice fetching data from " + updatedDate);
 
@@ -436,7 +435,7 @@ public class MasterFixtureWSForSL implements WebService {
     List<Object[]> priceData = new ArrayList<Object[]>();
     try {
       String priceSQLQuery = "SELECT DISTINCT pp.m_productprice_id, pp.m_pricelist_version_id, pp.m_product_id, pp.ad_client_id, "
-          + " pp.ad_org_id, pp.isactive, pp.created, pp.createdby, pp.updated, pp.updatedby, "
+          + " CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else pp.ad_org_id end as ad_org_id, pp.isactive, pp.created, pp.createdby, pp.updated, pp.updatedby, "
           + "pp.pricelist, pp.pricestd, pp.pricelimit, pp.cost, pp.algorithm, pp.em_cl_fobprice, "
           + "pp.em_cl_mrpprice, pp.em_cl_cessionprice, pp.em_cl_ccunitprice, pp.em_cl_ccueprice, "
           + "pp.em_cl_ccpcbprice, pp.em_cl_unitmarginamount, round(pp.em_cl_unitmarginpercentage,2) as em_cl_unitmarginpercentage, "
@@ -444,6 +443,8 @@ public class MasterFixtureWSForSL implements WebService {
           + " round(pp.em_cl_pcbmarginpercentage,2) as em_cl_pcbmarginpercentage "
           + "FROM m_productprice pp   join m_product p on p.m_product_id=pp.m_product_id "
           + "join cl_model ml on p.em_cl_model_id=ml.cl_model_id   join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + "where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and pp.m_pricelist_version_id in (SELECT DISTINCT m_pricelist_version_id from m_pricelist_version where name = 'DMI CATALOGUE') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
@@ -463,13 +464,15 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getModelData(Date updatedTime) {
     List<Object[]> modelData = new ArrayList<Object[]>();
     try {
-      String query = "SELECT DISTINCT ml.cl_model_id, ml.ad_client_id, ml.ad_org_id, ml.isactive, ml.created, ml.createdby,"
+      String query = "SELECT DISTINCT ml.cl_model_id, ml.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else ml.ad_org_id end as ad_org_id, ml.isactive, ml.created, ml.createdby,"
           + " ml.updated, ml.updatedby, ml.value, ml.name, ml.cl_subdepartment_id, ml.cl_department_id,"
           + " ml.cl_sport_id, ml.merchandise_category, ml.cl_brand_id, "
           + " ml.typology, ml.cl_natureofproduct_id, ml.cl_component_brand_id, "
           + " ml.blueproduct, ml.cl_storedept_id, ml.cl_universe_id,  ml.cl_branddepartment_id, imancode "
           + " FROM cl_model ml join m_product p on p.em_cl_model_id=ml.cl_model_id"
           + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
+          + " join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id"
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id"
           + " where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
@@ -490,7 +493,7 @@ public class MasterFixtureWSForSL implements WebService {
   public List<Object[]> getProductData(Date updatedTime) throws Exception {
     List<Object[]> prdData = new ArrayList<Object[]>();
     try {
-      String productSQLQuery = "SELECT DISTINCT p.m_product_id, p.ad_client_id, p.ad_org_id, p.isactive, p.created, p.createdby, p.updated, p.updatedby, p.value, p.name, "
+      String productSQLQuery = "SELECT DISTINCT p.m_product_id, p.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else p.ad_org_id end as ad_org_id, p.isactive, p.created, p.createdby, p.updated, p.updatedby, p.value, p.name, "
           + " p.upc, p.c_uom_id, p.salesrep_id, p.issummary, p.isstocked, p.ispurchased, p.m_product_category_id, p.volume, p.weight, "
           + " p.c_taxcategory_id, p.producttype, p.m_attributeset_id, p.em_cl_log_rec, p.em_cl_modelname, p.em_cl_modelcode, p.em_cl_size, p.em_cl_pcb_qty, p.em_cl_ue_qty, p.em_cl_grosswt_pcb,"
           + " p.em_cl_volume_pcb, p.em_cl_color_id, p.em_cl_model_id, p.em_cl_age, p.em_cl_gender, p.em_cl_lifestage, p.em_cl_typea, p.em_cl_typeb,"
@@ -498,6 +501,8 @@ public class MasterFixtureWSForSL implements WebService {
           + " FROM m_product p join cl_model ml on p.em_cl_model_id=ml.cl_model_id"
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
           + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + "where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? )";
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(productSQLQuery);
@@ -517,7 +522,7 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getProductCategoryData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String query = " SELECT DISTINCT e.m_product_category_id ,  e.ad_client_id ,  e.ad_org_id  , e. isactive  ,  e.created ,  e.createdby  ,  "
+      String query = " SELECT DISTINCT e.m_product_category_id ,  e.ad_client_id ,  CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id  , e. isactive  ,  e.created ,  e.createdby  ,  "
           + " e.updated  ,  e.updatedby  ,  e.value  ,  e.name  ,  e.description ,  "
           + "e.isdefault  ,e.plannedmargin , e.a_asset_group_id  , e. ad_image_id  , e. issummary  , e. em_ingst_gstproductcode_id    "
           + "FROM m_product_category e   "
@@ -525,7 +530,8 @@ public class MasterFixtureWSForSL implements WebService {
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + "join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
           + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
-
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
@@ -546,7 +552,7 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getAttibutesetData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String query = " SELECT DISTINCT  e.m_attributeset_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
+      String query = " SELECT DISTINCT  e.m_attributeset_id, e.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id, e.isactive, e.created, "
           + " e.createdby, e.updated, e.updatedby, e.name, e.description, e.isserno, e.m_sernoctl_id,  "
           + "   e.islot, e.m_lotctl_id, e.isguaranteedate, e.guaranteedays, e.islockable, "
           + "   e.isoneattrsetvalrequired "
@@ -555,6 +561,8 @@ public class MasterFixtureWSForSL implements WebService {
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id   "
           + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN') "
           + " and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? )";
 
@@ -575,7 +583,7 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getDiscountSchemaData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String query = "  SELECT DISTINCT e.m_discountschema_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, "
+      String query = "  SELECT DISTINCT e.m_discountschema_id, e.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id, e.isactive, e.created, "
           + "   e.createdby, e.updated, e.updatedby, e.name, e.description, e.validfrom,  "
           + " e.discounttype, e.script, e.flatdiscount, e.isquantitybased, e.cumulativelevel,  "
           + " e.processing  "
@@ -585,6 +593,8 @@ public class MasterFixtureWSForSL implements WebService {
           + "   join m_product p on p.m_product_id=pp.m_product_id "
           + "    join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + "  join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
@@ -605,7 +615,7 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getPricelistVersionData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String query = "   SELECT DISTINCT e.m_pricelist_version_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,   "
+      String query = "   SELECT DISTINCT e.m_pricelist_version_id, e.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id, e.isactive, e.created,   "
           + "     e.createdby, e.updated, e.updatedby, e.name, e.description, e.m_pricelist_id,   "
           + " e.m_discountschema_id, e.validfrom, e.proccreate, e.m_pricelist_version_base_id,   "
           + " e.m_pricelist_version_generate  "
@@ -614,6 +624,8 @@ public class MasterFixtureWSForSL implements WebService {
           + "  join m_product p on p.m_product_id=pp.m_product_id  "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id  "
           + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
@@ -634,7 +646,7 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getGstProductCodeData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String query = " SELECT DISTINCT e.ingst_gstproductcode_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created,  "
+      String query = " SELECT DISTINCT e.ingst_gstproductcode_id, e.ad_client_id,CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id, e.isactive, e.created,  "
           + "       e.createdby, e.updated, e.updatedby, e.value, e.name, e.type, e.description,  "
           + "       e.c_taxcategory_id, e.display, e.isexception   "
           + "    FROM ingst_gstproductcode e    "
@@ -642,7 +654,8 @@ public class MasterFixtureWSForSL implements WebService {
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
           + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
-
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
@@ -664,8 +677,11 @@ public class MasterFixtureWSForSL implements WebService {
     List<Object[]> listDataObj = new ArrayList<Object[]>();
     try {
       String keyId = Key + "_id";
-      String query = "SELECT DISTINCT  e." + keyId
-          + ", e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
+      String query = "SELECT DISTINCT  e."
+          + keyId
+          + ", e.ad_client_id,"
+          + " CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id,"
+          + " e.isactive, e.created, e.createdby,  "
           + "     e.updated, e.updatedby, e.name, e.description ";
       if (!(Key.equalsIgnoreCase("cl_storedept") || Key.equalsIgnoreCase("cl_universe"))) {
         query = query + ", e.isdefault  ";
@@ -689,7 +705,8 @@ public class MasterFixtureWSForSL implements WebService {
         query = query + " join cl_model ml on e." + keyId + "=ml." + keyId + " "
             + " join m_product p on p.em_cl_model_id=ml.cl_model_id ";
       }
-      query = query + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
+      query = query
+          + "join ad_org o on o.ad_org_id=e.ad_org_id join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
           + " left join m_productprice pp on pp.m_product_id=p.m_product_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN')  ";
 
@@ -1154,7 +1171,7 @@ public class MasterFixtureWSForSL implements WebService {
   private List<Object[]> getPricelistData(Date updatedTime) {
     List<Object[]> EntityDataList = new ArrayList<Object[]>();
     try {
-      String query = "   SELECT DISTINCT e.m_pricelist_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby,  "
+      String query = "   SELECT DISTINCT e.m_pricelist_id, e.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id, e.isactive, e.created, e.createdby,  "
           + "     e.updated, e.updatedby, e.name, e.description, e.basepricelist_id, e.istaxincluded,  "
           + "       e.issopricelist, e.isdefault, e.c_currency_id, e.enforcepricelimit, e.costbased   "
           + "   FROM m_pricelist e  "
@@ -1163,6 +1180,8 @@ public class MasterFixtureWSForSL implements WebService {
           + " join m_product p on p.m_product_id=pp.m_product_id "
           + " join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
           + " join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
+          + "   join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN') "
           + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
@@ -1226,15 +1245,17 @@ public class MasterFixtureWSForSL implements WebService {
     List<Object[]> prdData = new ArrayList<Object[]>();
     try {
 
-      String sQLQuery = "    SELECT DISTINCT  e.c_taxcategory_id, e.ad_client_id, e.ad_org_id, e.isactive, e.created, e.createdby, "
+      String sQLQuery = "    SELECT DISTINCT  e.c_taxcategory_id, e.ad_client_id, CASE  WHEN (ot.name='Legal Entity with accounting') then '0' else e.ad_org_id end as ad_org_id, e.isactive, e.created, e.createdby, "
           + " e.updated, e.updatedby, e.name, e.description , e.isdefault   ,  e.em_ingst_gstproductcode_id, e.asbom     "
           + " FROM c_taxcategory e       "
           + "      join m_product p on p.c_taxcategory_id=e.c_taxcategory_id "
           + " left join m_productprice pp on p.m_product_id=pp.m_product_id "
           + "     join cl_model ml on p.em_cl_model_id=ml.cl_model_id "
-          + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id  "
+          + "   join cl_brand b on b.cl_brand_id=ml.cl_brand_id "
+          + " join ad_org o on o.ad_org_id=e.ad_org_id "
+          + " join ad_orgtype ot on ot.ad_orgtype_id=o.ad_orgtype_id "
           + " where b.name in ('FIXTURES','Events','UNKNOWN')   "
-          + "and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
+          + " and ( p.updated >= ? OR pp.updated >= ?  OR ml.updated >= ? ) ";
 
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(sQLQuery);
       query.setDate(0, updatedTime);

@@ -3,12 +3,10 @@ package in.decathlon.ibud.masters.server;
 import in.decathlon.ibud.commons.JSONHelper;
 
 import java.io.Writer;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,9 +64,9 @@ public class MasterFixtureWS implements WebService {
     JSONObject jsonDataObject = new JSONObject();
 
     try {
-      String updated = request.getParameter("updated");
-      DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-      Date updatedDate = format.parse(updated);
+      String updated = request.getParameter("updated").replace("_", "");
+      SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      Date updatedDate = formater.parse(updated);
 
       log.info("Inside Pull Master Webservice fetching data from " + updatedDate);
 

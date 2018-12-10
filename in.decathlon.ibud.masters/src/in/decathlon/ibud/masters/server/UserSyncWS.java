@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.HibernateException;
 import org.openbravo.base.provider.OBProvider;
+import org.openbravo.model.common.businesspartner.Greeting;
 import org.openbravo.service.json.DataToJsonConverter;
 import org.openbravo.service.web.WebService;
 
@@ -54,7 +55,6 @@ public class UserSyncWS implements WebService {
 
     // int rowCount = Integer.parseInt(request.getParameter("rowCount"));
     updated = updated.replace("_", " ");
-    String Country = request.getParameter("Country");
 
     /*
      * dont pull Organization,client, business partner,location
@@ -65,7 +65,7 @@ public class UserSyncWS implements WebService {
      * genMaster.generateJsonWS(org.openbravo.model.common.businesspartner.Location.class, updated,
      * rowCount, "", null);
      */
-    // genMaster.getUserDataJson(Greeting.class, updated, "Greeting", isRequestFromSL, false);
+    genMaster.getUserDataJson(Greeting.class, updated, "Greeting", false, false);
 
     // genMaster.getUserDataJson(Role.class, updated, "Role", isRequestFromSL, false);
     genMaster.getUserData(updated, false);
