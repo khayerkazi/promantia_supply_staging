@@ -374,10 +374,9 @@ public class GeneralMasterSerializer {
       }
     } catch (Exception e) {
       throw e;
-    } finally {
-      OBContext.getOBContext().restorePreviousMode();
-    }
-
+    } /*
+       * finally { OBContext.getOBContext().restorePreviousMode(); }
+       */
   }
 
   public void getUserDataJson(Class<? extends BaseOBObject> userAccess, String updatedTime,
