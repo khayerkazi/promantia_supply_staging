@@ -32,10 +32,12 @@ public class OrganizationSyncMasterForSL extends DalBaseProcess {
       Date date = new Date();
       String updated = format.format(date);
       log.debug("Inside MasterSyncClient class to GET master data");
-      logger.log("Requesting Supply to get data");
-      masterHandler.sendGetrequest(true, "Organization", "in.decathlon.ibud.masters.OrgSyncWS",
-          "ReqForSL", processid, logger);
-      BusinessEntityMapper.setLastUpdatedTime(updated, "SLOrganization");
+      logger.log("No Action!");
+      /*
+       * masterHandler.sendGetrequest(true, "Organization", "in.decathlon.ibud.masters.OrgSyncWS",
+       * "ReqForSL", processid, logger);
+       */
+      // BusinessEntityMapper.setLastUpdatedTime(updated, "SLOrganization");
     }
 
     catch (Exception e) {

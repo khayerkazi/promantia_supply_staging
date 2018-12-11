@@ -577,9 +577,10 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (Country Obj : list) {
                         if (!existingobj.getId().equals(Obj.getId()))
-                          logger = logger
-                              + "Country iSO Country Code is already present in Supply DB with id:"
-                              + Obj.getId() + "  and name is: " + entityJson.getString("name")
+                          logger = logger + "ISO Country Code:"
+                              + entityJson.getString("iSOCountryCode")
+                              + " is already present in Supply DB with id:" + Obj.getId()
+                              + "  and name is: " + entityJson.getString("name")
                               + " and Country name is:" + Obj.getName() + " and Client is: "
                               + Obj.getClient().getName()
                               + ", So Skip the insert action on supply DB \n";
@@ -861,8 +862,8 @@ public class OrgnizationSyncWSForSL implements WebService {
                 }
                 bob.setValue("updated", date);
                 bob.setValue("creationDate", date);
-                bob.setValue("createdBy", OBContext.getOBContext().getUser());
-                bob.setValue("updatedBy", OBContext.getOBContext().getUser());
+                // bob.setValue("createdBy", OBContext.getOBContext().getUser());
+                // bob.setValue("updatedBy", OBContext.getOBContext().getUser());
 
                 // Deletion of old tree node in Org pull
 

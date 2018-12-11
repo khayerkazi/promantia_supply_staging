@@ -130,8 +130,10 @@ public class GeneralMasterSerializer {
     try {
 
       OBContext.getOBContext().setAdminMode(true);
-      String query = "tn where tn.tree.typeArea = '" + SOConstants.TreeType
-          + "' and tn.updated > '" + newDate + "' order by tn.updated asc ";
+      String query = "tn where tn.tree.typeArea = '"
+          + SOConstants.TreeType
+          + "' and tn.organization.id in (select e.organization.id from OrganizationInformation e  where e.locationAddress.country.name='India') "
+          + "and tn.updated > '" + newDate + "' order by tn.updated asc ";
       OBQuery<TreeNode> treeCrit = OBDal.getInstance().createQuery(TreeNode.class, query);
       treeCrit.setFilterOnReadableOrganization(false);
       treeCrit.setFilterOnActive(false);
@@ -207,13 +209,14 @@ public class GeneralMasterSerializer {
       OBContext.getOBContext().setAdminMode(true);
       if (master.equals("businessPartner")) {
         String query1 = "bp where bp.updated > '" + newDate + "' and bp.id in (select m." + master
-            + ".id from OrganizationInformation " + " as m )  order by bp.updated asc";
+            + ".id from OrganizationInformation "
+            + " as m where m.locationAddress.country.name='India')  order by bp.updated asc";
         bpCrit = OBDal.getInstance().createQuery(BusinessPartner.class, query1);
       } else if (master.equals("bpLocation")) {
         String query2 = "bp where bp.updated > '"
             + newDate
             + "' and bp.businessPartner.id in (select m.businessPartner.id from OrganizationInformation "
-            + " as m ) order by bp.updated asc";
+            + " as m where m.locationAddress.country.name='India') order by bp.updated asc";
         bpCrit = OBDal.getInstance().createQuery(Location.class, query2);
       }
       bpCrit.setFilterOnReadableOrganization(false);
