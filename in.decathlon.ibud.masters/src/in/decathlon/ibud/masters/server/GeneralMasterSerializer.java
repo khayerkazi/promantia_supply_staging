@@ -55,10 +55,10 @@ public class GeneralMasterSerializer {
     case "AcctSchema":
       query = " e  where e.updated >= '" + newDate + "' order by e.updated";
       break;
-    case "two":
+    case "Organization":
       System.out.println("two");
       break;
-    case "three":
+    case "Category":
       System.out.println("three");
       break;
     default:

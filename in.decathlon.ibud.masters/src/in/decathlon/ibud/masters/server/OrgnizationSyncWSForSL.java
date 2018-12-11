@@ -744,6 +744,16 @@ public class OrgnizationSyncWSForSL implements WebService {
                   bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
                   // OBContext.restorePreviousMode();ingstGstidentifirmaster
                   bob.setValue("ingstGstidentifirmaster", null);
+                  User UserObj = null;
+                  User existingUser = OBDal.getInstance().get(User.class,
+                      entityJson.getString("userContact"));
+                  if (existingUser != null) {
+                    UserObj = existingUser;
+                  } else {
+                    userSet.add(id);
+                    UserObj = obUser;
+                  }
+                  bob.setValue("userContact", UserObj);
 
                 } else if (entityName.equals("BusinessPartner")) {
                   bob.setValue("rCOxylane", null);
@@ -1086,7 +1096,8 @@ public class OrgnizationSyncWSForSL implements WebService {
                   userSet.add(id);
                   updatedByUser = obUser;
                 }
-
+                log.info("createdByUser-->" + createdByUser.getUsername());
+                log.info("updatedByUser-->" + updatedByUser.getUsername());
                 bob.setValue("createdBy", createdByUser);
                 bob.setValue("updatedBy", updatedByUser);
 
