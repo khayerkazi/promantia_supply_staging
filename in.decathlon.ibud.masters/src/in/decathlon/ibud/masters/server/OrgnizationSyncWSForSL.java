@@ -253,6 +253,7 @@ public class OrgnizationSyncWSForSL implements WebService {
   public static boolean saveJSONObject(JSONArray jsonArrayContent, String ProcessentityName)
       throws Exception {
     SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    User obUser = OBDal.getInstance().get(User.class, "100");
 
     JsonToDataConverter fromJsonConverter = new JsonToDataConverter();
     String objectName = "", objectID = "";
@@ -301,12 +302,7 @@ public class OrgnizationSyncWSForSL implements WebService {
             entityJson.put("client$_identifier", OBContext.getOBContext().getCurrentClient()
                 .getName());
           }
-          if (entityJson.has("createdBy")) {
-            entityJson.put("createdBy", getUserId(entityJson.getString("createdBy")));
-          }
-          if (entityJson.has("updatedBy")) {
-            entityJson.put("updatedBy", getUserId(entityJson.getString("updatedBy")));
-          }
+
           String id = entityJson.getString(JsonConstants.ID);
           String entityName = entityJson.getString(JsonConstants.ENTITYNAME);
 
@@ -711,6 +707,28 @@ public class OrgnizationSyncWSForSL implements WebService {
                 bob.setValue("updated", date);
                 bob.setValue("creationDate", date);
 
+                User createdByUser = null;
+                User updatedByUser = null;
+
+                User existingCreatedByUser = OBDal.getInstance().get(User.class,
+                    entityJson.getString("createdBy"));
+                if (existingCreatedByUser != null) {
+                  createdByUser = existingCreatedByUser;
+                }
+
+                User existingUpdatedByUser = OBDal.getInstance().get(User.class,
+                    entityJson.getString("updatedBy"));
+                if (existingUpdatedByUser != null) {
+                  updatedByUser = existingUpdatedByUser;
+                }
+                if (updatedByUser == null || createdByUser == null) {
+                  userSet.add(id);
+                  updatedByUser = obUser;
+                }
+
+                bob.setValue("createdBy", createdByUser);
+                bob.setValue("updatedBy", updatedByUser);
+
                 if (entityName.equals("Organization")) {
                   // OBContext.setAdminMode(true);
                   OBContext.getOBContext().addWritableOrganization((String) bob.getId());
@@ -747,9 +765,7 @@ public class OrgnizationSyncWSForSL implements WebService {
                   // OBContext.restorePreviousMode();ingstGstidentifirmaster
                   bob.setValue("ingstGstidentifirmaster", null);
 
-                } else
-
-                if (entityName.equals("BusinessPartner")) {
+                } else if (entityName.equals("BusinessPartner")) {
                   bob.setValue("rCOxylane", null);
                 }
                 if (processedClientObj != null) {
@@ -862,8 +878,28 @@ public class OrgnizationSyncWSForSL implements WebService {
                 }
                 bob.setValue("updated", date);
                 bob.setValue("creationDate", date);
-                // bob.setValue("createdBy", OBContext.getOBContext().getUser());
-                // bob.setValue("updatedBy", OBContext.getOBContext().getUser());
+
+                User createdByUser = null;
+                User updatedByUser = null;
+
+                User existingCreatedByUser = OBDal.getInstance().get(User.class,
+                    entityJson.getString("createdBy"));
+                if (existingCreatedByUser != null) {
+                  createdByUser = existingCreatedByUser;
+                }
+
+                User existingUpdatedByUser = OBDal.getInstance().get(User.class,
+                    entityJson.getString("updatedBy"));
+                if (existingUpdatedByUser != null) {
+                  updatedByUser = existingUpdatedByUser;
+                }
+                if (updatedByUser == null || createdByUser == null) {
+                  userSet.add(id);
+                  updatedByUser = obUser;
+                }
+
+                bob.setValue("createdBy", createdByUser);
+                bob.setValue("updatedBy", updatedByUser);
 
                 // Deletion of old tree node in Org pull
 
