@@ -292,6 +292,8 @@ public class OrgnizationSyncWSForSL implements WebService {
       int updateCount = 0;
       for (int i = 0; i < jsonArrayContent.length(); i++) {
         try {
+          User createdByUser = null;
+          User updatedByUser = null;
           JSONObject entityJson = jsonArrayContent.getJSONObject(i);
           if (entityJson.has("client")
               && OBContext.getOBContext().getCurrentClient().getId() != null) {
@@ -707,28 +709,6 @@ public class OrgnizationSyncWSForSL implements WebService {
                 bob.setValue("updated", date);
                 bob.setValue("creationDate", date);
 
-                User createdByUser = null;
-                User updatedByUser = null;
-
-                User existingCreatedByUser = OBDal.getInstance().get(User.class,
-                    entityJson.getString("createdBy"));
-                if (existingCreatedByUser != null) {
-                  createdByUser = existingCreatedByUser;
-                }
-
-                User existingUpdatedByUser = OBDal.getInstance().get(User.class,
-                    entityJson.getString("updatedBy"));
-                if (existingUpdatedByUser != null) {
-                  updatedByUser = existingUpdatedByUser;
-                }
-                if (updatedByUser == null || createdByUser == null) {
-                  userSet.add(id);
-                  updatedByUser = obUser;
-                }
-
-                bob.setValue("createdBy", createdByUser);
-                bob.setValue("updatedBy", updatedByUser);
-
                 if (entityName.equals("Organization")) {
                   // OBContext.setAdminMode(true);
                   OBContext.getOBContext().addWritableOrganization((String) bob.getId());
@@ -777,6 +757,28 @@ public class OrgnizationSyncWSForSL implements WebService {
 
                 }
                 try {
+
+                  User existingCreatedByUser = OBDal.getInstance().get(User.class,
+                      entityJson.getString("createdBy"));
+                  if (existingCreatedByUser != null) {
+                    createdByUser = existingCreatedByUser;
+                  } else {
+                    userSet.add(id);
+                    createdByUser = obUser;
+                  }
+
+                  User existingUpdatedByUser = OBDal.getInstance().get(User.class,
+                      entityJson.getString("updatedBy"));
+                  if (existingUpdatedByUser != null) {
+                    updatedByUser = existingUpdatedByUser;
+                  } else {
+                    userSet.add(id);
+                    updatedByUser = obUser;
+                  }
+                  log.info("createdByUser-->" + createdByUser.getUsername());
+                  log.info("updatedByUser-->" + updatedByUser.getUsername());
+                  bob.setValue("createdBy", createdByUser);
+                  bob.setValue("updatedBy", updatedByUser);
                   OBDal.getInstance().save(bob);
                   OBDal.getInstance().flush();
                 } catch (Exception e) {
@@ -878,28 +880,6 @@ public class OrgnizationSyncWSForSL implements WebService {
                 }
                 bob.setValue("updated", date);
                 bob.setValue("creationDate", date);
-
-                User createdByUser = null;
-                User updatedByUser = null;
-
-                User existingCreatedByUser = OBDal.getInstance().get(User.class,
-                    entityJson.getString("createdBy"));
-                if (existingCreatedByUser != null) {
-                  createdByUser = existingCreatedByUser;
-                }
-
-                User existingUpdatedByUser = OBDal.getInstance().get(User.class,
-                    entityJson.getString("updatedBy"));
-                if (existingUpdatedByUser != null) {
-                  updatedByUser = existingUpdatedByUser;
-                }
-                if (updatedByUser == null || createdByUser == null) {
-                  userSet.add(id);
-                  updatedByUser = obUser;
-                }
-
-                bob.setValue("createdBy", createdByUser);
-                bob.setValue("updatedBy", updatedByUser);
 
                 // Deletion of old tree node in Org pull
 
@@ -1089,6 +1069,26 @@ public class OrgnizationSyncWSForSL implements WebService {
                   }
 
                 }
+                User existingCreatedByUser = OBDal.getInstance().get(User.class,
+                    entityJson.getString("createdBy"));
+                if (existingCreatedByUser != null) {
+                  createdByUser = existingCreatedByUser;
+                } else {
+                  userSet.add(id);
+                  createdByUser = obUser;
+                }
+
+                User existingUpdatedByUser = OBDal.getInstance().get(User.class,
+                    entityJson.getString("updatedBy"));
+                if (existingUpdatedByUser != null) {
+                  updatedByUser = existingUpdatedByUser;
+                } else {
+                  userSet.add(id);
+                  updatedByUser = obUser;
+                }
+
+                bob.setValue("createdBy", createdByUser);
+                bob.setValue("updatedBy", updatedByUser);
 
                 OBDal.getInstance().save(bob);
                 OBDal.getInstance().flush();

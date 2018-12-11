@@ -73,16 +73,17 @@ public class OrgnizationSyncWS implements WebService {
 
       OBContext.setAdminMode(true);
       genMaster.generateJsonWS(Client.class, updated, rowCount, "", null);
-      genMaster.generateJsonWS(AcctSchema.class, updated, rowCount, "", null);
+      genMaster.generateJsonWS(AcctSchema.class, updated, rowCount, "AcctSchema", null);
       genMaster.generateJsonWS(Organization.class, updated, rowCount, "Organization", null);
       genMaster.getLocation(updated);
-      genMaster.generateJsonWS(Category.class, updated, rowCount, "", null);
+      genMaster.generateJsonWS(Category.class, updated, rowCount, "Category", null);
       // genMaster.generateJsonWS(BusinessPartner.class, updated, rowCount, "", null);
       // pull business partner assigned in org info if they got updated
       genMaster.getBusinessPartner(updated, bpartner);
       genMaster.getBusinessPartner(updated, bpartnerLocation);
       genMaster.generateJsonWS(Costcenter.class, updated, rowCount, "", null);
-      genMaster.generateJsonWS(OrganizationInformation.class, updated, rowCount, "", null);
+      genMaster.generateJsonWS(OrganizationInformation.class, updated, rowCount,
+          "OrganizationInformation", null);
       genMaster.generateJsonWS(Sequence.class, updated, rowCount, "DocSequence", null);
       genMaster.generateJsonWS(DocumentType.class, updated, rowCount, "", null);
       // genMaster.getOrgInfo(OrganizationInformation.class, updated);

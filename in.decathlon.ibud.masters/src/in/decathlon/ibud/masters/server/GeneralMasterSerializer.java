@@ -49,23 +49,47 @@ public class GeneralMasterSerializer {
     } catch (Exception e) {
       newDate = new Date(new Date().getTime() - 2 * 24 * 3600 * 1000);
     }
-
-    OBCriteria<? extends BaseOBObject> genClassCriteria = OBDal.getInstance().createCriteria(bob);
-    if (!master.equals("DocSequence") && !master.equals("User")) {
-      genClassCriteria.add(Restrictions.ge(Product.PROPERTY_UPDATED, newDate));
-    } else {
-      genClassCriteria.add(Restrictions.ge(Sequence.PROPERTY_CREATIONDATE, newDate));
+    ScrollableResults genMasterScrollar = null;
+    String query = "";
+    switch (master) {
+    case "AcctSchema":
+      query = " e  where e.updated >= '" + newDate + "' order by e.updated";
+      break;
+    case "two":
+      System.out.println("two");
+      break;
+    case "three":
+      System.out.println("three");
+      break;
+    default:
+      System.out.println("no match");
     }
+    if (master.equals("AcctSchema")) {
+      query = " e  where e.updated >= '" + newDate + "' order by e.updated";
 
-    /*
-     * if (master.equals("Price")) {
-     * genClassCriteria.add(Restrictions.eq(Product.PROPERTY_ORGANIZATION, org)); }
-     */
-    genClassCriteria.setFilterOnActive(false);
-    genClassCriteria.setFilterOnReadableOrganization(false);
-    genClassCriteria.setFetchSize(100);
-    genClassCriteria.addOrderBy(Product.PROPERTY_UPDATED, true);
-    ScrollableResults genMasterScrollar = genClassCriteria.scroll(ScrollMode.FORWARD_ONLY);
+      OBQuery<? extends BaseOBObject> baseOBObjList = OBDal.getInstance().createQuery(bob, query);
+      baseOBObjList.setFilterOnActive(false);
+      baseOBObjList.setFilterOnReadableOrganization(false);
+      baseOBObjList.setFetchSize(100);
+      genMasterScrollar = baseOBObjList.scroll(ScrollMode.FORWARD_ONLY);
+    } else {
+      OBCriteria<? extends BaseOBObject> genClassCriteria = OBDal.getInstance().createCriteria(bob);
+      if (!master.equals("DocSequence") && !master.equals("User")) {
+        genClassCriteria.add(Restrictions.ge(Product.PROPERTY_UPDATED, newDate));
+      } else {
+        genClassCriteria.add(Restrictions.ge(Sequence.PROPERTY_CREATIONDATE, newDate));
+      }
+
+      /*
+       * if (master.equals("Price")) {
+       * genClassCriteria.add(Restrictions.eq(Product.PROPERTY_ORGANIZATION, org)); }
+       */
+      genClassCriteria.setFilterOnActive(false);
+      genClassCriteria.setFilterOnReadableOrganization(false);
+      genClassCriteria.setFetchSize(100);
+      genClassCriteria.addOrderBy(Product.PROPERTY_UPDATED, true);
+      genMasterScrollar = genClassCriteria.scroll(ScrollMode.FORWARD_ONLY);
+    }
     int i = 0;
 
     List<BaseOBObject> bobList = new ArrayList<BaseOBObject>();
@@ -243,7 +267,7 @@ public class GeneralMasterSerializer {
     }
   }
 
-  public void getOrgInfo(Class<? extends BaseOBObject> bob, String updatedDate) throws Exception {
+  public void getOrgInfo1(Class<? extends BaseOBObject> bob, String updatedDate) throws Exception {
 
     String updated = updatedDate;
     updated = updated.replace("_", " ");
@@ -294,10 +318,10 @@ public class GeneralMasterSerializer {
       String query1 = "bp where bp.updated > '"
           + newDate
           + "' and (bp.id in (select m.locationAddress"
-          + ".id from OrganizationInformation as m) or "
+          + ".id from OrganizationInformation as m and m.locationAddress.country.name='India') or "
           + " bp.id in (select b.locationAddress.id from BusinessPartnerLocation as b where b.businessPartner.id in"
-          + " (select oi.businessPartner.id from OrganizationInformation " + " as oi)))"
-          + "  order by bp.updated asc";
+          + " (select oi.businessPartner.id from OrganizationInformation "
+          + " as oi where oi.locationAddress.country.name='India')))" + "  order by bp.updated asc";
       bpCrit = OBDal.getInstance().createQuery(org.openbravo.model.common.geography.Location.class,
           query1);
 
