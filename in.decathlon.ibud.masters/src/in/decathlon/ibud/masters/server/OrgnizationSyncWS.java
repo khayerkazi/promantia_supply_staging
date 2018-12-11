@@ -68,7 +68,7 @@ public class OrgnizationSyncWS implements WebService {
       String bpartnerLocation = "bpLocation";
       String bpartner = "businessPartner";
       log.debug(" date in string format taken from query string " + updated);
-      int rowCount = Integer.parseInt(request.getParameter("rowCount"));
+      int rowCount = 2;// Integer.parseInt(request.getParameter("rowCount"));
       updated = updated.replace("_", " ");
 
       OBContext.setAdminMode(true);
@@ -85,8 +85,8 @@ public class OrgnizationSyncWS implements WebService {
       genMaster.generateJsonWS(OrganizationInformation.class, updated, rowCount,
           "OrganizationInformation", null);
       genMaster.generateJsonWS(Sequence.class, updated, rowCount, "DocSequence", null);
-      genMaster.generateJsonWS(DocumentType.class, updated, rowCount, "", null);
-      // genMaster.getOrgInfo(OrganizationInformation.class, updated);
+      genMaster.generateJsonWS(DocumentType.class, updated, rowCount, "DocumentType", null);
+      genMaster.getOrgInfo(OrganizationInformation.class, updated);
       genMaster.getTreeNode(updated);
       // genMaster.generateJsonWS(Posconfig.class, updated, rowCount, "", null);
     } catch (Exception e) {

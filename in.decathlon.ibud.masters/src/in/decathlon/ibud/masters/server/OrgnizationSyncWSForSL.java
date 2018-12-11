@@ -588,8 +588,10 @@ public class OrgnizationSyncWSForSL implements WebService {
                     }
                   }
                 } else if (entityName.equals("DocumentType")) {
+
                   // OBContext.setAdminMode(true);
                   if (id != null) {
+
                     OBContext.getOBContext().addWritableOrganization(id);
                     DocumentType existingobj = OBDal.getInstance().get(DocumentType.class, id);
                     processedClientObj = existingobj.getClient();
@@ -707,7 +709,7 @@ public class OrgnizationSyncWSForSL implements WebService {
                 objectName = bob.getEntityName();
                 objectID = bob.getIdentifier();
                 bob.setValue("updated", date);
-                bob.setValue("creationDate", date);
+                // bob.setValue("creationDate", date);
 
                 if (entityName.equals("Organization")) {
                   // OBContext.setAdminMode(true);
@@ -785,16 +787,20 @@ public class OrgnizationSyncWSForSL implements WebService {
                     userSet.add(id);
                     updatedByUser = obUser;
                   }
-                  log.info("createdByUser-->" + createdByUser.getUsername());
-                  log.info("updatedByUser-->" + updatedByUser.getUsername());
                   bob.setValue("createdBy", createdByUser);
                   bob.setValue("updatedBy", updatedByUser);
+
+                  if (entityName.equals("DocumentType")) {
+                    bob.setValue("ibdoContradocument", null);
+                  }
+
                   OBDal.getInstance().save(bob);
                   OBDal.getInstance().flush();
                 } catch (Exception e) {
                   logger = logger + " Error while Updating the Record for " + entityName
                       + " with id: " + id + " and error is: " + e + " \n";
                   isSaved = false;
+                  e.printStackTrace();
 
                 } finally {
                   OBContext.getOBContext().setCurrentClient(currentClient);
@@ -891,8 +897,9 @@ public class OrgnizationSyncWSForSL implements WebService {
                 bob.setValue("updated", date);
                 bob.setValue("creationDate", date);
 
-                // Deletion of old tree node in Org pull
-
+                if (entityName.equals("DocumentType")) {
+                  bob.setValue("ibdoContradocument", null);
+                }
                 if (entityName.equals("ADSequence")) {
                   String name = entityJson.getString("name");
 
@@ -1096,8 +1103,7 @@ public class OrgnizationSyncWSForSL implements WebService {
                   userSet.add(id);
                   updatedByUser = obUser;
                 }
-                log.info("createdByUser-->" + createdByUser.getUsername());
-                log.info("updatedByUser-->" + updatedByUser.getUsername());
+
                 bob.setValue("createdBy", createdByUser);
                 bob.setValue("updatedBy", updatedByUser);
 

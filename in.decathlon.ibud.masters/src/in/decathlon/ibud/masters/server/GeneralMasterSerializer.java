@@ -53,26 +53,42 @@ public class GeneralMasterSerializer {
     String query = "";
     switch (master) {
     case "AcctSchema":
-      query = " e  where e.updated >= '" + newDate + "' order by e.updated";
+      query = " e  where e.id in (select oi.organization.generalLedger.id from OrganizationInformation oi  "
+          + "where oi.locationAddress.country.name='India') and  e.updated >= '"
+          + newDate
+          + "' order by e.updated";
       break;
     case "Organization":
-      System.out.println("two");
+      query = " e  where e.id in (select oi.organization.id from OrganizationInformation oi  "
+          + "where oi.locationAddress.country.name='India') and  e.updated >= '" + newDate
+          + "' order by e.updated";
       break;
     case "Category":
-      System.out.println("three");
+      query = " e  where e.id in (select oi.businessPartner.businessPartnerCategory.id from OrganizationInformation oi  "
+          + "where oi.locationAddress.country.name='India') and  e.updated >= '"
+          + newDate
+          + "' order by e.updated";
+      break;
+    case "OrganizationInformation":
+      query = " e  where   e.locationAddress.country.name='India' and  e.updated >= '" + newDate
+          + "' order by e.updated";
+      break;
+    case "DocSequence":
+      query = " e  where e.organization.id in (select oi.organization.id from OrganizationInformation oi  "
+          + "where oi.locationAddress.country.name='India') and  e.creationDate >= '"
+          + newDate
+          + "' order by e.updated";
+      break;
+    case "DocumentType":
+      query = " e  where e.organization.id in (select oi.organization.id from OrganizationInformation oi  "
+          + "where oi.locationAddress.country.name='India') and  e.updated >= '"
+          + newDate
+          + "' order by e.updated";
       break;
     default:
       System.out.println("no match");
     }
-    if (master.equals("AcctSchema")) {
-      query = " e  where e.updated >= '" + newDate + "' order by e.updated";
-
-      OBQuery<? extends BaseOBObject> baseOBObjList = OBDal.getInstance().createQuery(bob, query);
-      baseOBObjList.setFilterOnActive(false);
-      baseOBObjList.setFilterOnReadableOrganization(false);
-      baseOBObjList.setFetchSize(100);
-      genMasterScrollar = baseOBObjList.scroll(ScrollMode.FORWARD_ONLY);
-    } else {
+    if (query.equals("")) {
       OBCriteria<? extends BaseOBObject> genClassCriteria = OBDal.getInstance().createCriteria(bob);
       if (!master.equals("DocSequence") && !master.equals("User")) {
         genClassCriteria.add(Restrictions.ge(Product.PROPERTY_UPDATED, newDate));
@@ -89,6 +105,11 @@ public class GeneralMasterSerializer {
       genClassCriteria.setFetchSize(100);
       genClassCriteria.addOrderBy(Product.PROPERTY_UPDATED, true);
       genMasterScrollar = genClassCriteria.scroll(ScrollMode.FORWARD_ONLY);
+    } else {
+      OBQuery<? extends BaseOBObject> genClassObj = OBDal.getInstance().createQuery(bob, query);
+      genClassObj.setFilterOnReadableOrganization(false);
+      genClassObj.setFilterOnActive(false);
+      genMasterScrollar = genClassObj.scroll(ScrollMode.FORWARD_ONLY);
     }
     int i = 0;
 
@@ -267,7 +288,7 @@ public class GeneralMasterSerializer {
     }
   }
 
-  public void getOrgInfo1(Class<? extends BaseOBObject> bob, String updatedDate) throws Exception {
+  public void getOrgInfo(Class<? extends BaseOBObject> bob, String updatedDate) throws Exception {
 
     String updated = updatedDate;
     updated = updated.replace("_", " ");
@@ -318,7 +339,7 @@ public class GeneralMasterSerializer {
       String query1 = "bp where bp.updated > '"
           + newDate
           + "' and (bp.id in (select m.locationAddress"
-          + ".id from OrganizationInformation as m and m.locationAddress.country.name='India') or "
+          + ".id from OrganizationInformation as m where m.locationAddress.country.name='India') or "
           + " bp.id in (select b.locationAddress.id from BusinessPartnerLocation as b where b.businessPartner.id in"
           + " (select oi.businessPartner.id from OrganizationInformation "
           + " as oi where oi.locationAddress.country.name='India')))" + "  order by bp.updated asc";
