@@ -765,6 +765,7 @@ public class OrgnizationSyncWSForSL implements WebService {
                 } catch (Exception e) {
                   logger = logger + " Error while Updating the Record for " + entityName
                       + " with id: " + id + " and error is: " + e + " \n";
+                  isSaved = false;
 
                 } finally {
                   OBContext.getOBContext().setCurrentClient(currentClient);
@@ -779,6 +780,8 @@ public class OrgnizationSyncWSForSL implements WebService {
               isSaved = false;
               logger = logger + " Error while Updating the Record for Entity:[" + objectName
                   + "]Identifier : [" + objectID + "] ," + e + " \n";
+              e.printStackTrace();
+
             } finally {
               OBContext.getOBContext().setCurrentClient(currentClient);
 
@@ -1065,12 +1068,16 @@ public class OrgnizationSyncWSForSL implements WebService {
               isSaved = false;
               logger = logger + " Error while Inserting the Record for Entity:[" + objectName
                   + "]Identifier : [" + objectID + "] ," + e + " \n";
+              e.printStackTrace();
+
             }
           }
         } catch (Exception e) {
           isSaved = false;
           logger = logger + " Error while Processing for Entity:[" + objectName + "]Identifier : ["
               + objectID + "] ," + e + " \n";
+          e.printStackTrace();
+
         }
 
       }
@@ -1080,6 +1087,7 @@ public class OrgnizationSyncWSForSL implements WebService {
 
     } catch (Exception e) {
       isSaved = false;
+      e.printStackTrace();
 
     } finally {
       OBContext.restorePreviousMode();
