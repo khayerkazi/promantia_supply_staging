@@ -200,8 +200,9 @@ public class GStShip extends BaseProcessActionHandler {
           .setNextAssignedNumber(newDocNumber);
       return uniqueNumber;
     } else {
-      throw new OBException(" Packing Document Sequence is not config for "
-          + shipWarehouse.getGoodsShipment().getWarehouse().getEntityName() + " Warehouse");
+      throw new OBException("Export Invoice Document Sequence is not config for "
+          + shipWarehouse.getGoodsShipment().getWarehouse().getEntityName()
+          + " Warehouse in Waehouse and Storage Bin Window");
     }
   }
 

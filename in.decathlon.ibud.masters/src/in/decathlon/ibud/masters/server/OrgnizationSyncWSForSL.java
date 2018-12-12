@@ -167,14 +167,15 @@ public class OrgnizationSyncWSForSL implements WebService {
 
       if (userSet.size() > 0) {
         logger = logger
-            + "User is not Present in DB with id: "
+            + "WARNING: User is not Present in DB with id: "
             + userSet
-            + ",and updated as Openbravo User on same Record, Please use the pull user process to pull the this user data.  \n";
+            + ",and Updated as Openbravo User on Same Record, Please Use the Pull User Process to Pull the this User Data.  \n";
       }
+      log.error("ERROR: Logged Error for Pull organization Process: " + logger);
+
       respObj.put("errorMessage", logger);
       respObj.put("status", flag);
       logger = "";
-
       response.setContentType("text/json");
       response.setCharacterEncoding("utf-8");
       final Writer w = response.getWriter();
@@ -239,14 +240,16 @@ public class OrgnizationSyncWSForSL implements WebService {
   }
 
   private JSONArray getJsonData(JSONObject orders, String delimeter) throws JSONException {
+    JSONArray arr = new JSONArray();
     try {
-      JSONArray arr = new JSONArray();
-      arr = orders.getJSONArray(delimeter);
-      return arr;
+      if (orders.has(delimeter)) {
+        arr = orders.getJSONArray(delimeter);
+      }
     } catch (Exception e) {
+      e.printStackTrace();
       log.error("Error", e);
     }
-    return null;
+    return arr;
   }
 
   @SuppressWarnings("unchecked")
@@ -309,7 +312,7 @@ public class OrgnizationSyncWSForSL implements WebService {
           String entityName = entityJson.getString(JsonConstants.ENTITYNAME);
 
           String query = "from " + entityName + " ent where  ent.id='" + id + "'";
-          log.info("executing query " + query);
+          log.info("executing query is: " + query);
 
           Query qry = OBDal.getInstance().getSession().createQuery(query);
           List qryList = qry.list();
@@ -334,11 +337,11 @@ public class OrgnizationSyncWSForSL implements WebService {
                     for (AcctSchema Obj : list) {
                       if (!Obj.getId().equals(id)) {
                         logger = logger
-                            + "Acct Schema Name is already present in Supply DB with id:"
-                            + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                            + " and organization is:" + existingUser.getOrganization().getName()
+                            + "Acct Schema Name is Already Present in Supply DB with Id:"
+                            + Obj.getId() + "  and Name is: " + entityJson.getString("name")
+                            + " and Organization is:" + existingUser.getOrganization().getName()
                             + " and Client is: " + existingUser.getClient().getName()
-                            + ", So Skip the updation action on supply DB \n";
+                            + ", So Skip the Updation Action on Supply DB \n";
                         break loop;
                       }
                     }
@@ -358,12 +361,12 @@ public class OrgnizationSyncWSForSL implements WebService {
                     for (Organization Obj : list) {
                       if (!Obj.getId().equals(id)) {
                         logger = logger
-                            + "Organization Search Key is already present in Supply DB with id:"
+                            + "WARNING: Organization Search Key is Already Present in Supply DB with id:"
                             + Obj.getId() + "  and searchKey is: "
-                            + entityJson.getString("searchKey") + " and organization name is:"
+                            + entityJson.getString("searchKey") + " and Organization Name is:"
                             + existingOrg.getName() + " and Client is: "
                             + existingOrg.getClient().getName()
-                            + ", So Skip the updation action on supply DB \n";
+                            + ", So Skip the Updation Action on Supply DB \n";
                         break loop;
                       }
                     }
@@ -432,12 +435,12 @@ public class OrgnizationSyncWSForSL implements WebService {
                       for (Category Obj : list) {
                         if (!Obj.getId().equals(id)) {
                           logger = logger
-                              + "Business Category Search Key is already present in Supply DB with id:"
+                              + "WARNING: Business Category Search Key is Already Present in Supply DB with id:"
                               + Obj.getId() + "  and searchKey is: "
-                              + entityJson.getString("searchKey") + " and organization is:"
+                              + entityJson.getString("searchKey") + " and Organization is:"
                               + existingobj.getOrganization().getName() + " and Client is: "
                               + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -459,11 +462,11 @@ public class OrgnizationSyncWSForSL implements WebService {
                       for (PriceList Obj : list) {
                         if (!Obj.getId().equals(id)) {
                           logger = logger
-                              + "Price List Name is already present in Supply DB with id:"
-                              + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                              + " and organization is:" + existingobj.getOrganization().getName()
+                              + "WARNING: Price List Name is Already Present in Supply DB with id:"
+                              + Obj.getId() + "  and Name is: " + entityJson.getString("name")
+                              + " and Organization is:" + existingobj.getOrganization().getName()
                               + " and Client is: " + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -484,13 +487,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (PaymentTerm Obj : list) {
                         if (!Obj.getId().equals(id)) {
-                          logger = logger + entityName
-                              + " Search Key is already present in Supply DB with id:"
+                          logger = logger + "WARNING: " + entityName
+                              + " Search Key is Already Present in Supply DB with id:"
                               + Obj.getId() + "  and searchKey is: "
-                              + entityJson.getString("searchKey") + " and organization name is:"
+                              + entityJson.getString("searchKey") + " and Organization Name is:"
                               + existingobj.getOrganization().getName() + " and Client is: "
                               + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -512,13 +515,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (BusinessPartner Obj : list) {
                         if (!Obj.getId().equals(id)) {
-                          logger = logger + entityName
-                              + " Search Key is already present in Supply DB with id:"
+                          logger = logger + "WARNING: " + entityName
+                              + " Search Key is Already Present in Supply DB with id:"
                               + Obj.getId() + "  and searchKey is: "
-                              + entityJson.getString("searchKey") + " and organization name is:"
+                              + entityJson.getString("searchKey") + " and Organization Name is:"
                               + existingobj.getOrganization().getName() + " and Client is: "
                               + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -546,11 +549,12 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (Region Obj : list) {
                         if (!existingobj.getId().equals(Obj.getId()))
-                          logger = logger + "Region is already present in Supply DB with id:"
-                              + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                              + " and Country name is:" + countryObj.getName() + " and Client is: "
+                          logger = logger
+                              + "WARNING: Region is Already Present in Supply DB with id:"
+                              + Obj.getId() + "  and Name is: " + entityJson.getString("name")
+                              + " and Country Name is:" + countryObj.getName() + " and Client is: "
                               + Obj.getClient().getName()
-                              + ", So Skip the insert action on supply DB \n";
+                              + ", So Skip the Insert Action on Supply DB \n";
                         break loop;
                       }
 
@@ -575,13 +579,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (Country Obj : list) {
                         if (!existingobj.getId().equals(Obj.getId()))
-                          logger = logger + "ISO Country Code:"
+                          logger = logger + "WARNING: ISO Country Code:"
                               + entityJson.getString("iSOCountryCode")
-                              + " is already present in Supply DB with id:" + Obj.getId()
-                              + "  and name is: " + entityJson.getString("name")
-                              + " and Country name is:" + Obj.getName() + " and Client is: "
+                              + " is Already Present in Supply DB with id:" + Obj.getId()
+                              + "  and Name is: " + entityJson.getString("name")
+                              + " and Country Name is:" + Obj.getName() + " and Client is: "
                               + Obj.getClient().getName()
-                              + ", So Skip the insert action on supply DB \n";
+                              + ", So Skip the Insert Action on Supply DB \n";
                         break loop;
                       }
 
@@ -602,13 +606,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (DocumentType Obj : list) {
                         if (!Obj.getId().equals(id)) {
-                          logger = logger + entityName
-                              + " name is already present in Supply DB with id:" + Obj.getId()
-                              + "  and name is: " + entityJson.getString("name")
-                              + " and organization name is:"
+                          logger = logger + "WARNING: " + entityName
+                              + " name is Already Present in Supply DB with id:" + Obj.getId()
+                              + "  and Name is: " + entityJson.getString("name")
+                              + " and Organization Name is:"
                               + existingobj.getOrganization().getName() + " and Client is: "
                               + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -628,13 +632,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (GLCategory Obj : list) {
                         if (!Obj.getId().equals(id)) {
-                          logger = logger + entityName
-                              + " name is already present in Supply DB with id:" + Obj.getId()
-                              + "  and name is: " + entityJson.getString("name")
-                              + " and organization name is:"
+                          logger = logger + "WARNING: " + entityName
+                              + " name is Already Present in Supply DB with id:" + Obj.getId()
+                              + "  and Name is: " + entityJson.getString("name")
+                              + " and Organization Name is:"
                               + existingobj.getOrganization().getName() + " and Client is: "
                               + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -655,13 +659,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                     if (list != null && list.size() > 0) {
                       for (Sequence Obj : list) {
                         if (!Obj.getId().equals(id)) {
-                          logger = logger + entityName
-                              + " name is already present in Supply DB with id:" + Obj.getId()
-                              + "  and name is: " + entityJson.getString("name")
-                              + " and organization name is:"
+                          logger = logger + "WARNING: " + entityName
+                              + " name is Already Present in Supply DB with id:" + Obj.getId()
+                              + "  and Name is: " + entityJson.getString("name")
+                              + " and Organization Name is:"
                               + existingobj.getOrganization().getName() + " and Client is: "
                               + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -683,12 +687,12 @@ public class OrgnizationSyncWSForSL implements WebService {
                       for (Costcenter Obj : list) {
                         if (!Obj.getId().equals(id)) {
                           logger = logger
-                              + "Costcenter Search Key is already present in Supply DB with id:"
+                              + "WARNING: Costcenter Search Key is Already Present in Supply DB with id:"
                               + Obj.getId() + "  and searchKey is: "
-                              + entityJson.getString("searchKey") + " and organization is:"
+                              + entityJson.getString("searchKey") + " and Organization is:"
                               + existingobj.getOrganization().getName() + " and Client is: "
                               + existingobj.getClient().getName()
-                              + ", So Skip the updation action on supply DB \n";
+                              + ", So Skip the Updation Action on Supply DB \n";
                           break loop;
                         }
                       }
@@ -791,14 +795,32 @@ public class OrgnizationSyncWSForSL implements WebService {
                   bob.setValue("updatedBy", updatedByUser);
 
                   if (entityName.equals("DocumentType")) {
-                    bob.setValue("ibdoContradocument", null);
+                    if (!entityJson.isNull("ibdoContradocument")
+                        && !entityJson.getString("ibdoContradocument").equals("")) {
+
+                      DocumentType docTypeObj = OBDal.getInstance().get(DocumentType.class,
+                          entityJson.getString("ibdoContradocument"));
+                      if (docTypeObj == null) {
+                        logger = logger + "WARNING: " + entityName
+                            + "  Having  Contra Document Type is :"
+                            + "  Not present in Supply DB with id:"
+                            + entityJson.getString("ibdoContradocument") + " and Name is: "
+                            + entityJson.getString("ibdoContradocument$_identifier")
+                            + ", So Skip the Update Contra Document Type in "
+                            + entityJson.getString("name") + " Document Type record. \n";
+                        bob.setValue("ibdoContradocument", null);
+
+                      }
+                    } else {
+                      bob.setValue("ibdoContradocument", null);
+                    }
                   }
 
                   OBDal.getInstance().save(bob);
                   OBDal.getInstance().flush();
                 } catch (Exception e) {
-                  logger = logger + " Error while Updating the Record for " + entityName
-                      + " with id: " + id + " and error is: " + e + " \n";
+                  logger = logger + "ERROR: While Updating the Record for " + entityName
+                      + " with id: " + id + " and Error is: " + e + " \n";
                   isSaved = false;
                   e.printStackTrace();
 
@@ -813,7 +835,7 @@ public class OrgnizationSyncWSForSL implements WebService {
               }
             } catch (Exception e) {
               isSaved = false;
-              logger = logger + " Error while Updating the Record for Entity:[" + objectName
+              logger = logger + "ERROR: While Updating the Record for Entity:[" + objectName
                   + "]Identifier : [" + objectID + "] ," + e + " \n";
               e.printStackTrace();
 
@@ -840,9 +862,10 @@ public class OrgnizationSyncWSForSL implements WebService {
                   List<AcctSchema> list = (List<AcctSchema>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
                     AcctSchema Obj = list.get(0);
-                    logger = logger + "Acct Schema Name already present in Supply DB with id:"
-                        + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                        + " and client name is: "
+                    logger = logger
+                        + "WARNING: Acct Schema Name already present in Supply DB with id:"
+                        + Obj.getId() + "  and Name is: " + entityJson.getString("name")
+                        + " and client Name is: "
                         + OBContext.getOBContext().getCurrentClient().getName()
                         + " , So Skip the Insert action on record \n";
                     break insertLoop;
@@ -866,7 +889,7 @@ public class OrgnizationSyncWSForSL implements WebService {
                   if (orgList != null && orgList.size() > 0) {
                     Organization orgObj = orgList.get(0);
 
-                    logger = logger + "Organization Search Key already present with id:"
+                    logger = logger + "WARNING: Organization Search Key already present with id:"
                         + orgObj.getId() + " in Supply DB with Search Key is: "
                         + entityJson.getString("searchKey")
                         + " , So Skip the Insert action on record  \n";
@@ -898,7 +921,25 @@ public class OrgnizationSyncWSForSL implements WebService {
                 bob.setValue("creationDate", date);
 
                 if (entityName.equals("DocumentType")) {
-                  bob.setValue("ibdoContradocument", null);
+                  if (!entityJson.isNull("ibdoContradocument")
+                      && !entityJson.getString("ibdoContradocument").equals("")) {
+
+                    DocumentType docTypeObj = OBDal.getInstance().get(DocumentType.class,
+                        entityJson.getString("ibdoContradocument"));
+                    if (docTypeObj == null) {
+                      logger = logger + "WARNING: " + entityName
+                          + "  Having  Contra Document Type is :"
+                          + "  Not present in Supply DB with id:"
+                          + entityJson.getString("ibdoContradocument") + " and Name is: "
+                          + entityJson.getString("ibdoContradocument$_identifier")
+                          + ", So Skip the Update Contra Document Type in "
+                          + entityJson.getString("name") + " Document Type record. \n";
+                      bob.setValue("ibdoContradocument", null);
+
+                    }
+                  } else {
+                    bob.setValue("ibdoContradocument", null);
+                  }
                 }
                 if (entityName.equals("ADSequence")) {
                   String name = entityJson.getString("name");
@@ -910,10 +951,10 @@ public class OrgnizationSyncWSForSL implements WebService {
                           .getOBContext().getCurrentClient());
                   List<Sequence> list = (List<Sequence>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
-                    logger = logger + entityName
-                        + "  Name is already present in Supply DB with id:" + list.get(0).getId()
-                        + "  and name is: " + entityJson.getString("name")
-                        + " and client name is: "
+                    logger = logger + "WARNING: " + entityName
+                        + "  Name is Already Present in Supply DB with id:" + list.get(0).getId()
+                        + "  and Name is: " + entityJson.getString("name")
+                        + " and client Name is: "
                         + OBContext.getOBContext().getCurrentClient().getName()
                         + " and Organization Name is: " + orgObj.getName()
                         + ", So Skip the Insert action on DB \n";
@@ -930,10 +971,10 @@ public class OrgnizationSyncWSForSL implements WebService {
                           .getOBContext().getCurrentClient());
                   List<DocumentType> list = (List<DocumentType>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
-                    logger = logger + entityName
-                        + "  Name is already present in Supply DB with id:" + list.get(0).getId()
-                        + "  and name is: " + entityJson.getString("name")
-                        + " and client name is: "
+                    logger = logger + "WARNING: " + entityName
+                        + "  Name is Already Present in Supply DB with id:" + list.get(0).getId()
+                        + "  and Name is: " + entityJson.getString("name")
+                        + " and client Name is: "
                         + OBContext.getOBContext().getCurrentClient().getName()
                         + " and Organization Name is: " + orgObj.getName()
                         + ", So Skip the Insert action on DB \n";
@@ -949,10 +990,10 @@ public class OrgnizationSyncWSForSL implements WebService {
                           .getOBContext().getCurrentClient());
                   List<GLCategory> list = (List<GLCategory>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
-                    logger = logger + entityName
-                        + "  Name is already present in Supply DB with id:" + list.get(0).getId()
-                        + "  and name is: " + entityJson.getString("name")
-                        + " and client name is: "
+                    logger = logger + "WARNING: " + entityName
+                        + "  Name is Already Present in Supply DB with id:" + list.get(0).getId()
+                        + "  and Name is: " + entityJson.getString("name")
+                        + " and client Name is: "
                         + OBContext.getOBContext().getCurrentClient().getName()
                         + " and Organization Name is: " + orgObj.getName()
                         + ", So Skip the Insert action on DB \n";
@@ -969,13 +1010,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                   List<BusinessPartner> list = (List<BusinessPartner>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
                     for (BusinessPartner Obj : list) {
-                      logger = logger + entityName
-                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                      logger = logger + "WARNING: " + entityName
+                          + " Search Key is Already Present in Supply DB with id:" + Obj.getId()
                           + "  and searchKey is: " + entityJson.getString("searchKey")
-                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Organization is:" + Obj.getOrganization().getName()
                           + " and Client is: "
                           + OBContext.getOBContext().getCurrentClient().getName()
-                          + ", So Skip the Insert action on supply DB \n";
+                          + ", So Skip the Insert Action on Supply DB \n";
                       break insertLoop;
 
                     }
@@ -989,13 +1030,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                   List<Costcenter> list = (List<Costcenter>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
                     for (Costcenter Obj : list) {
-                      logger = logger + entityName
-                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                      logger = logger + "WARNING: " + entityName
+                          + " Search Key is Already Present in Supply DB with id:" + Obj.getId()
                           + "  and searchKey is: " + entityJson.getString("searchKey")
-                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Organization is:" + Obj.getOrganization().getName()
                           + " and Client is: "
                           + OBContext.getOBContext().getCurrentClient().getName()
-                          + ", So Skip the Insert action on supply DB \n";
+                          + ", So Skip the Insert Action on Supply DB \n";
                       break insertLoop;
 
                     }
@@ -1009,13 +1050,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                   List<PaymentTerm> list = (List<PaymentTerm>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
                     for (PaymentTerm Obj : list) {
-                      logger = logger + entityName
-                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                      logger = logger + "WARNING: " + entityName
+                          + " Search Key is Already Present in Supply DB with id:" + Obj.getId()
                           + "  and searchKey is: " + entityJson.getString("searchKey")
-                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Organization is:" + Obj.getOrganization().getName()
                           + " and Client is: "
                           + OBContext.getOBContext().getCurrentClient().getName()
-                          + ", So Skip the Insert action on supply DB \n";
+                          + ", So Skip the Insert Action on Supply DB \n";
                       break insertLoop;
 
                     }
@@ -1028,13 +1069,13 @@ public class OrgnizationSyncWSForSL implements WebService {
                   List<Category> list = (List<Category>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
                     for (Category Obj : list) {
-                      logger = logger + entityName
-                          + " Search Key is already present in Supply DB with id:" + Obj.getId()
+                      logger = logger + "WARNING: " + entityName
+                          + " Search Key is Already Present in Supply DB with id:" + Obj.getId()
                           + "  and searchKey is: " + entityJson.getString("searchKey")
-                          + " and organization is:" + Obj.getOrganization().getName()
+                          + " and Organization is:" + Obj.getOrganization().getName()
                           + " and Client is: "
                           + OBContext.getOBContext().getCurrentClient().getName()
-                          + ", So Skip the Insert action on supply DB \n";
+                          + ", So Skip the Insert Action on Supply DB \n";
                       break insertLoop;
 
                     }
@@ -1048,11 +1089,12 @@ public class OrgnizationSyncWSForSL implements WebService {
                   List<PriceList> list = (List<PriceList>) BaseOBObject.list();
                   if (list != null && list.size() > 0) {
                     for (PriceList Obj : list) {
-                      logger = logger + "Price List Name is already present in Supply DB with id:"
-                          + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                          + " and organization is:" + Obj.getOrganization().getName()
+                      logger = logger
+                          + "WARNING: Price List Name is Already Present in Supply DB with id:"
+                          + Obj.getId() + "  and Name is: " + entityJson.getString("name")
+                          + " and Organization is:" + Obj.getOrganization().getName()
                           + " and Client is: " + Obj.getClient().getName()
-                          + ", So Skip the updation action on supply DB \n";
+                          + ", So Skip the Updation Action on Supply DB \n";
                       break insertLoop;
                     }
 
@@ -1075,11 +1117,11 @@ public class OrgnizationSyncWSForSL implements WebService {
                   List<Region> list = genClassCriteria.list();
                   if (list != null && list.size() > 0) {
                     for (Region Obj : list) {
-                      logger = logger + "Region is already present in Supply DB with id:"
-                          + Obj.getId() + "  and name is: " + entityJson.getString("name")
-                          + " and Country name is:" + countryObj.getName() + " and Client is: "
+                      logger = logger + "WARNING: Region is Already Present in Supply DB with id:"
+                          + Obj.getId() + "  and Name is: " + entityJson.getString("name")
+                          + " and Country Name is:" + countryObj.getName() + " and Client is: "
                           + Obj.getClient().getName()
-                          + ", So Skip the insert action on supply DB \n";
+                          + ", So Skip the Insert Action on Supply DB \n";
                       break insertLoop;
                     }
 
@@ -1120,24 +1162,24 @@ public class OrgnizationSyncWSForSL implements WebService {
               }
             } catch (Exception e) {
               isSaved = false;
-              logger = logger + " Error while Inserting the Record for Entity:[" + objectName
-                  + "]Identifier : [" + objectID + "] ," + e + " \n";
+              logger = logger + "ERROR: while Inserting the Record for Entity:[" + objectName
+                  + "]Identifier : [" + objectID + "] , and Error is: " + e + " \n";
               e.printStackTrace();
 
             }
           }
         } catch (Exception e) {
           isSaved = false;
-          logger = logger + " Error while Processing for Entity:[" + objectName + "]Identifier : ["
-              + objectID + "] ," + e + " \n";
+          logger = logger + "ERROR: while Processing for Entity:[" + objectName + "]Identifier : ["
+              + objectID + "] ,and Error is: " + e + " \n";
           e.printStackTrace();
 
         }
 
       }
 
-      logger = logger + "Record " + ProcessentityName + " and Inserted the Record cound is: "
-          + insertCount + " and update record count id: " + updateCount + " \n";
+      logger = logger + "INFO: Record " + ProcessentityName + " and Inserted the Record cound is: "
+          + insertCount + " and Update Record Count id: " + updateCount + " \n";
 
     } catch (Exception e) {
       isSaved = false;

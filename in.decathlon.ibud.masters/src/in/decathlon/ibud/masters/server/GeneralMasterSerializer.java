@@ -300,7 +300,8 @@ public class GeneralMasterSerializer {
     } catch (Exception e) {
       newDate = new Date(new Date().getTime() - 2 * 24 * 3600 * 1000);
     }
-    String query = " oi  where updated > '" + newDate + "' order by oi.updated";
+    String query = " oi  where oi.locationAddress.country.name='India' and  updated > '" + newDate
+        + "' order by oi.updated";
 
     OBQuery<? extends BaseOBObject> orgInfo = OBDal.getInstance().createQuery(bob, query);
     orgInfo.setFilterOnReadableOrganization(false);
