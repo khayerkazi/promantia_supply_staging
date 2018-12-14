@@ -258,18 +258,22 @@ public class MasterFixtureWSForSL implements WebService {
         jsonObject.put("updatedby", m[7]);
         jsonObject.put("value", m[8]);
         jsonObject.put("name", m[9]);
-        if (m[10] != null)
+        if (m[10] != null) {
           jsonObject.put("upc", m[10]);
-        else
+        } else {
           jsonObject.put("upc", "");
+        }
         if (m[11] != null)
           jsonObject.put("c_uom_id", m[11]);
         else
           jsonObject.put("c_uom_id", "");
-        if (m[12] != null)
+
+        if (m[12] != null) {
           jsonObject.put("salesrep_id", m[12]);
-        else
+        } else {
+
           jsonObject.put("salesrep_id", "");
+        }
         if (m[13] != null)
           jsonObject.put("issummary", m[13]);
         else
@@ -287,12 +291,17 @@ public class MasterFixtureWSForSL implements WebService {
           jsonObject.put("m_product_category_id", m[16]);
         else
           jsonObject.put("m_product_category_id", "");
-        if (m[16] != null)
+        if (m[17] != null)
 
           jsonObject.put("volume", m[17]);
-        if (m[16] != null)
+        else
+          jsonObject.put("volume", "0");
+
+        if (m[18] != null)
 
           jsonObject.put("weight", m[18]);
+        else
+          jsonObject.put("weight", "0");
         jsonObject.put("c_taxcategory_id", m[19]);
         jsonObject.put("producttype", m[20]);
         jsonObject.put("m_attributeset_id", m[21]);
