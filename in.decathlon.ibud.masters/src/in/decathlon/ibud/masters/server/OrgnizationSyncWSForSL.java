@@ -171,6 +171,7 @@ public class OrgnizationSyncWSForSL implements WebService {
             + userSet
             + ",and Updated as Openbravo User on Same Record, Please Use the Pull User Process to Pull the this User Data.  \n";
       }
+      userSet.clear();
       log.error("ERROR: Logged Error for Pull organization Process: " + logger);
 
       respObj.put("errorMessage", logger);
