@@ -782,7 +782,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           "Total No. of Packages", true, row.createCell(0), false);
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
-          String.valueOf(boxList.size()), true, row.createCell(1), null);
+          String.valueOf(boxList.size()), true, row.createCell(1), true);
 
       if (isPackingReport) {
         cell = row.createCell(5);
@@ -801,7 +801,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row,
           "Total No. of Pallets", true, row.createCell(0), false);
       setCellvalueWithAlignment(false, true, false, true, workbook, boldFont, row, "0", true,
-          row.createCell(1), null);
+          row.createCell(1), true);
 
       if (isPackingReport) {
         cell = row.createCell(5);
@@ -819,7 +819,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row, "Total Pieces",
           true, row.createCell(0), false);
       setCellvalueWithAlignment(false, true, true, true, workbook, boldFont, row,
-          String.valueOf(totalQty), true, row.createCell(1), null);
+          String.valueOf(totalQty), true, row.createCell(1), true);
       if (isPackingReport) {
         cell = row.createCell(5);
         setCellBolderright(workbook, boldFont, row, cell);
