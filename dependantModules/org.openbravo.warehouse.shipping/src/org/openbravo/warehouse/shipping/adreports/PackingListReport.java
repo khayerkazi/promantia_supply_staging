@@ -44,6 +44,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
   @Override
   protected JSONObject doExecute(Map<String, Object> parameters, String content) {
+    String shippingInvoiceNo = "";
 
     JSONObject jsonRequest = null;
     OBContext.setAdminMode(true);
@@ -56,7 +57,6 @@ public class PackingListReport extends BaseProcessActionHandler {
       OBWSHIPShipping shippingObj = OBDal.getInstance().get(OBWSHIPShipping.class, strShippingId);
       if (shippingObj != null) {
 
-        String shippingInvoiceNo = "";
         if (shippingObj.getGsUniqueno() != null) {
           shippingInvoiceNo = shippingObj.getGsUniqueno().replace("/", "_");
         } else {
@@ -116,7 +116,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       }
 
     } catch (Exception e) {
-      log.error(e);
+      log.error("Error While process for " + shippingInvoiceNo + " Invoice No and Error is: " + e);
 
       e.printStackTrace();
 
@@ -864,7 +864,9 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       return DownloadFile(workbook);
     } catch (Exception e) {
-      throw new Exception("Error While Processing the Report for Srilanka and error is: " + e);
+      e.printStackTrace();
+      throw new Exception("Error While Processing the Report for Srilanka and Invoice No:"
+          + shippingInvoiceNo + " and Error is: " + e);
     }
   }
 
@@ -910,6 +912,7 @@ public class PackingListReport extends BaseProcessActionHandler {
         colNum++;
       }
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception(
           "Error While Getting the product Detail's for Srilanka report and error is: " + e);
     }
@@ -928,6 +931,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       return linkdocument;
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While Downloading file for Srilanka report and error is: " + e);
     }
   }
@@ -942,6 +946,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       return "<a href='" + linkdocument + "'target='_blank' >here</a>";
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While Downloading URL for Srilanka report and error is: " + e);
     }
   }
@@ -958,7 +963,6 @@ public class PackingListReport extends BaseProcessActionHandler {
           + "  mi.documentno ,"
           + " ml.em_obwship_cessionprice as unitPrice, "
           + " ml.em_obwship_taxableamount as taxableAmt "
-
           + " from obwship_shipping os "
           + " left join obwship_shipping_details osd on os.obwship_shipping_id = osd.obwship_shipping_id  "
           + " left join m_inout mi on mi.m_inout_id = osd.m_inout_id  "
@@ -983,6 +987,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       List<Object[]> queryList = query.list();
       return queryList;
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception(
           "Error While Getting the Invoice Detail for Srilanka report and error is: " + e);
     }
@@ -996,8 +1001,12 @@ public class PackingListReport extends BaseProcessActionHandler {
     try {
       if (message != null) {
         if (message.matches("[0-9]+")) {
-          cell.setCellValue(Integer.parseInt(message));
+          try {
+            cell.setCellValue(Integer.parseUnsignedInt(message));
+          } catch (Exception e) {
+            cell.setCellValue(message);
 
+          }
         } else {
           cell.setCellValue(message);
         }
@@ -1047,9 +1056,10 @@ public class PackingListReport extends BaseProcessActionHandler {
       }
       cell.setCellStyle(cellStyle);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception(
-          "Error While setting the  Cell value With Alignment for Srilanka report and error is: "
-              + e);
+          "Error While setting the  Cell value With Alignment for Srilanka report of " + message
+              + " and error is: " + e);
     }
   }
 
@@ -1069,6 +1079,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       cell.setCellStyle(centerAlignStyleWithBold);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While setting the  Bolder for Srilanka report and error is: " + e);
     }
   }
@@ -1081,6 +1092,7 @@ public class PackingListReport extends BaseProcessActionHandler {
       centerAlignStyleWithBold.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
       cell.setCellStyle(centerAlignStyleWithBold);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While setting the  top Bolder for Srilanka report and error is: "
           + e);
     }
@@ -1097,6 +1109,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       cell.setCellStyle(centerAlignStyleWithBold);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While setting the left Bolder for Srilanka report and error is: "
           + e);
     }
@@ -1113,6 +1126,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       cell.setCellStyle(centerAlignStyleWithBold);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While setting the left Bolder for Srilanka report and error is: "
           + e);
     }
@@ -1128,6 +1142,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       cell.setCellStyle(centerAlignStyleWithBold);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While setting the left Bolder for Srilanka report and error is: "
           + e);
     }
@@ -1143,6 +1158,7 @@ public class PackingListReport extends BaseProcessActionHandler {
 
       cell.setCellStyle(centerAlignStyleWithBold);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("Error While setting the left Bolder for Srilanka report and error is: "
           + e);
     }
@@ -1185,7 +1201,9 @@ public class PackingListReport extends BaseProcessActionHandler {
       }
       return cellStyle;
     } catch (Exception e) {
-      throw new Exception("Error While getting Align Style for Srilanka report and error is: " + e);
+      e.printStackTrace();
+      throw new Exception("Error While getting Align Style for " + Text
+          + " Srilanka report and error is: " + e);
     }
   }
 }
