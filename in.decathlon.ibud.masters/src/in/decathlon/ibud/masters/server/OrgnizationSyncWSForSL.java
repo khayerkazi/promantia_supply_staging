@@ -259,31 +259,6 @@ public class OrgnizationSyncWSForSL implements WebService {
     SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     User obUser = OBDal.getInstance().get(User.class, "100");
 
-    JsonToDataConverter fromJsonConverter = new JsonToDataConverter();
-    String objectName = "", objectID = "";
-    boolean existingOrgActive = false;
-    Long repoPriority = new Long(0);
-    Long poStatusPriority = new Long(0);
-    boolean dSIDEFIslbtapply = false;
-    String dsidefPosdoctype = null;
-    String dsidefPostxdoc = null;
-    String dsidefPosinvaddr = null;
-    String dsidefPospartneraddr = null;
-    String dsidefPospayterms = null;
-    String dsidefPospricelist = null;
-    String dsidefPospaymethod = null;
-    String dsidefPoswarehouse = null;
-    String dsidefShiptime = null;
-    boolean dsidefIsautodc = false;
-    String dsidefPowarehouse = null;
-    String dsidefStoretimedesc = null;
-    String dsidefStorephonedesc = null;
-    String dsidefStoremanagermail = null;
-    Boolean existingIsReady = false;
-    Currency existingCurrency = null;
-
-    BusinessPartner existingPosInvoiceBPartner = null;
-
     boolean isSaved = true;
     try {
       OBContext.setAdminMode(true);
@@ -295,6 +270,30 @@ public class OrgnizationSyncWSForSL implements WebService {
       int insertCount = 0;
       int updateCount = 0;
       for (int i = 0; i < jsonArrayContent.length(); i++) {
+        BusinessPartner existingPosInvoiceBPartner = null;
+        JsonToDataConverter fromJsonConverter = new JsonToDataConverter();
+
+        String objectName = "", objectID = "";
+        boolean existingOrgActive = false;
+        Long repoPriority = new Long(0);
+        Long poStatusPriority = new Long(0);
+        boolean dSIDEFIslbtapply = false;
+        String dsidefPosdoctype = null;
+        String dsidefPostxdoc = null;
+        String dsidefPosinvaddr = null;
+        String dsidefPospartneraddr = null;
+        String dsidefPospayterms = null;
+        String dsidefPospricelist = null;
+        String dsidefPospaymethod = null;
+        String dsidefPoswarehouse = null;
+        String dsidefShiptime = null;
+        boolean dsidefIsautodc = false;
+        String dsidefPowarehouse = null;
+        String dsidefStoretimedesc = null;
+        String dsidefStorephonedesc = null;
+        String dsidefStoremanagermail = null;
+        Boolean existingIsReady = false;
+        Currency existingCurrency = null;
         try {
           User createdByUser = null;
           User updatedByUser = null;
