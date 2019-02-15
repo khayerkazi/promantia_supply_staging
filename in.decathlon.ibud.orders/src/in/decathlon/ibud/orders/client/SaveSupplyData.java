@@ -57,6 +57,7 @@ public class SaveSupplyData {
       log.info("order created " + ord.getDocumentNo() + " having document action "
           + ord.getDocumentAction());
     } catch (Exception e) {
+      e.printStackTrace();
       log.error(e.getMessage(), e);
       throw e;
     }
@@ -96,14 +97,21 @@ public class SaveSupplyData {
   }
 
   private void salesOrderBookProcess(Order ord) throws Exception {
-    SessionHandler.getInstance().commitAndStart();
-    String ordId = ord.getId();
-    log.debug(",," + SOConstants.performanceTest + ",supply side before booking order "
-        + ord.getDocumentNo() + " at,, " + new Date());
-    BusinessEntityMapper.executeProcess(ordId, "104", "SELECT * FROM c_order_post(?)");
-    OBDal.getInstance().refresh(ord);
-    log.debug(",," + SOConstants.performanceTest + ",supply side after booking order "
-        + ord.getDocumentNo() + " at,, " + new Date());
+    try {
+      SessionHandler.getInstance().commitAndStart();
+
+      String ordId = ord.getId();
+      log.error(",," + SOConstants.performanceTest + ",supply side before booking order "
+          + ord.getDocumentNo() + " at,, " + new Date());
+      BusinessEntityMapper.executeProcess(ordId, "104", "SELECT * FROM c_order_post(?)");
+      OBDal.getInstance().refresh(ord);
+      log.error(",," + SOConstants.performanceTest + ",supply side after booking order "
+          + ord.getDocumentNo() + " at,, " + new Date());
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error While salesOrderBookProcess and Error is: " + e);
+
+    }
   }
 
   private boolean isStockReservationPrfset() {
@@ -156,6 +164,7 @@ public class SaveSupplyData {
 
       return order;
     } catch (Exception e) {
+      e.printStackTrace();
       throw e;
 
     }
@@ -165,21 +174,27 @@ public class SaveSupplyData {
   private OrderLine createSalesOrderLine(JSONObject obj, Organization org, Order ord,
       Warehouse warehouse) throws Exception {
     OrderLine orderLine = null;
-    JsonToDataConverter fromJsonToData = new JsonToDataConverter();
+    try {
+      JsonToDataConverter fromJsonToData = new JsonToDataConverter();
 
-    orderLine = (OrderLine) fromJsonToData.toBaseOBObject(obj);
-    // orderLine.setCreatedBy(OBContext.getOBContext().getUser());
-    orderLine.setCreationDate(new Date());
-    // orderLine.setUpdatedBy(OBContext.getOBContext().getUser());
-    orderLine.setUpdated(new Date());
-    orderLine.setOrganization(org);
-    orderLine.setSalesOrder(ord);
-    orderLine.setPartnerAddress(null);
-    orderLine.set(SOConstants.jsonWarehouse, warehouse);
-    orderLine.setWarehouse(warehouse);
-    orderLine.setSalesOrder(ord);
-    orderLine.setNewOBObject(true);
+      orderLine = (OrderLine) fromJsonToData.toBaseOBObject(obj);
+      // orderLine.setCreatedBy(OBContext.getOBContext().getUser());
+      orderLine.setCreationDate(new Date());
+      // orderLine.setUpdatedBy(OBContext.getOBContext().getUser());
+      orderLine.setUpdated(new Date());
+      orderLine.setOrganization(org);
+      orderLine.setSalesOrder(ord);
+      orderLine.setPartnerAddress(null);
+      orderLine.set(SOConstants.jsonWarehouse, warehouse);
+      orderLine.setWarehouse(warehouse);
+      orderLine.setSalesOrder(ord);
+      orderLine.setNewOBObject(true);
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error while saving the SalesOrderLine and Error is: " + e);
+      throw e;
 
+    }
     return orderLine;
 
   }
@@ -188,18 +203,22 @@ public class SaveSupplyData {
       JSONObject responseOrd) throws Exception {
     try {
       Order ord = OBDal.getInstance().get(Order.class, orderId);
-      List<OrderLine> ordLines = ord.getOrderLineList();
-      for (OrderLine ordLine : ordLines) {
-        if (responseOrdLine.has(ordLine.getIbdoPoid())) {
-          BigDecimal prevQty = new BigDecimal(responseOrdLine.getString(ordLine.getIbdoPoid()));
-          prevQty = prevQty.add(ordLine.getOrderedQuantity());
-          responseOrdLine.put(ordLine.getIbdoPoid(), prevQty);
-        } else {
-          responseOrdLine.put(ordLine.getIbdoPoid(), ordLine.getOrderedQuantity());
+      if (ord != null) {
+        List<OrderLine> ordLines = ord.getOrderLineList();
+        for (OrderLine ordLine : ordLines) {
+          if (responseOrdLine.has(ordLine.getIbdoPoid())) {
+            BigDecimal prevQty = new BigDecimal(responseOrdLine.getString(ordLine.getIbdoPoid()));
+            prevQty = prevQty.add(ordLine.getOrderedQuantity());
+            responseOrdLine.put(ordLine.getIbdoPoid(), prevQty);
+          } else {
+            responseOrdLine.put(ordLine.getIbdoPoid(), ordLine.getOrderedQuantity());
+          }
         }
       }
       responseOrd.put("lines", responseOrdLine);
     } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error while getConfirmedQty and Error is: " + e);
       responseOrd.put("Error", e.toString());
       throw e;
     }
@@ -226,7 +245,7 @@ public class SaveSupplyData {
         if (ord.getDocumentStatus().equals("DR")) {
           purchaseOrderBookProcess(ord);
         }
-        log.debug("Orders are already avalaible for this documentNo " + poDocNo);
+        log.error("Orders are already avalaible for this documentNo " + poDocNo);
         responseOrd.put(ord.getId(), ord.getDocumentNo());
         documentNumbers = documentNumbers + ord.getDocumentNo() + "/";
       }
@@ -264,7 +283,7 @@ public class SaveSupplyData {
           supplyOrder.add(order);
 
         Date endBook = new Date();
-        log.debug(", " + SOConstants.perfOrmanceEnhanced + " SO Booking Time , "
+        log.error(", " + SOConstants.perfOrmanceEnhanced + " SO Booking Time , "
             + order.getDocumentNo() + "," + startBook + ", " + endBook + ", "
             + (endBook.getTime() - startBook.getTime()) / 1000);
         responseOrd.put(order.getId(), order.getDocumentNo());
@@ -277,6 +296,8 @@ public class SaveSupplyData {
       retailSupply.put(orgId, supplyOrder);
       responseOrd.put("DocumentNumbers", documentNumbers);
     } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error while distributeSalesOrder and Error is: " + e);
       throw e;
     }
     return responseOrd;
@@ -293,8 +314,7 @@ public class SaveSupplyData {
       HashMap<String, BigDecimal> remainigQtyToBook = new HashMap<String, BigDecimal>();
       HashMap<String, DWHR_DistributeMonitor> monitor = new HashMap<String, DWHR_DistributeMonitor>();
 
-      Organization organization = null;
-      organization = OBDal.getInstance().get(Organization.class,
+      Organization organization = OBDal.getInstance().get(Organization.class,
           ordHeader.getString("organization"));
       OBCriteria<DwhrWhruleConfig> obc1 = OBDal.getInstance()
           .createCriteria(DwhrWhruleConfig.class);
@@ -304,7 +324,7 @@ public class SaveSupplyData {
       for (DwhrWhruleConfig storeWarehouseRule : obc1.list()) {
         WarehouseRule warehouseRule = storeWarehouseRule.getWarehouseRule();
 
-        if (warehouseRule.getDwhrJavaprocedure() == null
+        if (warehouseRule == null || warehouseRule.getDwhrJavaprocedure() == null
             || "".equals(warehouseRule.getDwhrJavaprocedure())) {
           continue;
         }
@@ -323,11 +343,17 @@ public class SaveSupplyData {
 
           }
         } catch (InstantiationException e) {
-          log.error("SaveSupplyData.java distributeSalesOrderLine method", e);
+          e.printStackTrace();
+          log.error("SaveSupplyData.java distributeSalesOrderLine method: " + e);
         } catch (IllegalAccessException e) {
-          log.error("SaveSupplyData.java distributeSalesOrderLine method", e);
+          e.printStackTrace();
+          log.error("SaveSupplyData.java distributeSalesOrderLine method: " + e);
         } catch (ClassNotFoundException e) {
-          log.error("SaveSupplyData.java distributeSalesOrderLine method", e);
+          e.printStackTrace();
+          log.error("SaveSupplyData.java distributeSalesOrderLine method: " + e);
+        } catch (Exception e) {
+          e.printStackTrace();
+          log.error("SaveSupplyData.java distributeSalesOrderLine method: " + e);
         }
       }
 
@@ -337,6 +363,8 @@ public class SaveSupplyData {
 
       return salesOrdersMap;
     } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error while distributeSalesOrderLine and Error is: " + e);
       throw new Exception(e.toString());
     }
 
@@ -363,7 +391,8 @@ public class SaveSupplyData {
       }
       OBDal.getInstance().save(ord);
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      e.printStackTrace();
+      log.error("Error While createSalesOrder and Error is: " + e);
       throw new Exception(e.toString());
     }
     return ord;
@@ -411,7 +440,8 @@ public class SaveSupplyData {
       order.setNewOBObject(true);
       OBDal.getInstance().save(order);
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      e.printStackTrace();
+      log.error("Error While insertSalesOrder and Error is: " + e);
       throw new Exception(e.toString());
     }
     return order;
@@ -444,10 +474,9 @@ public class SaveSupplyData {
       orderLine.setWarehouseRule(salesOrderLineInformation.getWarehouseRule());
       orderLine.setLineNo(lineNo);
       orderLine.setIbdoPoid(salesOrderLineInformation.getOrderLineJSON().getString("id"));
-    } catch (JSONException e) {
-      log.error(e.getMessage(), e);
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      e.printStackTrace();
+      log.error("Error While insertSalesOrderline and Error is: " + e);
       throw new Exception(e.toString());
     }
     OBDal.getInstance().save(orderLine);
@@ -462,6 +491,7 @@ public class SaveSupplyData {
       BusinessEntityMapper.executeProcess(ordId, "104", "SELECT * FROM c_order_post(?)");
       OBDal.getInstance().refresh(ord);
     } catch (Exception e) {
+      e.printStackTrace();
       log.error("Error while executing stored procedure c_order_post for order doc "
           + ord.getDocumentNo() + e.getMessage());
       throw e;
@@ -542,6 +572,7 @@ public class SaveSupplyData {
         */
     } catch (JSONException e) {
       // TODO Auto-generated catch block
+      e.printStackTrace();
       throw new Exception("Error While Updating Id's For SL and Error is:" + e);
     }
 

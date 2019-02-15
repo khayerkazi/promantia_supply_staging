@@ -77,15 +77,22 @@ public class BusinessEntityMapper {
   public static BusinessPartner getBPOfOrg(String orgId) {
     String qry = "id in (select businessPartner from OrganizationInformation orgi where orgi.organization.id="
         + ":orgId )";
-    OBQuery<BusinessPartner> bPQuery = OBDal.getInstance().createQuery(BusinessPartner.class, qry);
-    bPQuery.setNamedParameter("orgId", orgId);
-    bPQuery.setFilterOnActive(false);
-    bPQuery.setFilterOnReadableOrganization(false);
-    if (bPQuery.uniqueResult() != null)
-      return bPQuery.uniqueResult();
-    else
-      throw new OBException("Business partner not present for org "
+    try {
+      OBQuery<BusinessPartner> bPQuery = OBDal.getInstance()
+          .createQuery(BusinessPartner.class, qry);
+      bPQuery.setNamedParameter("orgId", orgId);
+      bPQuery.setFilterOnActive(false);
+      bPQuery.setFilterOnReadableOrganization(false);
+      if (bPQuery.uniqueResult() != null)
+        return bPQuery.uniqueResult();
+      else
+        throw new OBException("Business partner not present for org "
+            + OBDal.getInstance().get(Organization.class, orgId).getName());
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new OBException("Error: Business partner not present for org "
           + OBDal.getInstance().get(Organization.class, orgId).getName());
+    }
   }
 
   /**
@@ -315,6 +322,7 @@ public class BusinessEntityMapper {
         throw new OBException(pInstance.getErrorMsg());
       }
     } catch (Exception e) {
+      e.printStackTrace();
       throw e;
     } finally {
       OBContext.restorePreviousMode();
@@ -387,6 +395,7 @@ public class BusinessEntityMapper {
       SessionHandler.getInstance().commitAndStart();
       BusinessEntityMapper.executeProcess(orderId, "104", "SELECT * FROM c_order_post(?)");
     } catch (Exception e) {
+      e.printStackTrace();
       log.error(e.getMessage(), e);
       throw e;
     }
@@ -467,13 +476,19 @@ public class BusinessEntityMapper {
   public static List<Order> getSoOnDocNo(String docNo) {
     // String docNoUp = docNo + "%";
     List<Order> ordList = new ArrayList<Order>();
-    OBCriteria<Order> ordCrit = OBDal.getInstance().createCriteria(Order.class);
-    ordCrit.add(Restrictions.eq(Order.PROPERTY_SWPOREFERENCE, docNo));
-    ordCrit.add(Restrictions.ne(Order.PROPERTY_DOCUMENTSTATUS, "VO"));
-    ordCrit.add(Restrictions.eq(Order.PROPERTY_SALESTRANSACTION, true));
-    ordCrit.addOrderBy(Order.PROPERTY_CREATIONDATE, false);
-    ordList = ordCrit.list();
+    try {
+      OBCriteria<Order> ordCrit = OBDal.getInstance().createCriteria(Order.class);
+      ordCrit.add(Restrictions.eq(Order.PROPERTY_SWPOREFERENCE, docNo));
+      ordCrit.add(Restrictions.ne(Order.PROPERTY_DOCUMENTSTATUS, "VO"));
+      ordCrit.add(Restrictions.eq(Order.PROPERTY_SALESTRANSACTION, true));
+      ordCrit.addOrderBy(Order.PROPERTY_CREATIONDATE, false);
+      ordList = ordCrit.list();
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("Error While get So On Doc No and error is: " + e);
+    }
     return ordList;
+
   }
 
   public static void txnSWMovementType(ShipmentInOut returns) {

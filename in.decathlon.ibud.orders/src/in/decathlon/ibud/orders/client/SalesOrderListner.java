@@ -58,6 +58,7 @@ public class SalesOrderListner implements WebService {
       responseArr.put(responseOrd);
       writeResult(response, responseArr.toString());
     } catch (Exception e) {
+      e.printStackTrace();
       responseArr.put(responseOrd);
       writeResult(response, responseArr.toString());
       throw e;
