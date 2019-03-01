@@ -1013,7 +1013,7 @@ public class PackingListReport extends BaseProcessActionHandler {
         // cell.setCellValue(message);
       } else {
         cell.setCellValue("");
-
+        message="";
       }
       cellStyle = workbook.createCellStyle();
       if (message.equals("Final Delivery Address")
