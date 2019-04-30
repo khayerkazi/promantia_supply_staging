@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE AD_CLIENT">
+    <table name="AD_CLIENT" primaryKey="AD_CLIENT_KEY">
+      <column name="EM_DECOPE_DEFAULTPASSWD" primaryKey="false" required="false" type="VARCHAR" size="40" autoIncrement="false">
+        <default><![CDATA[decathlon]]></default>
+        <onCreateDefault/>
+      </column>
+    </table>
+  </database>
