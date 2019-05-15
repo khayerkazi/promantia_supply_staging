@@ -24,6 +24,8 @@ v_received_qty NUMBER:=0;
 v_m_attributeset_id VARCHAR(32):='';
 v_asi_ad_org VARCHAR(32):='';
 v_c_docttype VARCHAR(32):='';
+V_total_received_qty NUMBER:=0;
+V_total_confirm_qty NUMBER:=0;
 
 BEGIN
 
@@ -164,6 +166,16 @@ FOR importdocumentno IN
 END LOOP;
 select ad_pinstance_id INTO V_pinstanceId from ad_pinstance where record_id=(select m_inout_id from m_inout where documentno =importtemprecord.documentno order by created desc limit 1 );  M_INOUT_POST(V_pinstanceId,V_minoutid) ;
 UPDATE im_gtd SET processed='Y' where validated='Y' and createdby=p_user and documentno=importtemprecord.documentno;
+ -- For checking confirm qty and received qty
+
+   SELECT SUM(CAST(em_sw_recqty AS NUMBER)), SUM(em_sw_confirmedqty) INTO V_total_received_qty, V_total_confirm_qty 
+   FROM c_orderline ol JOIN c_order o ON (o.c_order_id = ol.c_order_id)
+   WHERE o.poreference = importdocumentno.documentno;
+
+   IF (V_total_confirm_qty = V_total_received_qty)THEN
+	UPDATE c_order SET em_sw_postatus='OCL', updatedby=p_user WHERE poreference = importdocumentno.documentno;
+   END IF;
+
 END LOOP;
 DELETE FROM im_gtd WHERE processed='Y' AND validated='Y' AND createdby=p_user;
 return v_flag;
