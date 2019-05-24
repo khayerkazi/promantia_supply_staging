@@ -119,6 +119,14 @@ select count(value) INTO v_count from m_locator where value =validatedocumentnum
 IF (v_count=0 ) THEN
       v_missingErrorNotice := v_missingErrorNotice || 'Locator Does Not Exit in ERP, ';
 END IF;
+
+--check Item confirm and ordred qty in po or not for same document number 
+select count(m_product_id) INTO v_count from c_orderline where qtyordered!=em_sw_confirmedqty and m_product_id =(select m_product_id from m_product where name= validatedocumentnumber.itemcode) and c_order_id IN (select c_order_id from c_order where poreference=TRIM(BOTH ' ' FROM validatedocumentnumber.documentno) and c_doctype_id='C7CD4AC8AC414678A525AB7AE20D718C' );  
+IF (v_count > 0 ) THEN
+      v_missingErrorNotice := v_missingErrorNotice || 'Confirm qty and ordered qty should be same, ';
+END IF;  
+
+
 --check PO is created or not for document number which is in excel 
 select count(*) INTO v_count from c_order where c_doctype_id='C7CD4AC8AC414678A525AB7AE20D718C' and poreference=validatedocumentnumber.documentno;
 IF (v_count = 0 ) THEN
