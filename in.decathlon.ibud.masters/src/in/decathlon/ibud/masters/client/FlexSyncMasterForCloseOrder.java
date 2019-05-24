@@ -1,31 +1,31 @@
 package in.decathlon.ibud.masters.client;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Restrictions;
 import org.openbravo.base.provider.OBProvider;
-import org.openbravo.base.util.Check;
 import org.openbravo.dal.core.OBContext;
-import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.scheduling.ProcessBundle;
@@ -35,29 +35,20 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
+
 import in.decathlon.ibud.commons.BusinessEntityMapper;
-import in.decathlon.ibud.commons.JSONHelper;
-import in.decathlon.ibud.commons.JSONWebServiceInvocationHelper;
+import in.decathlon.ibud.commons.IbudConfig;
 import in.decathlon.ibud.masters.data.IbudServerTime;
 
 public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
-  // private static Connection con = null;
-  private static String sourceFolder = null;
-  private static String movedFolder = null;
-  public static String host = null;
-  public static String username = null;
-  public static String password = null;
-  private static String sftpDestFolder = null;
-  private static Logger logger = Logger.getRootLogger();
-  private static String xmlid = null;
-  private static String supplierCode = null;
-  private static String orderActionCode = null;
-  private static String orderStatus = null;
-  private static final Logger log = Logger.getLogger(FlexSyncMasterForCloseOrder.class);
-  static JSONWebServiceInvocationHelper masterHandler = new JSONWebServiceInvocationHelper();
   private static ProcessLogger monitorLogger;
-  String tableDetails = "";
-  String condIdOrTime = "id";
+  private static final Logger log = Logger.getLogger(FlexSyncMasterForCloseOrder.class);
 
   @Override
   protected void doExecute(ProcessBundle bundle) throws Exception {
@@ -65,31 +56,43 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
     monitorLogger = bundle.getLogger();
     String processid = bundle.getProcessId();
     try {
+      OBContext.setAdminMode(true);
+
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       Date date = new Date();
       String updated = format.format(date);
       log.debug("Inside MasterSyncClient class to GET master data");
       String updatedDate = getUpdatedTime("FlexProcess", 2);
       monitorLogger
-          .log("Requesting Supply to get data for Flex Process ffrom Date: " + updatedDate);
-      condIdOrTime = "time";
+          .log("Requesting Supply to get Closed Order data from Date: " + updatedDate + " \n");
       sendCloseOrderTOSFTP(updatedDate);
-      BusinessEntityMapper.setLastUpdatedTime(updated, "FlexProcess");
-    }
-
-    catch (Exception e) {
+      setLastUpdatedTime("FlexProcess");
+    } catch (Exception e) {
       BusinessEntityMapper.rollBackNlogError(e, processid, null);
       e.printStackTrace();
       log.error(e);
-      monitorLogger.log(e.getMessage());
+      monitorLogger.log("Error is: " + e.getMessage() + " \n");
+    } finally {
+      OBContext.restorePreviousMode();
+
     }
 
     // processServerData(jsonObj);
 
   }
 
+  public static int setLastUpdatedTime(String serviceKey) {
+    String qry = "update Ibud_ServerTime set lastupdated = now() where serviceKey= :serviceKey and client='"
+        + OBContext.getOBContext().getCurrentClient().getId() + "'";
+    log.info("executing " + qry);
+    Query query = OBDal.getInstance().getSession().createQuery(qry);
+    query.setParameter("serviceKey", serviceKey);
+    int rowUpdated = query.executeUpdate();
+    log.info("executed row=" + rowUpdated);
+    return rowUpdated;
+  }
+
   private String getUpdatedTime(String serviceKey, int lastUpdatedDays) throws ParseException {
-    OBContext.setAdminMode(true);
     OBCriteria<IbudServerTime> ibudServerTimeCriteria = OBDal.getInstance()
         .createCriteria(IbudServerTime.class);
     ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_SERVICEKEY, serviceKey));
@@ -130,68 +133,40 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
 
       newService.setServiceKey(serviceKey);
       OBDal.getInstance().save(newService);
-      SessionHandler.getInstance().commitAndStart();
+      // SessionHandler.getInstance().commitAndStart();
       return lastUpdatedTime1.toString().replaceAll(" ", "_");
 
     }
   }
 
   private void sendCloseOrderTOSFTP(String idOrTime) {
-    logger.info("Flex Written Process is Running for Generate DC XML");
 
-    host = "192.168.0.32";
-    username = "Swathi";
-    password = "Decathl0n";
-    sftpDestFolder = "/home/rojar/sftpDestFolder";
-    sourceFolder = "/home/swathi/temp/sourceFolder";
-    movedFolder = "/home/swathi/temp/movedFolder";
-
-    File checkSourceDir = new File(sourceFolder);
-    if (!checkSourceDir.exists()) {
-      checkSourceDir.mkdir();
-    }
-    File checkMovedDir = new File(movedFolder);
-    if (!checkMovedDir.exists()) {
-      checkMovedDir.mkdir();
-    }
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
     docFactory.setNamespaceAware(true);
-    DocumentBuilder docBuilder = null;
-    try {
-
-      docBuilder = docFactory.newDocumentBuilder();
-    } catch (ParserConfigurationException e2) {
-      logger.error("Could not instantiate docBuilder", e2);
-    }
-    // Variable Declarations
-    // ResultSet rs = null;
-    // ResultSet rs2 = null;
-    // PreparedStatement pst = null;
-
     List<String> fileNames = new ArrayList<String>();
-
     Element rootElement = null;
+    Map<String, Map<String, String>> OrderMap = new HashMap<String, Map<String, String>>();
     try {
 
       String sql = " SELECT distinct h.em_sw_postatus as postatus, h.documentno as documentNo,to_char(h.created,'YYYY-mm-dd') as created,to_char(h.updated,'YYYY-mm-dd') as updated,"
           + " to_char(h.dateordered,'YYYY-mm-dd') as dateordered,to_char(h.datepromised,'YYYY-mm-dd') as datepromised,to_char(h.em_sw_expdeldate,'YYYY-mm-dd') as em_sw_expdeldate,"
-          + " l.em_sw_suppliercode as suppliercode "
+          + " l.em_sw_suppliercode as suppliercode ,cd.xmlseqno as seqno"
           + " from c_order h,c_orderline l,c_bpartner bp ,cl_dpp_seqno cd where h.c_order_id=l.c_order_id "
           + " and bp.em_cl_supplierno=l.em_sw_suppliercode " + " and bp.em_rc_source='DPP' "
           + " and h.em_sw_postatus in ('OCL') and bp.em_cl_supplierno=cd.supplierno "
-          + " and h.c_doctype_id ='C7CD4AC8AC414678A525AB7AE20D718C' and h.em_imsap_duplicatesap_po!='Y'";
+          + " and h.c_doctype_id ='C7CD4AC8AC414678A525AB7AE20D718C' and h.em_imsap_duplicatesap_po!='Y' and h.updated >= '"
+          + idOrTime + "'";
 
-      if (condIdOrTime.equalsIgnoreCase("time")) {
-        // sql = sql + " and h.updated > '" + idOrTime + "'";
-      } else {
-        sql = sql + " and h.c_order_id = '" + idOrTime + "'";
-      }
       // ConnectiontoDB connection = new ConnectiontoDB();
       SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(sql);
       List<Object[]> recordList = query.list();
 
       if (recordList.size() <= 0) {
-        logger.info("No Record Found for Flex Process and Order Count is: " + recordList.size());
+        monitorLogger.log(
+            "No Record Found for Flex Process and Order Count is: " + recordList.size() + " \n");
+        return;
+      } else {
+        monitorLogger.log("Close Order getting and Count is: " + recordList.size() + " \n");
       }
 
       for (Object[] rs : recordList) {
@@ -201,8 +176,8 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
         String updated = null;
         String datepromised = null;
         String em_sw_expdeldate = null;
-        String suppliercode = null;
-
+        String supplierCode = null;
+        String xmlid = null;
         if (rs[0] != null) {
           postatus = rs[0].toString();
         }
@@ -222,23 +197,26 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
           em_sw_expdeldate = rs[6].toString();
         }
         if (rs[7] != null) {
-          suppliercode = rs[7].toString();
+          supplierCode = rs[7].toString();
         }
 
-        if (postatus.equals("SO")) {
-          orderActionCode = "Add";
-          orderStatus = "NV";
-        } else if (postatus.equals("MO")) {
-          orderActionCode = "Update";
-          orderStatus = "";
-        } else if (postatus.equals("OCL")) {
-          orderActionCode = "Close";
-          orderStatus = "C";
-        } else {
-          orderActionCode = "Delete";
-          orderStatus = "";
+        if (rs[8] != null) {
+          xmlid = rs[8].toString();
         }
-        logger.info("Process Running for Document No: " + documentNo);
+
+        /*
+         * if (postatus.equals("SO")) { orderActionCode = "Add"; orderStatus = "NV"; } else if
+         * (postatus.equals("MO")) { orderActionCode = "Update"; orderStatus = ""; } else if
+         * (postatus.equals("OCL")) {
+         */
+        String orderActionCode = "Close";
+        String orderStatus = "C";
+        /*
+         * } else { orderActionCode = "Delete"; orderStatus = ""; }
+         */
+
+        // monitorLogger.log(" Process Running for Document No: " + documentNo);
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
         Document doc = docBuilder.newDocument();
         rootElement = doc.createElement("oxit:ProcessPurchaseOrder");
@@ -284,10 +262,9 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
          * Setting an unique XML id for each supplier
          */
         // Retrieve and store supplier code
-        supplierCode = suppliercode;
-        logger.info("supplier Code is: " + supplierCode);
+        // monitorLogger.log(" supplier Code is: " + supplierCode);
         // Call getXMLID method to retrieve XML ID
-        xmlid = getXMLID(supplierCode);
+        // xmlid = getXMLID(supplierCode);
 
         // Call getIncrementValue method and get incremented value
         xmlid = getIncrementValue(xmlid);
@@ -389,7 +366,7 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
 
         // if EAN ok then the one tacken ortherwise 3 next fields
         Element oagID7 = doc.createElement("oag:ID");
-        oagID7.appendChild(doc.createTextNode(suppliercode));
+        oagID7.appendChild(doc.createTextNode(supplierCode));
         oagPartyIDs2.appendChild(oagID7);
 
         Attr schemeName7 = doc.createAttribute("schemeName");
@@ -439,8 +416,8 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
         int LineID = 1;
 
         if (recorLinedList.size() <= 0) {
-          logger.info(
-              "No Line Record Found for Flex Process and Order Count is: " + recorLinedList.size());
+          monitorLogger
+              .log("No Line Record Found for Flex Process and Order is: " + documentNo + " \n");
         }
 
         for (Object[] rs2 : recordList) {
@@ -527,62 +504,72 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
           oagPerQuantity.setAttributeNode(unitCode1);
 
         } // inner while
-        logger.info("Supply Code is: " + supplierCode);
+        // monitorLogger.log(" Supply Code is: " + supplierCode);
         // Call createXML to write the XML to file
-        String getFile = createXML(doc, xmlid);
+        String getFile = createXML(doc, xmlid, supplierCode);
 
         // add the file names to filenames List
         fileNames.add(getFile);
+        // OrderMap.get(documentNo);
+        Map<String, String> orderMapObj = new HashMap<String, String>();
+        orderMapObj.put("fileName", getFile);
+        orderMapObj.put("supplierCode", supplierCode);
+        orderMapObj.put("xmlid", xmlid);
 
-        // below method commented after issue with network which donot FTP file and update
-        // status
-        // Check FTP connection
-        // checkFTPConnection(fileNames, supplierCode);
-
-        // push files to FTP and Call updateStatus to update the status
-        // if(pushFileToFTP(fileNames, supplierCode)){
-        logger.info("Sending files to FTP");
-
-        boolean flag = UploadRecursiveFolderToSFTPServer.pushedFileToNewSFTPLocaltion(sourceFolder,
-            sftpDestFolder, fileNames);
-        if (flag) {
-          try {
-            UpdateXMLID(xmlid, supplierCode);
-            updateStatus(documentNo, orderActionCode);
-          } catch (Exception e) {
-          }
-        }
-
-        deleteFiles(fileNames);
-
+        OrderMap.put(documentNo, orderMapObj);
         /*
          * if (pushFileToFTPModified(getFile, supplierCode)) {
          * updateStatus(rs.getString("documentno"), orderActionCode); }
          */
-      } // outer while}
+      }
+      if (fileNames.size() > 0) {
+        // monitorLogger.log(" Sending files to FTP");
+        List<String> movedFileNames = pushedFileToNewSFTPLocaltion();
 
-      // Call transferFolder method to FTPS the files to remote location
-      // transferFolder(fileNames);
+        if (movedFileNames.size() > 0) {
+          try {
+            monitorLogger.log("moved File Names list is: " + movedFileNames + " \n");
+
+            monitorLogger.log("Order Map is: " + OrderMap + " \n");
+
+            for (Entry<String, Map<String, String>> orderMaoObj : OrderMap.entrySet()) {
+              String documentNo = orderMaoObj.getKey();
+              Map<String, String> orderDetailsMap = orderMaoObj.getValue();
+              if (orderDetailsMap.containsKey("supplierCode")
+                  && orderDetailsMap.containsKey("xmlid")
+                  && orderDetailsMap.containsKey("fileName")) {
+                String supplierCode = orderDetailsMap.get("supplierCode");
+                String xmlid = orderDetailsMap.get("xmlid");
+                String fileName = orderDetailsMap.get("fileName");
+                if (movedFileNames.contains(fileName)) {
+                  UpdateXMLID(xmlid, supplierCode);
+                  updateStatus(documentNo);
+                } else {
+                  monitorLogger.log("file not Moved  : " + fileName + " \n");
+
+                }
+              } else {
+                monitorLogger.log("Key Not found for Document : " + documentNo + " \n");
+              }
+            }
+          } catch (Exception e) {
+          }
+        }
+
+      }
 
     } // end try
     catch (Exception e) {
-      logger.error("Exception in Query " + e);
-    } /*
-       * finally { try { if (con != null) { con.close(); }
-       * 
-       * 
-       * if (pst != null) pst.close(); if (rs != null) rs.close(); if (rs2 != null) rs2.close();
-       * 
-       * } catch (SQLException e) { logger.info("Could not close connections " + e);
-       * e.printStackTrace(); } }
-       */
+      monitorLogger.log("Exception in Query " + e + " \n");
+      e.printStackTrace();
+    }
 
-    logger.info("********* Flex Process is Successfully Run Completed***************");
+    monitorLogger.log("  ********* Flex Process is Successfully Run Completed*************** \n");
 
   }
 
   private static String getIncrementValue(String xmlidLocal) {
-    logger.info("xmlidLocal: " + xmlidLocal);
+    // xmlidLocal: " + xmlidLocal);
     String xmlidnew = "";
     try {
       long test = Long.parseLong(xmlidLocal);
@@ -597,26 +584,24 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
   private static void UpdateXMLID(String XMLID, String SupplierCode) {
     try {
       DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      // get current date time with Date()
+
       Date date = new Date();
 
       String updateXMLSeqNo = "UPDATE cl_dpp_seqno set xmlseqno='" + XMLID + "' ,updated='"
           + dateFormat.format(date) + "' where supplierno='" + SupplierCode + "' ;";
 
       OBDal.getInstance().getSession().createSQLQuery(updateXMLSeqNo).executeUpdate();
-      /*
-       * PreparedStatement pstDSTracking = null; pstDSTracking =
-       * con.prepareStatement(updateXMLSeqNo); pstDSTracking.executeUpdate();
-       */
 
-      logger.info("sequence updated for supplier : " + SupplierCode + " to " + XMLID);
+      monitorLogger.log(
+          "  sequence updated for supplier : " + SupplierCode + " and seq No is: " + XMLID + " \n");
     } catch (Exception e) {
-      logger.info("Exception in updating synchtime  " + e);
+      e.printStackTrace();
+      monitorLogger.log("  Exception in updating synchtime  " + e + " \n");
     }
 
   }
 
-  private static String createXML(Document doc, String uniqueID) {
+  private static String createXML(Document doc, String uniqueID, String supplierCode) {
     String filename = null;
     try {
 
@@ -628,223 +613,131 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
 
         // filename = "PPO_3020913899741_" + uniqueID + ".xml";
         filename = "PPO_" + supplierCode + "_" + uniqueID + ".xml";
-        StreamResult xmlresult = new StreamResult(new File(sourceFolder + filename));
+        StreamResult xmlresult = new StreamResult(
+            new File(IbudConfig.getSourceFolder() + filename));
 
         transformer.transform(source, xmlresult);
-        logger.info("Purchase Order Created  : " + filename);
+        monitorLogger.log("Purchase Order Created: " + filename + " \n");
 
       } else {
-        logger.info("Critical Alert : No Document Found!!");
+        monitorLogger.log("Critical Alert : No Document Found!! \n");
       }
 
     } // file writer try
     catch (Exception e2) {
-      logger.info("XML Creation Failed for :");
+      monitorLogger.log("Error is XML Creation Failed for :" + e2 + " \n");
       filename = null;
     }
     return filename;
   }
 
-  public static String getXMLID(String SupplierCode) {
-    String localxmlid = null;
+  private static void updateStatus(String documentNo) {
     try {
 
-      /*
-       * ConnectiontoDB connection = new ConnectiontoDB(); PreparedStatement pst = null
-       */;
-
-      String getxmlid = "SELECT xmlseqno as xmlseqno, supplierno as supplierno From cl_dpp_seqno where supplierno='"
-          + SupplierCode + "' ;";
-
-      SQLQuery query = OBDal.getInstance().getSession().createSQLQuery(getxmlid);
-      List<Object[]> recordList = query.list();
-
-      /*
-       * con = connection.getConnection(appConfigFilePath); pst = con.prepareStatement(getxmlid);
-       * 
-       * ResultSet docSeqResult = pst.executeQuery();
-       */
-
-      for (Object[] rs : recordList) {
-        String xmlseqno = null;
-
-        if (rs[0] != null) {
-          xmlseqno = rs[0].toString();
-        }
-        localxmlid = xmlseqno;
-
-      }
-    } catch (Exception xmlSeqNo) {
-      logger.info("Exception in getting seqno: " + xmlSeqNo);
-    }
-
-    return localxmlid;
-  }
-
-  private static void updateStatus(String documentNo, String documentStatus) {
-    String doctStatus = null;
-    try {
-
-      if (documentStatus.equals("Add")) {
-        doctStatus = "OS";
-      }
-      if (documentStatus.equals("Update")) {
-        doctStatus = "OU";
-      }
-      if (documentStatus.equals("Delete")) {
-        doctStatus = "OC";
-      }
-      if (documentStatus.equals("Close")) {
-        doctStatus = "OCL";
-      }
-      String updateDocStatus = "update c_order set em_sw_postatus='" + doctStatus + "'"
-          + " where documentno='" + documentNo + "' ;";
+      String updateDocStatus = "update c_order set em_sw_postatus='CL'" + " where documentno='"
+          + documentNo + "' ;";
 
       OBDal.getInstance().getSession().createSQLQuery(updateDocStatus).executeUpdate();
-      /*
-       * PreparedStatement pstDSTracking = null; pstDSTracking =
-       * con.prepareStatement(updateDocStatus);
-       * 
-       * // logger.info("STATUS " + pstDSTracking); // System.exit(0);
-       * pstDSTracking.executeUpdate();
-       */
-      logger.info("Status updated for :" + documentNo + " to " + doctStatus);
+
+      monitorLogger.log("  Status updated for :" + documentNo + " as Closed order \n");
     } catch (Exception updateDocStatusException) {
-      // logger.info("EXCEPTION " + updateDocStatusException);
-      logger.info("Exception in updating Document Status  " + updateDocStatusException
-          + " DOCUMENTNO " + documentNo);
-
+      // monitorLogger.log(" EXCEPTION " + updateDocStatusException);
+      monitorLogger.log("  Exception in updating Document Status  " + updateDocStatusException
+          + " DOCUMENTNO " + documentNo + " \n");
     }
 
   }
 
-  private static void deleteFiles(List<String> fileNames) {
+  public static List<String> pushedFileToNewSFTPLocaltion() {
+    int SFTPPort = 22; // SFTP Port Number
+    List<String> fileNames = new ArrayList<String>();
+
+    Session session = null;
+    Channel channel = null;
+    ChannelSftp channelSftp = null;
     try {
-      for (int i = 0; i < fileNames.size(); i++) {
-        File file = new File(sourceFolder + fileNames.get(i));
-        // logger.info("FILES " + sourceFolder + fileNames.get(i));
-        file.delete();
-        logger.info("File deleted from:" + file.getAbsolutePath());
-      }
-    } catch (Exception e) {
-      logger.info("Error in deleting files due to " + e.getMessage());
-    }
+      String SFTPHost = IbudConfig.getSftpHost();
+      String SFTPUser = IbudConfig.getSftpUserName();
+      String SFTPPass = IbudConfig.getSftpPassword();
+      String movedFolder = IbudConfig.getMoveFolder();
+      String sourceDir = IbudConfig.getSourceFolder();
+      String SFTPDescDir = IbudConfig.getSftpDestFolder();
+      JSch jsch = new JSch();
+      session = jsch.getSession(SFTPUser, SFTPHost, SFTPPort);
 
-  }
+      session.setPassword(SFTPPass);
+      java.util.Properties config = new java.util.Properties();
+      config.put("StrictHostKeyChecking", "no");
+      session.setConfig(config);
+      session.connect(); // Create SFTP Session
+      channel = session.openChannel("sftp"); // Open SFTP Channel
+      channel.connect();
+      channelSftp = (ChannelSftp) channel;
+      channelSftp.cd(SFTPDescDir);
+      // Change Directory on SFTP Server
 
-  @SuppressWarnings("unused")
-  public void processServerData(JSONObject json) throws Exception {
-    boolean organizationInfo = false;
+      try {
+        File sourceFileDir = new File(sourceDir);
+        File movedDir = new File(movedFolder);
 
-    try {
-      // Getting Organization details from supply's response
-      final JSONArray organizationJsonArray = (JSONArray) JSONHelper
-          .getContentAsJSON(json.toString());
-      log.debug("Organizations in json  " + organizationJsonArray);
-      monitorLogger.log(" Total Organizations " + organizationJsonArray.length());
+        // this is move file, source to move folder
 
-      /*
-       * final JSONArray orgTypeJsonArray = (JSONArray) getOtherMasters(json.toString(),
-       * "OrganizationType"); log.debug("Organization type in json " + orgTypeJsonArray);
-       * logger.log(" Total OrganizationType " + orgTypeJsonArray.length());
-       */
+        // copy the all file move folder to sftp
+        File[] files = sourceFileDir.listFiles(new FilenameFilter() {
+          @Override
+          public boolean accept(@SuppressWarnings("hiding") File sourceDir, String name) {
+            return name.endsWith(".xml");
+          }
+        });
 
-      final JSONArray clientJsonArray = (JSONArray) getOtherMasters(json.toString(), "Client");
-      log.debug("Client in json " + clientJsonArray);
-      monitorLogger.log(" Total Clients " + clientJsonArray.length());
+        for (File sourceFile : files) {
+          // copy if it is a file
+          channelSftp.cd(SFTPDescDir);
+          if (sourceFile.getName().endsWith(".xml")) {
+            channelSftp.put(new FileInputStream(sourceFile), sourceFile.getName(),
+                ChannelSftp.OVERWRITE);
 
-      final JSONArray generalLedgerJsonArray = (JSONArray) getOtherMasters(json.toString(),
-          "GeneralLedger");
-      log.debug("general ledger in json " + generalLedgerJsonArray);
-      monitorLogger.log(" Total general ledger " + generalLedgerJsonArray.length());
+            File file = new File(sourceDir + sourceFile.getName());
+            fileNames.add(sourceFile.getName());
+            // Move file to new directory
+            boolean success = file.renameTo(new File(movedDir, file.getName()));
+            if (!success) { // File was not successfully moved
+              // logger.error("File not moved " + file.getAbsolutePath());
+            } else {
+              // logger.info("File moved " + file.getAbsolutePath());
+            }
 
-      final JSONArray organizationInfoJsonArray = (JSONArray) getOtherMasters(json.toString(),
-          "OrganizationInformation");
-      log.debug("Organization Info in json " + organizationInfoJsonArray);
-      monitorLogger.log(" Total Organization Info in json " + organizationInfoJsonArray.length());
+          } else {
+            // logger.error("XML file is not present on location " + sourceFile);
+          }
+        }
+      } catch (Exception ex) {
+        // logger.error("Error while transfer File " + movedFolder + " to " + SFTPDescDir);
 
-      final JSONArray bpLocationJsonArray = (JSONArray) getOtherMasters(json.toString(),
-          "bpLocation");
-      log.debug("Business partner location in json " + bpLocationJsonArray);
-      monitorLogger.log("Total bpLocation in json " + bpLocationJsonArray.length());
+        ex.printStackTrace();
 
-      final JSONArray bPartnerCatJsonArray = (JSONArray) getOtherMasters(json.toString(),
-          "BPCategory");
-      log.debug(" BPCategory in json " + bPartnerCatJsonArray);
-      monitorLogger.log(" Total bpCategory in json " + bPartnerCatJsonArray);
-
-      final JSONArray bPartnerJsonArray = (JSONArray) getOtherMasters(json.toString(), "BPartner");
-      log.debug(" bPartner in json " + bPartnerJsonArray);
-      monitorLogger.log(" Total bPartner in json" + bPartnerJsonArray.length());
-
-      final JSONArray locationJsonArray = (JSONArray) getOtherMasters(json.toString(), "Location");
-      log.debug(" Location in json " + locationJsonArray);
-      monitorLogger.log(" Total location in json" + locationJsonArray.length());
-
-      final JSONArray contactJsonArray = (JSONArray) getOtherMasters(json.toString(), "Contact");
-      log.debug(" Contact in json " + contactJsonArray);
-      monitorLogger.log(" Total no of contacts in json" + contactJsonArray);
-
-      final JSONArray companyImageJsonArray = (JSONArray) getOtherMasters(json.toString(),
-          "CompanyImage");
-      log.debug(" Company Image in json " + companyImageJsonArray);
-      monitorLogger.log(" Total no of companyImage in json" + companyImageJsonArray.length());
-
-      JSONHelper.saveJSONObject(clientJsonArray, monitorLogger);
-      JSONHelper.saveJSONObject(generalLedgerJsonArray, monitorLogger);
-      OBContext.setAdminMode(true);
-      JSONHelper.saveJSONObject(organizationJsonArray, monitorLogger);
-      OBContext.restorePreviousMode();
-
-      JSONHelper.saveJSONObject(locationJsonArray, monitorLogger);
-      JSONHelper.saveJSONObject(contactJsonArray, monitorLogger);
-      JSONHelper.saveJSONObject(bPartnerCatJsonArray, monitorLogger);
-      JSONHelper.saveJSONObject(bPartnerJsonArray, monitorLogger);
-
-      OBContext.setAdminMode(true);
-      JSONHelper.saveJSONObject(organizationInfoJsonArray, monitorLogger);
-      OBContext.restorePreviousMode();
-
-      JSONObject lastOrganizationInfo = organizationInfoJsonArray
-          .getJSONObject(organizationInfoJsonArray.length() - 1);
-
-      String LastUpdatedTime = lastOrganizationInfo.getString("updatedTime");
-
-      SimpleDateFormat readFormat = new SimpleDateFormat("EE MMM dd hh:mm:ss z yyyy");
-
-      Date date = null;
-
-      date = readFormat.parse(LastUpdatedTime);
-
-      SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-      String formattedDate = "";
-      if (date != null) {
-        formattedDate = writeFormat.format(date);
       }
 
-      short updatedRow = (short) BusinessEntityMapper.setLastUpdatedTime(formattedDate,
-          "Organization");
-
-    } catch (Exception e) {
-      log.error(e);
-      if (e.getMessage().contains("JSONObject[\"data\"] not found"))
-        monitorLogger.log("Supply failed to respond");
-      monitorLogger.log(e.getMessage());
+    } catch (SftpException e) {
+      // TODO Auto-generated catch block
       e.printStackTrace();
+    } catch (JSchException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } finally {
+      if (channelSftp != null)
+        channelSftp.disconnect();
+      if (channel != null)
+        channel.disconnect();
+      if (session != null)
+        session.disconnect();
 
     }
-    log.info("Final result " + organizationInfo);
-    monitorLogger.log("Final result" + organizationInfo);
+    return fileNames;
 
-  }
-
-  private Object getOtherMasters(String content, String master) throws JSONException {
-    Check.isNotNull(content, "Content must be set");
-    Object jsonMasterList = null;
-    JSONObject jsonObj = new JSONObject(content);
-    jsonMasterList = jsonObj.get(master);
-    return jsonMasterList;
   }
 
 }
