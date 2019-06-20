@@ -61,12 +61,17 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       Date date = new Date();
       String updated = format.format(date);
-      log.debug("Inside MasterSyncClient class to GET master data");
       String updatedDate = getUpdatedTime("FlexProcess", 2);
+      log.error("Inside MasterSyncClient class to GET master data from " + updatedDate);
+
       monitorLogger
           .log("Requesting Supply to get Closed Order data from Date: " + updatedDate + " \n");
-      sendCloseOrderTOSFTP(updatedDate);
-      setLastUpdatedTime("FlexProcess");
+      Boolean flag = sendCloseOrderTOSFTP(updatedDate);
+      if (flag) {
+        setLastUpdatedTime();
+      }
+      monitorLogger.log("  ********* Flex Process is Successfully Run Completed*************** \n");
+
     } catch (Exception e) {
       BusinessEntityMapper.rollBackNlogError(e, processid, null);
       e.printStackTrace();
@@ -81,12 +86,12 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
 
   }
 
-  public static int setLastUpdatedTime(String serviceKey) {
-    String qry = "update Ibud_ServerTime set lastupdated = now() where serviceKey= :serviceKey and client='"
+  public static int setLastUpdatedTime() {
+    String qry = "update Ibud_ServerTime set lastupdated = now() where service_key= 'FlexProcess' and client='"
         + OBContext.getOBContext().getCurrentClient().getId() + "'";
     log.info("executing " + qry);
     Query query = OBDal.getInstance().getSession().createQuery(qry);
-    query.setParameter("serviceKey", serviceKey);
+    // query.setParameter("serviceKey", serviceKey);
     int rowUpdated = query.executeUpdate();
     log.info("executed row=" + rowUpdated);
     return rowUpdated;
@@ -139,12 +144,13 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
     }
   }
 
-  private void sendCloseOrderTOSFTP(String idOrTime) {
+  private Boolean sendCloseOrderTOSFTP(String idOrTime) {
 
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
     docFactory.setNamespaceAware(true);
     List<String> fileNames = new ArrayList<String>();
     Element rootElement = null;
+    Boolean flag = true;
     Map<String, Map<String, String>> OrderMap = new HashMap<String, Map<String, String>>();
     try {
 
@@ -164,7 +170,7 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
       if (recordList.size() <= 0) {
         monitorLogger.log(
             "No Record Found for Flex Process and Order Count is: " + recordList.size() + " \n");
-        return;
+        return flag;
       } else {
         monitorLogger.log("Close Order getting and Count is: " + recordList.size() + " \n");
       }
@@ -420,7 +426,7 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
               .log("No Line Record Found for Flex Process and Order is: " + documentNo + " \n");
         }
 
-        for (Object[] rs2 : recordList) {
+        for (Object[] rs2 : recorLinedList) {
           String name = null;
           String qtyordered = null;
           String iso_code = null;
@@ -553,18 +559,27 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
               }
             }
           } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e);
+            flag = false;
+
+            log.error("Error while Updating the processed order status and error is: " + e);
           }
+        } else {
+          flag = false;
+
         }
 
       }
-
+      // flag = true;
     } // end try
     catch (Exception e) {
       monitorLogger.log("Exception in Query " + e + " \n");
+      log.error("Error while processing order close and error is: " + e);
       e.printStackTrace();
+      flag = false;
     }
-
-    monitorLogger.log("  ********* Flex Process is Successfully Run Completed*************** \n");
+    return flag;
 
   }
 
@@ -576,6 +591,7 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
       test++;
       xmlidnew = Long.toString(test);
     } catch (Exception e) {
+      log.error(e);
       e.printStackTrace();
     }
     return xmlidnew;
@@ -597,6 +613,7 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
     } catch (Exception e) {
       e.printStackTrace();
       monitorLogger.log("  Exception in updating synchtime  " + e + " \n");
+      log.error("  Exception in updating synchtime  " + e);
     }
 
   }
@@ -627,6 +644,8 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
     catch (Exception e2) {
       monitorLogger.log("Error is XML Creation Failed for :" + e2 + " \n");
       filename = null;
+      log.error("Error is XML Creation Failed and Error: " + e2);
+      e2.printStackTrace();
     }
     return filename;
   }
@@ -642,8 +661,11 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
       monitorLogger.log("  Status updated for :" + documentNo + " as Closed order \n");
     } catch (Exception updateDocStatusException) {
       // monitorLogger.log(" EXCEPTION " + updateDocStatusException);
-      monitorLogger.log("  Exception in updating Document Status  " + updateDocStatusException
-          + " DOCUMENTNO " + documentNo + " \n");
+      monitorLogger.log("  Exception in updating Document Status for DOCUMENTNO: " + documentNo
+          + " Error:" + updateDocStatusException + " \n");
+      log.error("  Exception in updating Document Status  " + updateDocStatusException
+          + " DOCUMENTNO " + documentNo + " and Error is: " + updateDocStatusException);
+      updateDocStatusException.printStackTrace();
     }
 
   }
@@ -702,9 +724,9 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
             // Move file to new directory
             boolean success = file.renameTo(new File(movedDir, file.getName()));
             if (!success) { // File was not successfully moved
-              // logger.error("File not moved " + file.getAbsolutePath());
+              log.error("File not moved " + file.getAbsolutePath());
             } else {
-              // logger.info("File moved " + file.getAbsolutePath());
+              log.info("File moved " + file.getAbsolutePath());
             }
 
           } else {
@@ -712,8 +734,8 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
           }
         }
       } catch (Exception ex) {
-        // logger.error("Error while transfer File " + movedFolder + " to " + SFTPDescDir);
-
+        log.error("Error while transfer File " + movedFolder + " to " + SFTPDescDir
+            + " and Error is: " + ex);
         ex.printStackTrace();
 
       }
@@ -721,12 +743,15 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
     } catch (SftpException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      log.error(e);
     } catch (JSchException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      log.error(e);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      log.error(e);
     } finally {
       if (channelSftp != null)
         channelSftp.disconnect();
