@@ -407,7 +407,7 @@ public class FlexSyncMasterForCloseOrder extends DalBaseProcess {
         // createXML(doc, bodidIncrementer);
 
         String linesSql = "SELECT distinct m.name as  name, l.qtyordered as qtyordered,l.line,"
-            + " (select iso_code from c_currency where c_currency_id=h.em_sw_currency) as iso_code,l.em_sw_fob as em_sw_fob,l.em_sw_suppliercode"
+            + " (select cast(iso_code as character  varying) from c_currency where c_currency_id=h.em_sw_currency) as iso_code,l.em_sw_fob as em_sw_fob,l.em_sw_suppliercode"
             + " from c_order h,c_orderline l,m_product m  where m.m_product_id=l.m_product_id"
             + " and h.c_order_id=l.c_order_id and h.documentno='" + documentNo
             + "' and h.c_doctype_id ='C7CD4AC8AC414678A525AB7AE20D718C' order by l.line";
