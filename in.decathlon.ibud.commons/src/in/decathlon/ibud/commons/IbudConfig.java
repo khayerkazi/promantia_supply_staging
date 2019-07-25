@@ -4,36 +4,6 @@ import org.openbravo.base.session.OBPropertiesProvider;
 
 public class IbudConfig {
 
-  public static String getSourceFolder() {
-    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("ibud.sourceFolder").toString();
-  }
-
-  public static String getMoveFolder() {
-    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("ibud.moveFolder").toString();
-  }
-
-  public static String getSftpHost() {
-    return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("ibud.sftpHost")
-        .toString();
-  }
-
-  public static String getSftpUserName() {
-    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("ibud.sftpUserName").toString();
-  }
-
-  public static String getSftpPassword() {
-    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("ibud.sftpPassword").toString();
-  }
-
-  public static String getSftpDestFolder() {
-    return OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("ibud.sftpDestFolder").toString();
-  }
-
   public static String getSupplyUsername() {
     return OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("ibud.username")
         .toString();
@@ -50,8 +20,8 @@ public class IbudConfig {
   }
 
   public static int getSupplyPort() {
-    return Integer.parseInt(
-        OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("ibud.port"));
+    return Integer.parseInt(OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.port"));
   }
 
   public static String getSupplyRowCount() {
@@ -97,8 +67,8 @@ public class IbudConfig {
   }
 
   public static int getPosPort() {
-    return Integer.parseInt(
-        OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("pos.port"));
+    return Integer.parseInt(OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("pos.port"));
   }
 
   public static String getWebPosUrl() {
@@ -139,8 +109,8 @@ public class IbudConfig {
   }
 
   public static int getSupplySLPort() {
-    return Integer.parseInt(
-        OBPropertiesProvider.getInstance().getOpenbravoProperties().getProperty("ibud.slport"));
+    return Integer.parseInt(OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("ibud.slport"));
   }
 
   public static String getSupplySLRowCount() {

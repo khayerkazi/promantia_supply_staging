@@ -41,12 +41,6 @@ IF(v_action='deleteorder') THEN
 		update c_order set em_sw_postatus='VO',updatedby=v_updatedby,updated=now() where c_order_id=v_Record_ID;
 	END IF;
 END IF;
-
-IF(v_action='orderclosed') THEN
-	IF(v_orderStatus!= 'DR' OR v_orderStatus!= 'SO') THEN
-		update c_order set em_sw_postatus='OCL',updatedby=v_updatedby,updated=now() where c_order_id=v_Record_ID;
-	END IF;
-END IF;
 END NDOC_MULTI_SEND_ORDER
 ]]></body>
     </function>

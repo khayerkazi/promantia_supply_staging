@@ -13,9 +13,5 @@
         <default/>
         <onCreateDefault/>
       </column>
-      <column name="EM_NDOC_CLOSEORDER" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
-        <default/>
-        <onCreateDefault/>
-      </column>
     </table>
   </database>

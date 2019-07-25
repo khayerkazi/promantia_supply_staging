@@ -52,10 +52,5 @@ OB.OBMULTISO.Process = {
   deleteorder: function (params, view) {
 	    params.action = 'deleteorder';
 	    OB.OBMULTISO.Process.execute(params, view);
-	  },
-	  
-   orderclosed: function (params, view) {
-	    params.action = 'orderclosed';
-	    OB.OBMULTISO.Process.execute(params, view);
 	  }
 };
