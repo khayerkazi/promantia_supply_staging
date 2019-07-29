@@ -63,5 +63,11 @@
        <singleton>true</singleton>
    </bean>   
    
+   <bean>
+       <name>OrderResponse</name>
+       <class>in.decathlon.ibud.masters.client.OrderResponse</class>
+       <singleton>true</singleton>
+   </bean>   
+   
 </provider>
 
