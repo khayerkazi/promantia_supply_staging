@@ -141,11 +141,19 @@
       <oldValue/>
       <newValue><![CDATA[3607286F5C084203AE51C3D64051C0F0]]></newValue>
     </columnDataChange>
-    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="294">
-      <oldValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false  and e.businessPartner.id!='35586321F375451389832DD198CA1DC7']]></oldValue>
-      <newValue><![CDATA[e.salesTransaction=false AND e.transactionDocument.return=false  and e.businessPartner.id!='35586321F375451389832DD198CA1DC7' and e.documentStatus!='VO']]></newValue>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="7D68FFCA597C4F84BC385DBCA7A8308C">
+      <oldValue><![CDATA[e.id in (select mml.id from OBWPL_pickinglist mml left join mml.materialMgmtInternalMovementLineEMOBWPLWarehousePickingListList pl
+left join pl.storageBin.warehouse wh 
+where exists ( select id from ADRole r where r.id = @#AD_Role_ID@ and r.clientAdmin = true ) or (mml.organization.id = @#AD_Org_ID@ and mml.organization.facstIsExternal = true and wh.id in 
+(select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@)) or 
+( coalesce(wh.ibdoWarehousetype,'') != 'FACST_External' and mml.organization.id = @#AD_Org_ID@ and mml.organization.facstIsExternal = false )))]]></oldValue>
+      <newValue><![CDATA[e.id in (select mml.id from OBWPL_pickinglist mml left join mml.materialMgmtInternalMovementLineEMOBWPLWarehousePickingListList pl
+left join pl.storageBin.warehouse wh 
+where exists ( select id from ADRole r where r.id = @#AD_Role_ID@ and r.clientAdmin = true ) or (mml.organization.id = @#AD_Org_ID@ and mml.organization.facstIsExternal = true and wh.id in 
+(select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@)) or 
+( coalesce(wh.ibdoWarehousetype,'') != 'FACST_External' and mml.organization.id = @#AD_Org_ID@ and mml.organization.facstIsExternal = false ))]]></newValue>
     </columnDataChange>
- <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="AB28683387C44BD5B4AA1A4714C098C3">
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="AB28683387C44BD5B4AA1A4714C098C3">
       <oldValue><![CDATA[e.salesTransaction=true AND e.transactionDocument.return= false AND e.documentStatus<>'VO']]></oldValue>
       <newValue><![CDATA[e.salesTransaction=true AND e.transactionDocument.return= false AND e.documentStatus<>'VO' and 
 ( 
@@ -155,10 +163,6 @@
   ) or 
   ( e.warehouse.ibdoWarehousetype != 'FACST_External'  and e.organization.id = @#AD_Org_ID@ and e.organization.facstIsExternal = false ) )]]></newValue>
     </columnDataChange>
-<columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3429">
-      <oldValue><![CDATA[N]]></oldValue>
-      <newValue><![CDATA[Y]]></newValue>
-    </columnDataChange>
     <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3429">
       <oldValue><![CDATA[N]]></oldValue>
       <newValue><![CDATA[Y]]></newValue>
@@ -167,9 +171,4 @@
       <oldValue/>
       <newValue><![CDATA[300]]></newValue>
     </columnDataChange>
-<columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="257">
-      <oldValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false]]></oldValue>
-      <newValue><![CDATA[e.movementType IN ('C-', 'C+') and e.logistic = 'N' and e.documentType.return=false and exists (select org.id from Organization org where org.facstIsExternal = false and org.id = @#AD_Org_ID@ ) or e.organization.id in ( select org.id from Organization org where org.facstIsExternal = true and org.id = @#AD_Org_ID@ and e.warehouse.id in (select defaultWarehouse.id from ADUser u where u.id is @#AD_User_ID@))]]></newValue>
-    </columnDataChange>
   </vector>
-
