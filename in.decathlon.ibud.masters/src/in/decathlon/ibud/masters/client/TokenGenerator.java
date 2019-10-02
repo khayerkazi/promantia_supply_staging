@@ -9,13 +9,14 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONObject;
 import org.openbravo.base.session.OBPropertiesProvider;
+import org.openbravo.scheduling.ProcessLogger;
 
 public class TokenGenerator   {
-	/*private static Logger log = Logger.getLogger(GenerateToken.class);
-	  private ProcessLogger logger;
-	  logger = bundle.getLogger();*/
+	private static Logger log = Logger.getLogger(TokenGenerator.class);
 
 public static String generateToken() throws Exception {	  
 	    //logger.logln("Token generation has been called ");
