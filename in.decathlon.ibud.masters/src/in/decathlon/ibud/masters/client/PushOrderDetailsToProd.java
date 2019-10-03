@@ -7,10 +7,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -30,8 +32,8 @@ import com.ibm.icu.text.SimpleDateFormat;
 
 public class PushOrderDetailsToProd implements Process {
 
-  final Logger log = Logger.getLogger(PushOrderDetailsToProd.class);
-  private static ProcessLogger logger;
+  final Logger log = LogManager.getLogger(PushOrderDetailsToProd.class);
+  private ProcessLogger logger;
 
   SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
   HashMap<String, String> orderSentList = new HashMap<String, String>();
@@ -39,6 +41,7 @@ public class PushOrderDetailsToProd implements Process {
   @Override
   public void execute(ProcessBundle bundle) throws Exception {
     logger = bundle.getLogger();
+    logger.logln("Push Order Details To prod Background process has started");
     try {
       OBContext.setAdminMode(true);
       List<Order> orderList = getPurchaseOrder();
@@ -46,6 +49,7 @@ public class PushOrderDetailsToProd implements Process {
         sendOrdersToProd(orderList);
       } else {
         log.info("There is no order present at this time");
+        logger.logln("No orders pedning");
       }
     } catch (Exception e) {
       log.error(e);
@@ -72,14 +76,13 @@ public class PushOrderDetailsToProd implements Process {
       String orderId = aa.getKey();
       String reference = aa.getValue();
       Order order = OBDal.getInstance().get(Order.class, orderId);
-      // Order order = getOrder(orderId);
       order.setIbudProdStatus("OS");
+      order.setSWEMSwPostatus("OS");
       order.setOrderReference(reference);
       order.setIbudProdMsgPost("Order Successfully sent");
+      order.setIbudPoStatusdate(new Date());
       order.setProcessNow(true);
-      OBDal.getInstance().save(order);
-      OBDal.getInstance().flush();
-
+      OBDal.getInstance().commitAndClose();
     }
 
   }
@@ -225,12 +228,6 @@ public class PushOrderDetailsToProd implements Process {
     return token;
 
   }
-
-  /*
-   * private Order getOrder(String orderId) { String hql =
-   * "Select distinct ord from Order ord where ord.id = '" + orderId + "'"; Query qry =
-   * OBDal.getInstance().getSession().createQuery(hql); return (Order) qry.uniqueResult(); }
-   */
 
   private List<Order> getPurchaseOrder() {
     log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
