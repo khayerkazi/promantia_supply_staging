@@ -1,11 +1,22 @@
 <?xml version="1.0"?>
   <vector>
-    <versionInfo version="3.0.24019"/>
+    <versionInfo version="3.0.30440"/>
+    <columnRequiredChange tableName="AD_PROCESS" columnName="ISBACKGROUND">
+      <required>false</required>
+    </columnRequiredChange>
+    <removeCheckChange tableName="C_DOCTYPE" checkName="EM_OBWPL_DOCTYPE_GENSHIPDT_CHK">
+      <check name="EM_OBWPL_DOCTYPE_GENSHIPDT_CHK"><![CDATA[(EM_OBWPL_GENERATESHIPMENT = 'N') OR ((EM_OBWPL_GENERATESHIPMENT = 'Y') AND (EM_OBWPL_SHIPMENTDOCTYPE_ID IS NOT NULL))]]></check>
+    </removeCheckChange>
+    <removeCheckChange tableName="C_DOCTYPE" checkName="EM_OBWPL_DOCTYPE_GROUPSHIP_CHK">
+      <check name="EM_OBWPL_DOCTYPE_GROUPSHIP_CHK"><![CDATA[(EM_OBWPL_ISGROUP = 'N') OR ((EM_OBWPL_ISGROUP = 'Y') AND (EM_OBWPL_GENERATESHIPMENT = 'N'))]]></check>
+    </removeCheckChange>
+    <removeCheckChange tableName="C_DOCTYPE" checkName="EM_OBWPL_GROUPSHIPMENTS_CHK">
+      <check name="EM_OBWPL_GROUPSHIPMENTS_CHK"><![CDATA[(EM_OBWPL_GROUPSHIPMENTS = 'N') OR ((EM_OBWPL_GROUPSHIPMENTS = 'Y') AND (EM_OBWPL_GENERATESHIPMENT = 'Y'))]]></check>
+    </removeCheckChange>
+    <removeCheckChange tableName="OBWH_MENU" checkName="OBWH_MENU_TYPE_CHK">
+      <check name="OBWH_MENU_TYPE_CHK"><![CDATA[(ISSUMMARY = 'Y') OR (WINDOW_TYPE IS NOT NULL)]]></check>
+    </removeCheckChange>
     <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="1219572727A8485F9B0F7F8743919311">
-      <oldValue><![CDATA[Y]]></oldValue>
-      <newValue><![CDATA[N]]></newValue>
-    </columnDataChange>
-    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="150A2C88A6E142928BB9D08E8CA5E227">
       <oldValue><![CDATA[Y]]></oldValue>
       <newValue><![CDATA[N]]></newValue>
     </columnDataChange>
@@ -57,10 +68,6 @@
       <oldValue><![CDATA[Y]]></oldValue>
       <newValue><![CDATA[N]]></newValue>
     </columnDataChange>
-    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="DFA6D0C0888643A7B499397AA7A7A6CF">
-      <oldValue><![CDATA[Y]]></oldValue>
-      <newValue><![CDATA[N]]></newValue>
-    </columnDataChange>
     <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="E3EB070BE7534059903544A1BDD8D2CA">
       <oldValue><![CDATA[Y]]></oldValue>
       <newValue><![CDATA[N]]></newValue>
@@ -77,7 +84,7 @@
       <oldValue><![CDATA[Order No:]]></oldValue>
       <newValue><![CDATA[SO Document No:]]></newValue>
     </columnDataChange>
-<columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2174">
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2174">
       <oldValue/>
       <newValue><![CDATA[@Processed@='Y']]></newValue>
     </columnDataChange>
@@ -170,5 +177,9 @@ where exists ( select id from ADRole r where r.id = @#AD_Role_ID@ and r.clientAd
     <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3429">
       <oldValue/>
       <newValue><![CDATA[300]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3436">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
     </columnDataChange>
   </vector>

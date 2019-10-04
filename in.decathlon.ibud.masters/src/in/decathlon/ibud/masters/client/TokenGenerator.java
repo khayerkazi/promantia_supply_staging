@@ -13,43 +13,41 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONObject;
 import org.openbravo.base.session.OBPropertiesProvider;
-import org.openbravo.scheduling.ProcessLogger;
 
-public class TokenGenerator   {
-	private static Logger log = Logger.getLogger(TokenGenerator.class);
+public class TokenGenerator {
+  private static Logger log = Logger.getLogger(TokenGenerator.class);
 
-public static String generateToken() throws Exception {	  
-	    //logger.logln("Token generation has been called ");
+  public static String generateToken() throws Exception {
+    // logger.logln("Token generation has been called ");
     Map<String, String> easConfig = new HashMap<String, String>();
 
-	 	String erpUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-	            .getProperty("eas.tokenUrl");
-	    String basic_auth = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-	            .getProperty("eas.basic_auth");
-	    String grant_type = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-	            .getProperty("eas.grant_type");
-	    String username = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-	            .getProperty("eas.username");
-	    String password = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-	            .getProperty("eas.password");
-	    String scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-	            .getProperty("eas.scope");
-	    
-	    
-	    easConfig.put("eas.tokenUrl", erpUrl);
-	    easConfig.put("eas.basic_auth", basic_auth);
-	    easConfig.put("eas.grant_type", grant_type);
-	    easConfig.put("eas.username", username);
-	    easConfig.put("eas.password", password);
-	    easConfig.put("eas.scope", scope);
-	
-	    String token = getToken(easConfig);
-	    
-	    return token;		
-}
+    String erpUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("eas.tokenUrl");
+    String basic_auth = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("eas.basic_auth");
+    String grant_type = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("eas.grant_type");
+    String username = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("eas.username");
+    String password = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("eas.password");
+    String scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("eas.scope");
 
-private static String getToken(Map<String, String> easConfig) throws Exception {
-	
+    easConfig.put("eas.tokenUrl", erpUrl);
+    easConfig.put("eas.basic_auth", basic_auth);
+    easConfig.put("eas.grant_type", grant_type);
+    easConfig.put("eas.username", username);
+    easConfig.put("eas.password", password);
+    easConfig.put("eas.scope", scope);
+
+    String token = getToken(easConfig);
+
+    return token;
+  }
+
+  private static String getToken(Map<String, String> easConfig) throws Exception {
+
     HttpURLConnection HttpUrlConnection = null;
     BufferedReader reader = null;
     String tokenString = null;
@@ -101,8 +99,8 @@ private static String getToken(Map<String, String> easConfig) throws Exception {
       wr.flush();
 
       if (HttpUrlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-    	//  log.error("TokenGenerator: Error in response from Token API Generator, Response:"
-          //  + HttpUrlConnection.getResponseCode());
+        // log.error("TokenGenerator: Error in response from Token API Generator, Response:"
+        // + HttpUrlConnection.getResponseCode());
         throw new Exception("TokenGenerator:Error in response from Token API Generator, Response:"
             + HttpUrlConnection.getResponseCode());
       }
@@ -117,11 +115,12 @@ private static String getToken(Map<String, String> easConfig) throws Exception {
       tokenString = responseJson.getString("access_token");
       tokenType = responseJson.getString("token_type");
       if (tokenType == null || (!tokenType.equals("Bearer"))) {
-       // log.error("TokenGenerator:TokenType null or invalid");
-       
+        // log.error("TokenGenerator:TokenType null or invalid");
+
         throw new Exception("TokenType null or invalid");
       }
     } catch (Exception e) {
+      e.printStackTrace();
       throw new Exception("TokenGenerator:Error in fetching token from API", e);
     } finally {
       try {
@@ -135,18 +134,12 @@ private static String getToken(Map<String, String> easConfig) throws Exception {
           HttpUrlConnection.disconnect();
         }
       } catch (Exception e) {
-        throw new Exception(
-            "Exception while closing outputstream or HttpUrlConnection", e);
+        throw new Exception("Exception while closing outputstream or HttpUrlConnection", e);
       }
     }
     HttpUrlConnection.disconnect();
     return tokenString;
-    
+
   }
 
-
 }
-
-
-
-

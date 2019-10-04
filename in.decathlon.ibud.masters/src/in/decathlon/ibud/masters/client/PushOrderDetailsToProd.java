@@ -48,10 +48,10 @@ public class PushOrderDetailsToProd implements Process {
       if (orderList != null) {
         sendOrdersToProd(orderList);
       } else {
-        log.info("There is no order present at this time");
         logger.logln("No orders pedning");
       }
     } catch (Exception e) {
+      e.printStackTrace();
       log.error(e);
       logger.logln(e.getMessage());
     } finally {
@@ -61,30 +61,36 @@ public class PushOrderDetailsToProd implements Process {
   }
 
   private void sendOrdersToProd(List<Order> orderList) throws Exception {
-    // TODO Auto-generated method stub
     String token = generateToken();
     for (Order order : orderList) {
       JSONObject orderJson = generateJSON(order);
-      sendOrder(order, orderJson, token);
+      if (orderJson != null)
+        sendOrder(order, orderJson, token);
     }
-    updateOrderDetails();
+    if (orderSentList.size() > 0)
+      updateOrderDetails();
   }
 
   private void updateOrderDetails() {
     log.info("PushOrderDetailsToProd:Updating sent order details");
-    for (Entry<String, String> aa : orderSentList.entrySet()) {
-      String orderId = aa.getKey();
-      String reference = aa.getValue();
-      Order order = OBDal.getInstance().get(Order.class, orderId);
-      order.setIbudProdStatus("OS");
-      order.setSWEMSwPostatus("OS");
-      order.setOrderReference(reference);
-      order.setIbudProdMsgPost("Order Successfully sent");
-      order.setIbudPoStatusdate(new Date());
-      order.setProcessNow(true);
-      OBDal.getInstance().commitAndClose();
-    }
+    try {
+      for (Entry<String, String> aa : orderSentList.entrySet()) {
+        String orderId = aa.getKey();
+        String reference = aa.getValue();
+        Order order = OBDal.getInstance().get(Order.class, orderId);
+        order.setIbudProdStatus("OS");
+        order.setSWEMSwPostatus("OS");
+        order.setOrderReference(reference);
+        order.setIbudProdMsgPost("Order Successfully sent");
+        order.setIbudPoStatusdate(new Date());
+        order.setProcessNow(true);
+        OBDal.getInstance().commitAndClose();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.logln(e.getMessage());
 
+    }
   }
 
   private void sendOrder(Order order, JSONObject orderJson, String token) {
@@ -110,8 +116,6 @@ public class PushOrderDetailsToProd implements Process {
       HttpUrlConnection.setRequestProperty("Authorization", "Bearer " + token);
       HttpUrlConnection.connect();
 
-      log.info("PushOrderDetailsToProd :Sending order to Prod with document number -:"
-          + order.getDocumentNo());
       try (OutputStream os = HttpUrlConnection.getOutputStream()) {
         byte[] input = orderJson.toString().getBytes(StandardCharsets.UTF_8);
         os.write(input, 0, input.length);
@@ -136,6 +140,12 @@ public class PushOrderDetailsToProd implements Process {
         if (HttpUrlConnection != null)
           HttpUrlConnection.disconnect();
 
+      } else {
+        logger.logln("Error while sending order " + order.getDocumentNo() + " Due to "
+            + HttpUrlConnection.getResponseMessage());
+        log.error("Error while sending order " + order.getDocumentNo() + " Response "
+            + HttpUrlConnection.getResponseCode() + " " + HttpUrlConnection.getResponseMessage());
+
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -154,67 +164,98 @@ public class PushOrderDetailsToProd implements Process {
         e.printStackTrace();
         log.error(e);
         logger.logln(e.getMessage());
+
       }
     }
   }
 
   private JSONObject generateJSON(Order order) throws JSONException {
-    // TODO Auto-generated method stub
-    log.info("PushOrderDetailsToProd : Generating JSON for order" + order.getDocumentNo());
     JSONObject orderObject = new JSONObject();
-    orderObject.put("origin", "RETAIL");
-    orderObject.put("externalNumber", Integer.parseInt(order.getDocumentNo()));
-    orderObject.put("orderType", "Z");
-    orderObject.put("orderStatus", "NV");
-    orderObject.put("orderCreation", formatter.format(order.getCreationDate()).toString()
-        .substring(0, 19)
-        + "Z");
-    orderObject.put("requestedDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
-        .toString().substring(0, 19)
-        + "Z");
-    orderObject.put("requestedShipmentDate", formatter.format(order.getSWEMSwEstshipdate())
-        .toString().substring(0, 19)
-        + "Z");
-    orderObject.put("scheduledDeliveryDate", formatter.format(order.getScheduledDeliveryDate())
-        .toString().substring(0, 19)
-        + "Z");
+    try {
+      log.info("PushOrderDetailsToProd : Generating JSON for order" + order.getDocumentNo());
+      orderObject.put("origin", "RETAIL");
+      orderObject.put("externalNumber", Integer.parseInt(order.getDocumentNo()));
+      orderObject.put("orderType", "Z");
+      orderObject.put("orderStatus", "NV");
+      orderObject.put("orderCreation", formatter.format(order.getCreationDate()).toString()
+          .substring(0, 19)
+          + "Z");
+      if (order.getSWEMSwExpdeldate() != null)
+        orderObject.put("requestedDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
+            .toString().substring(0, 19)
+            + "Z");
+      else {
+        log.error("Skipping order due to Requested Delivery date is null  document no "
+            + order.getDocumentNo());
+        logger.logln("Skipped Order due to Requested Delivery date is null "
+            + order.getDocumentNo());
+        return null;
+      }
+      if (order.getSWEMSwEstshipdate() != null) {
+        orderObject.put("requestedShipmentDate", formatter.format(order.getSWEMSwEstshipdate())
+            .toString().substring(0, 19)
+            + "Z");
+      } else {
+        log.error("For order Requested ShipmentDate is null with documentno"
+            + order.getDocumentNo());
+        logger.logln("Skipped Order due to Requested ShipmentDate date is null "
+            + order.getDocumentNo());
+        return null;
 
-    JSONArray customerJsonArray = new JSONArray();
-    customerJsonArray.put("7");
-    customerJsonArray.put("10006");
-    customerJsonArray.put("10006");
-    orderObject.put("customer", customerJsonArray);
+      }
+      if (order.getScheduledDeliveryDate() != null) {
+        orderObject.put("scheduledDeliveryDate", formatter.format(order.getScheduledDeliveryDate())
+            .toString().substring(0, 19)
+            + "Z");
+      } else {
+        log.error("For order Scheduled Delivery Date is null with documentno"
+            + order.getDocumentNo());
+        logger.logln("Skipped Order due to Scheduled Delivery date is null "
+            + order.getDocumentNo());
+        return null;
+      }
+      JSONArray customerJsonArray = new JSONArray();
+      customerJsonArray.put("7");
+      customerJsonArray.put("10006");
+      customerJsonArray.put("10006");
+      orderObject.put("customer", customerJsonArray);
 
-    JSONArray supplierJsonArray = new JSONArray();
-    supplierJsonArray.put("2");
-    supplierJsonArray.put("31094");
-    supplierJsonArray.put("31094");
+      JSONArray supplierJsonArray = new JSONArray();
+      supplierJsonArray.put("2");
+      supplierJsonArray.put("31094");
+      supplierJsonArray.put("31094");
 
-    orderObject.put("supplier", supplierJsonArray);
+      orderObject.put("supplier", supplierJsonArray);
 
-    JSONArray deliveryJsonArray = new JSONArray();
-    deliveryJsonArray.put("7");
-    deliveryJsonArray.put("10006");
-    deliveryJsonArray.put("10006");
-    orderObject.put("delivery", deliveryJsonArray);
+      JSONArray deliveryJsonArray = new JSONArray();
+      deliveryJsonArray.put("7");
+      deliveryJsonArray.put("10006");
+      deliveryJsonArray.put("10006");
+      orderObject.put("delivery", deliveryJsonArray);
 
-    JSONArray orderLineArray = new JSONArray();
+      JSONArray orderLineArray = new JSONArray();
 
-    // Get orderline information for every order
+      for (OrderLine lines : order.getOrderLineList()) {
+        log.info("Getting lines for order " + order.getDocumentNo());
+        JSONObject orderlineJson = new JSONObject();
 
-    for (OrderLine lines : order.getOrderLineList()) {
-      JSONObject orderlineJson = new JSONObject();
-
-      orderlineJson.put("number", lines.getLineNo());
-      orderlineJson.put("status", "A");
-      orderlineJson.put("item", Long.parseLong(lines.getProduct().getName()));
-      orderlineJson.put("quantity", lines.getOrderedQuantity());
-      orderlineJson.put("price", lines.getGrossUnitPrice());
-      orderlineJson.put("currency", lines.getCurrency().getISOCode());
-      orderLineArray.put(orderlineJson);
+        orderlineJson.put("number", lines.getLineNo());
+        orderlineJson.put("status", "A");
+        orderlineJson.put("item", Long.parseLong(lines.getProduct().getName()));
+        orderlineJson.put("quantity", lines.getOrderedQuantity());
+        orderlineJson.put("price", lines.getGrossUnitPrice());
+        orderlineJson.put("currency", lines.getCurrency().getISOCode());
+        orderLineArray.put(orderlineJson);
+      }
+      orderObject.put("orderLines", orderLineArray);
+      log.info("Generated JSON for order  " + orderObject.toString());
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.logln(e.getMessage());
+      throw new OBException(
+          "PushOrderDetailsToProd : Error while generating JSON object for order "
+              + order.getDocumentNo());
     }
-    orderObject.put("orderLines", orderLineArray);
-    log.info("Generated JSON for order  " + orderObject.toString());
     return orderObject;
 
   }
@@ -231,7 +272,6 @@ public class PushOrderDetailsToProd implements Process {
 
   private List<Order> getPurchaseOrder() {
     log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
-
     String strHql = "select distinct co from Order co, OrderLine line ,"
         + "	CL_DPP_SEQNO cd ,BusinessPartner bp, Ibud_ServerTime ibud "
         + "where co.sWEMSwPostatus in ('SO') and co.id = line.salesOrder.id "
