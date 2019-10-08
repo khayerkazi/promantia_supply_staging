@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.openbravo.base.exception.OBException;
 import org.openbravo.base.session.OBPropertiesProvider;
@@ -44,24 +46,95 @@ public class PushOrderDetailsToProd implements Process {
     logger.logln("Push Order Details To prod Background process has started");
     try {
       OBContext.setAdminMode(true);
-      List<Order> orderList = getPurchaseOrder();
-      if (orderList != null) {
-        sendOrdersToProd(orderList);
+      HashMap<String, String> configMap = checkObConfig();
+      if (!configMap.containsKey("Error")) {
+        List<Order> orderList = getPurchaseOrder();
+        if (orderList != null && orderList.size() > 0) {
+          sendOrdersToProd(orderList);
+        } else {
+          logger.logln("No orders pedning");
+        }
       } else {
-        logger.logln("No orders pedning");
+        throw new OBException("Missing configurations please check Openbravo properties. ");
+
       }
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e);
       logger.logln(e.getMessage());
+      throw new OBException("Error while getting purchase order details" + e.getMessage());
     } finally {
       OBContext.restorePreviousMode();
     }
 
   }
 
+  private HashMap<String, String> checkObConfig() throws Exception {
+
+    List<String> errorListObj = new ArrayList<String>();
+    HashMap<String, String> outPut = new HashMap<String, String>();
+
+    String tokenUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.Url");
+    String token_authKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.basic_auth");
+    String tokenGrantType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.grant_type");
+    String token_UserName = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.username");
+    String token_Password = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.password");
+    String token_Scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.scope");
+
+    if (tokenUrl == null) {
+      errorListObj.add("prod.token.Url");
+    } else {
+      outPut.put(tokenUrl, tokenUrl);
+    }
+    if (token_authKey == null) {
+      errorListObj.add("prod.token.basic_auth");
+    } else {
+      outPut.put(token_authKey, token_authKey);
+    }
+    if (tokenGrantType == null) {
+      errorListObj.add("prod.token.grant_type");
+    } else {
+      outPut.put(tokenGrantType, tokenGrantType);
+    }
+    if (token_UserName == null) {
+      errorListObj.add("prod.token.username");
+    } else {
+      outPut.put(token_UserName, token_UserName);
+    }
+    if (token_Password == null) {
+      errorListObj.add("prod.token.password");
+    } else {
+      outPut.put(token_Password, token_Password);
+    }
+    if (token_Scope == null) {
+      errorListObj.add("prod.token.scope");
+    } else {
+      outPut.put(token_Scope, token_Scope);
+    }
+
+    if (errorListObj.size() > 0) {
+      String errorString = "Error_CommonServiceProvider: " + errorListObj
+          + " configuration is missing in Openbravo.properties file";
+      outPut.put("Error", errorString);
+      logger.logln(errorString);
+      log.error(errorString);
+      // throw new OBException("Missing configurations please check Openbravo properties ");
+
+    }
+    return outPut;
+
+  }
+
   private void sendOrdersToProd(List<Order> orderList) throws Exception {
-    String token = generateToken();
+    HashMap<String, String> result = CommonServiceProvider.generateToken();
+    String token = result.get("Bearer");
+
     for (Order order : orderList) {
       JSONObject orderJson = generateJSON(order);
       if (orderJson != null)
@@ -89,16 +162,16 @@ public class PushOrderDetailsToProd implements Process {
     } catch (Exception e) {
       e.printStackTrace();
       logger.logln(e.getMessage());
-
+      throw new OBException("PushOrderDetailsToProd:Updating:Error while updating data to order");
     }
   }
 
   private void sendOrder(Order order, JSONObject orderJson, String token) {
-    // TODO Auto-generated method stub
     String postUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("eas.posturl");
+        .getProperty("prod.postorder.url");
     String x_env = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("eas.x_env");
+        .getProperty("prod.postorder.x_env");
+    StringBuffer sb = new StringBuffer();
     HttpURLConnection HttpUrlConnection = null;
     BufferedReader reader = null;
     String orderReference = null;
@@ -141,12 +214,22 @@ public class PushOrderDetailsToProd implements Process {
           HttpUrlConnection.disconnect();
 
       } else {
-        logger.logln("Error while sending order " + order.getDocumentNo() + " Due to "
-            + HttpUrlConnection.getResponseMessage());
-        log.error("Error while sending order " + order.getDocumentNo() + " Response "
-            + HttpUrlConnection.getResponseCode() + " " + HttpUrlConnection.getResponseMessage());
-
+        InputStreamReader isReader = new InputStreamReader(HttpUrlConnection.getErrorStream());
+        BufferedReader bufferedReader = new BufferedReader(isReader);
+        if (bufferedReader != null) {
+          int cp;
+          while ((cp = bufferedReader.read()) != -1) {
+            sb.append((char) cp);
+          }
+          bufferedReader.close();
+        }
+        isReader.close();
       }
+      logger.logln("" + sb);
+      log.error("Error while sending order " + order.getDocumentNo() + " Response "
+          + HttpUrlConnection.getResponseCode() + " " + HttpUrlConnection.getResponseMessage()
+          + " :" + sb);
+
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e);
@@ -198,7 +281,7 @@ public class PushOrderDetailsToProd implements Process {
       } else {
         log.error("For order Requested ShipmentDate is null with documentno"
             + order.getDocumentNo());
-        logger.logln("Skipped Order due to Requested ShipmentDate date is null "
+        logger.logln("Skipping Order due to Requested ShipmentDate date is null "
             + order.getDocumentNo());
         return null;
 
@@ -210,7 +293,7 @@ public class PushOrderDetailsToProd implements Process {
       } else {
         log.error("For order Scheduled Delivery Date is null with documentno"
             + order.getDocumentNo());
-        logger.logln("Skipped Order due to Scheduled Delivery date is null "
+        logger.logln("Skipping Order due to Scheduled Delivery date is null "
             + order.getDocumentNo());
         return null;
       }
@@ -222,8 +305,8 @@ public class PushOrderDetailsToProd implements Process {
 
       JSONArray supplierJsonArray = new JSONArray();
       supplierJsonArray.put("2");
-      supplierJsonArray.put("31094");
-      supplierJsonArray.put("31094");
+      supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
+      supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
 
       orderObject.put("supplier", supplierJsonArray);
 
@@ -260,32 +343,32 @@ public class PushOrderDetailsToProd implements Process {
 
   }
 
-  private String generateToken() throws Exception {
-
-    log.info("PushOrderDetailToProd : Started Generating token");
-    TokenGenerator tokens = new TokenGenerator();
-    String token = null;
-    token = tokens.generateToken();
-    return token;
-
-  }
-
   private List<Order> getPurchaseOrder() {
-    log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
-    String strHql = "select distinct co from Order co, OrderLine line ,"
-        + "	CL_DPP_SEQNO cd ,BusinessPartner bp, Ibud_ServerTime ibud "
-        + "where co.sWEMSwPostatus in ('SO') and co.id = line.salesOrder.id "
-        + "and bp.clSupplierno = line.sWEMSwSuppliercode 	"
-        + "and co.transactionDocument.id = 'C7CD4AC8AC414678A525AB7AE20D718C'  "
-        + "and  co.imsapDuplicatesapPo != 'Y' and bp.rCSource = 'DPP'  "
-        + "and  line.grossUnitPrice > 0 and line.orderedQuantity > 0 a"
-        + "nd co.orderReference = null and  ibud.serviceKey = 'FlexProcess' "
-        + "and co.updated > ibud.lastupdated";
 
-    Query query = OBDal.getInstance().getSession().createQuery(strHql);
-    if (query.list().size() > 0)
-      return query.list();
-    else
-      return null;
+    try {
+      Date ibud = CommonServiceProvider.getIbudUpdatedTime("FlexProcess");
+
+      log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
+      String strHql = "select distinct co from Order co, OrderLine line ,"
+          + "	CL_DPP_SEQNO cd ,BusinessPartner bp "
+          + " where co.sWEMSwPostatus in ('SO') and co.id = line.salesOrder.id "
+          + " and bp.clSupplierno = line.sWEMSwSuppliercode 	"
+          + " and co.transactionDocument.id = 'C7CD4AC8AC414678A525AB7AE20D718C'  "
+          + " and  co.imsapDuplicatesapPo != 'Y' and bp.rCSource = 'DPP'  "
+          + " and  line.grossUnitPrice > 0 and line.orderedQuantity > 0 "
+          + " and co.orderReference is null " + " and co.updated > '" + ibud + "' ";
+
+      Query query = OBDal.getInstance().getSession().createQuery(strHql);
+      List<Order> aa = query.list();
+      if (aa.size() > 0)
+        return aa;
+      else
+        return null;
+    } catch (HibernateException e) {
+      e.printStackTrace();
+      logger.logln(e.getMessage());
+      log.error("Error while retrieving order" + e.getMessage());
+      throw new OBException("Error while getting orders" + e.getMessage());
+    }
   }
 }
