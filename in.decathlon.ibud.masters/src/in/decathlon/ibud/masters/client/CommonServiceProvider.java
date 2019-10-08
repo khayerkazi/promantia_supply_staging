@@ -35,14 +35,14 @@ public class CommonServiceProvider {
     OutputStreamWriter wr = null;
     InputStream is = null;
     try {
-      String erpUrl = configMap.get("");
-      String basic_auth = configMap.get("");
-      String grant_type = configMap.get("");
-      String username = configMap.get("");
-      String password = configMap.get("");
-      String scope = configMap.get("");
+      String tokenUrl = configMap.get("tokenUrl");
+      String basic_auth = configMap.get("token_authKey");
+      String grant_type = configMap.get("tokenGrantType");
+      String username = configMap.get("token_UserName");
+      String password = configMap.get("token_Password");
+      String scope = configMap.get("token_Scope");
 
-      URL urlObj = new URL(erpUrl);
+      URL urlObj = new URL(tokenUrl);
       HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
       HttpUrlConnection.setRequestMethod("POST");
       HttpUrlConnection.setDoOutput(true);

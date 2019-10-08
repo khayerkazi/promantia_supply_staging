@@ -51,20 +51,24 @@ public class PushOrderDetailsToProd implements Process {
           sendOrdersToProd(orderList, configMap);
         } else {
           logger.logln("No orders pedning");
+          log.info("No orders pedning");
         }
       } else {
-        throw new OBException("Missing configurations please check Openbravo properties. ");
+        log.error("Missing Configuration in openbravo properties :" + configMap.get("Error"));
+        logger.logln("Missing Configuration in openbravo properties :" + configMap.get("Error"));
+        throw new OBException(
+            "CheckOBConfig:Following configurations are mission in Openbravo properties : "
+                + configMap.get("Error"));
 
       }
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e);
       logger.logln(e.getMessage());
-      throw new OBException("Error while getting purchase order details" + e.getMessage());
+      throw new OBException(e.getMessage());
     } finally {
       OBContext.restorePreviousMode();
     }
-
   }
 
   private HashMap<String, String> checkObConfig() throws Exception {
@@ -89,6 +93,110 @@ public class PushOrderDetailsToProd implements Process {
         .getProperty("prod.postorder.url");
     String postOrder_XEnv = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.x_env");
+
+    String postOrder_customerKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.customerKey");
+    String postOrder_customerId = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.customerId");
+    String postOrder_orderType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.orderType");
+    String postOrder_orderStatus = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.orderStatus");
+    String postOrder_origin = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.origin");
+
+    String postOrder_deliveryKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.deliveryKey");
+    String postOrder_deliveryId = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.deliveryId");
+
+    String postOrder_supplierKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.supplierKey");
+
+    String postOrder_requestMethod = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.requestMethod");
+
+    String postOrder_contentType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.contentType");
+
+    String postOrder_acceptVersion = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.acceptVersion");
+
+    String postOrder_authorization = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.authorization");
+
+    if (postOrder_authorization == null) {
+      errorListObj.add("prod.postorder.authorization");
+    } else {
+      outPut.put("postOrder_authorization", postOrder_authorization);
+    }
+
+    if (postOrder_acceptVersion == null) {
+      errorListObj.add("prod.postorder.acceptVersion");
+    } else {
+      outPut.put("postOrder_acceptVersion", postOrder_acceptVersion);
+    }
+
+    if (postOrder_contentType == null) {
+      errorListObj.add("prod.postorder.contentType");
+    } else {
+      outPut.put("postOrder_contentType", postOrder_contentType);
+    }
+
+    if (postOrder_requestMethod == null) {
+      errorListObj.add("prod.postorder.requestMethod");
+    } else {
+      outPut.put("postOrder_requestMethod", postOrder_requestMethod);
+    }
+
+    if (postOrder_supplierKey == null) {
+      errorListObj.add("prod.postorder.supplierKey");
+    } else {
+      outPut.put("postOrder_supplierKey", postOrder_supplierKey);
+    }
+
+    if (postOrder_deliveryKey == null) {
+      errorListObj.add("prod.postorder.deliveryKey");
+    } else {
+      outPut.put("postOrder_deliveryKey", postOrder_deliveryKey);
+    }
+
+    if (postOrder_deliveryId == null) {
+      errorListObj.add("prod.postorder.deliveryId");
+    } else {
+      outPut.put("postOrder_deliveryId", postOrder_deliveryId);
+    }
+
+    if (postOrder_customerKey == null) {
+      errorListObj.add("prod.postorder.customerKey");
+    } else {
+      outPut.put("postOrder_customerKey", postOrder_customerKey);
+    }
+
+    if (postOrder_customerId == null) {
+      errorListObj.add("prod.postorder.customerId");
+    } else {
+      outPut.put("postOrder_customerId", postOrder_customerId);
+    }
+
+    if (postOrder_orderType == null) {
+      errorListObj.add("prod.postorder.orderType");
+    } else {
+      outPut.put("postOrder_orderType", postOrder_orderType);
+    }
+
+    if (postOrder_orderStatus == null) {
+      errorListObj.add("prod.postorder.orderStatus");
+    } else {
+      outPut.put("postOrder_orderStatus", postOrder_orderStatus);
+    }
+
+    if (postOrder_origin == null) {
+      errorListObj.add("prod.postorder.origin");
+    } else {
+      outPut.put("postOrder_origin", postOrder_origin);
+    }
+
     if (postOrder_Url == null) {
       errorListObj.add("prod.postorder.url");
     } else {
@@ -136,28 +244,31 @@ public class PushOrderDetailsToProd implements Process {
       outPut.put("Error", errorString);
       logger.logln(errorString);
       log.error(errorString);
-      // throw new OBException("Missing configurations please check Openbravo properties ");
-
     }
     return outPut;
 
   }
 
-  private void sendOrdersToProd(List<Order> orderList, HashMap<String, String> configMap)
-      throws Exception {
-    String token = CommonServiceProvider.generateToken(configMap);
-    // String token = result.get("Bearer");
-    HashMap<String, HashMap<String, String>> orderSentMapObj = new HashMap<String, HashMap<String, String>>();
-
-    if (!token.contains("Error_TokenGenerator")) {
-      for (Order order : orderList) {
-        JSONObject orderJson = generateJSON(order);
-        if (orderJson != null)
-          sendOrder(order, orderJson, token, orderSentMapObj);
+  private void sendOrdersToProd(List<Order> orderList, HashMap<String, String> configMap) {
+    String token;
+    try {
+      token = CommonServiceProvider.generateToken(configMap);
+      HashMap<String, HashMap<String, String>> orderSentMapObj = new HashMap<String, HashMap<String, String>>();
+      if (!token.contains("Error_TokenGenerator")) {
+        for (Order order : orderList) {
+          JSONObject orderJson = generateJSON(order, configMap);
+          if (orderJson != null)
+            sendOrder(order, orderJson, token, orderSentMapObj, configMap);
+        }
+        if (orderSentMapObj.size() > 0) {
+          updateOrderDetails(orderSentMapObj);
+        }
       }
-      if (orderSentMapObj.size() > 0) {
-        updateOrderDetails(orderSentMapObj);
-      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error(e.getMessage());
+      logger.logln(e.getMessage());
+      throw new OBException(e.getMessage());
     }
   }
 
@@ -194,17 +305,14 @@ public class PushOrderDetailsToProd implements Process {
       }
     } catch (Exception e) {
       e.printStackTrace();
+      log.error(e.getMessage());
       logger.logln(e.getMessage());
       throw new OBException("PushOrderDetailsToProd:Updating:Error while updating data to order");
     }
   }
 
   private void sendOrder(Order order, JSONObject orderJson, String token,
-      HashMap<String, HashMap<String, String>> orderSentMapObj) {
-    String postUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.url");
-    String x_env = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.x_env");
+      HashMap<String, HashMap<String, String>> orderSentMapObj, HashMap<String, String> configMap) {
     StringBuffer sb = new StringBuffer();
     HttpURLConnection HttpUrlConnection = null;
     BufferedReader reader = null;
@@ -213,15 +321,18 @@ public class PushOrderDetailsToProd implements Process {
     InputStream is = null;
 
     try {
+
       log.info("PushOrderDetailsToProd : Generating HttpConnection with Prod");
-      URL urlObj = new URL(postUrl);
+      URL urlObj = new URL(configMap.get("postOrder_Url"));
       HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
       HttpUrlConnection.setDoOutput(true);
-      HttpUrlConnection.setRequestMethod("POST");
-      HttpUrlConnection.setRequestProperty("Accept-Version", "1.0");
-      HttpUrlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-      HttpUrlConnection.setRequestProperty("x-env", x_env);
-      HttpUrlConnection.setRequestProperty("Authorization", "Bearer " + token);
+      HttpUrlConnection.setRequestMethod(configMap.get("postOrder_requestMethod"));
+      HttpUrlConnection.setRequestProperty("Accept-Version",
+          configMap.get("postOrder_acceptVersion"));
+      HttpUrlConnection.setRequestProperty("Content-Type", configMap.get("postOrder_contentType"));
+      HttpUrlConnection.setRequestProperty("x-env", configMap.get("postOrder_XEnv"));
+      HttpUrlConnection.setRequestProperty("Authorization",
+          configMap.get("postOrder_authorization") + " " + token);
       HttpUrlConnection.connect();
 
       try (OutputStream os = HttpUrlConnection.getOutputStream()) {
@@ -241,27 +352,19 @@ public class PushOrderDetailsToProd implements Process {
         }
         JSONObject responseJson = new JSONObject(result);
         orderReference = responseJson.getString("orderNumber");
-        // anomaly = responseJson.getString("anomaly");
         HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
         if (orderDetailMapObj == null) {
           orderDetailMapObj = new HashMap<String, String>();
           orderDetailMapObj.put("orderNumber", orderReference);
           orderDetailMapObj.put("postatus", "OS");
-
           orderSentMapObj.put(order.getId(), orderDetailMapObj);
-
+          log.info("Order with documentNo-" + order.getDocumentNo() + " sent to prod.com");
         } else {
           orderDetailMapObj.put("postatus", "OS");
-
           orderDetailMapObj.put("orderNumber", orderReference);
         }
-        // orderSentList.put(order.getId(), orderReference);
         if (is != null)
           is.close();
-        /*
-         * if (HttpUrlConnection != null) HttpUrlConnection.disconnect();
-         */
-
       } else {
         InputStreamReader isReader = new InputStreamReader(HttpUrlConnection.getErrorStream());
         BufferedReader bufferedReader = new BufferedReader(isReader);
@@ -275,8 +378,6 @@ public class PushOrderDetailsToProd implements Process {
         isReader.close();
       }
       JSONObject responseJson = new JSONObject(sb.toString());
-
-      // orderReference = responseJson.getString("orderNumber");
       anomaly = responseJson.getString("anomaly");
       HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
       if (orderDetailMapObj == null) {
@@ -287,16 +388,15 @@ public class PushOrderDetailsToProd implements Process {
       } else {
         orderDetailMapObj.put("anomaly", anomaly);
       }
-      logger.logln("" + sb);
+      logger.logln("" + anomaly);
       log.error("Error while sending order " + order.getDocumentNo() + " Response "
           + HttpUrlConnection.getResponseCode() + " " + HttpUrlConnection.getResponseMessage()
-          + " :" + sb);
+          + " :" + anomaly);
 
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e);
       logger.logln(e.getMessage());
-      throw new OBException("Error while sending order to prod " + e.getMessage());
     } finally {
       try {
         if (is != null) {
@@ -313,15 +413,15 @@ public class PushOrderDetailsToProd implements Process {
     }
   }
 
-  private JSONObject generateJSON(Order order) {
+  private JSONObject generateJSON(Order order, HashMap<String, String> configMap) {
     JSONObject orderObject = new JSONObject();
     ArrayList<String> missingFields = new ArrayList<>();
     try {
       log.info("PushOrderDetailsToProd : Generating JSON for order" + order.getDocumentNo());
-      orderObject.put("origin", "RETAIL");
+      orderObject.put("origin", configMap.get("postOrder_origin"));
       orderObject.put("externalNumber", Integer.parseInt(order.getDocumentNo()));
-      orderObject.put("orderType", "Z");
-      orderObject.put("orderStatus", "NV");
+      orderObject.put("orderType", configMap.get("postOrder_orderType"));
+      orderObject.put("orderStatus", configMap.get("postOrder_orderStatus"));
       orderObject.put("orderCreation", formatter.format(order.getCreationDate()).toString()
           .substring(0, 19)
           + "Z");
@@ -332,14 +432,7 @@ public class PushOrderDetailsToProd implements Process {
       } else {
         missingFields.add("Requested Delivery Date");
       }
-      if (order.getSWEMSwEstshipdate() != null) {
-        orderObject.put("requestedShipmentDate", formatter.format(order.getSWEMSwEstshipdate())
-            .toString().substring(0, 19)
-            + "Z");
-      } else {
-        missingFields.add("Requested Shipment Date");
 
-      }
       if (order.getScheduledDeliveryDate() != null) {
         orderObject.put("scheduledDeliveryDate", formatter.format(order.getScheduledDeliveryDate())
             .toString().substring(0, 19)
@@ -349,32 +442,32 @@ public class PushOrderDetailsToProd implements Process {
       }
       if (order.getBusinessPartner().getIbudSupplierprodno() == null) {
         missingFields.add("Supplier Prod number");
+        if (order.getBusinessPartner().getIbudSupplierprodno() == null) {
+          missingFields.add("Supplier Prod number");
+        }
       }
       if (missingFields.size() > 0) {
         log.error("For order " + missingFields + " is null with documentno" + order.getDocumentNo());
         logger
             .logln("Skipping Order due to " + missingFields + " is null " + order.getDocumentNo());
-        return null;
+        // return null;
       }
       JSONArray customerJsonArray = new JSONArray();
-      customerJsonArray.put("7");
-      customerJsonArray.put("10006");
-      customerJsonArray.put("10006");
+      customerJsonArray.put(configMap.get("postOrder_customerKey"));
+      customerJsonArray.put(configMap.get("postOrder_customerId"));
+      customerJsonArray.put(configMap.get("postOrder_customerId"));
       orderObject.put("customer", customerJsonArray);
 
       JSONArray supplierJsonArray = new JSONArray();
-      supplierJsonArray.put("2");
+      supplierJsonArray.put(configMap.get("postOrder_supplierKey"));
       supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
       supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
       orderObject.put("supplier", supplierJsonArray);
-      if (order.getBusinessPartner().getIbudSupplierprodno() == null) {
-        missingFields.add("Supplier Prod number");
-      }
 
       JSONArray deliveryJsonArray = new JSONArray();
-      deliveryJsonArray.put("7");
-      deliveryJsonArray.put("10006");
-      deliveryJsonArray.put("10006");
+      deliveryJsonArray.put(configMap.get("postOrder_deliveryKey"));
+      deliveryJsonArray.put(configMap.get("postOrder_deliveryId"));
+      deliveryJsonArray.put(configMap.get("postOrder_deliveryId"));
       orderObject.put("delivery", deliveryJsonArray);
 
       JSONArray orderLineArray = new JSONArray();
@@ -387,7 +480,7 @@ public class PushOrderDetailsToProd implements Process {
         orderlineJson.put("status", "A");
         orderlineJson.put("item", Long.parseLong(lines.getProduct().getName()));
         orderlineJson.put("quantity", lines.getOrderedQuantity());
-        orderlineJson.put("price", lines.getGrossUnitPrice());
+        orderlineJson.put("cessionPrice", lines.getGrossUnitPrice());
         orderlineJson.put("currency", lines.getCurrency().getISOCode());
         orderLineArray.put(orderlineJson);
       }
@@ -421,9 +514,9 @@ public class PushOrderDetailsToProd implements Process {
           + " and co.orderReference is null " + " and co.updated > '" + ibud + "' ";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
-      List<Order> aa = query.list();
-      if (aa.size() > 0)
-        return aa;
+      List<Order> orderList = query.list();
+      if (orderList.size() > 0)
+        return orderList;
       else
         return null;
     } catch (HibernateException e) {
