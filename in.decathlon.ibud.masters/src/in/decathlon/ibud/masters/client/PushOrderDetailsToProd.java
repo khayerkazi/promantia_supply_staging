@@ -16,7 +16,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -38,7 +37,6 @@ public class PushOrderDetailsToProd implements Process {
   private ProcessLogger logger;
 
   SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-  HashMap<String, String> orderSentList = new HashMap<String, String>();
 
   @Override
   public void execute(ProcessBundle bundle) throws Exception {
@@ -50,7 +48,7 @@ public class PushOrderDetailsToProd implements Process {
       if (!configMap.containsKey("Error")) {
         List<Order> orderList = getPurchaseOrder();
         if (orderList != null && orderList.size() > 0) {
-          sendOrdersToProd(orderList);
+          sendOrdersToProd(orderList, configMap);
         } else {
           logger.logln("No orders pedning");
         }
@@ -75,7 +73,7 @@ public class PushOrderDetailsToProd implements Process {
     HashMap<String, String> outPut = new HashMap<String, String>();
 
     String tokenUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.token.Url");
+        .getProperty("prod.token.url");
     String token_authKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.token.basic_auth");
     String tokenGrantType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
@@ -87,35 +85,49 @@ public class PushOrderDetailsToProd implements Process {
     String token_Scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.token.scope");
 
+    String postOrder_Url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.url");
+    String postOrder_XEnv = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.x_env");
+    if (postOrder_Url == null) {
+      errorListObj.add("prod.postorder.url");
+    } else {
+      outPut.put("postOrder_Url", postOrder_Url);
+    }
+    if (postOrder_XEnv == null) {
+      errorListObj.add("prod.postorder.x_env");
+    } else {
+      outPut.put("postOrder_XEnv", postOrder_XEnv);
+    }
     if (tokenUrl == null) {
       errorListObj.add("prod.token.Url");
     } else {
-      outPut.put(tokenUrl, tokenUrl);
+      outPut.put("tokenUrl", tokenUrl);
     }
     if (token_authKey == null) {
       errorListObj.add("prod.token.basic_auth");
     } else {
-      outPut.put(token_authKey, token_authKey);
+      outPut.put("token_authKey", token_authKey);
     }
     if (tokenGrantType == null) {
       errorListObj.add("prod.token.grant_type");
     } else {
-      outPut.put(tokenGrantType, tokenGrantType);
+      outPut.put("tokenGrantType", tokenGrantType);
     }
     if (token_UserName == null) {
       errorListObj.add("prod.token.username");
     } else {
-      outPut.put(token_UserName, token_UserName);
+      outPut.put("token_UserName", token_UserName);
     }
     if (token_Password == null) {
       errorListObj.add("prod.token.password");
     } else {
-      outPut.put(token_Password, token_Password);
+      outPut.put("token_Password", token_Password);
     }
     if (token_Scope == null) {
       errorListObj.add("prod.token.scope");
     } else {
-      outPut.put(token_Scope, token_Scope);
+      outPut.put("token_Scope", token_Scope);
     }
 
     if (errorListObj.size() > 0) {
@@ -131,30 +143,51 @@ public class PushOrderDetailsToProd implements Process {
 
   }
 
-  private void sendOrdersToProd(List<Order> orderList) throws Exception {
-    HashMap<String, String> result = CommonServiceProvider.generateToken();
-    String token = result.get("Bearer");
+  private void sendOrdersToProd(List<Order> orderList, HashMap<String, String> configMap)
+      throws Exception {
+    String token = CommonServiceProvider.generateToken(configMap);
+    // String token = result.get("Bearer");
+    HashMap<String, HashMap<String, String>> orderSentMapObj = new HashMap<String, HashMap<String, String>>();
 
-    for (Order order : orderList) {
-      JSONObject orderJson = generateJSON(order);
-      if (orderJson != null)
-        sendOrder(order, orderJson, token);
+    if (!token.contains("Error_TokenGenerator")) {
+      for (Order order : orderList) {
+        JSONObject orderJson = generateJSON(order);
+        if (orderJson != null)
+          sendOrder(order, orderJson, token, orderSentMapObj);
+      }
+      if (orderSentMapObj.size() > 0) {
+        updateOrderDetails(orderSentMapObj);
+      }
     }
-    if (orderSentList.size() > 0)
-      updateOrderDetails();
   }
 
-  private void updateOrderDetails() {
+  private void updateOrderDetails(HashMap<String, HashMap<String, String>> orderSentMapObjList) {
     log.info("PushOrderDetailsToProd:Updating sent order details");
     try {
-      for (Entry<String, String> aa : orderSentList.entrySet()) {
-        String orderId = aa.getKey();
-        String reference = aa.getValue();
+      String postMsg = "Order Successfully sent";
+
+      for (Entry<String, HashMap<String, String>> orderSentMapObj : orderSentMapObjList.entrySet()) {
+        String orderId = orderSentMapObj.getKey();
+        HashMap<String, String> orderDetailMapObj = orderSentMapObj.getValue();
+        String reference = null;
+        if (orderDetailMapObj.containsKey("orderNumber")) {
+          reference = orderDetailMapObj.get("orderNumber");
+        }
+        if (orderDetailMapObj.containsKey("anomaly")) {
+          postMsg = orderDetailMapObj.get("anomaly");
+        }
+        String postatus = null;
+        if (orderDetailMapObj.containsKey("postatus")) {
+          postatus = orderDetailMapObj.get("postatus");
+        }
+
         Order order = OBDal.getInstance().get(Order.class, orderId);
-        order.setIbudProdStatus("OS");
-        order.setSWEMSwPostatus("OS");
+        if (postatus != null) {
+          order.setIbudProdStatus(postatus);
+          order.setSWEMSwPostatus(postatus);
+        }
         order.setOrderReference(reference);
-        order.setIbudProdMsgPost("Order Successfully sent");
+        order.setIbudProdMsgPost(postMsg);
         order.setIbudPoStatusdate(new Date());
         order.setProcessNow(true);
         OBDal.getInstance().commitAndClose();
@@ -166,7 +199,8 @@ public class PushOrderDetailsToProd implements Process {
     }
   }
 
-  private void sendOrder(Order order, JSONObject orderJson, String token) {
+  private void sendOrder(Order order, JSONObject orderJson, String token,
+      HashMap<String, HashMap<String, String>> orderSentMapObj) {
     String postUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.url");
     String x_env = OBPropertiesProvider.getInstance().getOpenbravoProperties()
@@ -177,6 +211,7 @@ public class PushOrderDetailsToProd implements Process {
     String orderReference = null;
     String anomaly = null;
     InputStream is = null;
+
     try {
       log.info("PushOrderDetailsToProd : Generating HttpConnection with Prod");
       URL urlObj = new URL(postUrl);
@@ -206,12 +241,26 @@ public class PushOrderDetailsToProd implements Process {
         }
         JSONObject responseJson = new JSONObject(result);
         orderReference = responseJson.getString("orderNumber");
-        anomaly = responseJson.getString("anomaly");
-        orderSentList.put(order.getId(), orderReference);
+        // anomaly = responseJson.getString("anomaly");
+        HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
+        if (orderDetailMapObj == null) {
+          orderDetailMapObj = new HashMap<String, String>();
+          orderDetailMapObj.put("orderNumber", orderReference);
+          orderDetailMapObj.put("postatus", "OS");
+
+          orderSentMapObj.put(order.getId(), orderDetailMapObj);
+
+        } else {
+          orderDetailMapObj.put("postatus", "OS");
+
+          orderDetailMapObj.put("orderNumber", orderReference);
+        }
+        // orderSentList.put(order.getId(), orderReference);
         if (is != null)
           is.close();
-        if (HttpUrlConnection != null)
-          HttpUrlConnection.disconnect();
+        /*
+         * if (HttpUrlConnection != null) HttpUrlConnection.disconnect();
+         */
 
       } else {
         InputStreamReader isReader = new InputStreamReader(HttpUrlConnection.getErrorStream());
@@ -224,6 +273,19 @@ public class PushOrderDetailsToProd implements Process {
           bufferedReader.close();
         }
         isReader.close();
+      }
+      JSONObject responseJson = new JSONObject(sb.toString());
+
+      // orderReference = responseJson.getString("orderNumber");
+      anomaly = responseJson.getString("anomaly");
+      HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
+      if (orderDetailMapObj == null) {
+        orderDetailMapObj = new HashMap<String, String>();
+        orderDetailMapObj.put("anomaly", anomaly);
+        orderSentMapObj.put(order.getId(), orderDetailMapObj);
+
+      } else {
+        orderDetailMapObj.put("anomaly", anomaly);
       }
       logger.logln("" + sb);
       log.error("Error while sending order " + order.getDocumentNo() + " Response "
@@ -247,13 +309,13 @@ public class PushOrderDetailsToProd implements Process {
         e.printStackTrace();
         log.error(e);
         logger.logln(e.getMessage());
-
       }
     }
   }
 
-  private JSONObject generateJSON(Order order) throws JSONException {
+  private JSONObject generateJSON(Order order) {
     JSONObject orderObject = new JSONObject();
+    ArrayList<String> missingFields = new ArrayList<>();
     try {
       log.info("PushOrderDetailsToProd : Generating JSON for order" + order.getDocumentNo());
       orderObject.put("origin", "RETAIL");
@@ -263,27 +325,19 @@ public class PushOrderDetailsToProd implements Process {
       orderObject.put("orderCreation", formatter.format(order.getCreationDate()).toString()
           .substring(0, 19)
           + "Z");
-      if (order.getSWEMSwExpdeldate() != null)
+      if (order.getSWEMSwExpdeldate() != null) {
         orderObject.put("requestedDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
             .toString().substring(0, 19)
             + "Z");
-      else {
-        log.error("Skipping order due to Requested Delivery date is null  document no "
-            + order.getDocumentNo());
-        logger.logln("Skipped Order due to Requested Delivery date is null "
-            + order.getDocumentNo());
-        return null;
+      } else {
+        missingFields.add("Requested Delivery Date");
       }
       if (order.getSWEMSwEstshipdate() != null) {
         orderObject.put("requestedShipmentDate", formatter.format(order.getSWEMSwEstshipdate())
             .toString().substring(0, 19)
             + "Z");
       } else {
-        log.error("For order Requested ShipmentDate is null with documentno"
-            + order.getDocumentNo());
-        logger.logln("Skipping Order due to Requested ShipmentDate date is null "
-            + order.getDocumentNo());
-        return null;
+        missingFields.add("Requested Shipment Date");
 
       }
       if (order.getScheduledDeliveryDate() != null) {
@@ -291,10 +345,15 @@ public class PushOrderDetailsToProd implements Process {
             .toString().substring(0, 19)
             + "Z");
       } else {
-        log.error("For order Scheduled Delivery Date is null with documentno"
-            + order.getDocumentNo());
-        logger.logln("Skipping Order due to Scheduled Delivery date is null "
-            + order.getDocumentNo());
+        missingFields.add("Schedule Delivery Date");
+      }
+      if (order.getBusinessPartner().getIbudSupplierprodno() == null) {
+        missingFields.add("Supplier Prod number");
+      }
+      if (missingFields.size() > 0) {
+        log.error("For order " + missingFields + " is null with documentno" + order.getDocumentNo());
+        logger
+            .logln("Skipping Order due to " + missingFields + " is null " + order.getDocumentNo());
         return null;
       }
       JSONArray customerJsonArray = new JSONArray();
@@ -307,8 +366,10 @@ public class PushOrderDetailsToProd implements Process {
       supplierJsonArray.put("2");
       supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
       supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
-
       orderObject.put("supplier", supplierJsonArray);
+      if (order.getBusinessPartner().getIbudSupplierprodno() == null) {
+        missingFields.add("Supplier Prod number");
+      }
 
       JSONArray deliveryJsonArray = new JSONArray();
       deliveryJsonArray.put("7");
@@ -334,10 +395,11 @@ public class PushOrderDetailsToProd implements Process {
       log.info("Generated JSON for order  " + orderObject.toString());
     } catch (Exception e) {
       e.printStackTrace();
-      logger.logln(e.getMessage());
-      throw new OBException(
-          "PushOrderDetailsToProd : Error while generating JSON object for order "
-              + order.getDocumentNo());
+      log.error("PushOrderDetailsToProd : Error while generating JSON object for order "
+          + order.getDocumentNo() + " and error is: " + e);
+      logger.logln("PushOrderDetailsToProd : Error while generating JSON object for order "
+          + order.getDocumentNo() + " and error is: " + e);
+      return null;
     }
     return orderObject;
 

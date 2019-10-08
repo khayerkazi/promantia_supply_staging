@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONObject;
 import org.hibernate.criterion.Restrictions;
 import org.openbravo.base.provider.OBProvider;
-import org.openbravo.base.session.OBPropertiesProvider;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
@@ -27,7 +26,7 @@ import org.openbravo.dal.service.OBDal;
 public class CommonServiceProvider {
   private static Logger log = Logger.getLogger(CommonServiceProvider.class);
 
-  public static HashMap<String, String> generateToken() throws Exception {
+  public static String generateToken(HashMap<String, String> configMap) throws Exception {
 
     HttpURLConnection HttpUrlConnection = null;
     BufferedReader reader = null;
@@ -35,20 +34,13 @@ public class CommonServiceProvider {
     String tokenType = null;
     OutputStreamWriter wr = null;
     InputStream is = null;
-    HashMap<String, String> outPut = new HashMap<String, String>();
     try {
-      String erpUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-          .getProperty("prod.token.Url");
-      String basic_auth = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-          .getProperty("prod.token.basic_auth");
-      String grant_type = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-          .getProperty("prod.token.grant_type");
-      String username = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-          .getProperty("prod.token.username");
-      String password = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-          .getProperty("prod.token.password");
-      String scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-          .getProperty("prod.token.scope");
+      String erpUrl = configMap.get("");
+      String basic_auth = configMap.get("");
+      String grant_type = configMap.get("");
+      String username = configMap.get("");
+      String password = configMap.get("");
+      String scope = configMap.get("");
 
       URL urlObj = new URL(erpUrl);
       HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
@@ -75,19 +67,20 @@ public class CommonServiceProvider {
       if (HttpUrlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
         tokenString = "Error_TokenGenerator in response from Token API Generator, Response:"
             + HttpUrlConnection.getResponseCode();
-      }
-      is = HttpUrlConnection.getInputStream();
-      reader = new BufferedReader(new InputStreamReader((is)));
-      String tmpStr = null;
-      String result = null;
-      while ((tmpStr = reader.readLine()) != null) {
-        result = tmpStr;
-      }
-      JSONObject responseJson = new JSONObject(result);
-      tokenString = responseJson.getString("access_token");
-      tokenType = responseJson.getString("token_type");
-      if (tokenType == null || (!tokenType.equals("Bearer"))) {
-        tokenString = "Error_TokenGenerator TokenType null or invalid";
+      } else {
+        is = HttpUrlConnection.getInputStream();
+        reader = new BufferedReader(new InputStreamReader((is)));
+        String tmpStr = null;
+        String result = null;
+        while ((tmpStr = reader.readLine()) != null) {
+          result = tmpStr;
+        }
+        JSONObject responseJson = new JSONObject(result);
+        tokenString = responseJson.getString("access_token");
+        tokenType = responseJson.getString("token_type");
+        if (tokenType == null || (!tokenType.equals("Bearer"))) {
+          tokenString = "Error_TokenGenerator TokenType null or invalid";
+        }
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -103,8 +96,8 @@ public class CommonServiceProvider {
         HttpUrlConnection.disconnect();
       }
     }
-    outPut.put("Bearer", tokenString);
-    return outPut;
+    // outPut.put("Bearer", tokenString);
+    return tokenString;
 
   }
 
