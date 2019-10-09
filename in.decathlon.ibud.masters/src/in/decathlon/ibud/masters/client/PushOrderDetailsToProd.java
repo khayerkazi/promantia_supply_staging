@@ -263,6 +263,10 @@ public class PushOrderDetailsToProd implements Process {
         if (orderSentMapObj.size() > 0) {
           updateOrderDetails(orderSentMapObj);
         }
+      } else {
+        logger.logln("PushOrderDetailsToProd: Error in generating token");
+        log.error("PushOrderDetailsToProd: Error in generating token");
+        throw new OBException("Error in generating token");
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -281,8 +285,11 @@ public class PushOrderDetailsToProd implements Process {
         String orderId = orderSentMapObj.getKey();
         HashMap<String, String> orderDetailMapObj = orderSentMapObj.getValue();
         String reference = null;
+        Order order = OBDal.getInstance().get(Order.class, orderId);
+
         if (orderDetailMapObj.containsKey("orderNumber")) {
           reference = orderDetailMapObj.get("orderNumber");
+          order.setOrderReference(reference);
         }
         if (orderDetailMapObj.containsKey("anomaly")) {
           postMsg = orderDetailMapObj.get("anomaly");
@@ -292,14 +299,14 @@ public class PushOrderDetailsToProd implements Process {
           postatus = orderDetailMapObj.get("postatus");
         }
 
-        Order order = OBDal.getInstance().get(Order.class, orderId);
         if (postatus != null) {
           order.setIbudProdStatus(postatus);
           order.setSWEMSwPostatus(postatus);
+          order.setIbudPoStatusdate(new Date());
+
         }
-        order.setOrderReference(reference);
+
         order.setIbudProdMsgPost(postMsg);
-        order.setIbudPoStatusdate(new Date());
         order.setProcessNow(true);
         OBDal.getInstance().commitAndClose();
       }
@@ -323,17 +330,26 @@ public class PushOrderDetailsToProd implements Process {
     try {
 
       log.info("PushOrderDetailsToProd : Generating HttpConnection with Prod");
-      URL urlObj = new URL(configMap.get("postOrder_Url"));
-      HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
-      HttpUrlConnection.setDoOutput(true);
-      HttpUrlConnection.setRequestMethod(configMap.get("postOrder_requestMethod"));
-      HttpUrlConnection.setRequestProperty("Accept-Version",
-          configMap.get("postOrder_acceptVersion"));
-      HttpUrlConnection.setRequestProperty("Content-Type", configMap.get("postOrder_contentType"));
-      HttpUrlConnection.setRequestProperty("x-env", configMap.get("postOrder_XEnv"));
-      HttpUrlConnection.setRequestProperty("Authorization",
-          configMap.get("postOrder_authorization") + " " + token);
-      HttpUrlConnection.connect();
+      try {
+        URL urlObj = new URL(configMap.get("postOrder_Url"));
+        HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
+        HttpUrlConnection.setDoOutput(true);
+        HttpUrlConnection.setRequestMethod(configMap.get("postOrder_requestMethod"));
+        HttpUrlConnection.setRequestProperty("Accept-Version",
+            configMap.get("postOrder_acceptVersion"));
+        HttpUrlConnection
+            .setRequestProperty("Content-Type", configMap.get("postOrder_contentType"));
+        HttpUrlConnection.setRequestProperty("x-env", configMap.get("postOrder_XEnv"));
+        HttpUrlConnection.setRequestProperty("Authorization",
+            configMap.get("postOrder_authorization") + " " + token);
+        HttpUrlConnection.connect();
+
+      } catch (Exception e) {
+        e.printStackTrace();
+        log.error("Error while Generating HTTP connection with prod" + e.getMessage());
+        logger.logln("Error while Generating HTTP connection with prod" + e.getMessage());
+
+      }
 
       try (OutputStream os = HttpUrlConnection.getOutputStream()) {
         byte[] input = orderJson.toString().getBytes(StandardCharsets.UTF_8);
@@ -352,16 +368,29 @@ public class PushOrderDetailsToProd implements Process {
         }
         JSONObject responseJson = new JSONObject(result);
         orderReference = responseJson.getString("orderNumber");
-        HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
-        if (orderDetailMapObj == null) {
-          orderDetailMapObj = new HashMap<String, String>();
-          orderDetailMapObj.put("orderNumber", orderReference);
-          orderDetailMapObj.put("postatus", "OS");
-          orderSentMapObj.put(order.getId(), orderDetailMapObj);
-          log.info("Order with documentNo-" + order.getDocumentNo() + " sent to prod.com");
+        anomaly = responseJson.getString("anomaly");
+
+        if (!orderReference.equals("null")) {
+          HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
+          if (orderDetailMapObj == null) {
+            orderDetailMapObj = new HashMap<String, String>();
+            orderDetailMapObj.put("orderNumber", orderReference);
+            orderDetailMapObj.put("postatus", "OS");
+            orderSentMapObj.put(order.getId(), orderDetailMapObj);
+            log.info("Order with documentNo-" + order.getDocumentNo() + " sent to prod.com");
+          } else {
+            orderDetailMapObj.put("postatus", "OS");
+            orderDetailMapObj.put("orderNumber", orderReference);
+          }
         } else {
-          orderDetailMapObj.put("postatus", "OS");
-          orderDetailMapObj.put("orderNumber", orderReference);
+          HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
+          if (orderDetailMapObj == null) {
+            orderDetailMapObj = new HashMap<String, String>();
+            orderDetailMapObj.put("anomaly", anomaly);
+            orderSentMapObj.put(order.getId(), orderDetailMapObj);
+          } else {
+            orderDetailMapObj.put("anomaly", anomaly);
+          }
         }
         if (is != null)
           is.close();
@@ -407,8 +436,8 @@ public class PushOrderDetailsToProd implements Process {
         }
       } catch (Exception e) {
         e.printStackTrace();
-        log.error(e);
-        logger.logln(e.getMessage());
+        log.error("Error while disconnecting http connection " + e.getMessage());
+        logger.logln("Error while disconnecting http connection " + e.getMessage());
       }
     }
   }

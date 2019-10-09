@@ -84,6 +84,7 @@ public class CommonServiceProvider {
       }
     } catch (Exception e) {
       e.printStackTrace();
+      log.error("Error_TokenGenerator in fetching token from API ");
       tokenString = "Error_TokenGenerator in fetching token from API";
     } finally {
       if (is != null) {
