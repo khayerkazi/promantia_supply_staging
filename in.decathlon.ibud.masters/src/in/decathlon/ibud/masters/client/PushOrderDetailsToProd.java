@@ -346,8 +346,11 @@ public class PushOrderDetailsToProd implements Process {
 
       } catch (Exception e) {
         e.printStackTrace();
-        log.error("Error while Generating HTTP connection with prod" + e.getMessage());
-        logger.logln("Error while Generating HTTP connection with prod" + e.getMessage());
+        log.error("Error while Generating HTTP connection with prod please check POST API credentials in Openbravo.properties "
+            + e.getMessage());
+        logger
+            .logln("Error while Generating HTTP connection with prod please check POST API credentials in Openbravo.properties "
+                + e.getMessage());
 
       }
 
@@ -405,23 +408,23 @@ public class PushOrderDetailsToProd implements Process {
           bufferedReader.close();
         }
         isReader.close();
-      }
-      JSONObject responseJson = new JSONObject(sb.toString());
-      anomaly = responseJson.getString("anomaly");
-      HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
-      if (orderDetailMapObj == null) {
-        orderDetailMapObj = new HashMap<String, String>();
-        orderDetailMapObj.put("anomaly", anomaly);
-        orderSentMapObj.put(order.getId(), orderDetailMapObj);
 
-      } else {
-        orderDetailMapObj.put("anomaly", anomaly);
-      }
-      logger.logln("" + anomaly);
-      log.error("Error while sending order " + order.getDocumentNo() + " Response "
-          + HttpUrlConnection.getResponseCode() + " " + HttpUrlConnection.getResponseMessage()
-          + " :" + anomaly);
+        JSONObject responseJson = new JSONObject(sb.toString());
+        anomaly = responseJson.getString("anomaly");
+        HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
+        if (orderDetailMapObj == null) {
+          orderDetailMapObj = new HashMap<String, String>();
+          orderDetailMapObj.put("anomaly", anomaly);
+          orderSentMapObj.put(order.getId(), orderDetailMapObj);
 
+        } else {
+          orderDetailMapObj.put("anomaly", anomaly);
+        }
+        logger.logln("" + anomaly);
+        log.error("Error while sending order " + order.getDocumentNo() + " Response "
+            + HttpUrlConnection.getResponseCode() + " " + HttpUrlConnection.getResponseMessage()
+            + " :" + anomaly);
+      }
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e);
