@@ -512,7 +512,7 @@ public class PushOrderDetailsToProd implements Process {
         orderlineJson.put("status", "A");
         orderlineJson.put("item", Long.parseLong(lines.getProduct().getName()));
         orderlineJson.put("quantity", lines.getOrderedQuantity());
-        orderlineJson.put("cessionPrice", lines.getGrossUnitPrice());
+        orderlineJson.put("cessionPrice", lines.getSwFob());
         orderlineJson.put("currency", lines.getCurrency().getISOCode());
         orderLineArray.put(orderlineJson);
       }
