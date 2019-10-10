@@ -542,7 +542,8 @@ public class PushOrderDetailsToProd implements Process {
           + " and bp.clSupplierno = line.sWEMSwSuppliercode 	"
           + " and co.transactionDocument.id = 'C7CD4AC8AC414678A525AB7AE20D718C'  "
           + " and  co.imsapDuplicatesapPo != 'Y' and bp.rCSource = 'DPP'  "
-          + " and line.orderedQuantity > 0 " + " and co.orderReference is null "
+          + " and line.orderedQuantity > 0 "
+          + " and (co.orderReference is null or co.orderReference=co.documentNo ) "
           + " and co.updated > '" + ibud + "' ";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
