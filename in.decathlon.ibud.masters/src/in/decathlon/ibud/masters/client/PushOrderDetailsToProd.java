@@ -21,7 +21,6 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.hibernate.Query;
 import org.openbravo.base.exception.OBException;
-import org.openbravo.base.session.OBPropertiesProvider;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBDal;
@@ -46,7 +45,8 @@ public class PushOrderDetailsToProd implements Process {
     logger.logln("Push Order Details To prod Background process has started");
     try {
       OBContext.setAdminMode(true);
-      HashMap<String, String> configMap = checkObConfig();
+      CommonServiceProvider csp = new CommonServiceProvider();
+      HashMap<String, String> configMap = csp.checkObConfig();
       if (!configMap.containsKey("Error")) {
         getPurchaseOrder(configMap);
       } else {
@@ -65,184 +65,6 @@ public class PushOrderDetailsToProd implements Process {
     } finally {
       OBContext.restorePreviousMode();
     }
-  }
-
-  private HashMap<String, String> checkObConfig() throws Exception {
-
-    List<String> errorListObj = new ArrayList<String>();
-    HashMap<String, String> outPut = new HashMap<String, String>();
-
-    String tokenUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.token.url");
-    String token_authKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.token.basic_auth");
-    String tokenGrantType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.token.grant_type");
-    String token_UserName = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.token.username");
-    String token_Password = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.token.password");
-    String token_Scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.token.scope");
-
-    String postOrder_Url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.url");
-    String postOrder_XEnv = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.x_env");
-
-    String postOrder_customerKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.customerKey");
-    String postOrder_customerId = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.customerId");
-    String postOrder_orderType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.orderType");
-    String postOrder_orderStatus = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.orderStatus");
-    String postOrder_origin = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.origin");
-
-    String postOrder_deliveryKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.deliveryKey");
-    String postOrder_deliveryId = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.deliveryId");
-
-    String postOrder_supplierKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.supplierKey");
-
-    String postOrder_requestMethod = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.requestMethod");
-
-    String postOrder_contentType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.contentType");
-
-    String postOrder_acceptVersion = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.acceptVersion");
-
-    String postOrder_authorization = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.authorization");
-
-    if (postOrder_authorization == null) {
-      errorListObj.add("prod.postorder.authorization");
-    } else {
-      outPut.put("postOrder_authorization", postOrder_authorization);
-    }
-
-    if (postOrder_acceptVersion == null) {
-      errorListObj.add("prod.postorder.acceptVersion");
-    } else {
-      outPut.put("postOrder_acceptVersion", postOrder_acceptVersion);
-    }
-
-    if (postOrder_contentType == null) {
-      errorListObj.add("prod.postorder.contentType");
-    } else {
-      outPut.put("postOrder_contentType", postOrder_contentType);
-    }
-
-    if (postOrder_requestMethod == null) {
-      errorListObj.add("prod.postorder.requestMethod");
-    } else {
-      outPut.put("postOrder_requestMethod", postOrder_requestMethod);
-    }
-
-    if (postOrder_supplierKey == null) {
-      errorListObj.add("prod.postorder.supplierKey");
-    } else {
-      outPut.put("postOrder_supplierKey", postOrder_supplierKey);
-    }
-
-    if (postOrder_deliveryKey == null) {
-      errorListObj.add("prod.postorder.deliveryKey");
-    } else {
-      outPut.put("postOrder_deliveryKey", postOrder_deliveryKey);
-    }
-
-    if (postOrder_deliveryId == null) {
-      errorListObj.add("prod.postorder.deliveryId");
-    } else {
-      outPut.put("postOrder_deliveryId", postOrder_deliveryId);
-    }
-
-    if (postOrder_customerKey == null) {
-      errorListObj.add("prod.postorder.customerKey");
-    } else {
-      outPut.put("postOrder_customerKey", postOrder_customerKey);
-    }
-
-    if (postOrder_customerId == null) {
-      errorListObj.add("prod.postorder.customerId");
-    } else {
-      outPut.put("postOrder_customerId", postOrder_customerId);
-    }
-
-    if (postOrder_orderType == null) {
-      errorListObj.add("prod.postorder.orderType");
-    } else {
-      outPut.put("postOrder_orderType", postOrder_orderType);
-    }
-
-    if (postOrder_orderStatus == null) {
-      errorListObj.add("prod.postorder.orderStatus");
-    } else {
-      outPut.put("postOrder_orderStatus", postOrder_orderStatus);
-    }
-
-    if (postOrder_origin == null) {
-      errorListObj.add("prod.postorder.origin");
-    } else {
-      outPut.put("postOrder_origin", postOrder_origin);
-    }
-
-    if (postOrder_Url == null) {
-      errorListObj.add("prod.postorder.url");
-    } else {
-      outPut.put("postOrder_Url", postOrder_Url);
-    }
-    if (postOrder_XEnv == null) {
-      errorListObj.add("prod.postorder.x_env");
-    } else {
-      outPut.put("postOrder_XEnv", postOrder_XEnv);
-    }
-    if (tokenUrl == null) {
-      errorListObj.add("prod.token.Url");
-    } else {
-      outPut.put("tokenUrl", tokenUrl);
-    }
-    if (token_authKey == null) {
-      errorListObj.add("prod.token.basic_auth");
-    } else {
-      outPut.put("token_authKey", token_authKey);
-    }
-    if (tokenGrantType == null) {
-      errorListObj.add("prod.token.grant_type");
-    } else {
-      outPut.put("tokenGrantType", tokenGrantType);
-    }
-    if (token_UserName == null) {
-      errorListObj.add("prod.token.username");
-    } else {
-      outPut.put("token_UserName", token_UserName);
-    }
-    if (token_Password == null) {
-      errorListObj.add("prod.token.password");
-    } else {
-      outPut.put("token_Password", token_Password);
-    }
-    if (token_Scope == null) {
-      errorListObj.add("prod.token.scope");
-    } else {
-      outPut.put("token_Scope", token_Scope);
-    }
-
-    if (errorListObj.size() > 0) {
-      String errorString = "Error_CommonServiceProvider: " + errorListObj
-          + " configuration is missing in Openbravo.properties file";
-      outPut.put("Error", errorString);
-      logger.logln(errorString);
-      log.error(errorString);
-    }
-    return outPut;
-
   }
 
   private int sendOrdersToProd(List<Order> orderList, HashMap<String, String> configMap)
@@ -287,12 +109,12 @@ public class PushOrderDetailsToProd implements Process {
     log.info("PushOrderDetailsToProd:Updating sent order details");
     int count = 0;
     try {
-      String postMsg = "Order Successfully sent";
       for (Entry<String, HashMap<String, String>> orderSentMapObj : orderSentMapObjList.entrySet()) {
         String orderId = orderSentMapObj.getKey();
         HashMap<String, String> orderDetailMapObj = orderSentMapObj.getValue();
         String reference = null;
         Order order = OBDal.getInstance().get(Order.class, orderId);
+        String postMsg = "Order Successfully sent";
 
         if (orderDetailMapObj.containsKey("orderNumber")) {
           reference = orderDetailMapObj.get("orderNumber");
@@ -404,10 +226,10 @@ public class PushOrderDetailsToProd implements Process {
           HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
           if (orderDetailMapObj == null) {
             orderDetailMapObj = new HashMap<String, String>();
-            orderDetailMapObj.put("anomaly", responseJson.toString());
+            orderDetailMapObj.put("anomaly", anomaly);
             orderSentMapObj.put(order.getId(), orderDetailMapObj);
           } else {
-            orderDetailMapObj.put("anomaly", responseJson.toString());
+            orderDetailMapObj.put("anomaly", anomaly);
           }
         }
         if (is != null)
@@ -425,7 +247,7 @@ public class PushOrderDetailsToProd implements Process {
         isReader.close();
 
         JSONObject responseJson = new JSONObject(sb.toString());
-        anomaly = responseJson.toString();
+        anomaly = responseJson.getString("anomaly") + " - " + HttpUrlConnection.getResponseCode();
         HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
         if (orderDetailMapObj == null) {
           orderDetailMapObj = new HashMap<String, String>();
