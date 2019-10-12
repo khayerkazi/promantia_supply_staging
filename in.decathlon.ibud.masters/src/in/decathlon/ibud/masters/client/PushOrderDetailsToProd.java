@@ -1,5 +1,7 @@
 package in.decathlon.ibud.masters.client;
 
+import in.decathlon.ibud.masters.data.IbudServerTime;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,11 +19,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.openbravo.base.exception.OBException;
 import org.openbravo.base.session.OBPropertiesProvider;
 import org.openbravo.dal.core.OBContext;
+import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.model.common.order.Order;
 import org.openbravo.model.common.order.OrderLine;
@@ -46,13 +48,7 @@ public class PushOrderDetailsToProd implements Process {
       OBContext.setAdminMode(true);
       HashMap<String, String> configMap = checkObConfig();
       if (!configMap.containsKey("Error")) {
-        List<Order> orderList = getPurchaseOrder();
-        if (orderList != null && orderList.size() > 0) {
-          sendOrdersToProd(orderList, configMap);
-        } else {
-          logger.logln("No orders pedning");
-          log.info("No orders pedning");
-        }
+        getPurchaseOrder(configMap);
       } else {
         log.error("Missing Configuration in openbravo properties :" + configMap.get("Error"));
         logger.logln("Missing Configuration in openbravo properties :" + configMap.get("Error"));
@@ -249,24 +245,34 @@ public class PushOrderDetailsToProd implements Process {
 
   }
 
-  private void sendOrdersToProd(List<Order> orderList, HashMap<String, String> configMap) {
+  private int sendOrdersToProd(List<Order> orderList, HashMap<String, String> configMap)
+      throws Exception {
     String token;
     try {
       token = CommonServiceProvider.generateToken(configMap);
       HashMap<String, HashMap<String, String>> orderSentMapObj = new HashMap<String, HashMap<String, String>>();
+      ArrayList<String> orderNoListObj = new ArrayList<>();
+      ArrayList<String> ErrorOrderListObj = new ArrayList<>();
+
       if (!token.contains("Error_TokenGenerator")) {
         for (Order order : orderList) {
           JSONObject orderJson = generateJSON(order, configMap);
-          if (orderJson != null)
+          if (orderJson != null) {
+            orderNoListObj.add(order.getDocumentNo());
             sendOrder(order, orderJson, token, orderSentMapObj, configMap);
+          } else {
+            ErrorOrderListObj.add(order.getDocumentNo());
+
+          }
         }
         if (orderSentMapObj.size() > 0) {
-          updateOrderDetails(orderSentMapObj);
+          return updateOrderDetails(orderSentMapObj);
+
         }
       } else {
-        logger.logln("PushOrderDetailsToProd: Error in generating token");
-        log.error("PushOrderDetailsToProd: Error in generating token");
-        throw new OBException("Error in generating token");
+        logger.logln("PushOrderDetailsToProd: Error in generating token " + token);
+        log.error("PushOrderDetailsToProd: Error in generating token " + token);
+        throw new OBException("Error in generating token " + token);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -274,13 +280,14 @@ public class PushOrderDetailsToProd implements Process {
       logger.logln(e.getMessage());
       throw new OBException(e.getMessage());
     }
+    return 1;
   }
 
-  private void updateOrderDetails(HashMap<String, HashMap<String, String>> orderSentMapObjList) {
+  private int updateOrderDetails(HashMap<String, HashMap<String, String>> orderSentMapObjList) {
     log.info("PushOrderDetailsToProd:Updating sent order details");
+    int count = 0;
     try {
       String postMsg = "Order Successfully sent";
-
       for (Entry<String, HashMap<String, String>> orderSentMapObj : orderSentMapObjList.entrySet()) {
         String orderId = orderSentMapObj.getKey();
         HashMap<String, String> orderDetailMapObj = orderSentMapObj.getValue();
@@ -293,6 +300,7 @@ public class PushOrderDetailsToProd implements Process {
         }
         if (orderDetailMapObj.containsKey("anomaly")) {
           postMsg = orderDetailMapObj.get("anomaly");
+          count++;
         }
         String postatus = null;
         if (orderDetailMapObj.containsKey("postatus")) {
@@ -310,16 +318,19 @@ public class PushOrderDetailsToProd implements Process {
         order.setProcessNow(true);
         OBDal.getInstance().commitAndClose();
       }
+
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e.getMessage());
       logger.logln(e.getMessage());
       throw new OBException("PushOrderDetailsToProd:Updating:Error while updating data to order");
     }
+    return count;
   }
 
   private void sendOrder(Order order, JSONObject orderJson, String token,
-      HashMap<String, HashMap<String, String>> orderSentMapObj, HashMap<String, String> configMap) {
+      HashMap<String, HashMap<String, String>> orderSentMapObj, HashMap<String, String> configMap)
+      throws OBException {
     StringBuffer sb = new StringBuffer();
     HttpURLConnection HttpUrlConnection = null;
     BufferedReader reader = null;
@@ -329,7 +340,8 @@ public class PushOrderDetailsToProd implements Process {
 
     try {
 
-      log.info("PushOrderDetailsToProd : Generating HttpConnection with Prod");
+      log.info("PushOrderDetailsToProd : Generating HttpConnection with Prod for Order no: "
+          + order.getDocumentNo());
       try {
         URL urlObj = new URL(configMap.get("postOrder_Url"));
         HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
@@ -346,11 +358,14 @@ public class PushOrderDetailsToProd implements Process {
 
       } catch (Exception e) {
         e.printStackTrace();
-        log.error("Error while Generating HTTP connection with prod please check POST API credentials in Openbravo.properties "
-            + e.getMessage());
+        log.error("Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
+            + e);
         logger
-            .logln("Error while Generating HTTP connection with prod please check POST API credentials in Openbravo.properties "
-                + e.getMessage());
+            .logln("Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
+                + e);
+        throw new OBException(
+            "Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
+                + e);
 
       }
 
@@ -373,7 +388,7 @@ public class PushOrderDetailsToProd implements Process {
         orderReference = responseJson.getString("orderNumber");
         anomaly = responseJson.getString("anomaly");
 
-        if (!orderReference.equals("null")) {
+        if (!responseJson.isNull("orderNumber")) {
           HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
           if (orderDetailMapObj == null) {
             orderDetailMapObj = new HashMap<String, String>();
@@ -389,10 +404,10 @@ public class PushOrderDetailsToProd implements Process {
           HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
           if (orderDetailMapObj == null) {
             orderDetailMapObj = new HashMap<String, String>();
-            orderDetailMapObj.put("anomaly", anomaly);
+            orderDetailMapObj.put("anomaly", responseJson.toString());
             orderSentMapObj.put(order.getId(), orderDetailMapObj);
           } else {
-            orderDetailMapObj.put("anomaly", anomaly);
+            orderDetailMapObj.put("anomaly", responseJson.toString());
           }
         }
         if (is != null)
@@ -410,7 +425,7 @@ public class PushOrderDetailsToProd implements Process {
         isReader.close();
 
         JSONObject responseJson = new JSONObject(sb.toString());
-        anomaly = responseJson.getString("anomaly");
+        anomaly = responseJson.toString();
         HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
         if (orderDetailMapObj == null) {
           orderDetailMapObj = new HashMap<String, String>();
@@ -420,15 +435,21 @@ public class PushOrderDetailsToProd implements Process {
         } else {
           orderDetailMapObj.put("anomaly", anomaly);
         }
-        logger.logln("" + anomaly);
-        log.error("Error while sending order " + order.getDocumentNo() + " Response "
-            + HttpUrlConnection.getResponseCode() + " " + HttpUrlConnection.getResponseMessage()
-            + " :" + anomaly);
+        logger.logln("Error while sending order " + order.getDocumentNo() + " with Response "
+            + HttpUrlConnection.getResponseCode() + " and Response Message: "
+            + HttpUrlConnection.getResponseMessage() + " Response Error Is :"
+            + responseJson.getString("anomaly") != null ? responseJson.getString("anomaly") : "NA");
+        log.error("Error while sending order " + order.getDocumentNo() + " with Response "
+            + HttpUrlConnection.getResponseCode() + " and Response Message: "
+            + HttpUrlConnection.getResponseMessage() + " Response Error Is :"
+            + responseJson.getString("anomaly") != null ? responseJson.getString("anomaly") : "NA");
       }
     } catch (Exception e) {
       e.printStackTrace();
-      log.error(e);
-      logger.logln(e.getMessage());
+      log.error("Error while Sending the order to Prod.com for order no: " + order.getDocumentNo()
+          + " and Error is: " + e);
+      logger.logln("Error while Sending the order to Prod.com for order no: "
+          + order.getDocumentNo() + " and Error is: " + e);
     } finally {
       try {
         if (is != null) {
@@ -449,7 +470,6 @@ public class PushOrderDetailsToProd implements Process {
     JSONObject orderObject = new JSONObject();
     ArrayList<String> missingFields = new ArrayList<>();
     try {
-      log.info("PushOrderDetailsToProd : Generating JSON for order" + order.getDocumentNo());
       orderObject.put("origin", configMap.get("postOrder_origin"));
       orderObject.put("externalNumber", Integer.parseInt(order.getDocumentNo()));
       orderObject.put("orderType", configMap.get("postOrder_orderType"));
@@ -518,23 +538,24 @@ public class PushOrderDetailsToProd implements Process {
       }
       orderObject.put("orderLines", orderLineArray);
       log.info("Generated JSON for order  " + orderObject.toString());
+
     } catch (Exception e) {
       e.printStackTrace();
       log.error("PushOrderDetailsToProd : Error while generating JSON object for order "
           + order.getDocumentNo() + " and error is: " + e);
       logger.logln("PushOrderDetailsToProd : Error while generating JSON object for order "
           + order.getDocumentNo() + " and error is: " + e);
-      return null;
+      orderObject = null;
     }
     return orderObject;
 
   }
 
-  private List<Order> getPurchaseOrder() {
+  private void getPurchaseOrder(HashMap<String, String> configMap) {
 
     try {
-      Date ibud = CommonServiceProvider.getIbudUpdatedTime("FlexProcess");
-
+      IbudServerTime newIbudServiceObj = CommonServiceProvider.getIbudUpdatedTime("FlexProcess");
+      Date ibud = newIbudServiceObj.getLastupdated();
       log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
       String strHql = "select distinct co from Order co, OrderLine line ,"
           + "	CL_DPP_SEQNO cd ,BusinessPartner bp "
@@ -548,15 +569,30 @@ public class PushOrderDetailsToProd implements Process {
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
       List<Order> orderList = query.list();
-      if (orderList.size() > 0)
-        return orderList;
-      else
-        return null;
-    } catch (HibernateException e) {
+
+      if (orderList != null && orderList.size() > 0) {
+        logger.logln("Getting the Order for pushing from OB to Prod.com from date: " + ibud
+            + " and count is: " + orderList.size());
+        log.info("Getting the Order for pushing from OB to Prod.com from date: " + ibud
+            + " and count is: " + orderList.size());
+        int errorCount = sendOrdersToProd(orderList, configMap);
+        if (errorCount == 0) {
+          newIbudServiceObj.setLastupdated(new Date());
+          OBDal.getInstance().save(newIbudServiceObj);
+          SessionHandler.getInstance().commitAndStart();
+        } else {
+          logger.logln("Order Error count is: " + errorCount);
+        }
+      } else {
+        logger.logln("No Pending order for pushed from OB to Prod.com from date: " + ibud);
+        log.info("No Pending order for pushed from OB to Prod.com from date: " + ibud);
+      }
+
+    } catch (Exception e) {
       e.printStackTrace();
-      logger.logln(e.getMessage());
-      log.error("Error while retrieving order" + e.getMessage());
-      throw new OBException("Error while getting orders" + e.getMessage());
+      logger.logln("Error while Processing the order and error is: " + e);
+      log.error("Error while Processing the order and error is: " + e);
+      throw new OBException("Error while Processing the order and error is: " + e);
     }
   }
 }

@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +101,7 @@ public class CommonServiceProvider {
 
   }
 
-  public static Date getIbudUpdatedTime(String serviceKey) {
+  public static IbudServerTime getIbudUpdatedTime(String serviceKey) {
 
     OBContext.setAdminMode(true);
     OBCriteria<IbudServerTime> ibudServerTimeCriteria = OBDal.getInstance().createCriteria(
@@ -113,17 +112,17 @@ public class CommonServiceProvider {
     ibudServerTimeCriteria.setFilterOnReadableOrganization(false);
     List<IbudServerTime> ibudServerTimeList = ibudServerTimeCriteria.list();
 
-    Date lastUpdatedTime = null;
+    // Date lastUpdatedTime = null;
 
     if (ibudServerTimeList != null && ibudServerTimeList.size() > 0) {
       log.debug("Time taken from database ibudServerTimeList.get(0).getLastupdated() "
           + ibudServerTimeList.get(0).getLastupdated());
-      lastUpdatedTime = ibudServerTimeList.get(0).getLastupdated();
-      if (serviceKey.equalsIgnoreCase("FlexProcess")) {
-        long t = lastUpdatedTime.getTime();
-        lastUpdatedTime = new Date(t - (15 * 60000)); // Reducing 15 mins
-      }
-      return lastUpdatedTime;
+      /*
+       * lastUpdatedTime = ibudServerTimeList.get(0).getLastupdated(); if
+       * (serviceKey.equalsIgnoreCase("FlexProcess")) { long t = lastUpdatedTime.getTime();
+       * lastUpdatedTime = new Date(t - (15 * 60000)); // Reducing 15 mins }
+       */
+      return ibudServerTimeList.get(0);
     } else {
       log.debug("No record found for the Service " + serviceKey
           + ". New record need to insert !!! ");
@@ -136,19 +135,21 @@ public class CommonServiceProvider {
       newService.setCreationDate(new Date());
       newService.setUpdatedBy(OBContext.getOBContext().getUser());
       newService.setUpdated(new Date());
+      newService.setServiceKey(serviceKey);
       newService.setNewOBObject(true);
 
       Date d = new Date();
       Date dateBefore = new Date(d.getTime() - 2 * 24 * 3600 * 1000);
       newService.setLastupdated(dateBefore);
 
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-      String lastUpdatedTime1 = format.format(dateBefore);
-
+      /*
+       * SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+       * 
+       * String lastUpdatedTime1 = format.format(dateBefore);
+       */
       newService.setServiceKey(serviceKey); // OBDal.getInstance().save(newService);
       SessionHandler.getInstance().commitAndStart();
-      return dateBefore;//
+      return newService;//
       // lastUpdatedTime1.toString().replaceAll(" ", "_");
 
     }
