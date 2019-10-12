@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONObject;
 import org.hibernate.criterion.Restrictions;
 import org.openbravo.base.provider.OBProvider;
+import org.openbravo.base.session.OBPropertiesProvider;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
@@ -96,7 +98,6 @@ public class CommonServiceProvider {
         HttpUrlConnection.disconnect();
       }
     }
-    // outPut.put("Bearer", tokenString);
     return tokenString;
 
   }
@@ -112,16 +113,9 @@ public class CommonServiceProvider {
     ibudServerTimeCriteria.setFilterOnReadableOrganization(false);
     List<IbudServerTime> ibudServerTimeList = ibudServerTimeCriteria.list();
 
-    // Date lastUpdatedTime = null;
-
     if (ibudServerTimeList != null && ibudServerTimeList.size() > 0) {
       log.debug("Time taken from database ibudServerTimeList.get(0).getLastupdated() "
           + ibudServerTimeList.get(0).getLastupdated());
-      /*
-       * lastUpdatedTime = ibudServerTimeList.get(0).getLastupdated(); if
-       * (serviceKey.equalsIgnoreCase("FlexProcess")) { long t = lastUpdatedTime.getTime();
-       * lastUpdatedTime = new Date(t - (15 * 60000)); // Reducing 15 mins }
-       */
       return ibudServerTimeList.get(0);
     } else {
       log.debug("No record found for the Service " + serviceKey
@@ -141,18 +135,215 @@ public class CommonServiceProvider {
       Date d = new Date();
       Date dateBefore = new Date(d.getTime() - 2 * 24 * 3600 * 1000);
       newService.setLastupdated(dateBefore);
-
-      /*
-       * SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-       * 
-       * String lastUpdatedTime1 = format.format(dateBefore);
-       */
-      newService.setServiceKey(serviceKey); // OBDal.getInstance().save(newService);
+      newService.setServiceKey(serviceKey);
       SessionHandler.getInstance().commitAndStart();
-      return newService;//
-      // lastUpdatedTime1.toString().replaceAll(" ", "_");
-
+      return newService;
     }
+
+  }
+
+  public HashMap<String, String> checkObConfig() throws Exception {
+
+    List<String> errorListObj = new ArrayList<String>();
+    HashMap<String, String> outPut = new HashMap<String, String>();
+
+    String tokenUrl = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.url");
+    String token_authKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.basic_auth");
+    String tokenGrantType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.grant_type");
+    String token_UserName = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.username");
+    String token_Password = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.password");
+    String token_Scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.token.scope");
+
+    String postOrder_Url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.url");
+    String postOrder_XEnv = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.x_env");
+
+    String postOrder_customerKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.customerKey");
+    String postOrder_customerId = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.customerId");
+    String postOrder_orderType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.orderType");
+    String postOrder_orderStatus = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.orderStatus");
+    String postOrder_origin = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.origin");
+
+    String postOrder_deliveryKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.deliveryKey");
+    String postOrder_deliveryId = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.deliveryId");
+
+    String postOrder_supplierKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.supplierKey");
+
+    String postOrder_requestMethod = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.requestMethod");
+
+    String postOrder_contentType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.contentType");
+
+    String postOrder_acceptVersion = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.acceptVersion");
+
+    String postOrder_authorization = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.postorder.authorization");
+
+    String getOrder_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.getorder.url");
+
+    String getOrderLine_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.getorderLine.url");
+
+    String getElpProduct_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.getElpProduct.url");
+
+    if (getOrder_url == null) {
+      errorListObj.add("prod.getorder.url");
+    } else {
+      outPut.put("getOrder_url", getOrder_url);
+    }
+
+    if (getOrderLine_url == null) {
+      errorListObj.add("prod.getorderLine.url");
+    } else {
+      outPut.put("getOrderLine_url", getOrderLine_url);
+    }
+
+    if (getElpProduct_url == null) {
+      errorListObj.add("prod.getElpProduct.url");
+    } else {
+      outPut.put("getElpProduct_url", getElpProduct_url);
+    }
+
+    if (postOrder_authorization == null) {
+      errorListObj.add("prod.postorder.authorization");
+    } else {
+      outPut.put("postOrder_authorization", postOrder_authorization);
+    }
+
+    if (postOrder_acceptVersion == null) {
+      errorListObj.add("prod.postorder.acceptVersion");
+    } else {
+      outPut.put("postOrder_acceptVersion", postOrder_acceptVersion);
+    }
+
+    if (postOrder_contentType == null) {
+      errorListObj.add("prod.postorder.contentType");
+    } else {
+      outPut.put("postOrder_contentType", postOrder_contentType);
+    }
+
+    if (postOrder_requestMethod == null) {
+      errorListObj.add("prod.postorder.requestMethod");
+    } else {
+      outPut.put("postOrder_requestMethod", postOrder_requestMethod);
+    }
+
+    if (postOrder_supplierKey == null) {
+      errorListObj.add("prod.postorder.supplierKey");
+    } else {
+      outPut.put("postOrder_supplierKey", postOrder_supplierKey);
+    }
+
+    if (postOrder_deliveryKey == null) {
+      errorListObj.add("prod.postorder.deliveryKey");
+    } else {
+      outPut.put("postOrder_deliveryKey", postOrder_deliveryKey);
+    }
+
+    if (postOrder_deliveryId == null) {
+      errorListObj.add("prod.postorder.deliveryId");
+    } else {
+      outPut.put("postOrder_deliveryId", postOrder_deliveryId);
+    }
+
+    if (postOrder_customerKey == null) {
+      errorListObj.add("prod.postorder.customerKey");
+    } else {
+      outPut.put("postOrder_customerKey", postOrder_customerKey);
+    }
+
+    if (postOrder_customerId == null) {
+      errorListObj.add("prod.postorder.customerId");
+    } else {
+      outPut.put("postOrder_customerId", postOrder_customerId);
+    }
+
+    if (postOrder_orderType == null) {
+      errorListObj.add("prod.postorder.orderType");
+    } else {
+      outPut.put("postOrder_orderType", postOrder_orderType);
+    }
+
+    if (postOrder_orderStatus == null) {
+      errorListObj.add("prod.postorder.orderStatus");
+    } else {
+      outPut.put("postOrder_orderStatus", postOrder_orderStatus);
+    }
+
+    if (postOrder_origin == null) {
+      errorListObj.add("prod.postorder.origin");
+    } else {
+      outPut.put("postOrder_origin", postOrder_origin);
+    }
+
+    if (postOrder_Url == null) {
+      errorListObj.add("prod.postorder.url");
+    } else {
+      outPut.put("postOrder_Url", postOrder_Url);
+    }
+    if (postOrder_XEnv == null) {
+      errorListObj.add("prod.postorder.x_env");
+    } else {
+      outPut.put("postOrder_XEnv", postOrder_XEnv);
+    }
+    if (tokenUrl == null) {
+      errorListObj.add("prod.token.Url");
+    } else {
+      outPut.put("tokenUrl", tokenUrl);
+    }
+    if (token_authKey == null) {
+      errorListObj.add("prod.token.basic_auth");
+    } else {
+      outPut.put("token_authKey", token_authKey);
+    }
+    if (tokenGrantType == null) {
+      errorListObj.add("prod.token.grant_type");
+    } else {
+      outPut.put("tokenGrantType", tokenGrantType);
+    }
+    if (token_UserName == null) {
+      errorListObj.add("prod.token.username");
+    } else {
+      outPut.put("token_UserName", token_UserName);
+    }
+    if (token_Password == null) {
+      errorListObj.add("prod.token.password");
+    } else {
+      outPut.put("token_Password", token_Password);
+    }
+    if (token_Scope == null) {
+      errorListObj.add("prod.token.scope");
+    } else {
+      outPut.put("token_Scope", token_Scope);
+    }
+
+    if (errorListObj.size() > 0) {
+      String errorString = "Error_CommonServiceProvider: " + errorListObj
+          + " configuration is missing in Openbravo.properties file";
+      outPut.put("Error", errorString);
+      // logger.logln(errorString);
+      log.error(errorString);
+    }
+    return outPut;
 
   }
 
