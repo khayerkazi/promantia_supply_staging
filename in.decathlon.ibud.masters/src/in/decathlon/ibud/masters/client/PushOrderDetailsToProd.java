@@ -87,6 +87,7 @@ public class PushOrderDetailsToProd implements Process {
 
           }
         }
+        logger.logln("Error While Posting Order is: " + ErrorOrderListObj);
         if (orderSentMapObj.size() > 0) {
           return updateOrderDetails(orderSentMapObj);
 
@@ -130,7 +131,7 @@ public class PushOrderDetailsToProd implements Process {
         }
 
         if (postatus != null) {
-          order.setIbudProdStatus(postatus);
+          order.setIbudProdStatus("NV");
           order.setSWEMSwPostatus(postatus);
           order.setIbudPoStatusdate(new Date());
 
@@ -329,7 +330,7 @@ public class PushOrderDetailsToProd implements Process {
         log.error("For order " + missingFields + " is null with documentno" + order.getDocumentNo());
         logger.logln("Skipping Order due to " + missingFields + " is null for PO Document no: "
             + order.getDocumentNo());
-        // return null;
+        return null;
       }
       JSONArray customerJsonArray = new JSONArray();
       customerJsonArray.put(configMap.get("postOrder_customerKey"));
@@ -423,6 +424,9 @@ public class PushOrderDetailsToProd implements Process {
       } else {
         logger.logln("No Pending order for pushed from OB to Prod.com from date: " + ibud);
         log.info("No Pending order for pushed from OB to Prod.com from date: " + ibud);
+        newIbudServiceObj.setLastupdated(new Date());
+        OBDal.getInstance().save(newIbudServiceObj);
+        SessionHandler.getInstance().commitAndStart();
       }
 
     } catch (Exception e) {

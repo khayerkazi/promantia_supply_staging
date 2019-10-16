@@ -209,14 +209,13 @@ public class CommonServiceProvider {
     String getElpProduct_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.getElpProduct.url");
 
-    String prodDPP = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.dpp");
-
-    if (prodDPP == null) {
-      errorListObj.add("prod.dpp");
-    } else {
-      outPut.put("prodDPP", prodDPP);
-    }
+    /*
+     * String prodDPP = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+     * .getProperty("prod.dpp");
+     * 
+     * if (prodDPP == null) { errorListObj.add("prod.dpp"); } else { outPut.put("prodDPP", prodDPP);
+     * }
+     */
 
     if (getOrder_url == null) {
       errorListObj.add("prod.getorder.url");
