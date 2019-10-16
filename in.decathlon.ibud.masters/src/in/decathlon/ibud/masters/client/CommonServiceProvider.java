@@ -23,6 +23,7 @@ import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.core.SessionHandler;
 import org.openbravo.dal.service.OBCriteria;
 import org.openbravo.dal.service.OBDal;
+import org.openbravo.model.ad.system.Client;
 
 public class CommonServiceProvider {
   private static Logger log = Logger.getLogger(CommonServiceProvider.class);
@@ -123,8 +124,10 @@ public class CommonServiceProvider {
 
       IbudServerTime newService = OBProvider.getInstance().get(IbudServerTime.class);
       newService.setActive(true);
-      newService.setClient(OBContext.getOBContext().getCurrentClient());
+      Client client = OBDal.getInstance().get(Client.class, "187D8FC945A5481CB41B3EE767F80DBB");
+      newService.setClient(client);
       newService.setOrganization(OBContext.getOBContext().getCurrentOrganization());
+
       newService.setCreatedBy(OBContext.getOBContext().getUser());
       newService.setCreationDate(new Date());
       newService.setUpdatedBy(OBContext.getOBContext().getUser());
@@ -136,13 +139,14 @@ public class CommonServiceProvider {
       Date dateBefore = new Date(d.getTime() - 2 * 24 * 3600 * 1000);
       newService.setLastupdated(dateBefore);
       newService.setServiceKey(serviceKey);
-      SessionHandler.getInstance().commitAndStart();
+      OBDal.getInstance().save(newService);
+      SessionHandler.getInstance().commitAndClose();
       return newService;
     }
 
   }
 
-  public HashMap<String, String> checkObConfig() throws Exception {
+  public static HashMap<String, String> checkObConfig() throws Exception {
 
     List<String> errorListObj = new ArrayList<String>();
     HashMap<String, String> outPut = new HashMap<String, String>();
@@ -162,8 +166,8 @@ public class CommonServiceProvider {
 
     String postOrder_Url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.url");
-    String postOrder_XEnv = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.x_env");
+    String order_XEnv = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.x_env");
 
     String postOrder_customerKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.customerKey");
@@ -190,11 +194,11 @@ public class CommonServiceProvider {
     String postOrder_contentType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.contentType");
 
-    String postOrder_acceptVersion = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.acceptVersion");
+    String order_acceptVersion = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.acceptVersion");
 
-    String postOrder_authorization = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.authorization");
+    String order_authorization = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.authorization");
 
     String getOrder_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.getorder.url");
@@ -204,6 +208,15 @@ public class CommonServiceProvider {
 
     String getElpProduct_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.getElpProduct.url");
+
+    String prodDPP = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.dpp");
+
+    if (prodDPP == null) {
+      errorListObj.add("prod.dpp");
+    } else {
+      outPut.put("prodDPP", prodDPP);
+    }
 
     if (getOrder_url == null) {
       errorListObj.add("prod.getorder.url");
@@ -223,16 +236,16 @@ public class CommonServiceProvider {
       outPut.put("getElpProduct_url", getElpProduct_url);
     }
 
-    if (postOrder_authorization == null) {
-      errorListObj.add("prod.postorder.authorization");
+    if (order_authorization == null) {
+      errorListObj.add("prod.authorization");
     } else {
-      outPut.put("postOrder_authorization", postOrder_authorization);
+      outPut.put("order_authorization", order_authorization);
     }
 
-    if (postOrder_acceptVersion == null) {
-      errorListObj.add("prod.postorder.acceptVersion");
+    if (order_acceptVersion == null) {
+      errorListObj.add("prod.acceptVersion");
     } else {
-      outPut.put("postOrder_acceptVersion", postOrder_acceptVersion);
+      outPut.put("order_acceptVersion", order_acceptVersion);
     }
 
     if (postOrder_contentType == null) {
@@ -300,10 +313,10 @@ public class CommonServiceProvider {
     } else {
       outPut.put("postOrder_Url", postOrder_Url);
     }
-    if (postOrder_XEnv == null) {
-      errorListObj.add("prod.postorder.x_env");
+    if (order_XEnv == null) {
+      errorListObj.add("prod.x_env");
     } else {
-      outPut.put("postOrder_XEnv", postOrder_XEnv);
+      outPut.put("order_XEnv", order_XEnv);
     }
     if (tokenUrl == null) {
       errorListObj.add("prod.token.Url");

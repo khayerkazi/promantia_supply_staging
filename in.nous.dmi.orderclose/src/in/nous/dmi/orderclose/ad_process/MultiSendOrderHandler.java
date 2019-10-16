@@ -18,9 +18,12 @@
  */
 package in.nous.dmi.orderclose.ad_process;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
@@ -30,6 +33,8 @@ import org.openbravo.client.kernel.BaseActionHandler;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.service.OBDal;
 import org.openbravo.erpCommon.utility.OBMessageUtils;
+import org.openbravo.model.common.order.Order;
+import org.openbravo.model.common.order.OrderLine;
 import org.openbravo.service.db.CallStoredProcedure;
 
 public class MultiSendOrderHandler extends BaseActionHandler {
@@ -112,53 +117,95 @@ public class MultiSendOrderHandler extends BaseActionHandler {
     }
   }
 
-private JSONObject sendOrder(String orderId, String action) {
-	    
+  private JSONObject sendOrder(String orderId, String action) {
+
     final List<Object> parameters = new ArrayList<Object>();
-	final String procedureName = "ndoc_multi_send_order";
-	Boolean control = false;
-	JSONObject finalresult = new JSONObject();
-	
-	try {
-		parameters.add(orderId);
-		parameters.add(action);
-		parameters.add(OBContext.getOBContext().getUser().getId());
-	    CallStoredProcedure.getInstance().call(procedureName, parameters, null, true, false);
-		OBDal.getInstance().commitAndClose();
-		control = true;
-	} catch (Exception e){
-		control = false;
-		throw new OBException("Process dint complete successfully", e);
-	} 
+    final String procedureName = "ndoc_multi_send_order";
+    Boolean control = false;
+    JSONObject finalresult = new JSONObject();
 
-	if(control) {
-		
-		finalresult = updateJsonResponse("TYPE_SUCCESS", "Success", OBMessageUtils.messageBD("Success"));
-		
-	} else {
-		
-		finalresult = updateJsonResponse("TYPE_ERROR", "Process dint complete successfully", "Error");
-	}
-    
-	return finalresult;
-}
+    try {
+      Set<String> errorFOBItemCodeList = new HashSet<String>();
+      Set<String> errorqtyItemCodeList = new HashSet<String>();
 
-private JSONObject updateJsonResponse(String severity, String errormsg, String title) {
+      if (action.equalsIgnoreCase("sendorder")) {
+        Order orderObj = OBDal.getInstance().get(Order.class, orderId);
+        if (orderObj.getSWEMSwExpdeldate() == null) {
+          return updateJsonResponse("TYPE_ERROR", "CDD Date should not be null", "Error");
 
-	JSONObject result = new JSONObject();
-	JSONObject JsonResult = new JSONObject();
-	
-	try {
-		
-		result.put("severity", severity);
-		result.put("text", errormsg);
-		result.put("title", title);
-		JsonResult.put("message", result);
-		
-	} catch (Exception e){
-		throw new OBException("Cannot update JSON Response", e);
-	}
-	return JsonResult;
-}
+        }
+        for (OrderLine orderLineObj : orderObj.getOrderLineList()) {
+          if (orderLineObj.getOrderedQuantity() != null) {
+            if (orderLineObj.getOrderedQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+              errorqtyItemCodeList.add(orderLineObj.getProduct().getName());
+            }
+          } else {
+            errorqtyItemCodeList.add(orderLineObj.getProduct().getName());
+
+          }
+          if (orderLineObj.getSwFob() != null) {
+            BigDecimal swfob = new BigDecimal(orderLineObj.getSwFob());
+            if (swfob.compareTo(BigDecimal.ZERO) <= 0) {
+              errorFOBItemCodeList.add(orderLineObj.getProduct().getName());
+            }
+
+          } else {
+            errorFOBItemCodeList.add(orderLineObj.getProduct().getName());
+
+          }
+
+        }
+
+      }
+      if (errorFOBItemCodeList.size() > 0) {
+        return updateJsonResponse("TYPE_ERROR",
+            "COST Should Not Be Null or Greather then Zero for Item Code: " + errorFOBItemCodeList,
+            "Error");
+      }
+      if (errorqtyItemCodeList.size() > 0) {
+        return updateJsonResponse("TYPE_ERROR",
+            "Order Qty Should Be More then Zero for Item Code: " + errorqtyItemCodeList, "Error");
+      }
+      parameters.add(orderId);
+      parameters.add(action);
+      parameters.add(OBContext.getOBContext().getUser().getId());
+      CallStoredProcedure.getInstance().call(procedureName, parameters, null, true, false);
+      OBDal.getInstance().commitAndClose();
+      control = true;
+    } catch (Exception e) {
+      control = false;
+      throw new OBException("Process dint complete successfully", e);
+    }
+
+    if (control) {
+
+      finalresult = updateJsonResponse("TYPE_SUCCESS", "Success",
+          OBMessageUtils.messageBD("Success"));
+
+    } else {
+
+      finalresult = updateJsonResponse("TYPE_ERROR", "Process dint complete successfully", "Error");
+    }
+
+    return finalresult;
+  }
+
+  private JSONObject updateJsonResponse(String severity, String errormsg, String title) {
+
+    JSONObject result = new JSONObject();
+    JSONObject JsonResult = new JSONObject();
+
+    try {
+
+      result.put("severity", severity);
+      result.put("text", errormsg);
+      result.put("title", title);
+      JsonResult.put("message", result);
+
+    } catch (Exception e) {
+      throw new OBException("Cannot update JSON Response", e);
+    }
+    return JsonResult;
+  }
 
 }

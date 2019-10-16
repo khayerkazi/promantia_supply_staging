@@ -45,8 +45,7 @@ public class PushOrderDetailsToProd implements Process {
     logger.logln("Push Order Details To prod Background process has started");
     try {
       OBContext.setAdminMode(true);
-      CommonServiceProvider csp = new CommonServiceProvider();
-      HashMap<String, String> configMap = csp.checkObConfig();
+      HashMap<String, String> configMap = CommonServiceProvider.checkObConfig();
       if (!configMap.containsKey("Error")) {
         getPurchaseOrder(configMap);
       } else {
@@ -60,7 +59,8 @@ public class PushOrderDetailsToProd implements Process {
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e);
-      logger.logln(e.getMessage());
+      logger.logln("Error while Excuting the Process for Post PO order and Error is: "
+          + e.getMessage());
       throw new OBException(e.getMessage());
     } finally {
       OBContext.restorePreviousMode();
@@ -98,8 +98,8 @@ public class PushOrderDetailsToProd implements Process {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      log.error(e.getMessage());
-      logger.logln(e.getMessage());
+      log.error("Error while sending the Orders To Prod and Error is: " + e);
+      logger.logln("Error while sending the Orders To Prod and Error is: " + e.getMessage());
       throw new OBException(e.getMessage());
     }
     return 1;
@@ -144,7 +144,7 @@ public class PushOrderDetailsToProd implements Process {
     } catch (Exception e) {
       e.printStackTrace();
       log.error(e.getMessage());
-      logger.logln(e.getMessage());
+      logger.logln("Error While update OrderDetails and Error is: " + e.getMessage());
       throw new OBException("PushOrderDetailsToProd:Updating:Error while updating data to order");
     }
     return count;
@@ -165,17 +165,18 @@ public class PushOrderDetailsToProd implements Process {
       log.info("PushOrderDetailsToProd : Generating HttpConnection with Prod for Order no: "
           + order.getDocumentNo());
       try {
-        URL urlObj = new URL(configMap.get("postOrder_Url"));
+        URL urlObj = new URL(configMap.get("postOrder_Url")
+            + order.getBusinessPartner().getIbudDppNo());
         HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
         HttpUrlConnection.setDoOutput(true);
         HttpUrlConnection.setRequestMethod(configMap.get("postOrder_requestMethod"));
-        HttpUrlConnection.setRequestProperty("Accept-Version",
-            configMap.get("postOrder_acceptVersion"));
+        HttpUrlConnection
+            .setRequestProperty("Accept-Version", configMap.get("order_acceptVersion"));
         HttpUrlConnection
             .setRequestProperty("Content-Type", configMap.get("postOrder_contentType"));
-        HttpUrlConnection.setRequestProperty("x-env", configMap.get("postOrder_XEnv"));
-        HttpUrlConnection.setRequestProperty("Authorization",
-            configMap.get("postOrder_authorization") + " " + token);
+        HttpUrlConnection.setRequestProperty("x-env", configMap.get("order_XEnv"));
+        HttpUrlConnection.setRequestProperty("Authorization", configMap.get("order_authorization")
+            + " " + token);
         HttpUrlConnection.connect();
 
       } catch (Exception e) {
@@ -308,22 +309,26 @@ public class PushOrderDetailsToProd implements Process {
       }
 
       if (order.getScheduledDeliveryDate() != null) {
-        orderObject.put("scheduledDeliveryDate", formatter.format(order.getScheduledDeliveryDate())
+        orderObject.put("scheduledDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
             .toString().substring(0, 19)
             + "Z");
       } else {
         missingFields.add("Schedule Delivery Date");
       }
-      if (order.getBusinessPartner().getIbudSupplierprodno() == null) {
-        missingFields.add("Supplier Prod number");
-        if (order.getBusinessPartner().getIbudSupplierprodno() == null) {
-          missingFields.add("Supplier Prod number");
-        }
+      if (order.getBusinessPartner().getIbudDppNo() == null) {
+        missingFields.add("Prod Supplier DPP for Business Partner: "
+            + order.getBusinessPartner().getName());
+
+      }
+      if (order.getBusinessPartner().getClSupplierno() == null) {
+        missingFields.add("Prod Supplier number for Business Partner: "
+            + order.getBusinessPartner().getName());
+
       }
       if (missingFields.size() > 0) {
         log.error("For order " + missingFields + " is null with documentno" + order.getDocumentNo());
-        logger
-            .logln("Skipping Order due to " + missingFields + " is null " + order.getDocumentNo());
+        logger.logln("Skipping Order due to " + missingFields + " is null for PO Document no: "
+            + order.getDocumentNo());
         // return null;
       }
       JSONArray customerJsonArray = new JSONArray();
@@ -376,18 +381,28 @@ public class PushOrderDetailsToProd implements Process {
   private void getPurchaseOrder(HashMap<String, String> configMap) {
 
     try {
-      IbudServerTime newIbudServiceObj = CommonServiceProvider.getIbudUpdatedTime("FlexProcess");
+      IbudServerTime newIbudServiceObj = CommonServiceProvider.getIbudUpdatedTime("PostPOOrder");
       Date ibud = newIbudServiceObj.getLastupdated();
       log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
-      String strHql = "select distinct co from Order co, OrderLine line ,"
-          + "	CL_DPP_SEQNO cd ,BusinessPartner bp "
-          + " where co.sWEMSwPostatus in ('SO') and co.id = line.salesOrder.id "
-          + " and bp.clSupplierno = line.sWEMSwSuppliercode 	"
-          + " and co.transactionDocument.id = 'C7CD4AC8AC414678A525AB7AE20D718C'  "
-          + " and  co.imsapDuplicatesapPo != 'Y' and bp.rCSource = 'DPP'  "
-          + " and line.orderedQuantity > 0 "
-          + " and (co.orderReference is null or co.orderReference=co.documentNo ) "
-          + " and co.updated > '" + ibud + "' ";
+      /*
+       * String strHql = "select distinct co from Order co, OrderLine line ," +
+       * "	CL_DPP_SEQNO cd ,BusinessPartner bp " +
+       * " where co.sWEMSwPostatus in ('SO') and co.id = line.salesOrder.id " +
+       * " and bp.clSupplierno = line.sWEMSwSuppliercode 	" +
+       * " and co.transactionDocument.id = 'C7CD4AC8AC414678A525AB7AE20D718C'  " +
+       * " and  co.imsapDuplicatesapPo != 'Y' and bp.rCSource = 'DPP'  " +
+       * " and line.orderedQuantity > 0 " +
+       * " and (co.orderReference is null or co.orderReference=co.documentNo ) " +
+       * " and co.updated > '" + ibud + "' ";
+       */
+
+      String strHql = "  select distinct o from OrderLine ol join ol.salesOrder o join o.businessPartner bp "
+          + "    where o.sWEMSwPostatus in ('SO') "
+          + "    and  bp.clSupplierno = ol.sWEMSwSuppliercode  "
+          + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
+          + "    and  o.imsapDuplicatesapPo != 'Y' "
+          + "    and bp.rCSource = 'DPP' "
+          + "    and o.updated > '" + ibud + "' ";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
       List<Order> orderList = query.list();
