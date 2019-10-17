@@ -110,12 +110,15 @@ public class GetOrderDetailsFromProd implements Process {
       HashMap<String, String> configMap, Set<String> errorOrderList) throws Exception {
 
     String orderHeaderData = GetDataFromProd(orderObj.getOrderReference(),
-        orderObj.getDocumentNo(), token, configMap, "Header", null);
+        orderObj.getDocumentNo(), token, configMap, "Header", null, orderObj.getBusinessPartner()
+            .getIbudDppNo());
     SaveProdHeaderData(orderObj, errorOrderList, orderHeaderData);
-    if (!errorOrderList.contains(orderHeaderData)) {
+    if (!errorOrderList.contains(orderObj.getDocumentNo())) {
       String orderHeaderLineData = GetDataFromProd(orderObj.getOrderReference(),
-          orderObj.getDocumentNo(), token, configMap, "Lines", null);// ProductElp
-      SaveProdOrderLineData(orderObj, errorOrderList, orderHeaderLineData, token, configMap);
+          orderObj.getDocumentNo(), token, configMap, "Lines", null, orderObj.getBusinessPartner()
+              .getIbudDppNo());// ProductElp
+      SaveProdOrderLineData(orderObj, errorOrderList, orderHeaderLineData, token, configMap,
+          orderObj.getBusinessPartner().getIbudDppNo());
     }
   }
 
@@ -157,7 +160,8 @@ public class GetOrderDetailsFromProd implements Process {
   }
 
   private void SaveProdOrderLineData(Order orderObj, Set<String> errorOrderList,
-      String orderHeaderData, String token, HashMap<String, String> configMap) throws JSONException {
+      String orderHeaderData, String token, HashMap<String, String> configMap, String dpp)
+      throws JSONException {
     try {
       Map<String, OrderLine> elpMap = new HashMap<String, OrderLine>();
       if (!orderHeaderData.contains("Error_GETAPI:")) {
@@ -183,7 +187,17 @@ public class GetOrderDetailsFromProd implements Process {
               SessionHandler.getInstance().commitAndStart();
             } else {
               String orderLineElpDetails = GetDataFromProd(orderObj.getOrderReference(),
-                  orderObj.getDocumentNo(), token, configMap, "ProductElp", null);
+                  orderObj.getDocumentNo(), token, configMap, "ProductElp", null, dpp);
+              if (!orderLineElpDetails.contains("Error_GETAPI:")) {
+
+              } else {
+                log.error("Error while Getting the line ELP data Error is:" + orderHeaderData
+                    + " for Order: " + orderObj.getDocumentNo());
+                logger.logln("Error while Getting the line elp data Error is:" + orderHeaderData
+                    + " for Order: " + orderObj.getDocumentNo());
+
+                errorOrderList.add(orderObj.getDocumentNo());
+              }
             }
           }
         } else {
@@ -210,7 +224,7 @@ public class GetOrderDetailsFromProd implements Process {
   }
 
   private String GetDataFromProd(String orderReferenceNo, String orderNo, String tokenKey,
-      HashMap<String, String> configMap, String orderType, String elpProduct) {
+      HashMap<String, String> configMap, String orderType, String elpProduct, String dpp) {
     HttpURLConnection conn = null;
 
     // Map<String, String> resultMap = new HashMap<String, String>();
@@ -218,11 +232,10 @@ public class GetOrderDetailsFromProd implements Process {
     try {
       /* try { */
       if (orderType.equalsIgnoreCase("Header")) {
-        url = new URL(configMap.get("getOrder_url") + configMap.get("prodDPP")
-            + "?search=ordOrderNumber=" + orderReferenceNo);
+        url = new URL(configMap.get("getOrder_url") + dpp + "?search=ordOrderNumber="
+            + orderReferenceNo);
       } else if (orderType.equalsIgnoreCase("Lines")) {
-        url = new URL(configMap.get("getOrderLine_url") + configMap.get("prodDPP")
-            + "/order_lines/=" + orderReferenceNo);
+        url = new URL(configMap.get("getOrderLine_url") + dpp + "/order_lines/=" + orderReferenceNo);
       } else if (orderType.equalsIgnoreCase("ProductElp") && elpProduct != null) {
         url = new URL(configMap.get("getElpProduct_url") + elpProduct);
       } else {
@@ -311,7 +324,7 @@ public class GetOrderDetailsFromProd implements Process {
           + "    and  bp.clSupplierno = ol.sWEMSwSuppliercode  "
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "
-          + "    and bp.rCSource = 'DPP' and co.orderReference is not null "
+          + "    and bp.rCSource = 'DPP' and o.orderReference is not null "
           + "    and o.updated > '" + ibud + "' ";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
