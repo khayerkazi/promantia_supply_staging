@@ -28,6 +28,8 @@ import org.openbravo.scheduling.Process;
 import org.openbravo.scheduling.ProcessBundle;
 import org.openbravo.scheduling.ProcessLogger;
 
+import com.ibm.icu.text.SimpleDateFormat;
+
 public class GetOrderDetailsFromProd implements Process {
 
   final Logger log = LogManager.getLogger(GetOrderDetailsFromProd.class);
@@ -133,7 +135,8 @@ public class GetOrderDetailsFromProd implements Process {
 
   }
 
-  private void savePOData(Map<String, HashMap<String, String>> orderMap, Order orderObj) {
+  private void savePOData(Map<String, HashMap<String, String>> orderMap, Order orderObj)
+      throws Exception {
     String status = null;
     String adate = null;
     String edate = null;
@@ -174,9 +177,11 @@ public class GetOrderDetailsFromProd implements Process {
         }
 
         orderObj.setSwStatus(status);
-        // Date new Simple
-        orderObj.setSWEMSwActshipdate(new Date(adate));
-        orderObj.setSWEMSwEstshipdate(new Date(edate));
+        Date aDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(adate);
+
+        Date eDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(edate);
+        orderObj.setSWEMSwActshipdate(aDate);
+        orderObj.setSWEMSwEstshipdate(eDate);
         SessionHandler.getInstance().commitAndStart();
       }
     }
@@ -467,7 +472,6 @@ public class GetOrderDetailsFromProd implements Process {
         }
         in.close();
         return response.toString();
-
       } else {
         return "Error_GETAPI:" + orderType + "_" + conn.getResponseCode() + "_"
             + conn.getResponseMessage();
@@ -523,9 +527,7 @@ public class GetOrderDetailsFromProd implements Process {
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
       orderList = query.list();
-
       return orderList;
-
     } catch (Exception e) {
       e.printStackTrace();
       log.error("GetOrderDetailsFromProd:Error while getting order details " + e);
