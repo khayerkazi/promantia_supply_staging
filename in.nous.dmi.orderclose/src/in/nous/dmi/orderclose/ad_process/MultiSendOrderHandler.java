@@ -172,8 +172,8 @@ public class MultiSendOrderHandler extends BaseActionHandler {
 
           }
         } else {
-          return updateJsonResponse("TYPE_ERROR", "Order Line is not found!: "
-              + errorFOBItemCodeList, "Error");
+          return updateJsonResponse("TYPE_ERROR",
+              "Order Line is not found for Order:  " + orderObj.getDocumentNo(), "Error");
         }
       }
 
