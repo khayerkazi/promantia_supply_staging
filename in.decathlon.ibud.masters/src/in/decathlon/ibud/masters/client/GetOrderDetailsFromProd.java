@@ -59,9 +59,9 @@ public class GetOrderDetailsFromProd implements Process {
 
           logger.logln("No Pending order for GET from OB to Prod.com from date: " + ibud);
           log.info("No Pending order for GET from OB to Prod.com from date: " + ibud);
-          newIbudServiceObj.setLastupdated(new Date());
-          OBDal.getInstance().save(newIbudServiceObj);
-          SessionHandler.getInstance().commitAndStart();
+          // newIbudServiceObj.setLastupdated(new Date());
+          // OBDal.getInstance().save(newIbudServiceObj);
+          // SessionHandler.getInstance().commitAndStart();
 
         }
       } else {
@@ -151,8 +151,8 @@ public class GetOrderDetailsFromProd implements Process {
       if (headerdata.containsKey("adate")) {
         adate = headerdata.get("adate");
       }
-
-      if (adate != null && edate != null && status != null) {
+      status = "V";
+      if (adate != null || edate != null || status != null) {
         for (OrderLine orderLineObj : orderObj.getOrderLineList()) {
           String cqty = null;
           String elp = null;
@@ -172,16 +172,23 @@ public class GetOrderDetailsFromProd implements Process {
 
               orderLineObj.getProduct().setIbudElpelementprodnumelp(elp);
               OBDal.getInstance().save(orderLineObj.getProduct());
+              SessionHandler.getInstance().commitAndStart();
             }
           }
         }
 
-        orderObj.setSwStatus(status);
-        Date aDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(adate);
+        // orderObj.setSwStatus(status);
+        orderObj.setIbudProdStatus(status);
+        Date aDate = null;
+        Date eDate = null;
+        if (adate != null)
+          aDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(adate);
 
-        Date eDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(edate);
+        if (edate != null)
+          eDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(edate);
         orderObj.setSWEMSwActshipdate(aDate);
         orderObj.setSWEMSwEstshipdate(eDate);
+        OBDal.getInstance().save(orderObj);
         SessionHandler.getInstance().commitAndStart();
       }
     }
@@ -217,10 +224,8 @@ public class GetOrderDetailsFromProd implements Process {
             headerMap.put("edate", estShipDate);
             headerMap.put("adate", actShipDate);
             orderMap.put("header", headerMap);
-          }/*
-            * headerMap.put("status", orderStatus); headerMap.put("edate", estShipDate);
-            * headerMap.put("adate", actShipDate); orderMap.put("header", headerMap);
-            */
+            orderMap.remove("error");
+          }
         } else {
           HashMap<String, String> headerMap = orderMap.get("error");
           if (headerMap == null) {
@@ -303,12 +308,12 @@ public class GetOrderDetailsFromProd implements Process {
 
             } else {
               String orderLineElpDetails = GetDataFromProd(orderObj.getOrderReference(),
-                  orderObj.getDocumentNo(), token, configMap, "ProductElp", null, dpp);
+                  orderObj.getDocumentNo(), token, configMap, "ProductElp", productElpCode, dpp);
               if (!orderLineElpDetails.contains("Error_GETAPI:")) {
                 JSONArray orderLineElpArray = new JSONArray(orderLineElpDetails.toString());
                 if (orderLineElpArray != null && orderLineElpArray.length() > 0) {
                   for (int p = 0; p < orderLineElpArray.length(); p++) {
-                    JSONObject jsO = orderLineArray.getJSONObject(p);
+                    JSONObject jsO = orderLineElpArray.getJSONObject(p);
                     if (jsO.has("cofRefCodeRef") && !jsO.isNull("cofRefCodeRef")) {
                       itemcode = jsO.getString("cofRefCodeRef");
                       if (notFoundItemListObj.contains(itemcode)) {
@@ -434,7 +439,7 @@ public class GetOrderDetailsFromProd implements Process {
         url = new URL(configMap.get("getOrder_url") + dpp + "?search=ordOrderNumber="
             + orderReferenceNo);
       } else if (orderType.equalsIgnoreCase("Lines")) {
-        url = new URL(configMap.get("getOrderLine_url") + dpp + "/order_lines/=" + orderReferenceNo);
+        url = new URL(configMap.get("getOrderLine_url") + dpp + "/order_lines/" + orderReferenceNo);
       } else if (orderType.equalsIgnoreCase("ProductElp") && elpProduct != null) {
         url = new URL(configMap.get("getElpProduct_url") + elpProduct);
       } else {

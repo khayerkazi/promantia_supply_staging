@@ -127,35 +127,59 @@ public class MultiSendOrderHandler extends BaseActionHandler {
     try {
       Set<String> errorFOBItemCodeList = new HashSet<String>();
       Set<String> errorqtyItemCodeList = new HashSet<String>();
-
+      Set<String> errorSupplierCodeItemCodeList = new HashSet<String>();
+      String supplierCode = "";
       if (action.equalsIgnoreCase("sendorder")) {
         Order orderObj = OBDal.getInstance().get(Order.class, orderId);
         if (orderObj.getSWEMSwExpdeldate() == null) {
           return updateJsonResponse("TYPE_ERROR", "CDD Date should not be null", "Error");
-
         }
-        for (OrderLine orderLineObj : orderObj.getOrderLineList()) {
-          if (orderLineObj.getOrderedQuantity() != null) {
-            if (orderLineObj.getOrderedQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+        if (orderObj.getBusinessPartner() != null) {
+          if (orderObj.getBusinessPartner().getRCSource() == null
+              || (!orderObj.getBusinessPartner().getRCSource().equalsIgnoreCase("DPP")))
+            return updateJsonResponse("TYPE_ERROR", "Business Partner Source is not Correct,",
+                "Error");
+        }
+        if (orderObj.getBusinessPartner().getClSupplierno() == null) {
+          return updateJsonResponse("TYPE_ERROR",
+              "Business Partner Supplier Code should be present,", "Error");
+        } else {
+          supplierCode = orderObj.getBusinessPartner().getClSupplierno();
+        }
+        if (orderObj.getOrderLineList().size() > 0) {
+          for (OrderLine orderLineObj : orderObj.getOrderLineList()) {
+            if (!orderLineObj.getSWEMSwSuppliercode().equalsIgnoreCase(supplierCode)) {
+              errorSupplierCodeItemCodeList.add(orderLineObj.getProduct().getName());
+            }
+
+            if (orderLineObj.getOrderedQuantity() != null) {
+              if (orderLineObj.getOrderedQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                errorqtyItemCodeList.add(orderLineObj.getProduct().getName());
+              }
+            } else {
               errorqtyItemCodeList.add(orderLineObj.getProduct().getName());
             }
-          } else {
-            errorqtyItemCodeList.add(orderLineObj.getProduct().getName());
+            if (orderLineObj.getSwFob() != null) {
+              BigDecimal swfob = new BigDecimal(orderLineObj.getSwFob());
+              if (swfob.compareTo(BigDecimal.ZERO) <= 0) {
+                errorFOBItemCodeList.add(orderLineObj.getProduct().getName());
+              }
 
-          }
-          if (orderLineObj.getSwFob() != null) {
-            BigDecimal swfob = new BigDecimal(orderLineObj.getSwFob());
-            if (swfob.compareTo(BigDecimal.ZERO) <= 0) {
+            } else {
               errorFOBItemCodeList.add(orderLineObj.getProduct().getName());
+
             }
 
-          } else {
-            errorFOBItemCodeList.add(orderLineObj.getProduct().getName());
-
           }
-
+        } else {
+          return updateJsonResponse("TYPE_ERROR", "Order Line is not found!: "
+              + errorFOBItemCodeList, "Error");
         }
+      }
 
+      if (errorSupplierCodeItemCodeList.size() > 0) {
+        return updateJsonResponse("TYPE_ERROR", "Suppiler Code Should be same as " + supplierCode
+            + " for Item Code: " + errorSupplierCodeItemCodeList, "Error");
       }
       if (errorFOBItemCodeList.size() > 0) {
         return updateJsonResponse("TYPE_ERROR",
