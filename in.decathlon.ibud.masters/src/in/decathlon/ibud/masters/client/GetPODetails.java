@@ -38,15 +38,15 @@ public class GetPODetails extends BaseProcessActionHandler {
       String orderId = jsonData.getString("inpcOrderId");
       Order order = OBDal.getInstance().get(Order.class, orderId);
       List<Order> orderObjList = new ArrayList<Order>();
+      orderObjList.add(order);
       HashMap<String, String> configMap = CommonServiceProvider.checkObConfig();
 
       if (!configMap.containsKey("Error")) {
-        orderObjList.add(order);
         log.info("Getting OB List of Order for Getting Order details from Prod.com for Order No : "
             + order.getDocumentNo());
         int errorCount = updateOrderDetails(orderObjList, configMap);
         if (errorCount == 0) {
-          String msg = "Sucessfully Completed the GET Order Process From Prod.com. for order number :"
+          String msg = "Sucessfully Fetched the data from Prod.com.for current order :"
               + order.getDocumentNo();
           log.info(msg);
           return getSuccessMessage(msg);
@@ -54,11 +54,17 @@ public class GetPODetails extends BaseProcessActionHandler {
           String msg = "Error while getting order details from Prod.com for orderNo :"
               + order.getDocumentNo();
           log.error(msg);
+          order.setIbudProdMsgGet(msg);
+          SessionHandler.getInstance().commitAndStart();
           return getErrorMessage(msg);
         }
       } else {
         String msg = "Missing Configuration in openbravo properties :" + configMap.get("Error");
         log.error(msg);
+        order.setIbudProdMsgGet("Missing Configuration in openbravo properties :"
+            + configMap.get("Error"));
+        OBDal.getInstance().save(order);
+        SessionHandler.getInstance().commitAndStart();
         return getErrorMessage(msg);
 
       }
@@ -75,14 +81,14 @@ public class GetPODetails extends BaseProcessActionHandler {
   public int updateOrderDetails(List<Order> orderList, HashMap<String, String> configMap)
       throws Exception {
     int errorOrderCount = 0;
-    try {
+    Map<String, HashMap<String, String>> orderMap;
 
+    try {
       String token = CommonServiceProvider.generateToken(configMap);
       if (!token.contains("Error_TokenGenerator")) {
         for (Order order : orderList) {
 
-          Map<String, HashMap<String, String>> orderMap = updateOrderHeaderDetails(order, token,
-              configMap);
+          orderMap = updateOrderHeaderDetails(order, token, configMap);
           if (orderMap.containsKey("error")) {
             errorOrderCount++;
           }
@@ -97,6 +103,7 @@ public class GetPODetails extends BaseProcessActionHandler {
       log.error("Error while Getting the Orders from Prod and Error is: " + e);
     }
     return errorOrderCount;
+
   }
 
   public Map<String, HashMap<String, String>> updateOrderHeaderDetails(Order orderObj,
@@ -193,13 +200,18 @@ public class GetPODetails extends BaseProcessActionHandler {
           eDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(edate);
           orderObj.setSWEMSwEstshipdate(eDate);
         }
-        OBDal.getInstance().save(orderObj);
-        SessionHandler.getInstance().commitAndStart();
-      } else {
-        log.error("Order Map for Order no: " + orderObj.getDocumentNo() + " and Map is: "
-            + orderMap);
 
+        if (orderMap.containsKey("error"))
+          orderObj.setIbudProdMsgGet(orderMap.get("error").toString());
+        else
+          orderObj.setIbudProdMsgGet("Successfully fetched data from prod");
+        orderObj.setIbudPoStatusdate(new Date());
       }
+      OBDal.getInstance().save(orderObj);
+      SessionHandler.getInstance().commitAndStart();
+    } else {
+      log.error("Order Map for Order no: " + orderObj.getDocumentNo() + " and Map is: " + orderMap);
+
     }
   }
 
@@ -265,7 +277,7 @@ public class GetPODetails extends BaseProcessActionHandler {
         headerMap.get("error").concat(" Error While process, ");
       }
 
-      log.error("Error while Savinf the the order Header data for order: "
+      log.error("Error while Saving the the order Header data for order: "
           + orderObj.getDocumentNo() + " and error is: " + e);
     }
   }
@@ -495,11 +507,15 @@ public class GetPODetails extends BaseProcessActionHandler {
   private static JSONObject getErrorMessage(String msgText) {
     final JSONObject result = new JSONObject();
     try {
-      final JSONObject msg = new JSONObject();
-      msg.put("severity", "error");
-      msg.put("text", msgText);
-      result.put("message", msg);
-      result.put("retryExecution", true);
+      final JSONArray actions = new JSONArray();
+      final JSONObject msgInBPTab = new JSONObject();
+      msgInBPTab.put("msgType", "error");
+      msgInBPTab.put("msgTitle", OBMessageUtils.messageBD("error"));
+      msgInBPTab.put("msgText", msgText);
+      final JSONObject msgInBPTabAction = new JSONObject();
+      msgInBPTabAction.put("showMsgInProcessView", msgInBPTab);
+      actions.put(msgInBPTabAction);
+      result.put("responseActions", actions);
     } catch (Exception e) {
       log.error(e);
     }
