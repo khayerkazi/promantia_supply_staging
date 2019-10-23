@@ -410,7 +410,7 @@ public class GetPODetails extends BaseProcessActionHandler {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      log.error("Error while Savinf the the order Header data for order: "
+      log.error("Error while Saving the the order Header data for order: "
           + orderObj.getDocumentNo() + " and error is: " + e);
 
       HashMap<String, String> headerMap = orderMap.get("error");

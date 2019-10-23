@@ -340,8 +340,8 @@ public class PushOrderDetailsToProd implements Process {
 
       JSONArray supplierJsonArray = new JSONArray();
       supplierJsonArray.put(configMap.get("postOrder_supplierKey"));
-      supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
-      supplierJsonArray.put(order.getBusinessPartner().getIbudSupplierprodno());
+      supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
+      supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
       orderObject.put("supplier", supplierJsonArray);
 
       JSONArray deliveryJsonArray = new JSONArray();
