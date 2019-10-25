@@ -95,6 +95,8 @@ public class OrgnizationSyncWSForSL implements WebService {
       boolean docSeqFlag = true;
       boolean countryFlag = true;
       boolean regionFlag = true;
+      log.error("Push Organization(SL)JSON is" + orders);
+
       if (orders.has("FinancialMgmtAcctSchema")) {
         actschemaFlag = saveJSONObject(getJsonData(orders, "FinancialMgmtAcctSchema"),
             "FinancialMgmtAcctSchema");
