@@ -31,12 +31,13 @@ public class GetPODetails extends BaseProcessActionHandler {
   protected JSONObject doExecute(Map<String, Object> parameters, String data) {
 
     JSONObject jsonData;
+    Order order = null;
     try {
       OBContext.setAdminMode(true);
 
       jsonData = new JSONObject(data);
       String orderId = jsonData.getString("inpcOrderId");
-      Order order = OBDal.getInstance().get(Order.class, orderId);
+      order = OBDal.getInstance().get(Order.class, orderId);
       List<Order> orderObjList = new ArrayList<Order>();
       orderObjList.add(order);
       HashMap<String, String> configMap = CommonServiceProvider.checkObConfig();
@@ -49,6 +50,8 @@ public class GetPODetails extends BaseProcessActionHandler {
           String msg = "Sucessfully Fetched the data from Prod.com.for current order :"
               + order.getDocumentNo();
           log.info(msg);
+          order.setIbudProdMsgGet(msg);
+          SessionHandler.getInstance().commitAndStart();
           return getSuccessMessage(msg);
         } else {
           String msg = "Error while getting order details from Prod.com for orderNo :"
@@ -70,6 +73,9 @@ public class GetPODetails extends BaseProcessActionHandler {
       }
     } catch (Exception e) {
       e.printStackTrace();
+      order.setIbudProdMsgGet("Error while getting, Please Try againn letter :");
+      OBDal.getInstance().save(order);
+      SessionHandler.getInstance().commitAndStart();
       log.error(e);
       return getErrorMessage(e.getMessage());
     } finally {
