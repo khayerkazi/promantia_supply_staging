@@ -73,7 +73,7 @@ public class GetPODetails extends BaseProcessActionHandler {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      order.setIbudProdMsgGet("Error while getting, Please Try againn letter :");
+      order.setIbudProdMsgGet("Error while getting, Please try again after some time.");
       OBDal.getInstance().save(order);
       SessionHandler.getInstance().commitAndStart();
       log.error(e);
