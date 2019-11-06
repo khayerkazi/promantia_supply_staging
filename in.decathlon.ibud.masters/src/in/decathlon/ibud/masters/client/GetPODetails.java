@@ -156,12 +156,15 @@ public class GetPODetails extends BaseProcessActionHandler {
       }
       // pStatus = "V";
       if (pStatus != null) {
-        if (pStatus.equalsIgnoreCase("V")) {
+        if (pStatus.equalsIgnoreCase("V") || pStatus.equalsIgnoreCase("PK")
+            || pStatus.equalsIgnoreCase("AS")) {
           oStatus = "VD";
         } else if (pStatus.equalsIgnoreCase("S")) {
           oStatus = "SH";
         } else if (pStatus.equalsIgnoreCase("C")) {
           oStatus = "CL";
+        } else if (pStatus.equalsIgnoreCase("D")) {
+          oStatus = "OC";
         } else {
           oStatus = orderObj.getSWEMSwPostatus();
         }
