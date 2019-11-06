@@ -212,19 +212,21 @@ public class GetPODetails extends BaseProcessActionHandler {
         else
           orderObj.setIbudProdMsgGet("Successfully fetched data from prod");
         orderObj.setIbudPoStatusdate(new Date());
-      }
-      OBDal.getInstance().save(orderObj);
-      SessionHandler.getInstance().commitAndStart();
-    } else {
-      log.error("Order Map for Order no: " + orderObj.getDocumentNo() + " and Map is: " + orderMap);
 
+        OBDal.getInstance().save(orderObj);
+        SessionHandler.getInstance().commitAndStart();
+      } else {
+        log.error("Order Map for Order no: " + orderObj.getDocumentNo() + " and Map is: "
+            + orderMap);
+
+      }
     }
   }
 
   private void SaveProdHeaderData(Order orderObj, String orderHeaderData,
       Map<String, HashMap<String, String>> orderMap) throws JSONException {
     try {
-      if (!orderHeaderData.contains("Error_GETAPI:")) {
+      if (!orderHeaderData.contains("Error_GETAPI:") && (!orderHeaderData.contains("[]"))) {
         JSONArray orderArray = new JSONArray(orderHeaderData.toString());
         if (orderArray != null && orderArray.length() > 0) {
           JSONObject js = orderArray.getJSONObject(0);
@@ -260,6 +262,11 @@ public class GetPODetails extends BaseProcessActionHandler {
           log.error("Order Data Not Found for Order: " + orderObj.getDocumentNo());
         }
       } else {
+        orderObj.setIbudProdMsgGet("Order Not found with reference no "
+            + orderObj.getOrderReference() + " Order API Error is:" + orderHeaderData
+            + " for Order: " + orderObj.getDocumentNo());
+        OBDal.getInstance().save(orderObj);
+        SessionHandler.getInstance().commitAndStart();
         log.error("Order API Error is:" + orderHeaderData + " for Order: "
             + orderObj.getDocumentNo());
 
