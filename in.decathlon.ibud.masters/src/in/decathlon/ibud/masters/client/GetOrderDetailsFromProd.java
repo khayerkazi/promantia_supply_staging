@@ -484,7 +484,8 @@ public class GetOrderDetailsFromProd implements Process {
       conn.setDoOutput(true);
       conn.setRequestMethod("GET");
       conn.setRequestProperty("Accept-Version", configMap.get("order_acceptVersion"));
-      conn.setRequestProperty("x-env", configMap.get("order_XEnv"));
+      if (!(configMap.get("order_XEnv") == null))
+        conn.setRequestProperty("x-env", configMap.get("order_XEnv"));
       conn.setRequestProperty("Authorization", configMap.get("order_authorization") + " "
           + tokenKey);
       conn.connect();

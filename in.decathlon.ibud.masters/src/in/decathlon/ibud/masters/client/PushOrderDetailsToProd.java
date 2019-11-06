@@ -175,7 +175,10 @@ public class PushOrderDetailsToProd implements Process {
             .setRequestProperty("Accept-Version", configMap.get("order_acceptVersion"));
         HttpUrlConnection
             .setRequestProperty("Content-Type", configMap.get("postOrder_contentType"));
-        HttpUrlConnection.setRequestProperty("x-env", configMap.get("order_XEnv"));
+
+        if (!(configMap.get("order_XEnv") == null)) {
+          HttpUrlConnection.setRequestProperty("x-env", configMap.get("order_XEnv"));
+        }
         HttpUrlConnection.setRequestProperty("Authorization", configMap.get("order_authorization")
             + " " + token);
         HttpUrlConnection.connect();

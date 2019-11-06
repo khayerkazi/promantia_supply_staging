@@ -312,11 +312,11 @@ public class CommonServiceProvider {
     } else {
       outPut.put("postOrder_Url", postOrder_Url);
     }
-    if (order_XEnv == null) {
-      errorListObj.add("prod.x_env");
-    } else {
-      outPut.put("order_XEnv", order_XEnv);
-    }
+    /*
+     * if (order_XEnv == null) { errorListObj.add("prod.x_env"); } else {
+     */
+    outPut.put("order_XEnv", order_XEnv);
+    // }
     if (tokenUrl == null) {
       errorListObj.add("prod.token.Url");
     } else {
