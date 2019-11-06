@@ -96,6 +96,8 @@ public class OrgnizationSyncWS implements WebService {
       boolean docSeqFlag = true;
       boolean countryFlag = true;
       boolean regionFlag = true;
+      boolean gstinFlag= true;
+      boolean treeNodeFlag= true;
       log.error("Push Organization(INDIA)JSON is" + orders);
       if (orders.has("FinancialMgmtAcctSchema")) {
         actschemaFlag = saveJSONObject(getJsonData(orders, "FinancialMgmtAcctSchema"),
@@ -143,6 +145,10 @@ public class OrgnizationSyncWS implements WebService {
       if (orders.has("Costcenter")) {
         costcenterFlag = saveJSONObject(getJsonData(orders, "Costcenter"), "Costcenter");
       }
+      if (orders.has("INGST_GSTIdentifierMaster")) {
+          gstinFlag = saveJSONObject(getJsonData(orders, "INGST_GSTIdentifierMaster"), "INGST_GSTIdentifierMaster");
+        }
+      
       if (orders.has("OrganizationInformation")) {
         orginfoFlag = saveJSONObject(getJsonData(orders, "OrganizationInformation"),
             "OrganizationInformation");
@@ -159,11 +165,15 @@ public class OrgnizationSyncWS implements WebService {
       if (orders.has("DocumentType")) {
         doctypeFlag = saveJSONObject(getJsonData(orders, "DocumentType"), "DocumentType");
       }
+      if (orders.has("ADTreeNode")) {
+    	  treeNodeFlag = saveJSONObject(getJsonData(orders, "ADTreeNode"), "ADTreeNode");
+        }
+      
 
       if (actschemaFlag && organizationFlag && countryFlag && regionFlag && OrganizationTypeFlag
           && locationFlag && bpCategoryFlag && priceListFlag && paymenttermFlag && bpFlag
           && costcenterFlag && bplocationFlag && orginfoFlag && doctypeFlag && glCategoryFlag
-          && docSeqFlag) {
+          && docSeqFlag&&gstinFlag&&treeNodeFlag) {
         flag = true;
       }
 
@@ -706,7 +716,15 @@ public class OrgnizationSyncWS implements WebService {
                     }
                   }
 
-                } else if (entityName.equals("Costcenter")) {
+                } else  if (entityName.equals("ADTreeNode")) {
+                    OBDal.getInstance().flush();
+                    OBContext.setAdminMode(true);
+                    String treeNodeId = entityJson.getString("tree");
+                    String nodeId = entityJson.getString("node");
+                    deleteExistingTreeNode(treeNodeId, nodeId);
+
+                    OBContext.restorePreviousMode();
+                  }else if (entityName.equals("Costcenter")) {
                   // OBContext.setAdminMode(true);
                   if (id != null) {
                     OBContext.getOBContext().addWritableOrganization(id);
@@ -1278,5 +1296,20 @@ public class OrgnizationSyncWS implements WebService {
     genClassCriteria.setFilterOnReadableOrganization(false);
     return genClassCriteria;
   }
+  private static void deleteExistingTreeNode(String treeNodeId, String nodeId) {
+	   Tree tree = OBDal.getInstance().get(Tree.class, treeNodeId);
 
+	   String qry = "id in (select id from ADTreeNode where tree.id='" + treeNodeId + "' and node='"
+	       + nodeId + "')";
+	   OBQuery<TreeNode> treeQuery = OBDal.getInstance().createQuery(TreeNode.class, qry);
+	   treeQuery.setFilterOnActive(false);
+	   treeQuery.setFilterOnReadableOrganization(false);
+	   List<TreeNode> treeList = treeQuery.list();
+	   log.info("adtreenodes size= " + treeList.size());
+	   if (treeList.size() > 0) {
+	     OBDal.getInstance().remove(treeList.get(0));
+	     log.debug("removed");
+	   }
+	   SessionHandler.getInstance().commitAndStart();
+	 }
 }
