@@ -149,8 +149,8 @@ public class OrgnizationSyncWS implements WebService {
       if (orders.has("Costcenter")) {
         costcenterFlag = saveJSONObject(getJsonData(orders, "Costcenter"), "Costcenter");
       }
-      if (orders.has("INGST_GSTIdentifierMaster")) {
-        gstinFlag = saveJSONObject(getJsonData(orders, "INGST_GSTIdentifierMaster"),
+      if (orders.has("GstIdentifierMaster")) {
+        gstinFlag = saveJSONObject(getJsonData(orders, "GstIdentifierMaster"),
             "INGST_GSTIdentifierMaster");
       }
 
@@ -721,13 +721,13 @@ public class OrgnizationSyncWS implements WebService {
                   }
 
                 } else if (entityName.equals("ADTreeNode")) {
-                  OBDal.getInstance().flush();
-                  OBContext.setAdminMode(true);
-                  String treeNodeId = entityJson.getString("tree");
-                  String nodeId = entityJson.getString("node");
-                  deleteExistingTreeNode(treeNodeId, nodeId);
+                  TreeNode treeNodeObj = OBDal.getInstance().get(TreeNode.class, id);
 
-                  OBContext.restorePreviousMode();
+                  BaseOBObject bob = fromJsonConverter.toBaseOBObject(entityJson);
+                  bob.setValue("tree", treeNodeObj.getTree().getId());
+                  bob.setValue("node", treeNodeObj.getNode());
+                  bob.setValue("organization", treeNodeObj.getOrganization().getId());
+                  bob.setValue("reportSet", treeNodeObj.getReportSet());
                 } else if (entityName.equals("Costcenter")) {
                   // OBContext.setAdminMode(true);
                   if (id != null) {
@@ -921,10 +921,17 @@ public class OrgnizationSyncWS implements WebService {
                       .getOBContext().getCurrentClient()));
                   crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_UIDNO,
                       entityJson.getString("uidno")));
-                  crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_ORGANIZATION,
-                      entityJson.getString("organization")));
-                  crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_BUSINESS,
-                      entityJson.getString("businessPartner")));
+                  crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_ORGANIZATION, OBDal
+                      .getInstance().get(Organization.class, entityJson.getString("organization"))));
+
+                  if (!entityJson.isNull("businessPartner")) {
+                    crit.add(Restrictions.eq(
+                        GstIdentifierMaster.PROPERTY_BUSINESS,
+                        OBDal.getInstance().get(BusinessPartner.class,
+                            entityJson.getString("businessPartner"))));
+                  } else {
+                    crit.add(Restrictions.isNull(GstIdentifierMaster.PROPERTY_BUSINESS));
+                  }
                   crit.setFilterOnReadableClients(false);
 
                   List<GstIdentifierMaster> list = crit.list();
@@ -1187,6 +1194,14 @@ public class OrgnizationSyncWS implements WebService {
 
                   }
 
+                } else if (entityName.equals("ADTreeNode")) {
+                  OBDal.getInstance().flush();
+                  OBContext.setAdminMode(true);
+                  String treeNodeId = entityJson.getString("tree");
+                  String nodeId = entityJson.getString("node");
+                  deleteExistingTreeNode(treeNodeId, nodeId);
+
+                  OBContext.restorePreviousMode();
                 } else if (entityName.equals("Region")) {
                   Country countryObj = OBDal.getInstance().get(Country.class,
                       entityJson.getString("country"));
