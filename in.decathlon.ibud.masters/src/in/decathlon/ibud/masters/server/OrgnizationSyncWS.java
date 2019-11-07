@@ -310,6 +310,7 @@ public class OrgnizationSyncWS implements WebService {
         String dsidefStoremanagermail = null;
         Boolean existingIsReady = false;
         Currency existingCurrency = null;
+        String gstinUniqueNo = null;
         try {
           User createdByUser = null;
           User updatedByUser = null;
@@ -707,11 +708,12 @@ public class OrgnizationSyncWS implements WebService {
                   List<GstIdentifierMaster> list = crit.list();
 
                   if (list != null && list.size() > 0) {
-                    GstIdentifierMaster Obj = list.get(0);
-                    if (!Obj.getId().equals(id)) {
+                    GstIdentifierMaster gstinObj = list.get(0);
+                    gstinUniqueNo = gstinObj.getId();
+                    if (!gstinObj.getId().equals(id)) {
                       logger = logger
                           + "WARNING: INGST_GST Identifier Master already present in Supply DB with id:"
-                          + Obj.getId() + "  and uidno is: " + entityJson.getString("uidno")
+                          + gstinObj.getId() + "  and uidno is: " + entityJson.getString("uidno")
                           + " and client Name is: "
                           + OBContext.getOBContext().getCurrentClient().getName()
                           + " , So Skip the Update action on record \n";
@@ -805,7 +807,9 @@ public class OrgnizationSyncWS implements WebService {
                   bob.setValue("yourCompanyDocumentImage", null);
                   bob.setValue("dsidefPosinvoicebp", existingPosInvoiceBPartner);
                   // OBContext.restorePreviousMode();ingstGstidentifirmaster
-                  bob.setValue("ingstGstidentifirmaster", null);
+                  // bob.setValue("ingstGstidentifirmaster", null);
+                  // bob.setValue("ingstGstidentifirmaster", gstinUniqueNo);
+
                   if (!entityJson.isNull("userContact")
                       && entityJson.getString("userContact").equals("")) {
                     User UserObj = null;
@@ -1008,7 +1012,7 @@ public class OrgnizationSyncWS implements WebService {
                 if (entityName.equals("OrganizationInformation")) {
                   bob.setValue("yourCompanyDocumentImage", null);
                   bob.setValue("dsidefPosinvoicebp", null);
-                  bob.setValue("ingstGstidentifirmaster", null);
+                  // bob.setValue("ingstGstidentifirmaster", null);
 
                 }
                 bob.setValue("updated", date);
