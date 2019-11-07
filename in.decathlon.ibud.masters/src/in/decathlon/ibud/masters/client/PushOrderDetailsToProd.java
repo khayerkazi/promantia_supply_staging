@@ -116,11 +116,14 @@ public class PushOrderDetailsToProd implements Process {
         HashMap<String, String> orderDetailMapObj = orderSentMapObj.getValue();
         String reference = null;
         Order order = OBDal.getInstance().get(Order.class, orderId);
-        String postMsg = "Order Successfully sent";
+        String postMsg = "Order Successfully sent ";
 
         if (orderDetailMapObj.containsKey("orderNumber")) {
           reference = orderDetailMapObj.get("orderNumber");
           order.setOrderReference(reference);
+          logger.logln(postMsg + " with document no " + order.getDocumentNo());
+          log.info(postMsg + " with document no " + order.getDocumentNo());
+
         }
         if (orderDetailMapObj.containsKey("anomaly")) {
           postMsg = orderDetailMapObj.get("anomaly");
