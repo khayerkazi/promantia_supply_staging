@@ -157,7 +157,7 @@ public class GetPODetails extends BaseProcessActionHandler {
       // pStatus = "V";
       if (pStatus != null) {
         if (pStatus.equalsIgnoreCase("V") || pStatus.equalsIgnoreCase("PK")
-            || pStatus.equalsIgnoreCase("AS")) {
+            || pStatus.equalsIgnoreCase("AS") || pStatus.equalsIgnoreCase("PS")) {
           oStatus = "VD";
         } else if (pStatus.equalsIgnoreCase("S")) {
           oStatus = "SH";
