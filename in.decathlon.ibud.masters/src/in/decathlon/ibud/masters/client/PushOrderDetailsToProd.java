@@ -36,6 +36,8 @@ public class PushOrderDetailsToProd implements Process {
 
   final Logger log = LogManager.getLogger(PushOrderDetailsToProd.class);
   private ProcessLogger logger;
+  List<String> errorOrderList = new ArrayList<String>();
+  HashMap<String, String> errorOrderMap = new HashMap<String, String>();
 
   SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -84,10 +86,9 @@ public class PushOrderDetailsToProd implements Process {
             sendOrder(order, orderJson, token, orderSentMapObj, configMap);
           } else {
             ErrorOrderListObj.add(order.getDocumentNo());
-
           }
         }
-        logger.logln("Error While Posting Order is: " + ErrorOrderListObj);
+        // logger.logln("Error While Posting Order is: " + ErrorOrderListObj);
         if (orderSentMapObj.size() > 0) {
           return updateOrderDetails(orderSentMapObj);
 
@@ -124,6 +125,8 @@ public class PushOrderDetailsToProd implements Process {
         if (orderDetailMapObj.containsKey("anomaly")) {
           postMsg = orderDetailMapObj.get("anomaly");
           count++;
+          errorOrderList.add(order.getDocumentNo());
+          errorOrderMap.put(order.getDocumentNo(), orderDetailMapObj.get("anomaly"));
         }
         String postatus = null;
         if (orderDetailMapObj.containsKey("postatus")) {
@@ -422,7 +425,8 @@ public class PushOrderDetailsToProd implements Process {
           OBDal.getInstance().save(newIbudServiceObj);
           SessionHandler.getInstance().commitAndStart();
         } else {
-          logger.logln("Order Error count is: " + errorCount);
+          logger.logln("Order Error count is: " + errorCount + " and Order numbers is :"
+              + errorOrderList + " and error is " + errorOrderMap);
         }
       } else {
         logger.logln("No Pending order for pushed from OB to Prod.com from date: " + ibud);
