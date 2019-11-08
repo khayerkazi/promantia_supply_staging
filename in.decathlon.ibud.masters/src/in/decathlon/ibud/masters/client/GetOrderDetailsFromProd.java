@@ -134,9 +134,15 @@ public class GetOrderDetailsFromProd implements Process {
             .getIbudDppNo());// ProductElp
     List<String> errorItemCodeList = SaveProdOrderLineData(orderObj, orderHeaderLineData, token,
         configMap, orderObj.getBusinessPartner().getIbudDppNo(), orderMap);
-    if (!orderMap.containsKey("error") && errorItemCodeList.size() == 0) {
+    if (!orderMap.containsKey("error")) {
       savePOData(orderMap, orderObj);
-    } else {
+    }
+
+    if (errorItemCodeList.size() > 0) {
+      orderObj.setIbudProdMsgGet("Item does not exist for this order in prod.com for this order "
+          + errorItemCodeList);
+      OBDal.getInstance().save(orderObj);
+      SessionHandler.getInstance().commitAndStart();
       logger.logln("Order No: " + orderObj.getDocumentNo() + " and Error is: "
           + orderMap.get("error") + ", So Skipping the Order.");
       log.error("Order No: " + orderObj.getDocumentNo() + " and Error is: " + orderMap.get("error")
@@ -543,7 +549,7 @@ public class GetOrderDetailsFromProd implements Process {
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "
           + "    and bp.rCSource = 'DPP' and o.orderReference is not null "
-          + "    and o.updated > '" + ibud + "' ";
+          + "    and (o.updated > '" + ibud + "'  or ol.updated > '" + ibud + "' )";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
       orderList = query.list();
