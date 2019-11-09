@@ -394,17 +394,6 @@ public class PushOrderDetailsToProd implements Process {
       IbudServerTime newIbudServiceObj = CommonServiceProvider.getIbudUpdatedTime("PostPOOrder");
       Date ibud = newIbudServiceObj.getLastupdated();
       log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
-      /*
-       * String strHql = "select distinct co from Order co, OrderLine line ," +
-       * "	CL_DPP_SEQNO cd ,BusinessPartner bp " +
-       * " where co.sWEMSwPostatus in ('SO') and co.id = line.salesOrder.id " +
-       * " and bp.clSupplierno = line.sWEMSwSuppliercode 	" +
-       * " and co.transactionDocument.id = 'C7CD4AC8AC414678A525AB7AE20D718C'  " +
-       * " and  co.imsapDuplicatesapPo != 'Y' and bp.rCSource = 'DPP'  " +
-       * " and line.orderedQuantity > 0 " +
-       * " and (co.orderReference is null or co.orderReference=co.documentNo ) " +
-       * " and co.updated > '" + ibud + "' ";
-       */
 
       String strHql = "  select distinct o from OrderLine ol join ol.salesOrder o join o.businessPartner bp "
           + "    where o.sWEMSwPostatus in ('SO') "
@@ -412,7 +401,7 @@ public class PushOrderDetailsToProd implements Process {
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "
           + "    and bp.rCSource = 'DPP' "
-          + "    and o.updated > '" + ibud + "' ";
+          + "    and o.creationDate >= '" + ibud + "' ";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
       List<Order> orderList = query.list();
