@@ -401,7 +401,7 @@ public class PushOrderDetailsToProd implements Process {
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "
           + "    and bp.rCSource = 'DPP' "
-          + "    and o.creationDate >= '" + ibud + "' ";
+          + "    and o.updated >= '" + ibud + "' ";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
       List<Order> orderList = query.list();

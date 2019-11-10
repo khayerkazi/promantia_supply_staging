@@ -6,11 +6,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -18,6 +18,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.hibernate.Query;
+import org.jboss.weld.util.collections.ArraySet;
 import org.openbravo.base.exception.OBException;
 import org.openbravo.dal.core.OBContext;
 import org.openbravo.dal.core.SessionHandler;
@@ -34,14 +35,19 @@ import com.ibm.icu.text.SimpleDateFormat;
 public class GetOrderDetailsFromProd implements Process {
 
   final Logger log = LogManager.getLogger(GetOrderDetailsFromProd.class);
+
   private ProcessLogger logger;
+
+  // public static String logMsg = "";
 
   @Override
   public void execute(ProcessBundle bundle) throws Exception {
     logger = bundle.getLogger();
     logger.logln("Get Order Details From prod Background process has started");
+    StringBuilder logMsg = new StringBuilder(" ");
 
     try {
+
       OBContext.setAdminMode(true);
       IbudServerTime newIbudServiceObj = CommonServiceProvider
           .getIbudUpdatedTime("GetOrderProcess");
@@ -55,13 +61,32 @@ public class GetOrderDetailsFromProd implements Process {
                   + ibud + " and count is: " + orderObjList.size());
           log.info("Getting OB List of Order for Getting Order details from Prod.com from date: "
               + ibud + " and count is: " + orderObjList.size());
-          int errorCount = updateOrderDetails(orderObjList, configMap);
+          int errorCount = updateOrderDetails(orderObjList, configMap, logMsg);
+          if (!logMsg.toString().trim().equalsIgnoreCase("")) {
+            logger.logln(logMsg.toString());
+            /*
+             * order.setIbudProdMsgGet(logMsg.toString()); OBDal.getInstance().save(order);
+             * SessionHandler.getInstance().commitAndStart();
+             */
+          }
+          logMsg = new StringBuilder(" ");
           if (errorCount == 0) {
             newIbudServiceObj.setLastupdated(new Date());
             OBDal.getInstance().save(newIbudServiceObj);
             SessionHandler.getInstance().commitAndStart();
             logger.logln("Sucessfully Completed the GET Order Process From Prod.com.");
             log.info("Sucessfully Completed the GET Order Process From Prod.com.");
+          } else {
+            logger
+                .logln("Error while Getting the order details from OB to Prod.com and Order size is "
+                    + orderObjList.size()
+                    + " and Error count is: "
+                    + errorCount
+                    + " from date: "
+                    + ibud);
+            log.info("Error while Getting the order details from OB to Prod.com and Order size is "
+                + orderObjList.size() + " and Error count is: " + errorCount + " from date: "
+                + ibud);
           }
         } else {
 
@@ -71,6 +96,7 @@ public class GetOrderDetailsFromProd implements Process {
           OBDal.getInstance().save(newIbudServiceObj);
           SessionHandler.getInstance().commitAndStart();
         }
+
       } else {
         log.error("Missing Configuration in openbravo properties :" + configMap.get("Error"));
         logger.logln("Missing Configuration in openbravo properties :" + configMap.get("Error"));
@@ -85,13 +111,18 @@ public class GetOrderDetailsFromProd implements Process {
       logger.logln(e.getMessage());
       throw new OBException(e.getMessage());
     } finally {
+      if (!logMsg.toString().trim().equalsIgnoreCase("")) {
+        logger.logln(logMsg.toString());
+      }
+      logMsg = new StringBuilder(" ");
+
       OBContext.restorePreviousMode();
     }
 
   }
 
-  public int updateOrderDetails(List<Order> orderList, HashMap<String, String> configMap)
-      throws Exception {
+  public int updateOrderDetails(List<Order> orderList, HashMap<String, String> configMap,
+      StringBuilder logMsg) throws Exception {
     int errorOrderCount = 0;
     try {
 
@@ -100,15 +131,15 @@ public class GetOrderDetailsFromProd implements Process {
         for (Order order : orderList) {
 
           Map<String, HashMap<String, String>> orderMap = updateOrderHeaderDetails(order, token,
-              configMap);
+              configMap, logMsg);
           if (orderMap.containsKey("error")) {
             errorOrderCount++;
           }
         }
       } else {
         errorOrderCount++;
-
-        logger.logln("GetOrderDetailsFromProd: Error in generating token " + token);
+        logMsg.append("GetOrderDetailsFromProd: Error in generating token " + token + " \n");
+        // logger.logln("GetOrderDetailsFromProd: Error in generating token " + token);
         log.error("GetOrderDetailsFromProd: Error in generating token " + token);
 
       }
@@ -117,48 +148,54 @@ public class GetOrderDetailsFromProd implements Process {
 
       e.printStackTrace();
       log.error("Error while Getting the Orders from Prod and Error is: " + e);
-      logger.logln("Error while Getting the Orders from Prod and Error is: " + e);
+      // logger.logln("Error while Getting the Orders from Prod and Error is: " + e);
+      logMsg.append("Error while Getting the Orders from Prod and Error is: " + e + " \n");
     }
     return errorOrderCount;
   }
 
   public Map<String, HashMap<String, String>> updateOrderHeaderDetails(Order orderObj,
-      String token, HashMap<String, String> configMap) throws Exception {
+      String token, HashMap<String, String> configMap, StringBuilder logMsg) throws Exception {
     Map<String, HashMap<String, String>> orderMap = new HashMap<String, HashMap<String, String>>();
 
     String orderHeaderData = GetDataFromProd(orderObj.getOrderReference(),
         orderObj.getDocumentNo(), token, configMap, "Header", null, orderObj.getBusinessPartner()
-            .getIbudDppNo());
-    getProdHeaderMapData(orderObj, orderHeaderData, orderMap);
+            .getIbudDppNo(), logMsg);
+    getProdHeaderMapData(orderObj, orderHeaderData, orderMap, logMsg);
     String orderHeaderLineData = GetDataFromProd(orderObj.getOrderReference(),
         orderObj.getDocumentNo(), token, configMap, "Lines", null, orderObj.getBusinessPartner()
-            .getIbudDppNo());// ProductElp
-    List<String> errorItemCodeList = SaveProdOrderLineData(orderObj, orderHeaderLineData, token,
-        configMap, orderObj.getBusinessPartner().getIbudDppNo(), orderMap);
+            .getIbudDppNo(), logMsg);// ProductElp
+    Set<String> errorItemCodeList = GetOrderLineProdData(orderObj, orderHeaderLineData, token,
+        configMap, orderObj.getBusinessPartner().getIbudDppNo(), orderMap, logMsg);
+    String errorMsg = "";
     if (!orderMap.containsKey("error")) {
-      savePOData(orderMap, orderObj);
-    }
+      savePOData(orderMap, orderObj, logMsg);
+    } else {
+      if (orderMap.get("error").containsKey("error")) {
+        errorMsg = orderMap.get("error").get("error");
 
-    if (errorItemCodeList.size() > 0) {
+      }
 
-      String errorMsg = " Item does not exist for this order in prod.com for this order Item Code : "
-          + errorItemCodeList;
-      orderObj.setIbudProdMsgGet(orderObj.getIbudProdMsgGet().concat(errorMsg));
+      if (errorItemCodeList.size() > 0) {
+        errorMsg = errorMsg + " Item does not exist in OB or Prod.com for Item Code: "
+            + errorItemCodeList;
+      }
+
+      orderObj.setIbudProdMsgGet(errorMsg);
       OBDal.getInstance().save(orderObj);
       SessionHandler.getInstance().commitAndStart();
-      logger.logln("Order No: " + orderObj.getDocumentNo() + " and Error is: "
-          + orderMap.get("error") + ", So Skipping the Order.");
-      log.error("Order No: " + orderObj.getDocumentNo() + " and Error is: " + orderMap.get("error")
+      logMsg.append("Order No: " + orderObj.getDocumentNo() + " and Error is: " + errorMsg
+          + ", So Skipping the Order. \n");
+      log.error("Order No: " + orderObj.getDocumentNo() + " and Error is: " + errorMsg
           + ", So Skipping the Order.");
-      log.error("Order Map for Order no is: " + orderObj.getDocumentNo() + " and Map is: "
-          + orderMap + " and Not Present Itemcode list: " + errorItemCodeList);
 
     }
+
     return orderMap;
   }
 
-  private void savePOData(Map<String, HashMap<String, String>> orderMap, Order orderObj)
-      throws Exception {
+  private void savePOData(Map<String, HashMap<String, String>> orderMap, Order orderObj,
+      StringBuilder logMsg) throws Exception {
     String pStatus = null;
     String oStatus = null;
     String adate = null;
@@ -232,21 +269,21 @@ public class GetOrderDetailsFromProd implements Process {
         OBDal.getInstance().save(orderObj);
         SessionHandler.getInstance().commitAndStart();
 
-        logger.logln("Getting the Order Details for Order No: " + orderObj.getDocumentNo()
+        logMsg.append("Getting the Order Details for Order No: " + orderObj.getDocumentNo()
             + " and PO Reference No: " + orderObj.getOrderReference()
-            + " Process Completed Sucessfully.");
+            + " Process Completed Sucessfully. \n");
 
       } else {
         log.error("Order Map for Order no: " + orderObj.getDocumentNo() + " and Map is: "
             + orderMap);
-        logger.logln("Order Map for Order no: " + orderObj.getDocumentNo() + " and Map is: "
-            + orderMap);
+        logMsg.append("Order Map for Order no: " + orderObj.getDocumentNo() + " and Map is: "
+            + orderMap + " \n");
       }
     }
   }
 
   private void getProdHeaderMapData(Order orderObj, String orderHeaderData,
-      Map<String, HashMap<String, String>> orderMap) throws JSONException {
+      Map<String, HashMap<String, String>> orderMap, StringBuilder logMsg) throws JSONException {
     try {
 
       if (!orderHeaderData.contains("Error_GETAPI:") && (!orderHeaderData.contains("[]"))) {
@@ -272,7 +309,7 @@ public class GetOrderDetailsFromProd implements Process {
             headerMap.put("edate", estShipDate);
             headerMap.put("adate", actShipDate);
             orderMap.put("header", headerMap);
-            orderMap.remove("error");
+            // orderMap.remove("error");
           }
         } else {
           HashMap<String, String> headerMap = orderMap.get("error");
@@ -283,7 +320,7 @@ public class GetOrderDetailsFromProd implements Process {
           } else {
             headerMap.get("error").concat(" Order not Found,");
           }
-          logger.logln("Order Data Not Found for Order: " + orderObj.getDocumentNo());
+          logMsg.append("Order Data Not Found for Order: " + orderObj.getDocumentNo() + " \n");
           log.error("Order Data Not Found for Order: " + orderObj.getDocumentNo());
         }
       } else {
@@ -294,14 +331,15 @@ public class GetOrderDetailsFromProd implements Process {
         SessionHandler.getInstance().commitAndStart();
         log.error("Order API Error is:" + orderHeaderData + " for Order: "
             + orderObj.getDocumentNo());
-        logger.logln("Error is:" + orderHeaderData + " for Order: " + orderObj.getDocumentNo());
+        logMsg.append("Error is:" + orderHeaderData + " for Order: " + orderObj.getDocumentNo()
+            + " \n");
         HashMap<String, String> headerMap = orderMap.get("error");
         if (headerMap == null) {
           headerMap = new HashMap<String, String>();
-          headerMap.put("error", " order Prod.com API Failed,");
+          headerMap.put("error", " order Prod.com API Failed, \n");
           orderMap.put("error", headerMap);
         } else {
-          headerMap.get("error").concat(" order Prod.com API Failed,");
+          headerMap.get("error").concat(" order Prod.com API Failed, \n");
         }
       }
     } catch (Exception e) {
@@ -312,22 +350,24 @@ public class GetOrderDetailsFromProd implements Process {
         headerMap.put("error", " Error While process, ");
         orderMap.put("error", headerMap);
       } else {
-        headerMap.get("error").concat(" Error While process, ");
+        headerMap.get("error").concat(
+            "Error while Saving the the order Header data for order: " + orderObj.getDocumentNo()
+                + " \n");
       }
-      logger.logln("Error while Savinf the the order Header data for order: "
-          + orderObj.getDocumentNo() + " and error is: " + e);
+      logMsg.append("Error while Saving the the order Header data for order: "
+          + orderObj.getDocumentNo() + " and error is: " + e + " \n");
       log.error("Error while Savinf the the order Header data for order: "
           + orderObj.getDocumentNo() + " and error is: " + e);
     }
   }
 
-  private List<String> SaveProdOrderLineData(Order orderObj, String orderHeaderLineData,
+  private Set<String> GetOrderLineProdData(Order orderObj, String orderHeaderLineData,
       String token, HashMap<String, String> configMap, String dpp,
-      Map<String, HashMap<String, String>> orderMap) throws JSONException {
-    List<String> itemNotFoundError = new ArrayList<String>();
+      Map<String, HashMap<String, String>> orderMap, StringBuilder logMsg) throws JSONException {
+    Set<String> itemNotFoundError = new ArraySet<String>();
     try {
-      Map<String, OrderLine> OBItemCodeMap = new HashMap<String, OrderLine>();
-      Map<String, OrderLine> OBelpMap = new HashMap<String, OrderLine>();
+      // Map<String, OrderLine> OBItemCodeMap = new HashMap<String, OrderLine>();
+      Map<String, String> OBelpMap = new HashMap<String, String>();
       if (!orderHeaderLineData.contains("Error_GETAPI:")) {
         JSONArray orderLineArray = new JSONArray(orderHeaderLineData.toString());
         if (orderLineArray != null && orderLineArray.length() > 0) {
@@ -335,9 +375,11 @@ public class GetOrderDetailsFromProd implements Process {
             // OBItemListObj.add(orderLineObj.getProduct().getName());
             if (orderLineObj.getProduct() != null
                 && orderLineObj.getProduct().getIbudElpelementprodnumelp() != null) {
-              OBelpMap.put(orderLineObj.getProduct().getIbudElpelementprodnumelp(), orderLineObj);
-              OBItemCodeMap.put(orderLineObj.getProduct().getName(), orderLineObj);
-
+              if (orderLineObj.getProduct().getIbudElpelementprodnumelp() != null)
+                OBelpMap.put(orderLineObj.getProduct().getIbudElpelementprodnumelp(), orderLineObj
+                    .getProduct().getName());
+              // OBItemCodeMap.put(orderLineObj.getProduct().getName(), orderLineObj);
+              itemNotFoundError.add(orderLineObj.getProduct().getName());
             }
           }
 
@@ -351,16 +393,12 @@ public class GetOrderDetailsFromProd implements Process {
             }
             productElpCode = js.getString("elpElementProdNumElp");
             if (OBelpMap.containsKey(productElpCode)) {
-              OrderLine olObj = OBelpMap.get(productElpCode);
-              /*
-               * if (OBItemCodeMap.containsKey(olObj.getProduct().getName())) {
-               * OBItemListObj.remove(olObj.getProduct().getName()); }
-               */
-              itemcode = olObj.getProduct().getName();
-
+              itemcode = OBelpMap.get(productElpCode);
+              itemNotFoundError.remove(itemcode);
             } else {
               String orderLineElpDetails = GetDataFromProd(orderObj.getOrderReference(),
-                  orderObj.getDocumentNo(), token, configMap, "ProductElp", productElpCode, dpp);
+                  orderObj.getDocumentNo(), token, configMap, "ProductElp", productElpCode, dpp,
+                  logMsg);
               if (!orderLineElpDetails.contains("Error_GETAPI:")) {
                 JSONArray orderLineElpArray = new JSONArray(orderLineElpDetails.toString());
                 if (orderLineElpArray != null && orderLineElpArray.length() > 0) {
@@ -368,14 +406,23 @@ public class GetOrderDetailsFromProd implements Process {
                     JSONObject jsO = orderLineElpArray.getJSONObject(p);
                     if (jsO.has("cofRefCodeRef") && !jsO.isNull("cofRefCodeRef")) {
                       itemcode = jsO.getString("cofRefCodeRef");
-                      if (OBItemCodeMap.containsKey(itemcode)) {
+                      if (itemNotFoundError.contains(itemcode)) {
                         // if we config the wrong elp with item code
                         // TODO neeed to save correct elp on product table against the name or value
                         // OBItemListObj.remove(itemcode);
-                        Product prod = OBDal.getInstance().get(Product.class, itemcode);
-                        prod.setIbudElpelementprodnumelp(productElpCode);
-                        OBDal.getInstance().save(prod);
-                        SessionHandler.getInstance().commitAndStart();
+                        String hql = "select p from Product p where p.name = '" + itemcode + "'";
+                        Query query = OBDal.getInstance().getSession().createQuery(hql);
+
+                        if (query.list().size() > 0) {
+                          Product product = (Product) query.uniqueResult();
+                          product.setIbudElpelementprodnumelp(productElpCode);
+                          OBDal.getInstance().save(product);
+                          SessionHandler.getInstance().commitAndStart();
+                          itemNotFoundError.remove(itemcode);
+
+                        } else {
+                          itemNotFoundError.add(itemcode);
+                        }
 
                       } else {
                         itemNotFoundError.add(itemcode);
@@ -396,8 +443,8 @@ public class GetOrderDetailsFromProd implements Process {
                   }
                   log.error("ELP data is not found Error is:" + orderHeaderLineData
                       + " for Order: " + orderObj.getDocumentNo());
-                  logger.logln("Error while Getting the line elp data Error is:"
-                      + orderHeaderLineData + " for Order: " + orderObj.getDocumentNo());
+                  logMsg.append("Error while Getting the line elp data Error is:"
+                      + orderHeaderLineData + " for Order: " + orderObj.getDocumentNo() + " \n");
                 }
               } else {
                 HashMap<String, String> headerMap = orderMap.get("error");
@@ -410,8 +457,8 @@ public class GetOrderDetailsFromProd implements Process {
                 }
                 log.error("Error while Getting the line ELP data Error is:" + orderHeaderLineData
                     + " for Order: " + orderObj.getDocumentNo());
-                logger.logln("Error while Getting the line elp data Error is:"
-                    + orderHeaderLineData + " for Order: " + orderObj.getDocumentNo());
+                logMsg.append("Error while Getting the line elp data Error is:"
+                    + orderHeaderLineData + " for Order: " + orderObj.getDocumentNo() + " \n");
 
               }
             }
@@ -441,8 +488,8 @@ public class GetOrderDetailsFromProd implements Process {
             }
           }
           if (itemNotFoundError.size() > 0) {
-            String errorMsg = " Item is not present in Order Line or Prod.com with Item code: "
-                + itemNotFoundError;
+            String errorMsg = "Item does not exist in OB or Prod.com with Item code: "
+                + itemNotFoundError + " \n";
             HashMap<String, String> headerMap = orderMap.get("error");
             if (headerMap == null) {
               headerMap = new HashMap<String, String>();
@@ -453,7 +500,7 @@ public class GetOrderDetailsFromProd implements Process {
             }
           }
         } else {
-          logger.logln("Line data Not Found for Order: " + orderObj.getDocumentNo());
+          logMsg.append("Line data Not Found for Order: " + orderObj.getDocumentNo() + " \n");
           log.error("Line Data Not Found for Order: " + orderObj.getDocumentNo());
 
           HashMap<String, String> headerMap = orderMap.get("error");
@@ -468,8 +515,8 @@ public class GetOrderDetailsFromProd implements Process {
       } else {
         log.error("Error while Getting the line data Error is:" + orderHeaderLineData
             + " for Order: " + orderObj.getDocumentNo());
-        logger.logln("Error while Getting the line data Error is:" + orderHeaderLineData
-            + " for Order: " + orderObj.getDocumentNo());
+        logMsg.append("Error while Getting the line data Error is:" + orderHeaderLineData
+            + " for Order: " + orderObj.getDocumentNo() + " \n");
         HashMap<String, String> headerMap = orderMap.get("error");
         if (headerMap == null) {
           headerMap = new HashMap<String, String>();
@@ -481,8 +528,8 @@ public class GetOrderDetailsFromProd implements Process {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      logger.logln("Error while Savinf the the order Header data for order: "
-          + orderObj.getDocumentNo() + " and error is: " + e);
+      logMsg.append("Error while Savinf the the order Header data for order: "
+          + orderObj.getDocumentNo() + " and error is: " + e + " \n");
       log.error("Error while Savinf the the order Header data for order: "
           + orderObj.getDocumentNo() + " and error is: " + e);
 
@@ -499,7 +546,8 @@ public class GetOrderDetailsFromProd implements Process {
   }
 
   private String GetDataFromProd(String orderReferenceNo, String orderNo, String tokenKey,
-      HashMap<String, String> configMap, String orderType, String elpProduct, String dpp) {
+      HashMap<String, String> configMap, String orderType, String elpProduct, String dpp,
+      StringBuilder logMsg) {
     HttpURLConnection conn = null;
 
     URL url = null;
@@ -512,8 +560,9 @@ public class GetOrderDetailsFromProd implements Process {
       } else if (orderType.equalsIgnoreCase("ProductElp") && elpProduct != null) {
         url = new URL(configMap.get("getElpProduct_url") + elpProduct);
       } else {
-        logger.logln("API is not present for " + orderType + " elp: " + elpProduct
-            + " of Order no: " + orderNo);
+
+        logMsg.append("API is not present for " + orderType + " elp: " + elpProduct
+            + " of Order no: " + orderNo + " \n");
         return "Error_GETAPI: API is not present for " + orderType + " elp: " + elpProduct
             + " of Order no: " + orderNo;
       }
@@ -544,7 +593,8 @@ public class GetOrderDetailsFromProd implements Process {
     } catch (Exception e) {
       e.printStackTrace();
       log.error("GetOrderDetailsFromProd:Error while updating order header details " + e);
-      logger.logln("GetOrderDetailsFromProd:Error while updating order header details " + e);
+      logMsg.append("GetOrderDetailsFromProd:Error while updating order header details " + e
+          + " \n");
       return "Error_GETAPI: Error While Getting the Order details for order No: " + orderNo
           + " and Type is: " + orderType;
     } finally {
@@ -556,7 +606,8 @@ public class GetOrderDetailsFromProd implements Process {
       } catch (Exception e) {
         e.printStackTrace();
         log.error("Error while disconnecting http connection " + e.getMessage());
-        logger.logln("Error while disconnecting http connection " + e.getMessage());
+        // logMsg.append("Error while disconnecting http connection " + e.getMessage());
+        logMsg.append("Error while disconnecting http connection " + e.getMessage() + " \n");
         return "Error_GETAPI: Error While Getting the Order details(Finally) for order No: "
             + orderNo + " and Type is: " + orderType;
       }
@@ -576,7 +627,7 @@ public class GetOrderDetailsFromProd implements Process {
           + "    and  bp.clSupplierno = ol.sWEMSwSuppliercode  "
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "
-          + "    and bp.rCSource = 'DPP' and o.orderReference is not null "
+          + "    and bp.rCSource = 'DPP' "
           + "    and (o.updated >= '" + ibud + "'  or ol.updated >= '" + ibud + "' )";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);

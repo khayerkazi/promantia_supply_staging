@@ -32,21 +32,25 @@ public class GetPODetails extends BaseProcessActionHandler {
 
     JSONObject jsonData;
     Order order = null;
+    StringBuilder logMsg = new StringBuilder(" ");
+
     try {
       OBContext.setAdminMode(true);
-
       jsonData = new JSONObject(data);
       String orderId = jsonData.getString("inpcOrderId");
       order = OBDal.getInstance().get(Order.class, orderId);
-      List<Order> orderObjList = new ArrayList<Order>();
-      orderObjList.add(order);
       HashMap<String, String> configMap = CommonServiceProvider.checkObConfig();
 
       if (!configMap.containsKey("Error")) {
         log.info("Getting OB List of Order for Getting Order details from Prod.com for Order No : "
             + order.getDocumentNo());
-        int errorCount = updateOrderDetails(orderObjList, configMap);
-        if (errorCount == 0) {
+        String returnMsg = updateOrderDetails(order, configMap, logMsg);
+        if (!logMsg.toString().trim().equalsIgnoreCase("")) {
+          log.error(logMsg.toString());
+
+        }
+        logMsg = new StringBuilder(" ");
+        if (!returnMsg.contains("Error_")) {
           String msg = "Sucessfully Fetched the data from Prod.com.for current order :"
               + order.getDocumentNo();
           log.info(msg);
@@ -54,8 +58,7 @@ public class GetPODetails extends BaseProcessActionHandler {
           SessionHandler.getInstance().commitAndStart();
           return getSuccessMessage(msg);
         } else {
-          String msg = "Error while getting order details from Prod.com for orderNo :"
-              + order.getDocumentNo();
+          String msg = returnMsg.replace("Error_", "");
           log.error(msg);
           order.setIbudProdMsgGet(msg);
           SessionHandler.getInstance().commitAndStart();
@@ -538,4 +541,37 @@ public class GetPODetails extends BaseProcessActionHandler {
     return result;
   }
 
+  public String updateOrderDetails(Order orderObj, HashMap<String, String> configMap,
+      StringBuilder logMsg) throws Exception {
+    String msg = "";
+    try {
+      GetOrderDetailsFromProd GetOrderDetailsFromProdobj = new GetOrderDetailsFromProd();
+
+      String token = CommonServiceProvider.generateToken(configMap);
+      if (!token.contains("Error_TokenGenerator")) {
+        if (orderObj != null) {
+          Map<String, HashMap<String, String>> orderMap = GetOrderDetailsFromProdobj
+              .updateOrderHeaderDetails(orderObj, token, configMap, logMsg);
+          if (orderMap.containsKey("error")) {
+            msg = "Error_" + orderMap.get("error").get("error");
+
+          } else {
+            msg = "sucess_5678";
+          }
+        }
+      } else {
+        logMsg.append("GetOrderDetailsFromProd: Error in generating token " + token + " \n");
+        // logger.logln("GetOrderDetailsFromProd: Error in generating token " + token);
+        log.error("GetOrderDetailsFromProd: Error in generating token " + token);
+
+      }
+    } catch (Exception e) {
+
+      e.printStackTrace();
+      log.error("Error while Getting the Orders from Prod and Error is: " + e);
+      // logger.logln("Error while Getting the Orders from Prod and Error is: " + e);
+      logMsg.append("Error while Getting the Orders from Prod and Error is: " + e + " \n");
+    }
+    return msg;
+  }
 }
