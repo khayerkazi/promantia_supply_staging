@@ -60,9 +60,10 @@ public class GetPODetails extends BaseProcessActionHandler {
         } else {
           String msg = returnMsg.replace("Error_", "");
           log.error(msg);
-          order.setIbudProdMsgGet(msg);
-          SessionHandler.getInstance().commitAndStart();
+          // *
+          // * order.setIbudProdMsgGet(msg); SessionHandler.getInstance().commitAndStart();
           return getErrorMessage(msg);
+
         }
       } else {
         String msg = "Missing Configuration in openbravo properties :" + configMap.get("Error");

@@ -129,7 +129,6 @@ public class GetOrderDetailsFromProd implements Process {
       String token = CommonServiceProvider.generateToken(configMap);
       if (!token.contains("Error_TokenGenerator")) {
         for (Order order : orderList) {
-
           Map<String, HashMap<String, String>> orderMap = updateOrderHeaderDetails(order, token,
               configMap, logMsg);
           if (orderMap.containsKey("error")) {
@@ -164,32 +163,33 @@ public class GetOrderDetailsFromProd implements Process {
     getProdHeaderMapData(orderObj, orderHeaderData, orderMap, logMsg);
     String orderHeaderLineData = GetDataFromProd(orderObj.getOrderReference(),
         orderObj.getDocumentNo(), token, configMap, "Lines", null, orderObj.getBusinessPartner()
-            .getIbudDppNo(), logMsg);// ProductElp
-    Set<String> errorItemCodeList = GetOrderLineProdData(orderObj, orderHeaderLineData, token,
-        configMap, orderObj.getBusinessPartner().getIbudDppNo(), orderMap, logMsg);
-    String errorMsg = "";
-    if (!orderMap.containsKey("error")) {
+            .getIbudDppNo(), logMsg);
+    GetOrderLineProdData(orderObj, orderHeaderLineData, token, configMap, orderObj
+        .getBusinessPartner().getIbudDppNo(), orderMap, logMsg);
+    String errorMsg = "Sucessfully Fetched the data from Prod.com.for current order";
+    if (orderMap.containsKey("header")) {
       savePOData(orderMap, orderObj, logMsg);
-    } else {
+    }
+    if (orderMap.containsKey("error")) {
+
       if (orderMap.get("error").containsKey("error")) {
         errorMsg = orderMap.get("error").get("error");
-
       }
 
-      if (errorItemCodeList.size() > 0) {
-        errorMsg = errorMsg + " Item does not exist in OB or Prod.com for Item Code: "
-            + errorItemCodeList;
-      }
+      /*
+       * if (errorItemCodeList.size() > 0) { errorMsg = errorMsg +
+       * " Item does not exist in OB or Prod.com for Item Code: " + errorItemCodeList; }
+       */
 
-      orderObj.setIbudProdMsgGet(errorMsg);
-      OBDal.getInstance().save(orderObj);
-      SessionHandler.getInstance().commitAndStart();
       logMsg.append("Order No: " + orderObj.getDocumentNo() + " and Error is: " + errorMsg
           + ", So Skipping the Order. \n");
       log.error("Order No: " + orderObj.getDocumentNo() + " and Error is: " + errorMsg
           + ", So Skipping the Order.");
 
     }
+    orderObj.setIbudProdMsgGet(errorMsg);
+    OBDal.getInstance().save(orderObj);
+    SessionHandler.getInstance().commitAndStart();
 
     return orderMap;
   }
@@ -231,7 +231,7 @@ public class GetOrderDetailsFromProd implements Process {
       if (pStatus != null) {
         for (OrderLine orderLineObj : orderObj.getOrderLineList()) {
           String cqty = null;
-          String elp = null;
+          String elp = "";
           if (orderMap.containsKey(orderLineObj.getProduct().getName())) {
             HashMap<String, String> olMap = orderMap.get(orderLineObj.getProduct().getName());
             if (olMap.containsKey("cqty")) {
@@ -244,12 +244,13 @@ public class GetOrderDetailsFromProd implements Process {
               orderLineObj.setSwConfirmedqty(Long.parseLong(cqty));
               OBDal.getInstance().save(orderLineObj);
             }
-            if (elp != null) {
-
-              orderLineObj.getProduct().setIbudElpelementprodnumelp(elp);
-              OBDal.getInstance().save(orderLineObj.getProduct());
-              SessionHandler.getInstance().commitAndStart();
-            }
+            /*
+             * if (elp != null) {
+             * 
+             * orderLineObj.getProduct().setIbudElpelementprodnumelp(elp);
+             * OBDal.getInstance().save(orderLineObj.getProduct());
+             * SessionHandler.getInstance().commitAndStart(); }
+             */
           }
         }
 
@@ -265,9 +266,10 @@ public class GetOrderDetailsFromProd implements Process {
           eDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(edate);
           orderObj.setSWEMSwEstshipdate(eDate);
         }
-        orderObj.setIbudProdMsgGet("Sucessfully Fetched the data from Prod.com.for current order");
-        OBDal.getInstance().save(orderObj);
-        SessionHandler.getInstance().commitAndStart();
+        /*
+         * orderObj.setIbudProdMsgGet("Sucessfully Fetched the data from Prod.com.for current order")
+         * ; OBDal.getInstance().save(orderObj); SessionHandler.getInstance().commitAndStart();
+         */
 
         logMsg.append("Getting the Order Details for Order No: " + orderObj.getDocumentNo()
             + " and PO Reference No: " + orderObj.getOrderReference()
@@ -309,7 +311,6 @@ public class GetOrderDetailsFromProd implements Process {
             headerMap.put("edate", estShipDate);
             headerMap.put("adate", actShipDate);
             orderMap.put("header", headerMap);
-            // orderMap.remove("error");
           }
         } else {
           HashMap<String, String> headerMap = orderMap.get("error");
@@ -324,9 +325,9 @@ public class GetOrderDetailsFromProd implements Process {
           log.error("Order Data Not Found for Order: " + orderObj.getDocumentNo());
         }
       } else {
-        orderObj.setIbudProdMsgGet("Order Not found with reference no "
-            + orderObj.getOrderReference() + " Order API Error is:" + orderHeaderData
-            + " for Order: " + orderObj.getDocumentNo());
+        String prodMsg = "Order Not found with reference no " + orderObj.getOrderReference()
+            + " Order API Error is :" + orderHeaderData + " for Order: " + orderObj.getDocumentNo();
+        orderObj.setIbudProdMsgGet(prodMsg);
         OBDal.getInstance().save(orderObj);
         SessionHandler.getInstance().commitAndStart();
         log.error("Order API Error is:" + orderHeaderData + " for Order: "
@@ -356,7 +357,7 @@ public class GetOrderDetailsFromProd implements Process {
       }
       logMsg.append("Error while Saving the the order Header data for order: "
           + orderObj.getDocumentNo() + " and error is: " + e + " \n");
-      log.error("Error while Savinf the the order Header data for order: "
+      log.error("Error while Saving the the order Header data for order: "
           + orderObj.getDocumentNo() + " and error is: " + e);
     }
   }
@@ -373,25 +374,26 @@ public class GetOrderDetailsFromProd implements Process {
         if (orderLineArray != null && orderLineArray.length() > 0) {
           for (OrderLine orderLineObj : orderObj.getOrderLineList()) {
             // OBItemListObj.add(orderLineObj.getProduct().getName());
-            if (orderLineObj.getProduct() != null
-                && orderLineObj.getProduct().getIbudElpelementprodnumelp() != null) {
-              if (orderLineObj.getProduct().getIbudElpelementprodnumelp() != null)
+
+            if (orderLineObj.getProduct() != null) {
+              itemNotFoundError.add(orderLineObj.getProduct().getName());
+              if (orderLineObj.getProduct().getIbudElpelementprodnumelp() != null) {
                 OBelpMap.put(orderLineObj.getProduct().getIbudElpelementprodnumelp(), orderLineObj
                     .getProduct().getName());
-              // OBItemCodeMap.put(orderLineObj.getProduct().getName(), orderLineObj);
-              itemNotFoundError.add(orderLineObj.getProduct().getName());
+                // OBItemCodeMap.put(orderLineObj.getProduct().getName(), orderLineObj);
+              }
             }
           }
 
           for (int k = 0; k < orderLineArray.length(); k++) {
             String itemcode = null;
-            String productElpCode = null;
+            // String productElpCode = null;
             String itemConfirmQty = null;
             JSONObject js = orderLineArray.getJSONObject(k);
             if (js.has("olnOrderedQuantity") && !js.isNull("olnOrderedQuantity")) {
               itemConfirmQty = js.getString("olnOrderedQuantity");
             }
-            productElpCode = js.getString("elpElementProdNumElp");
+            String productElpCode = js.getString("elpElementProdNumElp");
             if (OBelpMap.containsKey(productElpCode)) {
               itemcode = OBelpMap.get(productElpCode);
               itemNotFoundError.remove(itemcode);
@@ -558,7 +560,8 @@ public class GetOrderDetailsFromProd implements Process {
       } else if (orderType.equalsIgnoreCase("Lines")) {
         url = new URL(configMap.get("getOrderLine_url") + dpp + "/order_lines/" + orderReferenceNo);
       } else if (orderType.equalsIgnoreCase("ProductElp") && elpProduct != null) {
-        url = new URL(configMap.get("getElpProduct_url") + elpProduct);
+        url = new URL(configMap.get("getElpProduct_url") + elpProduct
+            + ",tptThiParNumTypRef=46,tprThirdParNumRef=1,tprSubThirdParNumRef=1");
       } else {
 
         logMsg.append("API is not present for " + orderType + " elp: " + elpProduct
