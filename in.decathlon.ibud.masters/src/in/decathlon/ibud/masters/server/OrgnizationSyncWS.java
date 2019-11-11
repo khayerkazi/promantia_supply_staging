@@ -141,6 +141,10 @@ public class OrgnizationSyncWS implements WebService {
       if (orders.has("businessPartner")) {
         bpFlag = saveJSONObject(getJsonData(orders, "businessPartner"), "businessPartner");
       }
+      if (orders.has("GstIdentifierMaster")) {
+        gstinFlag = saveJSONObject(getJsonData(orders, "GstIdentifierMaster"),
+            "INGST_GSTIdentifierMaster");
+      }
       if (orders.has("BusinessPartnerLocation")) {
         bplocationFlag = saveJSONObject(getJsonData(orders, "BusinessPartnerLocation"),
             "BusinessPartnerLocation");
@@ -148,10 +152,6 @@ public class OrgnizationSyncWS implements WebService {
 
       if (orders.has("Costcenter")) {
         costcenterFlag = saveJSONObject(getJsonData(orders, "Costcenter"), "Costcenter");
-      }
-      if (orders.has("GstIdentifierMaster")) {
-        gstinFlag = saveJSONObject(getJsonData(orders, "GstIdentifierMaster"),
-            "INGST_GSTIdentifierMaster");
       }
 
       if (orders.has("OrganizationInformation")) {
@@ -692,6 +692,8 @@ public class OrgnizationSyncWS implements WebService {
                 } else if (entityName.equals("INGST_GSTIdentifierMaster")) {
                   GstIdentifierMaster existingobj = OBDal.getInstance().get(
                       GstIdentifierMaster.class, id);
+                  Organization orgObj = OBDal.getInstance().get(Organization.class,
+                      entityJson.getString("organization"));
 
                   OBCriteria<GstIdentifierMaster> crit = OBDal.getInstance().createCriteria(
                       GstIdentifierMaster.class);
@@ -699,8 +701,7 @@ public class OrgnizationSyncWS implements WebService {
                       .getOBContext().getCurrentClient()));
                   crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_UIDNO,
                       entityJson.getString("uidno")));
-                  crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_ORGANIZATION,
-                      entityJson.getString("organization")));
+                  crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_ORGANIZATION, orgObj));
                   crit.add(Restrictions.eq(GstIdentifierMaster.PROPERTY_BUSINESS,
                       entityJson.getString("businessPartner")));
                   crit.setFilterOnReadableClients(false);
