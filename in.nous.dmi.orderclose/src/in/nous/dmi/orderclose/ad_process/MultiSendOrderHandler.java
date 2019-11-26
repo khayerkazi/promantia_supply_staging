@@ -161,9 +161,10 @@ public class MultiSendOrderHandler extends BaseActionHandler {
             }
             if (orderLineObj.getSwFob() != null) {
               BigDecimal swfob = new BigDecimal(orderLineObj.getSwFob());
-              if (swfob.compareTo(BigDecimal.ZERO) <= 0) {
-                errorFOBItemCodeList.add(orderLineObj.getProduct().getName());
-              }
+              /*
+               * if (swfob.compareTo(BigDecimal.ZERO) <= 0) {
+               * errorFOBItemCodeList.add(orderLineObj.getProduct().getName()); }
+               */
 
             } else {
               errorFOBItemCodeList.add(orderLineObj.getProduct().getName());
@@ -182,9 +183,8 @@ public class MultiSendOrderHandler extends BaseActionHandler {
             + " for Item Code: " + errorSupplierCodeItemCodeList, "Error");
       }
       if (errorFOBItemCodeList.size() > 0) {
-        return updateJsonResponse("TYPE_ERROR",
-            "COST Should Not Be Null or Greather then Zero for Item Code: " + errorFOBItemCodeList,
-            "Error");
+        return updateJsonResponse("TYPE_ERROR", "COST Should Not Be Null for Item Code: "
+            + errorFOBItemCodeList, "Error");
       }
       if (errorqtyItemCodeList.size() > 0) {
         return updateJsonResponse("TYPE_ERROR",
