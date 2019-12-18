@@ -332,13 +332,13 @@ public class PushOrderDetailsToProd implements Process {
           HttpUrlConnection.connect();
         } catch (IOException e) {
           e.printStackTrace();
-          log.error("Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
+          log.error("PushOrderDetails:Delete API:Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
               + e);
           logger
-              .logln("Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
+              .logln("PushOrderDetails:Delete API:Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
                   + e);
           throw new OBException(
-              "Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
+              "PushOrderDetails:Delete API:Error while Generating HTTP connection with prod, please check POST API credentials in Openbravo.properties and error is: "
                   + e);
 
         }
@@ -414,7 +414,7 @@ public class PushOrderDetailsToProd implements Process {
             }
             logMsg = new StringBuilder(" ");
             if (!returnMsg.contains("Error_")) {
-              String msg = "Sucessfully Fetched the status from Prod.com.for current order :"
+              String msg = "Sucessfully Fetched the status from Prod.com.for current order while deleting order check PO Status:"
                   + order.getDocumentNo();
               log.info(msg);
               order.setIbudProdMsgGet(msg);
