@@ -210,6 +210,9 @@ public class CommonServiceProvider {
     String getElpProduct_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.getElpProduct.url");
 
+    String deleteOrder_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.deleteorder.url");
+
     /*
      * String prodDPP = OBPropertiesProvider.getInstance().getOpenbravoProperties()
      * .getProperty("prod.dpp");
@@ -217,6 +220,12 @@ public class CommonServiceProvider {
      * if (prodDPP == null) { errorListObj.add("prod.dpp"); } else { outPut.put("prodDPP", prodDPP);
      * }
      */
+
+    if (deleteOrder_url == null) {
+      errorListObj.add("prod.deleteorder.url");
+    } else {
+      outPut.put("deleteOrder_url", deleteOrder_url);
+    }
 
     if (getOrder_url == null) {
       errorListObj.add("prod.getorder.url");
