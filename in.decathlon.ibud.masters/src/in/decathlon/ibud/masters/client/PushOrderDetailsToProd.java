@@ -446,7 +446,7 @@ public class PushOrderDetailsToProd implements Process {
         log.info("PushOrderDetailsToProd:Update API : Generating HttpConnection with Prod for Order no: "
             + order.getDocumentNo());
         try {
-          URL urlObj = new URL("https://api-eu.preprod.decathlon.net/prodcom/orders/"
+          URL urlObj = new URL(configMap.get("updateOrder_url") + "/"
               + order.getBusinessPartner().getIbudDppNo() + "/" + order.getOrderReference());
           HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
           HttpUrlConnection.setDoOutput(true);
@@ -653,12 +653,7 @@ public class PushOrderDetailsToProd implements Process {
       }
       // for update order JSON
       else if (order.getSWEMSwPostatus().equalsIgnoreCase("MO")) {
-        // String attachment =
-        // "https://AAAAkcv2.php9.cc/zh_cn/bat/index/orderViewBySupplier/order_id/MTlhYm01NWpSazg9/supplier_code/ZEVLdmhPdG1KQ0w5Zy9idXpObTVUdz09/items_ids/VnFzNVZ3TXM5azF6MDZPck13VkFEMnY4L3lBUGR5QWVjOU9qcXpNRlFBK29hU2doN2M5SHFRPT0=";
 
-        // orderObject.put("attachment", attachment);
-        // orderObject.put("attachment", orderObject.get("attachment").toString().replaceAll('\',
-        // ''));
         if (order.getSWEMSwExpdeldate() != null) {
           orderObject.put("requestedDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
               .toString().substring(0, 19)
@@ -721,16 +716,16 @@ public class PushOrderDetailsToProd implements Process {
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "
           + "    and bp.rCSource = 'DPP' "
-          + "    and o.updated >= '" + ibud + "' ";
+          + "    and (o.updated >= '" + ibud + "' or ol.updated >= '" + ibud + "') ";
 
       Query query = OBDal.getInstance().getSession().createQuery(strHql);
       List<Order> orderList = query.list();
 
       if (orderList != null && orderList.size() > 0) {
-        logger.logln("Getting the Order for pushing from OB to Prod.com from date: " + ibud
+        logger.logln("Pushing the Orders from OB to Prod.com from date: " + ibud
             + " and count is: " + orderList.size());
-        log.info("Getting the Order for pushing from OB to Prod.com from date: " + ibud
-            + " and count is: " + orderList.size());
+        log.info("Pushing the Orders from OB to Prod.com from date: " + ibud + " and count is: "
+            + orderList.size());
         int errorCount = sendOrdersToProd(orderList, configMap);
         if (errorCount == 0) {
           newIbudServiceObj.setLastupdated(new Date());
