@@ -168,18 +168,18 @@ public class GetOrderDetailsFromProd implements Process {
       throws Exception {
     String pStatus = null;
     String oStatus = null;
-    String adate = null;
-    String edate = null;
+    String orderLastDate = null;
+    String expectedDateShipment = null;
     String errorMsg = "Sucessfully Fetched the data from Prod.com.for current order";
 
     if (orderMap.containsKey("status")) {
       pStatus = orderMap.get("status");
     }
     if (orderMap.containsKey("edate")) {
-      edate = orderMap.get("edate");
+      expectedDateShipment = orderMap.get("edate");
     }
     if (orderMap.containsKey("adate")) {
-      adate = orderMap.get("adate");
+      orderLastDate = orderMap.get("adate");
     }
     if (pStatus != null) {
       if (pStatus.equalsIgnoreCase("V") || pStatus.equalsIgnoreCase("PK")
@@ -213,12 +213,12 @@ public class GetOrderDetailsFromProd implements Process {
       orderObj.setIbudProdStatus(pStatus);
       Date aDate = null;
       Date eDate = null;
-      if (adate != null) {
-        aDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(adate);
+      if (orderLastDate != null) {
+        aDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(orderLastDate);
         orderObj.setSWEMSwActshipdate(aDate);
       }
-      if (edate != null) {
-        eDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(edate);
+      if (expectedDateShipment != null) {
+        eDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(expectedDateShipment);
         orderObj.setSWEMSwEstshipdate(eDate);
       }
       logMsg.append("Getting the Order Details for Order No: " + orderObj.getDocumentNo()
