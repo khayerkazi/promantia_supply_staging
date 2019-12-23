@@ -82,7 +82,8 @@ public class PushOrderDetailsToProd implements Process {
       if (!token.contains("Error_TokenGenerator")) {
         JSONObject orderJson = null;
         for (Order order : orderList) {
-          if (order.getSWEMSwPostatus().equalsIgnoreCase("SO")) {
+          if (order.getSWEMSwPostatus().equalsIgnoreCase("SO")
+              || order.getSWEMSwPostatus().equalsIgnoreCase("MO")) {
             orderJson = null;
             orderJson = generateJSON(order, configMap);
 
@@ -140,6 +141,9 @@ public class PushOrderDetailsToProd implements Process {
           postMsg = orderDetailMapObj.get("delete");
           order.setIbudProdStatus("D");
 
+        }
+        if (orderDetailMapObj.containsKey("update")) {
+          postMsg = orderDetailMapObj.get("update");
         }
 
         String postatus = null;
@@ -310,7 +314,7 @@ public class PushOrderDetailsToProd implements Process {
           logger.logln("Error while disconnecting http connection " + e.getMessage());
         }
       }
-    } else {
+    } else if (order.getSWEMSwPostatus().equalsIgnoreCase("VO")) {
       try {
         // Order Deletion code
         log.info("PushOrderDetails:Delete API : Generating HttpConnection with Prod to delete Order no: "
@@ -404,36 +408,6 @@ public class PushOrderDetailsToProd implements Process {
               orderDetailMapObj.put("anomaly", anomaly);
             }
           }
-          if (!configMap.containsKey("Error")) {
-            log.info("Getting OB List of Order for Getting Order details from Prod.com for Order No : "
-                + order.getDocumentNo());
-            String returnMsg = poDetails.updateOrderDetails(order, configMap, logMsg);
-            if (!logMsg.toString().trim().equalsIgnoreCase("")) {
-              log.error(logMsg.toString());
-
-            }
-            logMsg = new StringBuilder(" ");
-            if (!returnMsg.contains("Error_")) {
-              String msg = "Sucessfully Fetched the status from Prod.com.for current order while deleting order check PO Status:"
-                  + order.getDocumentNo();
-              log.info(msg);
-              order.setIbudProdMsgGet(msg);
-              SessionHandler.getInstance().commitAndStart();
-            } else {
-              String msg = returnMsg.replace("Error_", "");
-              log.error(msg);
-
-            }
-          } else {
-            String msg = "Missing Configuration in openbravo properties :" + configMap.get("Error");
-            log.error(msg);
-            order.setIbudProdMsgGet("Missing Configuration in openbravo properties :"
-                + configMap.get("Error"));
-
-            OBDal.getInstance().save(order);
-            SessionHandler.getInstance().commitAndStart();
-          }
-
           logger.logln("Error while deleting order " + order.getDocumentNo() + " with Response "
               + HttpUrlConnection.getResponseCode() + " and Response Message: "
               + HttpUrlConnection.getResponseMessage() + " Response Error Is :"
@@ -466,85 +440,262 @@ public class PushOrderDetailsToProd implements Process {
         }
       }
     }
+    // code for order update
+    else if (order.getSWEMSwPostatus().equalsIgnoreCase("MO")) {
+      try {
+        log.info("PushOrderDetailsToProd:Update API : Generating HttpConnection with Prod for Order no: "
+            + order.getDocumentNo());
+        try {
+          URL urlObj = new URL("https://api-eu.preprod.decathlon.net/prodcom/orders/"
+              + order.getBusinessPartner().getIbudDppNo() + "/" + order.getOrderReference());
+          HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
+          HttpUrlConnection.setDoOutput(true);
+          HttpUrlConnection.setRequestMethod("PUT");
+          HttpUrlConnection.setRequestProperty("Accept-Version",
+              configMap.get("order_acceptVersion"));
+          HttpUrlConnection.setRequestProperty("Content-Type",
+              configMap.get("postOrder_contentType"));
+          HttpUrlConnection.setRequestProperty("Authorization",
+              configMap.get("order_authorization") + " " + token);
+          HttpUrlConnection.connect();
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          log.error("Error while Generating HTTP connection with prod, please check Update API credentials in Openbravo.properties and error is: "
+              + e);
+          logger
+              .logln("Error while Generating HTTP connection with prod, please check Update API credentials in Openbravo.properties and error is: "
+                  + e);
+          throw new OBException(
+              "Error while Generating HTTP connection with prod, please check Update API credentials in Openbravo.properties and error is: "
+                  + e);
+
+        }
+        try (OutputStream os = HttpUrlConnection.getOutputStream()) {
+          byte[] input = orderJson.toString().getBytes(StandardCharsets.UTF_8);
+          os.write(input, 0, input.length);
+          os.flush();
+        }
+
+        if (HttpUrlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+          log.info("PushOrderDetailsToProd:Update API:Generating response from prod for created order ");
+          is = HttpUrlConnection.getInputStream();
+          reader = new BufferedReader(new InputStreamReader((is)));
+          String tmpStr = null;
+          String result = null;
+          while ((tmpStr = reader.readLine()) != null) {
+            result = tmpStr;
+          }
+          log.info("Order successfully gets updated in prod.com" + order.getDocumentNo());
+          if (result == null) {
+            HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
+            if (orderDetailMapObj == null) {
+              orderDetailMapObj = new HashMap<String, String>();
+              orderDetailMapObj.put("update", "Order successfully updated in prod.com");
+              orderDetailMapObj.put("postatus", "OU");
+
+              orderSentMapObj.put(order.getId(), orderDetailMapObj);
+              log.info("Order with documentNo-" + order.getDocumentNo() + " updated in prod.com ");
+              logger
+                  .log("Order with documentNo-" + order.getDocumentNo() + " updated in prod.com ");
+
+            } else {
+              orderDetailMapObj.put("postatus", "OU");
+              orderDetailMapObj.put("update", "order successfully updated in prod.com");
+            }
+          }
+
+        } else {
+          StringBuilder logMsg = new StringBuilder(" ");
+          GetPODetails poDetails = new GetPODetails();
+
+          InputStreamReader isReader = new InputStreamReader(HttpUrlConnection.getErrorStream());
+          BufferedReader bufferedReader = new BufferedReader(isReader);
+          if (bufferedReader != null) {
+            int cp;
+            while ((cp = bufferedReader.read()) != -1) {
+              sb.append((char) cp);
+            }
+            bufferedReader.close();
+          }
+          isReader.close();
+
+          JSONObject responseJson = new JSONObject(sb.toString());
+          anomaly = responseJson.getString("error_description") + " - "
+              + HttpUrlConnection.getResponseCode();
+          if (!anomaly.equalsIgnoreCase(null)) {
+            HashMap<String, String> orderDetailMapObj = orderSentMapObj.get(order.getId());
+            if (orderDetailMapObj == null) {
+              orderDetailMapObj = new HashMap<String, String>();
+              orderDetailMapObj.put("anomaly", anomaly);
+              orderSentMapObj.put(order.getId(), orderDetailMapObj);
+              log.info("Order with documentNo-" + order.getDocumentNo()
+                  + " is not updated in prod.com due to " + anomaly);
+              logger.log("Order with documentNo-" + order.getDocumentNo()
+                  + " is not updated in prod.com due to " + anomaly);
+            } else {
+              orderDetailMapObj.put("anomaly", anomaly);
+            }
+          }
+
+          logger.logln("Error while updating order " + order.getDocumentNo() + " with Response "
+              + HttpUrlConnection.getResponseCode() + " and Response Message: "
+              + HttpUrlConnection.getResponseMessage() + " Response Error Is :"
+              + responseJson.getString("error_description") != null ? responseJson
+              .getString("error_description") : "NA");
+          log.error("Error while deleting order " + order.getDocumentNo() + " with Response "
+              + HttpUrlConnection.getResponseCode() + " and Response Message: "
+              + HttpUrlConnection.getResponseMessage() + " Response Error Is :"
+              + responseJson.getString("error_description") != null ? responseJson
+              .getString("error_description") : "NA");
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        log.error("Error while updating the order in Prod.com for order no: "
+            + order.getDocumentNo() + " and Error is: " + e);
+        logger.logln("Error while updating the order to Prod.com for order no: "
+            + order.getDocumentNo() + " and Error is: " + e);
+      } finally {
+        try {
+          if (is != null) {
+            is.close();
+          }
+          if (HttpUrlConnection != null) {
+            HttpUrlConnection.disconnect();
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+          log.error("Error while disconnecting http connection " + e.getMessage());
+          logger.logln("Error while disconnecting http connection " + e.getMessage());
+        }
+      }
+
+    }
   }
 
   private JSONObject generateJSON(Order order, HashMap<String, String> configMap) {
     JSONObject orderObject = new JSONObject();
     ArrayList<String> missingFields = new ArrayList<>();
     try {
-      orderObject.put("origin", configMap.get("postOrder_origin"));
-      orderObject.put("externalNumber", Integer.parseInt(order.getDocumentNo()));
-      orderObject.put("orderType", configMap.get("postOrder_orderType"));
-      orderObject.put("orderStatus", configMap.get("postOrder_orderStatus"));
-      orderObject.put("orderCreation", formatter.format(order.getCreationDate()).toString()
-          .substring(0, 19)
-          + "Z");
-      if (order.getSWEMSwExpdeldate() != null) {
-        orderObject.put("requestedDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
-            .toString().substring(0, 19)
+      if (order.getSWEMSwPostatus().equalsIgnoreCase("SO")) {
+        orderObject.put("origin", configMap.get("postOrder_origin"));
+        orderObject.put("externalNumber", Integer.parseInt(order.getDocumentNo()));
+        orderObject.put("orderType", configMap.get("postOrder_orderType"));
+        orderObject.put("orderStatus", configMap.get("postOrder_orderStatus"));
+        orderObject.put("orderCreation", formatter.format(order.getCreationDate()).toString()
+            .substring(0, 19)
             + "Z");
-      } else {
-        missingFields.add("Requested Delivery Date");
+        if (order.getSWEMSwExpdeldate() != null) {
+          orderObject.put("requestedDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
+              .toString().substring(0, 19)
+              + "Z");
+        } else {
+          missingFields.add("Requested Delivery Date");
+        }
+
+        if (order.getScheduledDeliveryDate() != null) {
+          orderObject.put("scheduledDeliveryDate",
+              formatter.format(order.getScheduledDeliveryDate()).toString().substring(0, 19) + "Z");
+        } else {
+          missingFields.add("Schedule Delivery Date");
+        }
+        if (order.getBusinessPartner().getIbudDppNo() == null) {
+          missingFields.add("Prod Supplier DPP for Business Partner: "
+              + order.getBusinessPartner().getName());
+
+        }
+        if (order.getBusinessPartner().getClSupplierno() == null) {
+          missingFields.add("Prod Supplier number for Business Partner: "
+              + order.getBusinessPartner().getName());
+
+        }
+        if (missingFields.size() > 0) {
+          log.error("For order " + missingFields + " is null with documentno"
+              + order.getDocumentNo());
+          logger.logln("Skipping Order due to " + missingFields + " is null for PO Document no: "
+              + order.getDocumentNo());
+          return null;
+        }
+        JSONArray customerJsonArray = new JSONArray();
+        customerJsonArray.put(configMap.get("postOrder_customerKey"));
+        customerJsonArray.put(configMap.get("postOrder_customerId"));
+        customerJsonArray.put(configMap.get("postOrder_customerId"));
+        orderObject.put("customer", customerJsonArray);
+
+        JSONArray supplierJsonArray = new JSONArray();
+        supplierJsonArray.put(configMap.get("postOrder_supplierKey"));
+        supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
+        supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
+        orderObject.put("supplier", supplierJsonArray);
+
+        JSONArray deliveryJsonArray = new JSONArray();
+        deliveryJsonArray.put(configMap.get("postOrder_deliveryKey"));
+        deliveryJsonArray.put(configMap.get("postOrder_deliveryId"));
+        deliveryJsonArray.put(configMap.get("postOrder_deliveryId"));
+        orderObject.put("delivery", deliveryJsonArray);
+
+        JSONArray orderLineArray = new JSONArray();
+
+        for (OrderLine lines : order.getOrderLineList()) {
+          log.info("Getting lines for order " + order.getDocumentNo());
+          JSONObject orderlineJson = new JSONObject();
+
+          orderlineJson.put("number", lines.getLineNo());
+          orderlineJson.put("status", "A");
+          orderlineJson.put("item", Long.parseLong(lines.getProduct().getName()));
+          orderlineJson.put("quantity", lines.getOrderedQuantity());
+          orderlineJson.put("cessionPrice", lines.getSwFob());
+          orderlineJson.put("currency", lines.getCurrency().getISOCode());
+          orderLineArray.put(orderlineJson);
+        }
+        orderObject.put("orderLines", orderLineArray);
+        log.info("Generated JSON for order  " + orderObject.toString());
       }
+      // for update order JSON
+      else if (order.getSWEMSwPostatus().equalsIgnoreCase("MO")) {
+        // String attachment =
+        // "https://AAAAkcv2.php9.cc/zh_cn/bat/index/orderViewBySupplier/order_id/MTlhYm01NWpSazg9/supplier_code/ZEVLdmhPdG1KQ0w5Zy9idXpObTVUdz09/items_ids/VnFzNVZ3TXM5azF6MDZPck13VkFEMnY4L3lBUGR5QWVjOU9qcXpNRlFBK29hU2doN2M5SHFRPT0=";
 
-      if (order.getScheduledDeliveryDate() != null) {
-        orderObject.put("scheduledDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
-            .toString().substring(0, 19)
-            + "Z");
-      } else {
-        missingFields.add("Schedule Delivery Date");
+        // orderObject.put("attachment", attachment);
+        // orderObject.put("attachment", orderObject.get("attachment").toString().replaceAll('\',
+        // ''));
+        if (order.getSWEMSwExpdeldate() != null) {
+          orderObject.put("requestedDeliveryDate", formatter.format(order.getSWEMSwExpdeldate())
+              .toString().substring(0, 19)
+              + "Z");
+        } else {
+          missingFields.add("Requested Delivery Date");
+        }
+        if (order.getScheduledDeliveryDate() != null) {
+          orderObject.put("scheduledDeliveryDate",
+              formatter.format(order.getScheduledDeliveryDate()).toString().substring(0, 19) + "Z");
+        } else {
+          missingFields.add("Schedule Delivery Date");
+        }
+        if (order.getBusinessPartner().getIbudDppNo() == null) {
+          missingFields.add("Prod Supplier DPP for Business Partner: "
+              + order.getBusinessPartner().getName());
+        }
+        if (missingFields.size() > 0) {
+          log.error("For order " + missingFields + " is null with documentno"
+              + order.getDocumentNo());
+          logger.logln("Skipping Order due to " + missingFields + " is null for PO Document no: "
+              + order.getDocumentNo());
+          return null;
+        }
+
+        JSONArray orderLineArray = new JSONArray();
+        for (OrderLine lines : order.getOrderLineList()) {
+          log.info("Getting lines for order " + order.getDocumentNo());
+          JSONObject orderlineJson = new JSONObject();
+          orderlineJson.put("number", lines.getLineNo());
+          orderlineJson.put("quantity", lines.getOrderedQuantity());
+          orderLineArray.put(orderlineJson);
+        }
+        orderObject.put("orderLines", orderLineArray);
+        log.info("Update API:Generated JSON for updating order  " + orderObject.toString());
+
       }
-      if (order.getBusinessPartner().getIbudDppNo() == null) {
-        missingFields.add("Prod Supplier DPP for Business Partner: "
-            + order.getBusinessPartner().getName());
-
-      }
-      if (order.getBusinessPartner().getClSupplierno() == null) {
-        missingFields.add("Prod Supplier number for Business Partner: "
-            + order.getBusinessPartner().getName());
-
-      }
-      if (missingFields.size() > 0) {
-        log.error("For order " + missingFields + " is null with documentno" + order.getDocumentNo());
-        logger.logln("Skipping Order due to " + missingFields + " is null for PO Document no: "
-            + order.getDocumentNo());
-        return null;
-      }
-      JSONArray customerJsonArray = new JSONArray();
-      customerJsonArray.put(configMap.get("postOrder_customerKey"));
-      customerJsonArray.put(configMap.get("postOrder_customerId"));
-      customerJsonArray.put(configMap.get("postOrder_customerId"));
-      orderObject.put("customer", customerJsonArray);
-
-      JSONArray supplierJsonArray = new JSONArray();
-      supplierJsonArray.put(configMap.get("postOrder_supplierKey"));
-      supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
-      supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
-      orderObject.put("supplier", supplierJsonArray);
-
-      JSONArray deliveryJsonArray = new JSONArray();
-      deliveryJsonArray.put(configMap.get("postOrder_deliveryKey"));
-      deliveryJsonArray.put(configMap.get("postOrder_deliveryId"));
-      deliveryJsonArray.put(configMap.get("postOrder_deliveryId"));
-      orderObject.put("delivery", deliveryJsonArray);
-
-      JSONArray orderLineArray = new JSONArray();
-
-      for (OrderLine lines : order.getOrderLineList()) {
-        log.info("Getting lines for order " + order.getDocumentNo());
-        JSONObject orderlineJson = new JSONObject();
-
-        orderlineJson.put("number", lines.getLineNo());
-        orderlineJson.put("status", "A");
-        orderlineJson.put("item", Long.parseLong(lines.getProduct().getName()));
-        orderlineJson.put("quantity", lines.getOrderedQuantity());
-        orderlineJson.put("cessionPrice", lines.getSwFob());
-        orderlineJson.put("currency", lines.getCurrency().getISOCode());
-        orderLineArray.put(orderlineJson);
-      }
-      orderObject.put("orderLines", orderLineArray);
-      log.info("Generated JSON for order  " + orderObject.toString());
-
     } catch (Exception e) {
       e.printStackTrace();
       log.error("PushOrderDetailsToProd : Error while generating JSON object for order "
@@ -565,7 +716,7 @@ public class PushOrderDetailsToProd implements Process {
       log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
 
       String strHql = "  select distinct o from OrderLine ol join ol.salesOrder o join o.businessPartner bp "
-          + "    where o.sWEMSwPostatus in ('SO','VO') "
+          + "    where o.sWEMSwPostatus in ('SO','VO','MO') "
           + "    and  bp.clSupplierno = ol.sWEMSwSuppliercode  "
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "
