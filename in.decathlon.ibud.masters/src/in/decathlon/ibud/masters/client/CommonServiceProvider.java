@@ -40,9 +40,6 @@ public class CommonServiceProvider {
       String tokenUrl = configMap.get("tokenUrl");
       String basic_auth = configMap.get("token_authKey");
       String grant_type = configMap.get("tokenGrantType");
-      // String username = configMap.get("token_UserName");
-      // String password = configMap.get("token_Password");
-      // String scope = configMap.get("token_Scope");
 
       URL urlObj = new URL(tokenUrl);
       HttpUrlConnection = (HttpURLConnection) urlObj.openConnection();
@@ -54,14 +51,6 @@ public class CommonServiceProvider {
       String data = URLEncoder.encode("grant_type", "UTF-8") + "="
           + URLEncoder.encode(grant_type, "UTF-8");
 
-      // data += "&" + URLEncoder.encode("username", "UTF-8") + "="
-      // + URLEncoder.encode(username, "UTF-8");
-
-      // data += "&" + URLEncoder.encode("password", "UTF-8") + "="
-      // + URLEncoder.encode(password, "UTF-8");
-
-      // data += "&" + URLEncoder.encode("scope", "UTF-8") + "=" + URLEncoder.encode(scope,
-      // "UTF-8");
       HttpUrlConnection.connect();
       wr = new OutputStreamWriter(HttpUrlConnection.getOutputStream());
       wr.write(data);
@@ -158,12 +147,6 @@ public class CommonServiceProvider {
         .getProperty("prod.token.basic_auth");
     String tokenGrantType = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.token.grant_type");
-    // String token_UserName = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-    // .getProperty("prod.token.username");
-    // String token_Password = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-    // .getProperty("prod.token.password");
-    // String token_Scope = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-    // .getProperty("prod.token.scope");
 
     String postOrder_Url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.url");
@@ -215,14 +198,6 @@ public class CommonServiceProvider {
 
     String updateOrder_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.updateorder.url");
-
-    /*
-     * String prodDPP = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-     * .getProperty("prod.dpp");
-     * 
-     * if (prodDPP == null) { errorListObj.add("prod.dpp"); } else { outPut.put("prodDPP", prodDPP);
-     * }
-     */
 
     if (updateOrder_url == null) {
       errorListObj.add("prod.updateorder.url");
@@ -351,13 +326,6 @@ public class CommonServiceProvider {
     } else {
       outPut.put("tokenGrantType", tokenGrantType);
     }
-    /*
-     * if (token_UserName == null) { errorListObj.add("prod.token.username"); } else {
-     * outPut.put("token_UserName", token_UserName); } if (token_Password == null) {
-     * errorListObj.add("prod.token.password"); } else { outPut.put("token_Password",
-     * token_Password); } if (token_Scope == null) { errorListObj.add("prod.token.scope"); } else {
-     * outPut.put("token_Scope", token_Scope); }
-     */
 
     if (errorListObj.size() > 0) {
       String errorString = "Error_CommonServiceProvider: " + errorListObj
