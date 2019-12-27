@@ -47,11 +47,12 @@ public class GetOrderDetailsFromProd implements Process {
     try {
 
       OBContext.setAdminMode(true);
-      IbudServerTime newIbudServiceObj = CommonServiceProvider
-          .getIbudUpdatedTime("GetOrderProcess");
-      Date ibud = newIbudServiceObj.getLastupdated();
+      IbudServerTime newIbudServiceObj = null;
+      Date ibud = null;
       HashMap<String, String> configMap = CommonServiceProvider.checkObConfig();
       if (!configMap.containsKey("Error")) {
+        newIbudServiceObj = CommonServiceProvider.getIbudUpdatedTime("GetOrderProcess", configMap);
+        ibud = newIbudServiceObj.getLastupdated();
         List<Order> orderObjList = getPurchaseOrder(configMap, ibud);
         if (orderObjList != null & orderObjList.size() > 0) {
           logger
@@ -553,7 +554,7 @@ public class GetOrderDetailsFromProd implements Process {
       log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
 
       String strHql = "  select distinct o from OrderLine ol join ol.salesOrder o join o.businessPartner bp "
-          + "    where o.sWEMSwPostatus in ('OS') "
+          + "    where o.sWEMSwPostatus in ('OS','OU','PS','CO','SOP','MO','OU','VD') "
           + "    and  bp.clSupplierno = ol.sWEMSwSuppliercode  "
           + "    and  o.transactionDocument.id ='C7CD4AC8AC414678A525AB7AE20D718C'  "
           + "    and  o.imsapDuplicatesapPo != 'Y' "

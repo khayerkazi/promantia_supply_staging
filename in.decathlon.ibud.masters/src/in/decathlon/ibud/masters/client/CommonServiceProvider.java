@@ -93,45 +93,94 @@ public class CommonServiceProvider {
 
   }
 
-  public static IbudServerTime getIbudUpdatedTime(String serviceKey) {
+  public static IbudServerTime getIbudUpdatedTime(String serviceKey,
+      HashMap<String, String> configMap) {
 
-    OBContext.setAdminMode(true);
-    OBCriteria<IbudServerTime> ibudServerTimeCriteria = OBDal.getInstance().createCriteria(
-        IbudServerTime.class);
-    ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_SERVICEKEY, serviceKey));
-    ibudServerTimeCriteria.setMaxResults(1);
-    ibudServerTimeCriteria.setFilterOnReadableClients(false);
-    ibudServerTimeCriteria.setFilterOnReadableOrganization(false);
-    List<IbudServerTime> ibudServerTimeList = ibudServerTimeCriteria.list();
+    if (!serviceKey.equalsIgnoreCase("GetOrderProcess")) {
+      OBContext.setAdminMode(true);
+      OBCriteria<IbudServerTime> ibudServerTimeCriteria = OBDal.getInstance().createCriteria(
+          IbudServerTime.class);
+      ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_SERVICEKEY, serviceKey));
+      ibudServerTimeCriteria.setMaxResults(1);
+      ibudServerTimeCriteria.setFilterOnReadableClients(false);
+      ibudServerTimeCriteria.setFilterOnReadableOrganization(false);
+      List<IbudServerTime> ibudServerTimeList = ibudServerTimeCriteria.list();
 
-    if (ibudServerTimeList != null && ibudServerTimeList.size() > 0) {
-      log.debug("Time taken from database ibudServerTimeList.get(0).getLastupdated() "
-          + ibudServerTimeList.get(0).getLastupdated());
-      return ibudServerTimeList.get(0);
+      if (ibudServerTimeList != null && ibudServerTimeList.size() > 0) {
+        log.debug("Time taken from database ibudServerTimeList.get(0).getLastupdated() "
+            + ibudServerTimeList.get(0).getLastupdated());
+        return ibudServerTimeList.get(0);
+      } else {
+
+        log.debug("No record found for the Service " + serviceKey
+            + ". New record need to insert !!! ");
+
+        IbudServerTime newService = OBProvider.getInstance().get(IbudServerTime.class);
+        newService.setActive(true);
+        Client client = OBDal.getInstance().get(Client.class, "187D8FC945A5481CB41B3EE767F80DBB");
+        newService.setClient(client);
+        newService.setOrganization(OBContext.getOBContext().getCurrentOrganization());
+
+        newService.setCreatedBy(OBContext.getOBContext().getUser());
+        newService.setCreationDate(new Date());
+        newService.setUpdatedBy(OBContext.getOBContext().getUser());
+        newService.setUpdated(new Date());
+        newService.setServiceKey(serviceKey);
+        newService.setNewOBObject(true);
+
+        Date d = new Date();
+        Date dateBefore = new Date(d.getTime() - 2 * 24 * 3600 * 1000);
+        newService.setLastupdated(dateBefore);
+        newService.setServiceKey(serviceKey);
+        OBDal.getInstance().save(newService);
+        SessionHandler.getInstance().commitAndClose();
+        return newService;
+      }
     } else {
-      log.debug("No record found for the Service " + serviceKey
-          + ". New record need to insert !!! ");
 
-      IbudServerTime newService = OBProvider.getInstance().get(IbudServerTime.class);
-      newService.setActive(true);
-      Client client = OBDal.getInstance().get(Client.class, "187D8FC945A5481CB41B3EE767F80DBB");
-      newService.setClient(client);
-      newService.setOrganization(OBContext.getOBContext().getCurrentOrganization());
+      String noOfDays = configMap.get("getDays");
+      Integer noDays = Integer.parseInt(noOfDays);
 
-      newService.setCreatedBy(OBContext.getOBContext().getUser());
-      newService.setCreationDate(new Date());
-      newService.setUpdatedBy(OBContext.getOBContext().getUser());
-      newService.setUpdated(new Date());
-      newService.setServiceKey(serviceKey);
-      newService.setNewOBObject(true);
+      OBContext.setAdminMode(true);
+      OBCriteria<IbudServerTime> ibudServerTimeCriteria = OBDal.getInstance().createCriteria(
+          IbudServerTime.class);
+      ibudServerTimeCriteria.add(Restrictions.eq(IbudServerTime.PROPERTY_SERVICEKEY, serviceKey));
+      ibudServerTimeCriteria.setMaxResults(1);
+      ibudServerTimeCriteria.setFilterOnReadableClients(false);
+      ibudServerTimeCriteria.setFilterOnReadableOrganization(false);
+      List<IbudServerTime> ibudServerTimeList = ibudServerTimeCriteria.list();
 
-      Date d = new Date();
-      Date dateBefore = new Date(d.getTime() - 2 * 24 * 3600 * 1000);
-      newService.setLastupdated(dateBefore);
-      newService.setServiceKey(serviceKey);
-      OBDal.getInstance().save(newService);
-      SessionHandler.getInstance().commitAndClose();
-      return newService;
+      if (ibudServerTimeList != null && ibudServerTimeList.size() > 0) {
+
+        Date d = new Date();
+        Date dateBefore = new Date(d.getTime() - noDays * 24 * 3600 * 1000);
+        ibudServerTimeList.get(0).setLastupdated(dateBefore);
+        OBDal.getInstance().save(ibudServerTimeList.get(0));
+        SessionHandler.getInstance().commitAndStart();
+        return ibudServerTimeList.get(0);
+      } else {
+
+        IbudServerTime newService = OBProvider.getInstance().get(IbudServerTime.class);
+        newService.setActive(true);
+        Client client = OBDal.getInstance().get(Client.class, "187D8FC945A5481CB41B3EE767F80DBB");
+        newService.setClient(client);
+        newService.setOrganization(OBContext.getOBContext().getCurrentOrganization());
+
+        newService.setCreatedBy(OBContext.getOBContext().getUser());
+        newService.setCreationDate(new Date());
+        newService.setUpdatedBy(OBContext.getOBContext().getUser());
+        newService.setUpdated(new Date());
+        newService.setServiceKey(serviceKey);
+        newService.setNewOBObject(true);
+
+        Date d = new Date();
+        Date dateBefore = new Date(d.getTime() - noDays * 24 * 3600 * 1000);
+        newService.setLastupdated(dateBefore);
+        newService.setServiceKey(serviceKey);
+        OBDal.getInstance().save(newService);
+        SessionHandler.getInstance().commitAndClose();
+        return newService;
+      }
     }
 
   }
@@ -198,6 +247,15 @@ public class CommonServiceProvider {
 
     String updateOrder_url = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.updateorder.url");
+
+    String getDays = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+        .getProperty("prod.getDays");
+
+    if (getDays == null) {
+      errorListObj.add("prod.getDays");
+    } else {
+      outPut.put("getDays", getDays);
+    }
 
     if (updateOrder_url == null) {
       errorListObj.add("prod.updateorder.url");

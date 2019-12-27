@@ -706,7 +706,8 @@ public class PushOrderDetailsToProd implements Process {
   private void getPurchaseOrder(HashMap<String, String> configMap) {
 
     try {
-      IbudServerTime newIbudServiceObj = CommonServiceProvider.getIbudUpdatedTime("PostPOOrder");
+      IbudServerTime newIbudServiceObj = CommonServiceProvider.getIbudUpdatedTime("PostPOOrder",
+          null);
       Date ibud = newIbudServiceObj.getLastupdated();
       log.info("PushOrderDetailsToProd : Getting list of orders to be sent");
 
