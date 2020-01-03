@@ -604,11 +604,13 @@ public class PushOrderDetailsToProd implements Process {
               + order.getBusinessPartner().getName());
 
         }
-        if (order.getBusinessPartner().getClSupplierno() == null) {
-          missingFields.add("Prod Supplier number for Business Partner: "
-              + order.getBusinessPartner().getName());
-
-        }
+        /*
+         * if (order.getBusinessPartner().getClSupplierno() == null) {
+         * missingFields.add("Prod Supplier number for Business Partner: " +
+         * order.getBusinessPartner().getName());
+         * 
+         * }
+         */
         if (missingFields.size() > 0) {
           log.error("For order " + missingFields + " is null with documentno"
               + order.getDocumentNo());
@@ -622,11 +624,13 @@ public class PushOrderDetailsToProd implements Process {
         customerJsonArray.put(configMap.get("postOrder_customerId"));
         orderObject.put("customer", customerJsonArray);
 
-        JSONArray supplierJsonArray = new JSONArray();
-        supplierJsonArray.put(configMap.get("postOrder_supplierKey"));
-        supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
-        supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
-        orderObject.put("supplier", supplierJsonArray);
+        /*
+         * JSONArray supplierJsonArray = new JSONArray();
+         * supplierJsonArray.put(configMap.get("postOrder_supplierKey"));
+         * supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
+         * supplierJsonArray.put(order.getBusinessPartner().getClSupplierno());
+         * orderObject.put("supplier", supplierJsonArray);
+         */
 
         JSONArray deliveryJsonArray = new JSONArray();
         deliveryJsonArray.put(configMap.get("postOrder_deliveryKey"));

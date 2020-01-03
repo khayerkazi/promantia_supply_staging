@@ -218,8 +218,10 @@ public class CommonServiceProvider {
     String postOrder_deliveryId = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.deliveryId");
 
-    String postOrder_supplierKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
-        .getProperty("prod.postorder.supplierKey");
+    /*
+     * String postOrder_supplierKey = OBPropertiesProvider.getInstance().getOpenbravoProperties()
+     * .getProperty("prod.postorder.supplierKey");
+     */
 
     String postOrder_requestMethod = OBPropertiesProvider.getInstance().getOpenbravoProperties()
         .getProperty("prod.postorder.requestMethod");
@@ -311,11 +313,10 @@ public class CommonServiceProvider {
       outPut.put("postOrder_requestMethod", postOrder_requestMethod);
     }
 
-    if (postOrder_supplierKey == null) {
-      errorListObj.add("prod.postorder.supplierKey");
-    } else {
-      outPut.put("postOrder_supplierKey", postOrder_supplierKey);
-    }
+    /*
+     * if (postOrder_supplierKey == null) { errorListObj.add("prod.postorder.supplierKey"); } else {
+     * outPut.put("postOrder_supplierKey", postOrder_supplierKey); }
+     */
 
     if (postOrder_deliveryKey == null) {
       errorListObj.add("prod.postorder.deliveryKey");
