@@ -181,7 +181,7 @@ public class RaiseIncidenceHandler extends BaseProcessActionHandler {
         movementLine.setOrganization(origMovement.getOrganization());
         movementLine.setActive(true);
         movementLine.setMovement(movementHeader);
-        movementLine.setSalesOrderLine(origMovement.getSalesOrderLine());
+        //movementLine.setSalesOrderLine(origMovement.getSalesOrderLine());
         movementLine.setStorageBin(curStockProposed.getStorageDetail().getStorageBin());
         movementLine.setNewStorageBin(origMovement.getNewStorageBin());
         movementLine.setLineNo(10L);

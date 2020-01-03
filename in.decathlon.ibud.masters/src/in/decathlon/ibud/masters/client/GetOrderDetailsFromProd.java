@@ -186,7 +186,7 @@ public class GetOrderDetailsFromProd implements Process {
       if (pStatus.equalsIgnoreCase("V") || pStatus.equalsIgnoreCase("PK")
           || pStatus.equalsIgnoreCase("AS") || pStatus.equalsIgnoreCase("PS")) {
         oStatus = "VD";
-      } else if (pStatus.equalsIgnoreCase("S")) {
+      } else if (pStatus.equalsIgnoreCase("S") || pStatus.equalsIgnoreCase("CP")) {
         oStatus = "SH";
       } else if (pStatus.equalsIgnoreCase("C")) {
         oStatus = "CL";

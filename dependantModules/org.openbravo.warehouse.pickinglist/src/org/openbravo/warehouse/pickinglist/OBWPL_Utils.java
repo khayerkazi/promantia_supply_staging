@@ -280,7 +280,7 @@ private static String generateFromNative(String name, String prefix,
     InternalMovementLine mvLine = OBProvider.getInstance().get(InternalMovementLine.class);
     mvLine.setOrganization(picking.getOrganization());
     mvLine.setMovement(move);
-    mvLine.setSalesOrderLine(ordLine);
+   // mvLine.setSalesOrderLine(ordLine);
     mvLine.setLineNo(10L);
     mvLine.setStockReservation(resStock.getReservation());
     mvLine.setOBWPLWarehousePickingList(picking);
