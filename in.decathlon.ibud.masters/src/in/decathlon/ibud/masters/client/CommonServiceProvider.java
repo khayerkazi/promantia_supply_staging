@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -153,8 +154,12 @@ public class CommonServiceProvider {
       if (ibudServerTimeList != null && ibudServerTimeList.size() > 0) {
 
         Date d = new Date();
-        Date dateBefore = new Date(d.getTime() - noDays * 24 * 3600 * 1000);
-        ibudServerTimeList.get(0).setLastupdated(dateBefore);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -noDays);
+        // Date dateBefore = new Date(d.getTime() - noDays * 24 * 3600 * 1000);
+        // ibudServerTimeList.get(0).setLastupdated(dateBefore);
+        ibudServerTimeList.get(0).setLastupdated(calendar.getTime());
+
         OBDal.getInstance().save(ibudServerTimeList.get(0));
         SessionHandler.getInstance().commitAndStart();
         return ibudServerTimeList.get(0);
@@ -173,9 +178,12 @@ public class CommonServiceProvider {
         newService.setServiceKey(serviceKey);
         newService.setNewOBObject(true);
 
-        Date d = new Date();
-        Date dateBefore = new Date(d.getTime() - noDays * 24 * 3600 * 1000);
-        newService.setLastupdated(dateBefore);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -noDays);
+        // Date d = new Date();
+        // Date dateBefore = new Date(d.getTime() - noDays * 24 * 3600 * 1000);
+
+        newService.setLastupdated(calendar.getTime());
         newService.setServiceKey(serviceKey);
         OBDal.getInstance().save(newService);
         SessionHandler.getInstance().commitAndClose();
