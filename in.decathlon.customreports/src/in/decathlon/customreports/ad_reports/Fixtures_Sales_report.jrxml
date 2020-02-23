@@ -2,6 +2,7 @@
 <!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Fixtures_Sales_Report" pageWidth="1455" pageHeight="2000" columnWidth="1415" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="e4fbe5e5-0c52-48cc-8cdc-0c75e18be791">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Fixture sales/supplydata.xml"/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
@@ -126,8 +127,7 @@
 		<parameter name="DateFrom" class="java.util.Date"/>
 		<parameter name="DateTo" class="java.util.Date"/>
 		<parameter name="AUX_DateFrom" class="java.lang.String">
-			<defaultValueExpression><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("")) ? "" : " AND os.shipment_date >='" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "'"
-]]></defaultValueExpression>
+			<defaultValueExpression><![CDATA[($P{DateFrom} == null || $P{DateFrom}.equals("")) ? "" : " AND os.shipment_date >='" + new java.sql.Date($P{DateFrom}.getTime()).toString() + "'"]]></defaultValueExpression>
 		</parameter>
 		<parameter name="AUX_DateTo" class="java.lang.String">
 			<defaultValueExpression><![CDATA[($P{DateTo} == null || $P{DateTo}.equals("")) ? "" : "AND os.shipment_date <='" + new java.sql.Date($P{DateTo}.getTime()).toString() + "'"]]></defaultValueExpression>
