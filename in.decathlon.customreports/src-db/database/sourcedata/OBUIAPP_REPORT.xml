@@ -9,7 +9,6 @@
 <!--2BCFC011674345358999A2BCDC4E6677-->  <PDF_TEMPLATE><![CDATA[/src-loc/design/in/decathlon/customreports/ad_reports/Fixtures_Sales_report.jrxml]]></PDF_TEMPLATE>
 <!--2BCFC011674345358999A2BCDC4E6677-->  <XLS_TEMPLATE><![CDATA[/src-loc/design/in/decathlon/customreports/ad_reports/Fixtures_Sales_report.jrxml]]></XLS_TEMPLATE>
 <!--2BCFC011674345358999A2BCDC4E6677-->  <USE_PDF_AS_XLS_TEMPLATE><![CDATA[N]]></USE_PDF_AS_XLS_TEMPLATE>
-<!--2BCFC011674345358999A2BCDC4E6677-->  <HTML_TEMPLATE><![CDATA[/src-loc/design/in/decathlon/customreports/ad_reports/Fixtures_Sales_report.jrxml]]></HTML_TEMPLATE>
 <!--2BCFC011674345358999A2BCDC4E6677-->  <USE_PDF_AS_HTML_TEMPLATE><![CDATA[N]]></USE_PDF_AS_HTML_TEMPLATE>
 <!--2BCFC011674345358999A2BCDC4E6677--></OBUIAPP_REPORT>
 

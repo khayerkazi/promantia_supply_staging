@@ -163,7 +163,7 @@ mp.em_cl_modelname,mw.name]]>
 		</field>
 	</subDataset>
 	<parameter name="M_Product_ID" class="org.codehaus.jettison.json.JSONObject"/>
-	<parameter name="M_Warehouse_ID" class="org.codehaus.jettison.json.JSONObject"/>
+	<parameter name="M_Warehouse_IDD" class="org.codehaus.jettison.json.JSONObject"/>
 	<parameter name="M_Locator_ID" class="org.codehaus.jettison.json.JSONObject"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT  to_char(now() , 'DD-MM-YYYY') as todayDate ,mp.name as "Product", 
@@ -253,12 +253,12 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 					<property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="tableData" uuid="4626736a-bc7a-4ed5-8885-7cb7d5972ba4">
+					<datasetRun subDataset="tableData" uuid="b411604a-445a-4d1b-a289-5c8305829af7">
 						<datasetParameter name="M_Product_ID">
 							<datasetParameterExpression><![CDATA[$P{M_Product_ID}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="M_Warehouse_ID">
-							<datasetParameterExpression><![CDATA[$P{M_Warehouse_ID}]]></datasetParameterExpression>
+							<datasetParameterExpression><![CDATA[$P{M_Warehouse_IDD}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="M_Locator_ID">
 							<datasetParameterExpression><![CDATA[$P{M_Locator_ID}]]></datasetParameterExpression>
@@ -298,7 +298,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="130" height="30" uuid="59465f4f-7d6c-45cc-8e62-5880099c2d29"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Warehouse Name}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -317,7 +317,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="130" height="30" uuid="be6b689e-4bb5-434e-a80d-6cd973255b68"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Storage Bin}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -336,7 +336,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="09cf7a0c-88d4-47e0-8f55-1b6711e5eb34"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Model Code}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -355,7 +355,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="ea7b4ebf-f420-43ca-9673-a98c78b897b0"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Model Name}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -374,7 +374,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="130" height="30" uuid="2e06ea37-560f-4243-b824-2c3cec91e8a0"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Product}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -393,7 +393,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="3058c519-40b2-4a83-8e7c-5a9e25d2f090"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Quantity on Hand}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -412,7 +412,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="90" height="30" uuid="d007fddf-dd59-45df-8489-72c535d74218"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Reserved}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -431,7 +431,7 @@ group by mp.name,ml.value,msd.created,mp.em_cl_modelcode,mp.em_cl_modelname,mw.n
 						<jr:detailCell style="Table 2_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="368ba71b-12e1-4474-b31e-dfbf2ac2e9a5"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{Qty Available To Book}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>

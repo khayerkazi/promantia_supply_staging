@@ -273,7 +273,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="70" height="30" uuid="c8b87efc-f053-4ddd-a569-bc931e71523b"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{organization}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -292,7 +292,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="130" height="30" uuid="59465f4f-7d6c-45cc-8e62-5880099c2d29"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{warehosue}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -311,7 +311,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="130" height="30" uuid="be6b689e-4bb5-434e-a80d-6cd973255b68"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{invdate}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -330,7 +330,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="09cf7a0c-88d4-47e0-8f55-1b6711e5eb34"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{invno}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -349,7 +349,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="ea7b4ebf-f420-43ca-9673-a98c78b897b0"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{model_code}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -368,7 +368,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="130" height="30" uuid="2e06ea37-560f-4243-b824-2c3cec91e8a0"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{model_name}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -387,7 +387,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="3058c519-40b2-4a83-8e7c-5a9e25d2f090"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{itemcode}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -406,7 +406,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="90" height="30" uuid="d007fddf-dd59-45df-8489-72c535d74218"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Left" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{hsn}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -425,7 +425,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="80" height="30" uuid="368ba71b-12e1-4474-b31e-dfbf2ac2e9a5"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{purchaseqty}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -444,7 +444,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="70" height="30" uuid="c6ff0b0a-b7f3-4e41-9af8-a914e51c20bb"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{perqtyprice}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -463,7 +463,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="90" height="30" uuid="30c9423e-1df6-429b-a8d1-79b9a0dfb6cf"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{taxableamount}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -482,7 +482,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="90" height="30" uuid="38789706-0a2e-4a88-891a-95971f9d72db"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{taxrate}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -501,7 +501,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="80" height="30" uuid="92a5a6cd-14b8-4a59-828a-91fda44eb2d9"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{taxamount}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -520,7 +520,7 @@ from c_order co
 						<jr:detailCell style="Table 3_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="90" height="30" uuid="70f10411-b210-4dc3-aa07-51042718399f"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{total_amount}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
